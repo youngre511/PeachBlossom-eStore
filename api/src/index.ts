@@ -1,10 +1,12 @@
 const express = require("express");
-import {Express, Request, Response} from "express";
 const app = express();
 const path = require("path");
 const logger = require("morgan");
 // const connectToMongoDB = require("./db/mongodb");
 require("dotenv").config();
+
+//Type imports
+import {Express, Request, Response} from "express";
 
 // Read incoming requests properly
 app.use(express.urlencoded({ extended: false }));
