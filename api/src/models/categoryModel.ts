@@ -1,6 +1,7 @@
 import { Document, Schema, model } from "mongoose";
 
 export interface CategoryItem extends Document {
+    _id: Schema.Types.ObjectId;
     name: string;
     createdAt?: Date;
     updatedAt?: Date;

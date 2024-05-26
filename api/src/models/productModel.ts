@@ -1,6 +1,8 @@
 import { Document, Schema, model } from "mongoose";
 
 export interface ProductItem extends Document {
+    _id: Schema.Types.ObjectId;
+    productNo: string;
     name: string;
     category: Array<typeof Schema.Types.ObjectId>;
     description: string;
@@ -13,6 +15,12 @@ export interface ProductItem extends Document {
 
 const ProductSchema: Schema = new Schema(
     {
+        productNo: {
+            type: String,
+            unique: true,
+            required: true,
+            immutable: true,
+        },
         name: {
             type: String,
             unique: true,
