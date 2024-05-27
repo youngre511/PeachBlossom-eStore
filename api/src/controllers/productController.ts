@@ -1,9 +1,10 @@
 const Product = require("../models/productModel");
 const generateProductNo = require("../utils/generateProductNo");
 const Category = require("../models/categoryModel");
+const productService = require("../services/productService");
 
 //Types and Interfaces
-import { ProductItem } from "../models/productModel";
+import { ProductItem, Promotion } from "../models/productModel";
 import { Request, Response } from "express";
 import { CategoryItem } from "../models/categoryModel";
 
@@ -19,25 +20,94 @@ interface CreateProductRequest extends Request {
     };
 }
 
+type CreatePromo = {
+    name: string;
+};
+interface AddPromoRequest extends Request {
+    params: {
+        target: string | number;
+    };
+    body: {
+        promotion: number | CreatePromo;
+    };
+}
+
 interface ProductParamsRequest extends Request {
     params: {
         productNo: string;
     };
 }
 
-interface UpdateProductRequest extends Request {
+interface CategoryParamsRequest extends Request {
+    params: {
+        categoryName: string;
+    };
+}
+
+interface UpdateProductDetailsRequest extends Request {
     params: {
         productNo: string;
     };
     body: Partial<{
-        productNo: string;
         name: string;
         category: Array<string>;
         description: string;
-        price: number;
-        stock: number;
         images: Array<string>;
     }>;
+}
+
+interface UpdatePriceRequest extends Request {
+    params: {
+        productNo: string;
+    };
+    body: {
+        price: number;
+    };
+}
+
+interface AddPromoRequest extends Request {}
+
+interface UpdateStockRequest extends Request {
+    params: {
+        productNo: string;
+    };
+    body: {
+        stock: number;
+    };
+}
+
+interface UpdatePromotionsRequest extends Request {
+    params: {
+        productNo: string;
+    };
+    body: {
+        name: string;
+        description: string;
+        discountType: string;
+        discountValue: number;
+        startDate: Date;
+        endDate: Date;
+        active: boolean;
+    };
+}
+
+interface UpdatePromoStatusRequest extends Request {
+    params: {
+        productNo: string;
+    };
+    body: {
+        promoId: number;
+        active: boolean;
+    };
+}
+
+interface UpdatePromoByCategory extends Request {
+    params: {
+        categoryName: string;
+    };
+    body: {
+        promotions: Promotion[];
+    };
 }
 
 async function getAllProducts(req: Request, res: Response) {
@@ -59,6 +129,11 @@ async function getAllProducts(req: Request, res: Response) {
         res.json(errorObj);
     }
 }
+
+async function getProductsByCategory(
+    req: CategoryParamsRequest,
+    res: Response
+) {}
 
 async function getOneProduct(req: ProductParamsRequest, res: Response) {
     try {
@@ -109,6 +184,7 @@ async function createProduct(req: CreateProductRequest, res: Response) {
             category: categoryIds,
             description: description,
             price: price,
+            promotions: [],
             stock: stock,
             images: images,
         };
@@ -152,13 +228,23 @@ async function deleteProduct(req: ProductParamsRequest, res: Response) {
     }
 }
 
-async function updateProduct(req: UpdateProductRequest, res: Response) {
+async function updateProductDetails(
+    req: UpdateProductDetailsRequest,
+    res: Response
+) {
     try {
         const updateData = req.body;
         const { productNo } = req.params;
 
-        //Ensure that productNo is not in the update data to preserve immutability
-        delete updateData.productNo;
+        if (updateData.category) {
+            let category = updateData.category;
+            //find categories by name
+            const categories = await Category.find({ name: { $in: category } });
+            //extract object ids
+            const categoryIds = categories.map((cat: CategoryItem) => cat._id);
+            //replace array of category names from request with array of category ids
+            updateData.category = categoryIds;
+        }
 
         const updatedProduct = await Product.findOneAndUpdate(
             { productNo },
@@ -174,7 +260,154 @@ async function updateProduct(req: UpdateProductRequest, res: Response) {
         res.status(200).json(updatedProduct);
     } catch (error) {
         let errorObj = {
-            message: "update one Product failure",
+            message: "update product details failure",
+            payload: error,
+        };
+
+        console.log(errorObj);
+
+        res.json(errorObj);
+    }
+}
+
+async function updateProductPrice(req: UpdatePriceRequest, res: Response) {
+    try {
+        const updateData = req.body;
+        const { productNo } = req.params;
+
+        const updatedProduct: ProductItem = await Product.findOneAndUpdate(
+            { productNo },
+            updateData,
+            { new: true }
+        ).exec();
+
+        if (!updatedProduct) {
+            res.status(404).json({ message: "Product not found" });
+            return;
+        }
+
+        res.status(200).json(updatedProduct);
+    } catch (error) {
+        let errorObj = {
+            message: "update product details failure",
+            payload: error,
+        };
+
+        console.log(errorObj);
+
+        res.json(errorObj);
+    }
+}
+
+async function updateProductPromotions(
+    req: UpdatePromotionsRequest,
+    res: Response
+) {
+    try {
+        const updateData = req.body;
+        const { productNo } = req.params;
+
+        const updatedProduct: ProductItem = await Product.findOneAndUpdate(
+            { productNo },
+            updateData,
+            { new: true }
+        ).exec();
+
+        if (!updatedProduct) {
+            res.status(404).json({ message: "Product not found" });
+            return;
+        }
+
+        res.status(200).json(updatedProduct);
+    } catch (error) {
+        let errorObj = {
+            message: "update product promotions failure",
+            payload: error,
+        };
+
+        console.log(errorObj);
+
+        res.json(errorObj);
+    }
+}
+
+async function updateProductStock(req: UpdateStockRequest, res: Response) {
+    try {
+        const updateData = req.body;
+        const { productNo } = req.params;
+
+        const updatedProduct = await Product.findOneAndUpdate(
+            { productNo },
+            updateData,
+            { new: true }
+        ).exec();
+
+        if (!updatedProduct) {
+            res.status(404).json({ message: "Product not found" });
+            return;
+        }
+
+        res.status(200).json(updatedProduct);
+    } catch (error) {
+        let errorObj = {
+            message: "update product details failure",
+            payload: error,
+        };
+
+        console.log(errorObj);
+
+        res.json(errorObj);
+    }
+}
+
+async function updateSingleProductPromoStatus(
+    req: UpdatePromoStatusRequest,
+    res: Response
+) {
+    try {
+        const updateData = req.body;
+        const { productNo } = req.params;
+
+        const updatedProduct = await Product.findOneAndUpdate(
+            { productNo },
+            updateData,
+            { new: true }
+        ).exec();
+
+        if (!updatedProduct) {
+            res.status(404).json({ message: "Product not found" });
+            return;
+        }
+
+        res.status(200).json(updatedProduct);
+    } catch (error) {
+        let errorObj = {
+            message: "update product details failure",
+            payload: error,
+        };
+
+        console.log(errorObj);
+
+        res.json(errorObj);
+    }
+}
+
+async function addPromotionByCategory(
+    req: CategoryParamsRequest,
+    res: Response
+) {
+    const promotion = req.body;
+    const { categoryName } = req.params;
+    try {
+        const result = await productService.updatePromotionByCategory(
+            categoryName,
+            promotion
+        );
+
+        res.status(200).json(result);
+    } catch (error) {
+        let errorObj = {
+            message: "update product details failure",
             payload: error,
         };
 
@@ -189,5 +422,5 @@ module.exports = {
     getOneProduct,
     createProduct,
     deleteProduct,
-    updateProduct,
+    updateProductDetails,
 };
