@@ -1,4 +1,15 @@
-import { Document, Schema, model } from "mongoose";
+import { Date, Document, Schema, model } from "mongoose";
+
+export interface Promotion extends Document {
+    promoId: number;
+    name: string;
+    description: string;
+    discountType: "percentage" | "fixed";
+    discountValue: number;
+    startDate: Date;
+    endDate: Date;
+    active: boolean;
+}
 
 export interface ProductItem extends Document {
     _id: Schema.Types.ObjectId;
@@ -7,11 +18,50 @@ export interface ProductItem extends Document {
     category: Array<typeof Schema.Types.ObjectId>;
     description: string;
     price: number;
+    promotions: Array<Promotion>;
     stock: number;
     images: Array<string>;
     createdAt?: Date;
     updatedAt?: Date;
 }
+
+const PromotionSchema: Schema = new Schema(
+    {
+        promoId: {
+            type: Number,
+            required: true,
+        },
+        name: {
+            type: String,
+            required: true,
+        },
+        description: {
+            type: String,
+            required: true,
+        },
+        discountType: {
+            type: String,
+            required: true,
+        },
+        discountValue: {
+            type: Number,
+            required: true,
+        },
+        startDate: {
+            type: Date,
+            required: true,
+        },
+        endDate: {
+            type: Date,
+            required: true,
+        },
+        active: {
+            type: Boolean,
+            default: true,
+        },
+    },
+    { _id: false }
+);
 
 const ProductSchema: Schema = new Schema(
     {
@@ -41,6 +91,7 @@ const ProductSchema: Schema = new Schema(
             required: true,
             default: 0,
         },
+        promotions: [PromotionSchema],
         stock: {
             type: Number,
             required: true,
