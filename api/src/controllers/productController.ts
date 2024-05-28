@@ -2,8 +2,12 @@ const Product = require("../models/productModel");
 const generateProductNo = require("../utils/generateProductNo");
 const Category = require("../models/categoryModel");
 const productService = require("../services/productService");
+const promotionService = require("../services/promotionService");
 
-//Types and Interfaces
+////////////////////////
+//Types and Interfaces//
+////////////////////////
+
 import { ProductItem, Promotion } from "../models/productModel";
 import { Request, Response } from "express";
 import { CategoryItem } from "../models/categoryModel";
@@ -20,12 +24,18 @@ interface CreateProductRequest extends Request {
     };
 }
 
-type CreatePromo = {
+export type CreatePromo = {
     name: string;
+    description: string;
+    discountType: "percentage" | "fixed";
+    discountValue: number;
+    startDate: Date;
+    endDate: Date;
+    active: boolean;
 };
 interface AddPromoRequest extends Request {
     params: {
-        target: string | number;
+        target: string;
     };
     body: {
         promotion: number | CreatePromo;
@@ -41,6 +51,12 @@ interface ProductParamsRequest extends Request {
 interface CategoryParamsRequest extends Request {
     params: {
         categoryName: string;
+    };
+}
+
+interface PromoParamsRequest extends Request {
+    params: {
+        promoNum: string;
     };
 }
 
@@ -64,8 +80,6 @@ interface UpdatePriceRequest extends Request {
         price: number;
     };
 }
-
-interface AddPromoRequest extends Request {}
 
 interface UpdateStockRequest extends Request {
     params: {
@@ -110,9 +124,13 @@ interface UpdatePromoByCategory extends Request {
     };
 }
 
+////////////////////////
+/////GET FUNCTIONS//////
+////////////////////////
+
 async function getAllProducts(req: Request, res: Response) {
     try {
-        let results = await Product.find({});
+        const results = await productService.getAllProducts();
 
         res.json({
             message: "success",
@@ -130,16 +148,10 @@ async function getAllProducts(req: Request, res: Response) {
     }
 }
 
-async function getProductsByCategory(
-    req: CategoryParamsRequest,
-    res: Response
-) {}
-
 async function getOneProduct(req: ProductParamsRequest, res: Response) {
     try {
-        let result = await Product.findOne({
-            productNo: req.params.productNo,
-        });
+        const { productNo } = req.params;
+        const result = await productService.getOneProduct(productNo);
 
         res.json({
             message: "success",
@@ -147,7 +159,7 @@ async function getOneProduct(req: ProductParamsRequest, res: Response) {
         });
     } catch (error) {
         let errorObj = {
-            message: "get ONE Product failure",
+            message: "get one product failure",
             payload: error,
         };
 
@@ -156,6 +168,57 @@ async function getOneProduct(req: ProductParamsRequest, res: Response) {
         res.json(errorObj);
     }
 }
+
+async function getProductsByCategory(
+    req: CategoryParamsRequest,
+    res: Response
+) {
+    try {
+        const { categoryName } = req.params;
+        const results = await productService.getProductsByCategory(
+            categoryName
+        );
+
+        res.json({
+            message: "success",
+            payload: results,
+        });
+    } catch (error) {
+        let errorObj = {
+            message: "get all products failure",
+            payload: error,
+        };
+
+        console.log(errorObj);
+
+        res.json(errorObj);
+    }
+}
+
+async function getProductsInPromotion(req: PromoParamsRequest, res: Response) {
+    try {
+        const { promoNum } = req.params;
+        const results = await promotionService.getProductsInPromotion(promoNum);
+
+        res.json({
+            message: "success",
+            payload: results,
+        });
+    } catch (error) {
+        let errorObj = {
+            message: "get all products failure",
+            payload: error,
+        };
+
+        console.log(errorObj);
+
+        res.json(errorObj);
+    }
+}
+
+////////////////////////
+/////CREATE FUNCTION////
+////////////////////////
 
 async function createProduct(req: CreateProductRequest, res: Response) {
     try {
@@ -208,6 +271,10 @@ async function createProduct(req: CreateProductRequest, res: Response) {
     }
 }
 
+////////////////////////
+/////DELETE FUNCTION////
+////////////////////////
+
 async function deleteProduct(req: ProductParamsRequest, res: Response) {
     try {
         await Product.deleteOne({ productNo: req.params.productNo });
@@ -227,6 +294,10 @@ async function deleteProduct(req: ProductParamsRequest, res: Response) {
         res.json(errorObj);
     }
 }
+
+////////////////////////
+/////UPDATE FUNCTIONS///
+////////////////////////
 
 async function updateProductDetails(
     req: UpdateProductDetailsRequest,
@@ -392,22 +463,40 @@ async function updateSingleProductPromoStatus(
     }
 }
 
-async function addPromotionByCategory(
-    req: CategoryParamsRequest,
-    res: Response
-) {
+// Promo Creations
+
+async function addPromoByCategory(req: AddPromoRequest, res: Response) {
     const promotion = req.body;
-    const { categoryName } = req.params;
+    const { target } = req.params;
     try {
-        const result = await productService.updatePromotionByCategory(
-            categoryName,
+        const result = await productService.addPromoByCategory(
+            target,
             promotion
         );
 
         res.status(200).json(result);
     } catch (error) {
         let errorObj = {
-            message: "update product details failure",
+            message: "update promo by category failure",
+            payload: error,
+        };
+
+        console.log(errorObj);
+
+        res.json(errorObj);
+    }
+}
+
+async function addProductPromo(req: AddPromoRequest, res: Response) {
+    const promotion = req.body;
+    const { target } = req.params;
+    try {
+        const result = await productService.addProductPromo(target, promotion);
+
+        res.status(200).json(result);
+    } catch (error) {
+        let errorObj = {
+            message: "update product promo failure",
             payload: error,
         };
 

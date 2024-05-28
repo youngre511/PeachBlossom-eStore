@@ -1,7 +1,7 @@
 import { Date, Document, Schema, model } from "mongoose";
 
-export interface Promotion extends Document {
-    promoId: number;
+export interface Promotion {
+    promoId: string;
     name: string;
     description: string;
     discountType: "percentage" | "fixed";

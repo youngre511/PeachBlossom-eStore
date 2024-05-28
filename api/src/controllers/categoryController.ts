@@ -1,4 +1,5 @@
 const Category = require("../models/categoryModel");
+const categoryService = require("../services/categoryService");
 
 //Types and Interfaces
 import { CategoryItem } from "../models/categoryModel";
@@ -16,6 +17,11 @@ interface CategoryParamsNameRequest extends Request {
     };
 }
 
+interface CategoryCreateRequest extends Request {
+    body: {
+        name: string;
+    };
+}
 interface CategoryUpdateRequest extends Request {
     body: {
         oldName: string;
@@ -23,9 +29,10 @@ interface CategoryUpdateRequest extends Request {
     };
 }
 
-async function getAllCategories(req: Request, res: Response) {
+exports.getAllCategories = async (req: Request, res: Response) => {
     try {
-        let results = await Category.find({});
+        const results: Array<CategoryItem> =
+            await categoryService.getAllCategories();
 
         res.json({
             message: "success",
@@ -41,11 +48,14 @@ async function getAllCategories(req: Request, res: Response) {
 
         res.json(errorObj);
     }
-}
+};
 
-async function getCategoryById(req: CategoryParamsIdRequest, res: Response) {
+exports.getCategoryById = async (
+    req: CategoryParamsIdRequest,
+    res: Response
+) => {
     try {
-        let result = await Category.findOne({ _id: req.params.id });
+        const result = await categoryService.getCategoryById(req.params.id);
 
         res.json({
             message: "success",
@@ -61,14 +71,14 @@ async function getCategoryById(req: CategoryParamsIdRequest, res: Response) {
 
         res.json(errorObj);
     }
-}
+};
 
-async function getCategoryByName(
+exports.getCategoryByName = async (
     req: CategoryParamsNameRequest,
     res: Response
-) {
+) => {
     try {
-        let result = await Category.findOne({ name: req.params.name });
+        const result = await categoryService.getCategoryByName(req.params.name);
 
         res.json({
             message: "success",
@@ -76,7 +86,7 @@ async function getCategoryByName(
         });
     } catch (error) {
         let errorObj = {
-            message: "get Category by name failure",
+            message: "get category by name failure",
             payload: error,
         };
 
@@ -84,15 +94,16 @@ async function getCategoryByName(
 
         res.json(errorObj);
     }
-}
+};
 
-async function createCategory(req: Request, res: Response) {
+exports.createCategory = async (req: CategoryCreateRequest, res: Response) => {
     try {
         // Accepting the front-end form data from the client to generate the document
-        const { prodName } = req.body;
+        const { name } = req.body;
 
-        // post the new document to the Category collection
-        const newCategory: CategoryItem = await Category.create({ prodName });
+        const newCategory: CategoryItem = await categoryService.createCategory(
+            name
+        );
 
         res.json({
             message: "success",
@@ -108,44 +119,16 @@ async function createCategory(req: Request, res: Response) {
 
         res.json(errorObj);
     }
-}
+};
 
-async function deleteCategory(req: CategoryParamsNameRequest, res: Response) {
+exports.updateCategoryName = async (
+    req: CategoryUpdateRequest,
+    res: Response
+) => {
     try {
-        await Category.deleteOne({ name: req.params.name });
-
-        res.json({
-            message: "success",
-            payload: req.params.name,
-        });
-    } catch (error) {
-        let errorObj = {
-            message: "delete Category failure",
-            payload: error,
-        };
-
-        console.log(errorObj);
-
-        res.json(errorObj);
-    }
-}
-
-async function updateCategoryName(req: CategoryUpdateRequest, res: Response) {
-    try {
-        let targetCategory = await Category.findOne({
-            name: req.body.oldName,
-        });
-
-        // ternaries avoid inputting undefined values
-        let updatedCategory = {
-            name: req.body.newName ? req.body.newName : targetCategory.name,
-        };
-
-        await Category.updateOne(
-            { name: req.body.oldName },
-            { $set: updatedCategory },
-            { upsert: true }
-        );
+        const { oldName, newName } = req.body;
+        const updatedCategory: CategoryItem =
+            await categoryService.updateCategoryName(oldName, newName);
 
         res.json({
             message: "success",
@@ -161,13 +144,25 @@ async function updateCategoryName(req: CategoryUpdateRequest, res: Response) {
 
         res.json(errorObj);
     }
-}
+};
 
-module.exports = {
-    getAllCategories,
-    getCategoryById,
-    getCategoryByName,
-    createCategory,
-    deleteCategory,
-    updateCategoryName,
+exports.deleteCategory = async (
+    req: CategoryParamsNameRequest,
+    res: Response
+) => {
+    const { name } = req.params;
+    try {
+        const result = await categoryService.deleteCategory(name);
+
+        res.status(200).json(result);
+    } catch (error) {
+        let errorObj = {
+            message: "delete Category failure",
+            payload: error,
+        };
+
+        console.log(errorObj);
+
+        res.json(errorObj);
+    }
 };

@@ -1,17 +1,45 @@
 const Product = require('../models/productModel')
 const Category = require('../models/categoryModel')
+const generatePromoNo = require('../utils/generatePromoNo')
 
-import {Promotion} from '../models/productModel'
+import { Promotion } from '../models/productModel'
+import { CreatePromo } from '../controllers/productController'
 
 type PromoUpdate = Partial<Promotion>
 
-//add promotion to a single product
-exports.addProductPromo = async (productNo: number, promotion: number | PromoUpdate) => {
-    const productToUpdate = await Product.findOne({productNo: productNo})
-    if (typeof promotion === 'number') {
 
-    } else {
-        productToUpdate.promotions
+//get all products in a promotion
+exports.getProductsInPromotion = async (promoNum: string) => {
+    
+    //insert logic to check SQL and ensure promoNum is valid
+    
+    const productArray = await Product.find({"promotions.promoId": promoNum})
+
+    if (!productArray) {
+        throw new Error ("No products found matching criteria")
+    }
+
+    return productArray
+}
+
+
+//add promotion to a single product
+exports.addProductPromo = async (target: number, promotion: string | CreatePromo) => {
+    const productToUpdate = await Product.findOne({productNo: target})
+
+    if(!productToUpdate) {
+        throw new Error("Product not found")
+    }
+
+    if (typeof promotion === 'string') {
+
+    } 
+    if (typeof promotion === 'object') {
+        const newPromo: Promotion = {
+            ...promotion,
+            promoId: generatePromoNo()
+        }
+        productToUpdate.promotions.push(newPromo)
     }
 }
 
@@ -25,7 +53,7 @@ exports.updateProductPromo = async (productNo: number, promoNumber: number, prom
 }
 
 //update promotion by number for all products in a category
-exports.updatePromotionsByCategory = async (categoryName: string, promoNumber: number, updatedPromotion: PromoUpdate) => {
+exports.updatePromoByCategory = async (categoryName: string, promoNumber: number, updatedPromotion: PromoUpdate) => {
     const categoryId = await Category.findOne({name: categoryName})
 
 }
