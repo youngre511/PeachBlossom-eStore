@@ -29,16 +29,36 @@ export type CreatePromo = {
     description: string;
     discountType: "percentage" | "fixed";
     discountValue: number;
-    startDate: Date;
-    endDate: Date;
+    startDate: string;
+    endDate: string;
     active: boolean;
 };
+
+type UpdatePromo = Partial<CreatePromo>;
 interface AddPromoRequest extends Request {
     params: {
         target: string;
     };
     body: {
-        promotion: number | CreatePromo;
+        promotion: string | CreatePromo;
+    };
+}
+
+interface UpdatePromoRequest extends Request {
+    params: {
+        promoId: string;
+    };
+    body: {
+        updatedData: UpdatePromo;
+    };
+}
+
+interface RemovePromoRequest extends Request {
+    params: {
+        target: string;
+    };
+    body: {
+        promoId: string;
     };
 }
 
@@ -90,45 +110,11 @@ interface UpdateStockRequest extends Request {
     };
 }
 
-interface UpdatePromotionsRequest extends Request {
-    params: {
-        productNo: string;
-    };
-    body: {
-        name: string;
-        description: string;
-        discountType: string;
-        discountValue: number;
-        startDate: Date;
-        endDate: Date;
-        active: boolean;
-    };
-}
-
-interface UpdatePromoStatusRequest extends Request {
-    params: {
-        productNo: string;
-    };
-    body: {
-        promoId: number;
-        active: boolean;
-    };
-}
-
-interface UpdatePromoByCategory extends Request {
-    params: {
-        categoryName: string;
-    };
-    body: {
-        promotions: Promotion[];
-    };
-}
-
 ////////////////////////
 /////GET FUNCTIONS//////
 ////////////////////////
 
-async function getAllProducts(req: Request, res: Response) {
+exports.getAllProducts = async (req: Request, res: Response) => {
     try {
         const results = await productService.getAllProducts();
 
@@ -146,9 +132,9 @@ async function getAllProducts(req: Request, res: Response) {
 
         res.json(errorObj);
     }
-}
+};
 
-async function getOneProduct(req: ProductParamsRequest, res: Response) {
+exports.getOneProduct = async (req: ProductParamsRequest, res: Response) => {
     try {
         const { productNo } = req.params;
         const result = await productService.getOneProduct(productNo);
@@ -167,12 +153,12 @@ async function getOneProduct(req: ProductParamsRequest, res: Response) {
 
         res.json(errorObj);
     }
-}
+};
 
-async function getProductsByCategory(
+exports.getProductsByCategory = async (
     req: CategoryParamsRequest,
     res: Response
-) {
+) => {
     try {
         const { categoryName } = req.params;
         const results = await productService.getProductsByCategory(
@@ -193,9 +179,12 @@ async function getProductsByCategory(
 
         res.json(errorObj);
     }
-}
+};
 
-async function getProductsInPromotion(req: PromoParamsRequest, res: Response) {
+exports.getProductsInPromotion = async (
+    req: PromoParamsRequest,
+    res: Response
+) => {
     try {
         const { promoNum } = req.params;
         const results = await promotionService.getProductsInPromotion(promoNum);
@@ -214,13 +203,13 @@ async function getProductsInPromotion(req: PromoParamsRequest, res: Response) {
 
         res.json(errorObj);
     }
-}
+};
 
 ////////////////////////
 /////CREATE FUNCTION////
 ////////////////////////
 
-async function createProduct(req: CreateProductRequest, res: Response) {
+exports.createProduct = async (req: CreateProductRequest, res: Response) => {
     try {
         // Accepting the front-end form data from the client to generate the document
         const {
@@ -269,13 +258,13 @@ async function createProduct(req: CreateProductRequest, res: Response) {
 
         res.json(errorObj);
     }
-}
+};
 
 ////////////////////////
 /////DELETE FUNCTION////
 ////////////////////////
 
-async function deleteProduct(req: ProductParamsRequest, res: Response) {
+exports.deleteProduct = async (req: ProductParamsRequest, res: Response) => {
     try {
         await Product.deleteOne({ productNo: req.params.productNo });
 
@@ -293,16 +282,16 @@ async function deleteProduct(req: ProductParamsRequest, res: Response) {
 
         res.json(errorObj);
     }
-}
+};
 
 ////////////////////////
 /////UPDATE FUNCTIONS///
 ////////////////////////
 
-async function updateProductDetails(
+exports.updateProductDetails = async (
     req: UpdateProductDetailsRequest,
     res: Response
-) {
+) => {
     try {
         const updateData = req.body;
         const { productNo } = req.params;
@@ -339,9 +328,9 @@ async function updateProductDetails(
 
         res.json(errorObj);
     }
-}
+};
 
-async function updateProductPrice(req: UpdatePriceRequest, res: Response) {
+exports.updateProductPrice = async (req: UpdatePriceRequest, res: Response) => {
     try {
         const updateData = req.body;
         const { productNo } = req.params;
@@ -368,28 +357,16 @@ async function updateProductPrice(req: UpdatePriceRequest, res: Response) {
 
         res.json(errorObj);
     }
-}
+};
 
-async function updateProductPromotions(
-    req: UpdatePromotionsRequest,
-    res: Response
-) {
+exports.updatePromotion = async (req: UpdatePromoRequest, res: Response) => {
     try {
         const updateData = req.body;
-        const { productNo } = req.params;
+        const { promoId } = req.params;
 
-        const updatedProduct: ProductItem = await Product.findOneAndUpdate(
-            { productNo },
-            updateData,
-            { new: true }
-        ).exec();
+        const result = await promotionService.updatePromo(promoId, updateData);
 
-        if (!updatedProduct) {
-            res.status(404).json({ message: "Product not found" });
-            return;
-        }
-
-        res.status(200).json(updatedProduct);
+        res.status(200).json(result);
     } catch (error) {
         let errorObj = {
             message: "update product promotions failure",
@@ -400,9 +377,9 @@ async function updateProductPromotions(
 
         res.json(errorObj);
     }
-}
+};
 
-async function updateProductStock(req: UpdateStockRequest, res: Response) {
+exports.updateProductStock = async (req: UpdateStockRequest, res: Response) => {
     try {
         const updateData = req.body;
         const { productNo } = req.params;
@@ -429,43 +406,11 @@ async function updateProductStock(req: UpdateStockRequest, res: Response) {
 
         res.json(errorObj);
     }
-}
-
-async function updateSingleProductPromoStatus(
-    req: UpdatePromoStatusRequest,
-    res: Response
-) {
-    try {
-        const updateData = req.body;
-        const { productNo } = req.params;
-
-        const updatedProduct = await Product.findOneAndUpdate(
-            { productNo },
-            updateData,
-            { new: true }
-        ).exec();
-
-        if (!updatedProduct) {
-            res.status(404).json({ message: "Product not found" });
-            return;
-        }
-
-        res.status(200).json(updatedProduct);
-    } catch (error) {
-        let errorObj = {
-            message: "update product details failure",
-            payload: error,
-        };
-
-        console.log(errorObj);
-
-        res.json(errorObj);
-    }
-}
+};
 
 // Promo Creations
 
-async function addPromoByCategory(req: AddPromoRequest, res: Response) {
+exports.addPromoByCategory = async (req: AddPromoRequest, res: Response) => {
     const promotion = req.body;
     const { target } = req.params;
     try {
@@ -485,9 +430,9 @@ async function addPromoByCategory(req: AddPromoRequest, res: Response) {
 
         res.json(errorObj);
     }
-}
+};
 
-async function addProductPromo(req: AddPromoRequest, res: Response) {
+exports.addProductPromo = async (req: AddPromoRequest, res: Response) => {
     const promotion = req.body;
     const { target } = req.params;
     try {
@@ -504,12 +449,56 @@ async function addProductPromo(req: AddPromoRequest, res: Response) {
 
         res.json(errorObj);
     }
-}
+};
 
-module.exports = {
-    getAllProducts,
-    getOneProduct,
-    createProduct,
-    deleteProduct,
-    updateProductDetails,
+// Promo removal
+
+exports.removePromoFromCategory = async (
+    req: RemovePromoRequest,
+    res: Response
+) => {
+    const { promoId } = req.body;
+    const { target } = req.params;
+    try {
+        const result = await productService.removePromoFromCategory(
+            target,
+            promoId
+        );
+
+        res.status(200).json(result);
+    } catch (error) {
+        let errorObj = {
+            message: "update promo by category failure",
+            payload: error,
+        };
+
+        console.log(errorObj);
+
+        res.json(errorObj);
+    }
+};
+
+exports.removePromoFromProduct = async (
+    req: RemovePromoRequest,
+    res: Response
+) => {
+    const { promoId } = req.body;
+    const { target } = req.params;
+    try {
+        const result = await productService.removePromoFromProduct(
+            target,
+            promoId
+        );
+
+        res.status(200).json(result);
+    } catch (error) {
+        let errorObj = {
+            message: "update product promo failure",
+            payload: error,
+        };
+
+        console.log(errorObj);
+
+        res.json(errorObj);
+    }
 };

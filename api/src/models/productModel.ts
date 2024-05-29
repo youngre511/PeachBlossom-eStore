@@ -6,8 +6,8 @@ export interface Promotion {
     description: string;
     discountType: "percentage" | "fixed";
     discountValue: number;
-    startDate: Date;
-    endDate: Date;
+    startDate: string;
+    endDate: string;
     active: boolean;
 }
 
@@ -48,11 +48,11 @@ const PromotionSchema: Schema = new Schema(
             required: true,
         },
         startDate: {
-            type: Date,
+            type: String,
             required: true,
         },
         endDate: {
-            type: Date,
+            type: String,
             required: true,
         },
         active: {
