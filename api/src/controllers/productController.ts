@@ -24,44 +24,6 @@ interface CreateProductRequest extends Request {
     };
 }
 
-export type CreatePromo = {
-    name: string;
-    description: string;
-    discountType: "percentage" | "fixed";
-    discountValue: number;
-    startDate: string;
-    endDate: string;
-    active: boolean;
-};
-
-type UpdatePromo = Partial<CreatePromo>;
-interface AddPromoRequest extends Request {
-    params: {
-        target: string;
-    };
-    body: {
-        promotion: string | CreatePromo;
-    };
-}
-
-interface UpdatePromoRequest extends Request {
-    params: {
-        promoId: string;
-    };
-    body: {
-        updatedData: UpdatePromo;
-    };
-}
-
-interface RemovePromoRequest extends Request {
-    params: {
-        target: string;
-    };
-    body: {
-        promoId: string;
-    };
-}
-
 interface ProductParamsRequest extends Request {
     params: {
         productNo: string;
@@ -359,26 +321,6 @@ exports.updateProductPrice = async (req: UpdatePriceRequest, res: Response) => {
     }
 };
 
-exports.updatePromotion = async (req: UpdatePromoRequest, res: Response) => {
-    try {
-        const updateData = req.body;
-        const { promoId } = req.params;
-
-        const result = await promotionService.updatePromo(promoId, updateData);
-
-        res.status(200).json(result);
-    } catch (error) {
-        let errorObj = {
-            message: "update product promotions failure",
-            payload: error,
-        };
-
-        console.log(errorObj);
-
-        res.json(errorObj);
-    }
-};
-
 exports.updateProductStock = async (req: UpdateStockRequest, res: Response) => {
     try {
         const updateData = req.body;
@@ -399,101 +341,6 @@ exports.updateProductStock = async (req: UpdateStockRequest, res: Response) => {
     } catch (error) {
         let errorObj = {
             message: "update product details failure",
-            payload: error,
-        };
-
-        console.log(errorObj);
-
-        res.json(errorObj);
-    }
-};
-
-// Promo Creations
-
-exports.addPromoByCategory = async (req: AddPromoRequest, res: Response) => {
-    const promotion = req.body;
-    const { target } = req.params;
-    try {
-        const result = await productService.addPromoByCategory(
-            target,
-            promotion
-        );
-
-        res.status(200).json(result);
-    } catch (error) {
-        let errorObj = {
-            message: "update promo by category failure",
-            payload: error,
-        };
-
-        console.log(errorObj);
-
-        res.json(errorObj);
-    }
-};
-
-exports.addProductPromo = async (req: AddPromoRequest, res: Response) => {
-    const promotion = req.body;
-    const { target } = req.params;
-    try {
-        const result = await productService.addProductPromo(target, promotion);
-
-        res.status(200).json(result);
-    } catch (error) {
-        let errorObj = {
-            message: "update product promo failure",
-            payload: error,
-        };
-
-        console.log(errorObj);
-
-        res.json(errorObj);
-    }
-};
-
-// Promo removal
-
-exports.removePromoFromCategory = async (
-    req: RemovePromoRequest,
-    res: Response
-) => {
-    const { promoId } = req.body;
-    const { target } = req.params;
-    try {
-        const result = await productService.removePromoFromCategory(
-            target,
-            promoId
-        );
-
-        res.status(200).json(result);
-    } catch (error) {
-        let errorObj = {
-            message: "update promo by category failure",
-            payload: error,
-        };
-
-        console.log(errorObj);
-
-        res.json(errorObj);
-    }
-};
-
-exports.removePromoFromProduct = async (
-    req: RemovePromoRequest,
-    res: Response
-) => {
-    const { promoId } = req.body;
-    const { target } = req.params;
-    try {
-        const result = await productService.removePromoFromProduct(
-            target,
-            promoId
-        );
-
-        res.status(200).json(result);
-    } catch (error) {
-        let errorObj = {
-            message: "update product promo failure",
             payload: error,
         };
 

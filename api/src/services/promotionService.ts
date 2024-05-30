@@ -4,13 +4,35 @@ const generatePromoNo = require("../utils/generatePromoNo");
 const mongoose = require("mongoose");
 
 import { ClientSession } from "mongoose";
-import { Promotion } from "../models/productModel";
-import { CreatePromo } from "../controllers/productController";
+import { ProductItem, Promotion } from "../models/productModel";
+import { CreatePromo } from "../controllers/promotionController";
+import { Types } from "mongoose";
 
 type PromoUpdate = Partial<Promotion>;
+type BooleString = { success: boolean; message: string };
+interface CreateArgs {
+    promotion: CreatePromo;
+    products?: string[];
+    categories?: string[];
+}
+interface DeleteArgs {
+    promotion: string;
+    products?: string[];
+    categories?: string[];
+}
+
+exports.getAllPromotions = async (req: Request, res: Response) => {
+    //Fetch all promos from SQL
+};
+
+exports.getOnePromotion = async (req: Request, res: Response) => {
+    //Fetch promo data from SQL
+};
 
 //get all products in a promotion
-exports.getProductsInPromotion = async (promoNum: string) => {
+exports.getProductsInPromotion = async (
+    promoNum: string
+): Promise<ProductItem[]> => {
     //insert logic to check SQL and ensure promoNum is valid
 
     const productArray = await Product.find({ "promotions.promoId": promoNum });
@@ -22,39 +44,57 @@ exports.getProductsInPromotion = async (promoNum: string) => {
     return productArray;
 };
 
-//add promotion to a single product
-exports.addProductPromo = async (
-    target: number,
-    promotion: string | CreatePromo
-) => {
-    const productToUpdate = await Product.findOne({ productNo: target });
-
-    if (!productToUpdate) {
-        throw new Error("Product not found");
-    }
-
+exports.createPromotion = async (
+    args: CreateArgs
+): Promise<BooleString | BooleString[]> => {
+    const promotion = args.promotion;
     const session: ClientSession = mongoose.startSession();
     session.startTransaction();
     try {
-        if (typeof promotion === "string") {
-            // Fetch existing promotion data from SQL
-            // Add product to promotion in SQL
-            // Add promotion to product in Mongo
-        }
-        if (typeof promotion === "object") {
-            // Create new promotion and add to product
-            const newPromo: Promotion = {
+        const promoId = generatePromoNo();
+
+        //Construct SQL promo
+        let promo;
+        //Add promo to SQL
+
+        if (args.products || args.categories) {
+            const newMongoPromo: Promotion = {
                 ...promotion,
                 startDate: String(new Date(promotion.startDate)),
                 endDate: String(new Date(promotion.endDate)),
-                promoId: generatePromoNo(),
+                promoId: promoId,
             };
-            productToUpdate.promotions.push(newPromo);
-            await productToUpdate.save({ session });
+            let result = [
+                {
+                    success: true,
+                    message: `Successfully created promo ${promoId}`,
+                },
+            ];
+            if (args.products) {
+                const prodResult = await exports.addProductsToPromo(
+                    newMongoPromo,
+                    args.products,
+                    session
+                );
+                result.push(prodResult);
+            }
+            if (args.categories) {
+                const catResult = await exports.addCategoriesToPromo(
+                    newMongoPromo,
+                    args.categories,
+                    session
+                );
+                result.push(catResult);
+            }
+            await session.commitTransaction;
+            return result;
         }
 
         await session.commitTransaction();
-        return productToUpdate;
+        return {
+            success: true,
+            message: `Successfully created promo ${promoId}`,
+        };
     } catch (error) {
         await session.abortTransaction();
         if (error instanceof Error) {
@@ -67,58 +107,177 @@ exports.addProductPromo = async (
     }
 };
 
-//add promotion to all products in a category
-exports.addPromoByCategory = async (
-    target: string,
-    promotion: string | CreatePromo
-): Promise<{ success: boolean }> => {
-    const category = await Category.findOne({ name: target });
+exports.addProductsToPromo = async (
+    promotion: string | Promotion,
+    productNos: string[],
+    passedSession?: ClientSession
+): Promise<{ success: Boolean; message: string }> => {
+    const ownSession = !passedSession;
+    let session: ClientSession;
+    let promo: Promotion;
 
-    if (!category) {
-        throw new Error("Category not found");
+    if (ownSession) {
+        session = mongoose.startSession();
+        session.startTransaction();
+    } else {
+        session = passedSession;
     }
 
-    const categoryId = category._id;
-
-    const session: ClientSession = mongoose.startSession();
-    session.startTransaction();
     try {
         if (typeof promotion === "string") {
-            // Fetch existing promotion data from SQL
-            let promoToAdd;
+            // SQL verify promo number is valid and fetch data
             // Add product to promotion in SQL
             // Add promotion to product in Mongo
-            await Product.updateMany(
-                { category: categoryId },
-                { $push: { promotion: promoToAdd } }
-            ).session(session);
-        }
-        if (typeof promotion === "object") {
-            // Create new promotion and add to product
-            const newPromo: Promotion = {
-                ...promotion,
-                startDate: String(new Date(promotion.startDate)),
-                endDate: String(new Date(promotion.endDate)),
-                promoId: generatePromoNo(),
+            promo = {
+                promoId: "i'm",
+                name: "just",
+                description: "a",
+                discountType: "fixed",
+                discountValue: 1,
+                startDate: "placeholder",
+                endDate: "right?",
+                active: true,
             };
-
-            await Product.updateMany(
-                { category: categoryId },
-                { $push: { promotion: newPromo } }
-            ).session(session);
+        } else {
+            promo = promotion;
         }
 
-        await session.commitTransaction();
-        return { success: true };
+        // Add product nos to SQL
+
+        const result = await Product.updateMany(
+            { productNo: { $in: productNos } },
+            { $push: { promotions: promo } }
+        ).session(session);
+
+        if (result.matchedCount === 0) {
+            throw new Error("No products matched productNos provided");
+        }
+        if (result.matchedCount < productNos.length) {
+            throw new Error(
+                `${
+                    productNos.length - result.matchedCount
+                } productNos were invalid.`
+            );
+        }
+        if (result.modifiedCount === 0) {
+            throw new Error("Failed to update product records");
+        }
+
+        if (ownSession) {
+            await session.commitTransaction();
+        }
+        return {
+            success: true,
+            message: `Successfully added ${result.modifiedCount} product(s) to promotion.`,
+        };
     } catch (error) {
-        await session.abortTransaction();
+        if (ownSession) {
+            await session.abortTransaction();
+        }
         if (error instanceof Error) {
-            throw new Error("Error adding promotion: " + error.message);
+            throw new Error(
+                "Error adding products to promotion: " + error.message
+            );
         } else {
-            throw new Error("An unknown error occurred while adding promotion");
+            throw new Error(
+                "An unknown error occurred while adding products to promotion"
+            );
         }
     } finally {
-        session.endSession();
+        if (ownSession) {
+            session.endSession();
+        }
+    }
+};
+
+//add promotion to all products in a category
+exports.addCategoriesToPromo = async (
+    promotion: string | Promotion,
+    categoryNames: string[],
+    passedSession?: ClientSession
+): Promise<{ success: boolean; message: string }> => {
+    const ownSession = !passedSession;
+    let session: ClientSession;
+    let promo: Promotion;
+
+    if (ownSession) {
+        session = mongoose.startSession();
+        session.startTransaction();
+    } else {
+        session = passedSession;
+    }
+
+    try {
+        const categoryIdArr: Array<{ _id: Types.ObjectId }> =
+            await Category.find({ name: { $in: categoryNames } })
+                .select("_id")
+                .session(session)
+                .lean()
+                .exec();
+
+        const ids = categoryIdArr.map((item) => item._id);
+
+        if (ids.length < categoryNames.length) {
+            throw new Error("One or more category names were invalid");
+        }
+
+        if (typeof promotion === "string") {
+            // SQL verify promo number is valid and fetch data
+            // Add product to promotion in SQL
+            // Add promotion to product in Mongo
+            promo = {
+                promoId: "i'm",
+                name: "just",
+                description: "a",
+                discountType: "fixed",
+                discountValue: 1,
+                startDate: "placeholder",
+                endDate: "right?",
+                active: true,
+            };
+        } else {
+            promo = promotion;
+        }
+
+        // Add product nos to SQL
+
+        const result = await Product.updateMany(
+            { category: { $in: ids } },
+            { $push: { promotions: promo } }
+        ).session(session);
+
+        if (result.matchedCount === 0) {
+            throw new Error("No products found in provided categories");
+        }
+
+        if (result.modifiedCount === 0) {
+            throw new Error("Failed to update product records");
+        }
+
+        if (ownSession) {
+            await session.commitTransaction();
+        }
+        return {
+            success: true,
+            message: `Successfully added ${result.modifiedCount} product(s) from ${categoryNames.length} category/categories to promotion.`,
+        };
+    } catch (error) {
+        if (ownSession) {
+            await session.abortTransaction();
+        }
+        if (error instanceof Error) {
+            throw new Error(
+                "Error adding products to promotion: " + error.message
+            );
+        } else {
+            throw new Error(
+                "An unknown error occurred while adding products to promotion"
+            );
+        }
+    } finally {
+        if (ownSession) {
+            session.endSession();
+        }
     }
 };
 
@@ -174,41 +333,39 @@ exports.updatePromo = async (
     }
 };
 
-//delete promotion attached to a single product
-
-exports.removePromoFromProduct = async (
-    target: string,
-    promoId: string
-): Promise<{ success: boolean }> => {
+exports.deletePromotion = async (args: DeleteArgs): Promise<BooleString> => {
     const session: ClientSession = mongoose.startSession();
     session.startTransaction();
     try {
-        const result = await Product.updateOne(
-            { productNo: target },
-            { $pull: { promotions: { promoId: promoId } } }
-        ).session(session);
-
-        if (result.matchedCount === 0) {
-            throw new Error("Product not found");
+        if (args.products) {
+            await exports.removeProductsFromPromo(
+                args.promotion,
+                args.products,
+                session
+            );
+        }
+        if (args.categories) {
+            const catResult = await exports.removeCategoriesFromPromo(
+                args.promotion,
+                args.categories,
+                session
+            );
         }
 
-        if (result.modifiedCount === 0) {
-            throw new Error("Product does not have this promotion");
-        }
-
-        //update SQL
+        // Remove from SQL
 
         await session.commitTransaction();
-        return { success: true };
+        return {
+            success: true,
+            message: `Successfully deleted promo ${args.promotion}`,
+        };
     } catch (error) {
         await session.abortTransaction();
         if (error instanceof Error) {
-            throw new Error(
-                "Error removing promo from product: " + error.message
-            );
+            throw new Error("Error deleting promotion: " + error.message);
         } else {
             throw new Error(
-                "An unknown error occurred while removing promo from product"
+                "An unknown error occurred while deleting promotion"
             );
         }
     } finally {
@@ -216,54 +373,140 @@ exports.removePromoFromProduct = async (
     }
 };
 
-//delete promotion attached to a single category
-exports.removePromoFromCategory = async (
-    target: string,
-    promoId: string
-): Promise<{ success: boolean }> => {
-    const session: ClientSession = mongoose.startSession();
-    session.startTransaction();
+exports.removeProductsFromPromo = async (
+    promotion: string,
+    productNos: string[],
+    passedSession?: ClientSession
+): Promise<{ success: Boolean; message: string }> => {
+    const ownSession = !passedSession;
+    let session: ClientSession;
+    let promo: Promotion;
 
-    const targetCategory = await Category.findOne({ name: target });
-
-    if (!targetCategory) {
-        throw new Error("Cannot find category");
+    if (ownSession) {
+        session = mongoose.startSession();
+        session.startTransaction();
+    } else {
+        session = passedSession;
     }
 
-    const categoryId = targetCategory._id;
-
     try {
+        // Remove product nos to SQL
+
         const result = await Product.updateMany(
-            { category: categoryId },
-            { $pull: { promotions: { promoId: promoId } } }
+            { productNo: { $in: productNos } },
+            { $pull: { promotions: promotion } }
         ).session(session);
 
         if (result.matchedCount === 0) {
-            throw new Error("No products found in the specified category");
+            throw new Error("No products matched productNos provided");
         }
-
-        if (result.modifiedCount === 0) {
+        if (result.matchedCount < productNos.length) {
             throw new Error(
-                "Promotion not found in any products of the specified category"
+                `${
+                    productNos.length - result.matchedCount
+                } productNos were invalid.`
             );
         }
+        if (result.modifiedCount === 0) {
+            throw new Error("Failed to update product records");
+        }
 
-        //update SQL
-
-        await session.commitTransaction();
-        return { success: true };
+        if (ownSession) {
+            await session.commitTransaction();
+        }
+        return {
+            success: true,
+            message: `Successfully removed ${result.modifiedCount} product(s) from promotion.`,
+        };
     } catch (error) {
-        await session.abortTransaction();
+        if (ownSession) {
+            await session.abortTransaction();
+        }
         if (error instanceof Error) {
             throw new Error(
-                "Error removing promo from product: " + error.message
+                "Error removing products from promotion: " + error.message
             );
         } else {
             throw new Error(
-                "An unknown error occurred while removing promo from product"
+                "An unknown error occurred while removing products from promotion"
             );
         }
     } finally {
-        session.endSession();
+        if (ownSession) {
+            session.endSession();
+        }
+    }
+};
+
+//add promotion to all products in a category
+exports.removeCategoriesFromPromo = async (
+    promotion: string,
+    categoryNames: string[],
+    passedSession?: ClientSession
+): Promise<{ success: boolean; message: string }> => {
+    const ownSession = !passedSession;
+    let session: ClientSession;
+    let promo: Promotion;
+
+    if (ownSession) {
+        session = mongoose.startSession();
+        session.startTransaction();
+    } else {
+        session = passedSession;
+    }
+
+    try {
+        const categoryIdArr: Array<{ _id: Types.ObjectId }> =
+            await Category.find({ name: { $in: categoryNames } })
+                .select("_id")
+                .session(session)
+                .lean()
+                .exec();
+
+        const ids = categoryIdArr.map((item) => item._id);
+
+        if (ids.length < categoryNames.length) {
+            throw new Error("One or more category names were invalid");
+        }
+
+        //Remove from sql
+
+        const result = await Product.updateMany(
+            { category: { $in: ids } },
+            { $pull: { promotions: promotion } }
+        ).session(session);
+
+        if (result.matchedCount === 0) {
+            throw new Error("No products found in provided categories");
+        }
+
+        if (result.modifiedCount === 0) {
+            throw new Error("Failed to update product records");
+        }
+
+        if (ownSession) {
+            await session.commitTransaction();
+        }
+        return {
+            success: true,
+            message: `Successfully removed ${result.modifiedCount} product(s) from ${categoryNames.length} category/categories to promotion.`,
+        };
+    } catch (error) {
+        if (ownSession) {
+            await session.abortTransaction();
+        }
+        if (error instanceof Error) {
+            throw new Error(
+                "Error removing products from promotion: " + error.message
+            );
+        } else {
+            throw new Error(
+                "An unknown error occurred while removing products from promotion"
+            );
+        }
+    } finally {
+        if (ownSession) {
+            session.endSession();
+        }
     }
 };

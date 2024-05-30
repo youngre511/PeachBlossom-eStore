@@ -48,10 +48,5 @@ exports.getProductsByCategory = async (categoryName: string) => {
 
 //update product price
 
-//update product categories
-
-//delete single product category
-
-//add single product category
-
 //delete single product
+//also delete from sql in all locations
