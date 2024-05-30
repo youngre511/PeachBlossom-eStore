@@ -12,6 +12,7 @@ node_modules/
 /build
 
 # misc
+dist/
 .env
 TODO.md
 .DS_Store

@@ -3,7 +3,7 @@ const app = express();
 const path = require("path");
 const cors = require("cors");
 const logger = require("morgan");
-// const connectToMongoDB = require("./db/mongodb");
+const connectToMongoDB = require("./db/mongodb");
 require("dotenv").config();
 
 //Type imports
@@ -37,5 +37,5 @@ const PORT = process.env.PORT;
 app.listen(PORT, () => {
     console.log(`server listening on port ${PORT}`);
 
-    // connectToMongoDB();
+    connectToMongoDB();
 });
