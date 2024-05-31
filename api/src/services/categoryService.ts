@@ -4,8 +4,8 @@ const Product = require("../models/productModel");
 
 //types and interfaces
 import { ClientSession } from "mongoose";
-import { CategoryItem } from "../models/categoryModel";
-import { ProductItem } from "../models/productModel";
+import { CategoryItem } from "../models/mongo/categoryModel";
+import { ProductItem } from "../models/mongo/productModel";
 
 exports.getAllCategories = async (): Promise<CategoryItem[]> => {
     const categoryArray: Array<CategoryItem> = await Category.find({});

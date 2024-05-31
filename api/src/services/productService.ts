@@ -1,7 +1,7 @@
 const Product = require("../models/productModel");
 const Category = require("../models/categoryModel");
 const generateProductNo = require("../utils/generateProductNo");
-import { ProductItem } from "../models/productModel";
+import { ProductItem } from "../models/mongo/productModel";
 
 //get all products
 exports.getAllProducts = async () => {

@@ -4,7 +4,7 @@ const generatePromoNo = require("../utils/generatePromoNo");
 const mongoose = require("mongoose");
 
 import { ClientSession } from "mongoose";
-import { ProductItem, Promotion } from "../models/productModel";
+import { ProductItem, Promotion } from "../models/mongo/productModel";
 import { CreatePromo } from "../controllers/promotionController";
 import { Types } from "mongoose";
 

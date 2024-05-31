@@ -25,6 +25,84 @@ export interface ProductItem extends Document {
     updatedAt?: Date;
 }
 
+interface Attributes {
+    color:
+        | "red"
+        | "orange"
+        | "yellow"
+        | "green"
+        | "blue"
+        | "purple"
+        | "pink"
+        | "gold"
+        | "silver"
+        | "white"
+        | "gray"
+        | "black"
+        | "brown"
+        | "cream"
+        | "beige"
+        | "multicolor"
+        | "clear";
+    material:
+        | "glass"
+        | "plastic"
+        | "ceramic"
+        | "metal"
+        | "wood"
+        | "fabric"
+        | "leather"
+        | "stone"
+        | "rubber"
+        | "resin"
+        | "natural fiber"
+        | "bamboo";
+    size: "small" | "medium" | "large";
+    // Dimensions in inches
+    weight: number;
+    dimensions: {
+        width: number;
+        height: number;
+        depth: number;
+        diameter: number;
+        circumference: number;
+    };
+}
+
+const AttributesSchema: Schema = new Schema({
+    color: {
+        type: String,
+        required: true,
+    },
+    material: {
+        type: String,
+    },
+    size: {
+        type: String,
+    },
+    weight: {
+        type: Number,
+        required: true,
+    },
+    dimensions: {
+        width: {
+            type: Number,
+        },
+        height: {
+            type: Number,
+        },
+        depth: {
+            type: Number,
+        },
+        diameter: {
+            type: Number,
+        },
+        circumference: {
+            type: Number,
+        },
+    },
+});
+
 const PromotionSchema: Schema = new Schema(
     {
         promoId: {
@@ -86,6 +164,7 @@ const ProductSchema: Schema = new Schema(
             type: String,
             required: true,
         },
+        attributes: AttributesSchema,
         price: {
             type: Number,
             required: true,
@@ -100,6 +179,12 @@ const ProductSchema: Schema = new Schema(
         images: [
             {
                 type: String,
+            },
+        ],
+        tags: [
+            {
+                type: Schema.Types.ObjectId,
+                ref: "Tag",
             },
         ],
     },

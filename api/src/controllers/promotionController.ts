@@ -3,7 +3,7 @@ const Category = require("../models/categoryModel");
 const promotionService = require("../services/promotionService");
 
 // Types and interfaces
-import { ProductItem, Promotion } from "../models/productModel";
+import { ProductItem, Promotion } from "../models/mongo/productModel";
 import { Request, Response } from "express";
 
 export type CreatePromo = {

@@ -2,7 +2,7 @@ const Category = require("../models/categoryModel");
 const categoryService = require("../services/categoryService");
 
 //Types and Interfaces
-import { CategoryItem } from "../models/categoryModel";
+import { CategoryItem } from "../models/mongo/categoryModel";
 import { Request, Response } from "express";
 
 interface CategoryParamsIdRequest extends Request {

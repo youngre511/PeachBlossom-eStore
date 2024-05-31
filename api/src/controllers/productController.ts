@@ -8,9 +8,9 @@ const promotionService = require("../services/promotionService");
 //Types and Interfaces//
 ////////////////////////
 
-import { ProductItem, Promotion } from "../models/productModel";
+import { ProductItem, Promotion } from "../models/mongo/productModel";
 import { Request, Response } from "express";
-import { CategoryItem } from "../models/categoryModel";
+import { CategoryItem } from "../models/mongo/categoryModel";
 
 interface CreateProductRequest extends Request {
     body: {

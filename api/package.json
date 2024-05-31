@@ -7,7 +7,9 @@
         "build": "npx tsc",
         "test": "echo \"Error: no test specified\" && exit 1",
         "dev": "nodemon src/index.ts",
-        "start": "nodemon dist/index.js"
+        "start": "nodemon dist/index.js",
+        "migrate": "npx sequelize-cli db:migrate",
+        "seed": "npx sequelize-cli db:seed:all"
     },
     "keywords": [],
     "author": "",
@@ -21,6 +23,10 @@
         "jsonwebtoken": "^9.0.2",
         "mongoose": "^8.4.0",
         "morgan": "^1.10.0",
+        "mysql2": "^3.10.0",
+        "sales-tax": "^2.14.0",
+        "sequelize": "^6.37.3",
+        "sequelize-typescript": "^2.1.6",
         "uuid": "^9.0.1"
     },
     "devDependencies": {
@@ -28,7 +34,6 @@
         "@types/node": "^20.12.12",
         "@types/uuid": "^9.0.8",
         "nodemon": "^3.1.0",
-        "ts-node": "^10.9.2",
         "typescript": "^5.4.5"
     }
 }
