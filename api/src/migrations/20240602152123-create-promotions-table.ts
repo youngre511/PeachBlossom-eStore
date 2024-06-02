@@ -3,31 +3,41 @@ import { QueryInterface, DataTypes } from "sequelize";
 export default {
     up: async (queryInterface: QueryInterface) => {
         await queryInterface.createTable("Promotions", {
+            promo_data_id: {
+                type: DataTypes.BIGINT,
+                autoIncrement: true,
+                primaryKey: true,
+            },
             promotionId: {
                 type: DataTypes.STRING,
-                primaryKey: true,
                 allowNull: false,
+                unique: true,
             },
-            promotion_name: {
+            promotionCode: {
+                type: DataTypes.STRING,
+                allowNull: true,
+            },
+            promotionName: {
                 type: DataTypes.STRING,
                 allowNull: false,
             },
-            promotion_description: {
+            promotionDescription: {
                 type: DataTypes.TEXT,
+                allowNull: true,
             },
-            discount_type: {
+            discountType: {
                 type: DataTypes.ENUM("percentage", "fixed"),
                 allowNull: false,
             },
-            discount_value: {
+            discountValue: {
                 type: DataTypes.DECIMAL(10, 2),
                 allowNull: false,
             },
-            start_date: {
+            startDate: {
                 type: DataTypes.DATE,
                 allowNull: false,
             },
-            end_date: {
+            endDate: {
                 type: DataTypes.DATE,
                 allowNull: false,
             },
@@ -37,8 +47,21 @@ export default {
                 defaultValue: true,
             },
         });
+
+        await queryInterface.addIndex("Promotions", ["promotionId"], {
+            name: "idx_promotionId",
+            unique: true,
+        });
+
+        await queryInterface.addIndex("Promotions", ["promotionCode"], {
+            name: "idx_promotionCode",
+            unique: false,
+        });
     },
+
     down: async (queryInterface: QueryInterface) => {
+        await queryInterface.removeIndex("Promotions", "idx_promotionId");
+        await queryInterface.removeIndex("Promotions", "idx_promotionCode");
         await queryInterface.dropTable("Promotions");
     },
 };

@@ -7,17 +7,30 @@ import {
     AutoIncrement,
     ForeignKey,
     Default,
+    HasMany,
+    Index,
 } from "sequelize-typescript";
 import { sqlCustomer } from "./sqlCustomerModel";
+import { sqlOrderItem } from "./sqlOrderItemModel";
 
 @Table({
     tableName: "Orders",
     timestamps: false,
+    indexes: [
+        {
+            fields: ["customer_id", "orderDate"],
+            name: "idx_customer_orderDate",
+        },
+        {
+            fields: ["customer_id", "orderStatus"],
+            name: "idx-customer_orderStatus",
+        },
+    ],
 })
 export class sqlOrder extends Model {
     @PrimaryKey
     @AutoIncrement
-    @Column(DataType.INTEGER)
+    @Column(DataType.BIGINT)
     order_id!: number;
 
     @ForeignKey(() => sqlCustomer)
@@ -27,23 +40,24 @@ export class sqlOrder extends Model {
     })
     customer_id!: string;
 
+    @Index
     @Column({
         type: DataType.STRING(50),
         allowNull: false,
     })
-    order_number!: string;
+    orderNumber!: string;
 
     @Default(DataType.NOW)
     @Column({
         type: DataType.DATE,
     })
-    order_date!: Date;
+    orderDate!: Date;
 
     @Column({
         type: DataType.DECIMAL(10, 2),
         allowNull: false,
     })
-    sub_total!: number;
+    subTotal!: number;
 
     @Column({
         type: DataType.DECIMAL(10, 2),
@@ -61,13 +75,37 @@ export class sqlOrder extends Model {
         type: DataType.DECIMAL(10, 2),
         allowNull: false,
     })
-    total_amount!: number;
+    totalAmount!: number;
 
     @Column({
         type: DataType.STRING(255),
         allowNull: false,
     })
-    shipping_address!: string;
+    shippingAddress!: string;
+
+    @Column({
+        type: DataType.CHAR(2),
+        allowNull: false,
+    })
+    stateAbbr!: string;
+
+    @Column({
+        type: DataType.CHAR(10),
+        allowNull: false,
+    })
+    zipCode!: string;
+
+    @Column({
+        type: DataType.STRING(15),
+        allowNull: false,
+    })
+    phoneNumber!: string;
+
+    @Column({
+        type: DataType.STRING(254),
+        allowNull: false,
+    })
+    email!: string;
 
     @Column({
         type: DataType.ENUM(
@@ -79,8 +117,9 @@ export class sqlOrder extends Model {
             "back ordered"
         ),
     })
-    order_status!: string;
+    orderStatus!: string;
 
+    @Index
     @Column({
         type: DataType.ENUM(
             "unfulfilled",
@@ -90,5 +129,8 @@ export class sqlOrder extends Model {
             "exception"
         ),
     })
-    fulfillment_status!: string;
+    fulfillmentStatus!: string;
+
+    @HasMany(() => sqlOrderItem)
+    orderItems!: sqlOrderItem[];
 }

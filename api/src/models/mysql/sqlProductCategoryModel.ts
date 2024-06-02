@@ -5,24 +5,24 @@ import {
     DataType,
     ForeignKey,
 } from "sequelize-typescript";
-import { sqlPromotion } from "./sqlPromotionModel";
 import { sqlProduct } from "./sqlProductModel";
+import { sqlCategory } from "./sqlCategoryModel";
 
 @Table({
-    tableName: "ProductPromotions",
+    tableName: "ProductCategories",
     timestamps: false,
     indexes: [
         {
-            fields: ["promotionId", "productNo"],
-            name: "idx_promotion_productNo",
+            fields: ["categoryName", "productNo"],
+            name: "idx_category_product",
             unique: true,
         },
     ],
 })
-export class sqlProductPromotion extends Model {
-    @ForeignKey(() => sqlPromotion)
+export class sqlProductCategory extends Model {
+    @ForeignKey(() => sqlCategory)
     @Column(DataType.STRING)
-    promotionId!: string;
+    categoryName!: string;
 
     @ForeignKey(() => sqlProduct)
     @Column(DataType.STRING(20))

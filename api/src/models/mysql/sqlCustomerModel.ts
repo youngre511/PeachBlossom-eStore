@@ -14,7 +14,7 @@ import {
 export class sqlCustomer extends Model {
     @PrimaryKey
     @AutoIncrement
-    @Column(DataType.INTEGER)
+    @Column(DataType.BIGINT)
     customer_id!: number;
 }
 

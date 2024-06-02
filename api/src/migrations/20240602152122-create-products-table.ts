@@ -3,12 +3,17 @@ import { QueryInterface, DataTypes } from "sequelize";
 export default {
     up: async (queryInterface: QueryInterface) => {
         await queryInterface.createTable("Products", {
-            product_number: {
-                type: DataTypes.STRING(20),
+            id: {
+                type: DataTypes.BIGINT,
+                autoIncrement: true,
                 primaryKey: true,
-                allowNull: false,
             },
-            product_name: {
+            productNo: {
+                type: DataTypes.STRING(20),
+                allowNull: false,
+                unique: true,
+            },
+            productName: {
                 type: DataTypes.STRING,
                 allowNull: false,
             },
@@ -16,20 +21,20 @@ export default {
                 type: DataTypes.DECIMAL(10, 2),
                 allowNull: false,
             },
-            category_id: {
-                type: DataTypes.INTEGER,
-                allowNull: false,
-                references: {
-                    model: "Categories",
-                    key: "category_id",
-                },
-            },
             description: {
                 type: DataTypes.TEXT("tiny"),
+                allowNull: true,
             },
         });
+
+        await queryInterface.addIndex("Products", ["productNo"], {
+            name: "idx_productNo",
+            unique: true,
+        });
     },
+
     down: async (queryInterface: QueryInterface) => {
+        await queryInterface.removeIndex("Products", "idx_productNo");
         await queryInterface.dropTable("Products");
     },
 };

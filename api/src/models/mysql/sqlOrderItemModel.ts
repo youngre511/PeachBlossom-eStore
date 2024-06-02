@@ -6,8 +6,8 @@ import {
     PrimaryKey,
     AutoIncrement,
     ForeignKey,
+    Index,
 } from "sequelize-typescript";
-import { sqlPromotion } from "./sqlPromotionModel";
 import { sqlProduct } from "./sqlProductModel";
 import { sqlOrder } from "./sqlOrderModel";
 
@@ -19,17 +19,18 @@ export class sqlOrderItem extends Model {
     @PrimaryKey
     @AutoIncrement
     @Column({
-        type: DataType.INTEGER,
+        type: DataType.BIGINT,
     })
     order_item_id!: number;
 
+    @Index
     @ForeignKey(() => sqlOrder)
-    @Column(DataType.INTEGER)
+    @Column(DataType.BIGINT)
     order_id!: number;
 
     @ForeignKey(() => sqlProduct)
     @Column(DataType.STRING(20))
-    product_number!: string;
+    productNo!: string;
 
     @Column({
         type: DataType.INTEGER,
@@ -42,5 +43,5 @@ export class sqlOrderItem extends Model {
         type: DataType.DECIMAL(10, 2),
         allowNull: false,
     })
-    price_when_ordered!: number;
+    priceWhenOrdered!: number;
 }

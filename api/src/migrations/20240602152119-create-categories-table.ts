@@ -8,13 +8,20 @@ export default {
                 autoIncrement: true,
                 primaryKey: true,
             },
-            category_name: {
+            categoryName: {
                 type: DataTypes.STRING,
                 allowNull: false,
             },
         });
+
+        await queryInterface.addIndex("Categories", ["categoryName"], {
+            name: "idx_categoryName",
+            unique: false,
+        });
     },
+
     down: async (queryInterface: QueryInterface) => {
+        await queryInterface.removeIndex("Categories", "idx_categoryName");
         await queryInterface.dropTable("Categories");
     },
 };

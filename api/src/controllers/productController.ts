@@ -11,17 +11,20 @@ const promotionService = require("../services/promotionService");
 import { ProductItem, Promotion } from "../models/mongo/productModel";
 import { Request, Response } from "express";
 import { CategoryItem } from "../models/mongo/categoryModel";
+import { CreateProduct } from "./productController";
+
+export interface CreateProduct {
+    name: string;
+    category: Array<string>;
+    prefix: string;
+    description: string;
+    price: number;
+    stock?: number;
+    images?: Array<string>;
+}
 
 interface CreateProductRequest extends Request {
-    body: {
-        name: string;
-        category: Array<string>;
-        prefix: string;
-        description: string;
-        price: number;
-        stock?: number;
-        images?: Array<string>;
-    };
+    body: CreateProduct;
 }
 
 interface ProductParamsRequest extends Request {
@@ -173,43 +176,9 @@ exports.getProductsInPromotion = async (
 
 exports.createProduct = async (req: CreateProductRequest, res: Response) => {
     try {
-        // Accepting the front-end form data from the client to generate the document
-        const {
-            name,
-            category,
-            prefix,
-            description,
-            price,
-            stock = 0,
-            images = [],
-        } = req.body;
+        const result = await productService.createProduct(req.body);
 
-        //Generate unique product number
-        const productNo = generateProductNo(prefix);
-
-        //Find records for all category names in list
-        const categories = await Category.find({ name: { $in: category } });
-        //extract object ids
-        const categoryIds = categories.map((cat: CategoryItem) => cat._id);
-
-        const newProduct = {
-            productNo: productNo,
-            name: name,
-            category: categoryIds,
-            description: description,
-            price: price,
-            promotions: [],
-            stock: stock,
-            images: images,
-        };
-
-        // post the new document to the Product collection
-        const product: ProductItem = await Product.create(newProduct);
-
-        res.json({
-            message: "success",
-            payload: product,
-        });
+        res.status(200).json(result);
     } catch (error) {
         let errorObj = {
             message: "create product failure",

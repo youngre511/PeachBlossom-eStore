@@ -4,9 +4,13 @@ import {
     Model,
     DataType,
     PrimaryKey,
-    HasMany,
+    BelongsToMany,
+    AutoIncrement,
+    Index,
+    Unique,
 } from "sequelize-typescript";
 import { sqlProductPromotion } from "./sqlProductPromotionModel";
+import { sqlProduct } from "./sqlProductModel";
 
 @Table({
     tableName: "Promotions",
@@ -14,44 +18,57 @@ import { sqlProductPromotion } from "./sqlProductPromotionModel";
 })
 export class sqlPromotion extends Model {
     @PrimaryKey
+    @AutoIncrement
+    @Column(DataType.BIGINT)
+    promo_data_id!: number;
+
+    @Index
+    @Unique
     @Column({
         type: DataType.STRING,
         allowNull: false,
     })
     promotionId!: string;
 
+    @Index
+    @Column({
+        type: DataType.STRING,
+        allowNull: true,
+    })
+    promotionCode?: string;
+
     @Column({
         type: DataType.STRING,
         allowNull: false,
     })
-    promotion_name!: string;
+    promotionName!: string;
 
     @Column(DataType.TEXT)
-    promotion_description!: string;
+    promotionDescription!: string;
 
     @Column({
         type: DataType.ENUM("percentage", "fixed"),
         allowNull: false,
     })
-    discount_type!: string;
+    discountType!: string;
 
     @Column({
         type: DataType.DECIMAL(10, 2),
         allowNull: false,
     })
-    discount_value!: number;
+    discountValue!: number;
 
     @Column({
         type: DataType.DATE,
         allowNull: false,
     })
-    start_date!: Date;
+    startDate!: Date;
 
     @Column({
         type: DataType.DATE,
         allowNull: false,
     })
-    end_date!: Date;
+    endDate!: Date;
 
     @Column({
         type: DataType.BOOLEAN,
@@ -60,6 +77,6 @@ export class sqlPromotion extends Model {
     })
     active!: boolean;
 
-    @HasMany(() => sqlProductPromotion)
+    @BelongsToMany(() => sqlProduct, () => sqlProductPromotion)
     productPromotions!: sqlProductPromotion[];
 }

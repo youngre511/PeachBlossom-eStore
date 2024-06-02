@@ -5,10 +5,18 @@ import {
     DataType,
     PrimaryKey,
     ForeignKey,
+    Index,
+    BelongsToMany,
     HasMany,
+    HasOne,
+    Unique,
 } from "sequelize-typescript";
 import { sqlCategory } from "./sqlCategoryModel";
 import { sqlProductPromotion } from "./sqlProductPromotionModel";
+import { sqlPromotion } from "./sqlPromotionModel";
+import { sqlProductCategory } from "./sqlProductCategoryModel";
+import { sqlCartItem } from "./sqlCartItemModel";
+import { sqlInventory } from "./sqlInventoryModel";
 
 @Table({
     tableName: "Products",
@@ -16,17 +24,22 @@ import { sqlProductPromotion } from "./sqlProductPromotionModel";
 })
 export class sqlProduct extends Model {
     @PrimaryKey
+    @Column(DataType.BIGINT)
+    id!: number;
+
+    @Index
+    @Unique
     @Column({
         type: DataType.STRING(20),
         allowNull: false,
     })
-    product_number!: string;
+    productNo!: string;
 
     @Column({
         type: DataType.STRING,
         allowNull: false,
     })
-    product_name!: string;
+    productName!: string;
 
     @Column({
         type: DataType.DECIMAL(10, 2),
@@ -34,15 +47,20 @@ export class sqlProduct extends Model {
     })
     price!: number;
 
-    @ForeignKey(() => sqlCategory)
-    @Column(DataType.INTEGER)
-    category_id!: number;
-
     @Column({
         type: DataType.TEXT("tiny"),
     })
     description!: string;
 
-    @HasMany(() => sqlProductPromotion)
+    @BelongsToMany(() => sqlPromotion, () => sqlProductPromotion)
     productPromotions!: sqlProductPromotion[];
+
+    @BelongsToMany(() => sqlCategory, () => sqlProductCategory)
+    productCategory!: sqlProductCategory[];
+
+    @HasMany(() => sqlCartItem)
+    cartItem!: sqlCartItem;
+
+    @HasOne(() => sqlInventory)
+    inventory!: sqlInventory;
 }
