@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
-const { Product } = require("../models/mysql/sqlProductModel");
+const { sqlProduct } = require("../models/mysql/sqlProductModel");
 
 const generateProductNo = async (prefix: string): Promise<string> => {
     let productNo: string;
@@ -7,8 +7,8 @@ const generateProductNo = async (prefix: string): Promise<string> => {
 
     do {
         productNo = `${prefix}-${uuidv4().split("-").join("").substring(0, 8)}`;
-        const existingProduct = await Product.findOne({
-            where: { product_number: productNo },
+        const existingProduct = await sqlProduct.findOne({
+            where: { productNo: productNo },
         });
         if (!existingProduct) {
             isUnique = true;

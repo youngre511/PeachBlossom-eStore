@@ -9,6 +9,7 @@ import {
     Default,
     HasMany,
     Index,
+    Unique,
 } from "sequelize-typescript";
 import { sqlCustomer } from "./sqlCustomerModel";
 import { sqlOrderItem } from "./sqlOrderItemModel";
@@ -41,11 +42,12 @@ export class sqlOrder extends Model {
     customer_id!: string;
 
     @Index
+    @Unique
     @Column({
         type: DataType.STRING(50),
         allowNull: false,
     })
-    orderNumber!: string;
+    orderNo!: string;
 
     @Default(DataType.NOW)
     @Column({

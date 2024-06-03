@@ -11,6 +11,7 @@ export default {
             customer_id: {
                 type: DataTypes.BIGINT,
                 allowNull: true,
+                unique: true,
                 references: {
                     model: "Customers",
                     key: "customer_id",
@@ -22,7 +23,7 @@ export default {
 
         await queryInterface.addIndex("Carts", ["customer_id"], {
             name: "idx_customer_id",
-            unique: false,
+            unique: true,
         });
     },
 

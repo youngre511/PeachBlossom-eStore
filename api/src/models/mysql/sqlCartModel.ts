@@ -9,6 +9,7 @@ import {
     HasMany,
     BelongsTo,
     Index,
+    Unique,
 } from "sequelize-typescript";
 import { sqlCustomer } from "./sqlCustomerModel";
 import { sqlCartItem } from "./sqlCartItemModel";
@@ -24,6 +25,7 @@ export class sqlCart extends Model {
     cart_id!: number;
 
     @Index
+    @Unique
     @ForeignKey(() => sqlCustomer)
     @Column({
         type: DataType.INTEGER,

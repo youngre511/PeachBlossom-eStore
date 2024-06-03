@@ -18,9 +18,10 @@ export default {
                 onUpdate: "CASCADE",
                 onDelete: "SET NULL",
             },
-            orderNumber: {
+            orderNo: {
                 type: DataTypes.STRING(50),
                 allowNull: false,
+                unique: true
             },
             orderDate: {
                 type: DataTypes.DATE,
@@ -85,8 +86,9 @@ export default {
                 allowNull: false,
             },
         });
-        await queryInterface.addIndex("Orders", ["orderNumber"], {
+        await queryInterface.addIndex("Orders", ["orderNo"], {
             name: "idx_orderNumber",
+            unique: true;
         });
 
         await queryInterface.addIndex("Orders", ["fulfillmentStatus"], {

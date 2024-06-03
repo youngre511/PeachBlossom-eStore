@@ -24,6 +24,7 @@
         "mongoose": "^8.4.0",
         "morgan": "^1.10.0",
         "mysql2": "^3.10.0",
+        "nanoid": "^5.0.7",
         "sales-tax": "^2.14.0",
         "sequelize": "^6.37.3",
         "sequelize-typescript": "^2.1.6",
