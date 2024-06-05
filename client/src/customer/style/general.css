@@ -1,0 +1,17 @@
+main {
+    margin-top: 160px;
+    padding: 0 20px;
+    min-height: calc(100dvh - 520px);
+}
+
+h1,
+h2,
+h3,
+h4 {
+    font-family: var(--Playfair);
+}
+
+.policies > ul {
+    list-style: none;
+    padding-left: 0;
+}

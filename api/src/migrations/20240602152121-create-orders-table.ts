@@ -21,7 +21,7 @@ export default {
             orderNo: {
                 type: DataTypes.STRING(50),
                 allowNull: false,
-                unique: true
+                unique: true,
             },
             orderDate: {
                 type: DataTypes.DATE,
@@ -88,7 +88,7 @@ export default {
         });
         await queryInterface.addIndex("Orders", ["orderNo"], {
             name: "idx_orderNumber",
-            unique: true;
+            unique: true,
         });
 
         await queryInterface.addIndex("Orders", ["fulfillmentStatus"], {
