@@ -38,6 +38,9 @@ export class sqlCartItem extends Model {
     @BelongsTo(() => sqlProduct)
     product!: sqlProduct;
 
+    @Column(DataType.STRING(50))
+    thumbnailUrl?: string;
+
     @ForeignKey(() => sqlPromotion)
     @Column({
         type: DataType.STRING,

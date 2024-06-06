@@ -33,6 +33,15 @@ const allowedOrigins: string[] = ["https://www.domain.com"];
 const categoryRouter = require("./routes/categoryRouter");
 app.use("/category", categoryRouter);
 
+const productRouter = require("./routes/productRouter");
+app.use("/product", productRouter);
+
+const promotionRouter = require("./routes/promotionRouter");
+app.use("/promotion", promotionRouter);
+
+const cartRouter = require("./routes/cartRouter");
+app.use("/cart", cartRouter);
+
 const PORT = process.env.PORT;
 
 app.listen(PORT, () => {

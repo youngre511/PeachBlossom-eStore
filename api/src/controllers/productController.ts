@@ -8,19 +8,24 @@ const promotionService = require("../services/promotionService");
 //Types and Interfaces//
 ////////////////////////
 
-import { ProductItem, Promotion } from "../models/mongo/productModel";
+import {
+    ProductItem,
+    Promotion,
+    Attributes,
+} from "../models/mongo/productModel";
 import { Request, Response } from "express";
 import { CategoryItem } from "../models/mongo/categoryModel";
-import { CreateProduct } from "./productController";
 
 export interface CreateProduct {
     name: string;
     category: Array<string>;
     prefix: string;
     description: string;
+    attributes: Attributes;
     price: number;
     stock?: number;
     images?: Array<string>;
+    tags: Array<string>;
 }
 
 interface CreateProductRequest extends Request {
@@ -30,6 +35,31 @@ interface CreateProductRequest extends Request {
 interface ProductParamsRequest extends Request {
     params: {
         productNo: string;
+    };
+}
+
+interface ProductGetRequest extends Request {
+    query: {
+        category?: string;
+        tags?: string;
+        page: string;
+        size?: string[];
+        color?: string[];
+        material?: string[];
+        minPrice?: string;
+        maxPrice?: string;
+        minWidth?: string;
+        maxWidth?: string;
+        minHeight?: string;
+        maxHeight?: string;
+        minDepth?: string;
+        maxDepth?: string;
+        minCircum?: string;
+        maxCircum?: string;
+        minDiam?: string;
+        maxDiam?: string;
+        sortMethod: string;
+        itemsPerPage: string;
     };
 }
 
@@ -79,9 +109,9 @@ interface UpdateStockRequest extends Request {
 /////GET FUNCTIONS//////
 ////////////////////////
 
-exports.getAllProducts = async (req: Request, res: Response) => {
+exports.getProducts = async (req: ProductGetRequest, res: Response) => {
     try {
-        const results = await productService.getAllProducts();
+        const results = await productService.getProducts(req.query);
 
         res.json({
             message: "success",
@@ -89,7 +119,7 @@ exports.getAllProducts = async (req: Request, res: Response) => {
         });
     } catch (error) {
         let errorObj = {
-            message: "get all products failure",
+            message: "get products failure",
             payload: error,
         };
 
@@ -111,32 +141,6 @@ exports.getOneProduct = async (req: ProductParamsRequest, res: Response) => {
     } catch (error) {
         let errorObj = {
             message: "get one product failure",
-            payload: error,
-        };
-
-        console.log(errorObj);
-
-        res.json(errorObj);
-    }
-};
-
-exports.getProductsByCategory = async (
-    req: CategoryParamsRequest,
-    res: Response
-) => {
-    try {
-        const { categoryName } = req.params;
-        const results = await productService.getProductsByCategory(
-            categoryName
-        );
-
-        res.json({
-            message: "success",
-            payload: results,
-        });
-    } catch (error) {
-        let errorObj = {
-            message: "get all products failure",
             payload: error,
         };
 

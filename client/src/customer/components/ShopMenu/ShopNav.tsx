@@ -36,7 +36,7 @@ const ShopNav: React.FC<Props> = () => {
                         categories.map((category, index) => {
                             return (
                                 <li key={index}>
-                                    <Link to={`/shop/${category}`}>
+                                    <Link to={`/shop?category=${category}`}>
                                         {category}
                                     </Link>
                                 </li>

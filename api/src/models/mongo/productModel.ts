@@ -25,7 +25,7 @@ export interface ProductItem extends Document {
     updatedAt?: Date;
 }
 
-interface Attributes {
+export interface Attributes {
     color:
         | "red"
         | "orange"
@@ -94,10 +94,10 @@ const AttributesSchema: Schema = new Schema({
         depth: {
             type: Number,
         },
-        diameter: {
+        diam: {
             type: Number,
         },
-        circumference: {
+        circum: {
             type: Number,
         },
     },

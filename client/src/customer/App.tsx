@@ -2,7 +2,7 @@ import React from "react";
 import { Routes, Route } from "react-router-dom";
 import "./style/general.css";
 import Nav from "./components/Nav/Nav";
-import ProductCatalogue from "./components/ProductCatalogue/ProductCatalogue";
+import ProductCatalogue from "./features/ProductCatalogue/ProductCatalogue";
 import About from "./components/About/About";
 import Login from "./components/LogIn/Login";
 import Signup from "./components/SignUp/Signup";
@@ -23,14 +23,8 @@ function App() {
             <main>
                 <Routes>
                     <Route path="/" element={<Home />} />
-                    <Route
-                        path="/shop/:category?"
-                        element={<ProductCatalogue />}
-                    />
-                    <Route
-                        path="/shop/product/:productNo"
-                        element={<ProductDetails />}
-                    />
+                    <Route path="/shop" element={<ProductCatalogue />} />
+                    <Route path="/shop/product" element={<ProductDetails />} />
                     <Route path="/about" element={<About />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/signup" element={<Signup />} />

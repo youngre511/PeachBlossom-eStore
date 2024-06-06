@@ -17,4 +17,6 @@ export interface CartState {
     overallDiscount: number;
     promoCode: string | null;
     promoName: string | null;
+    cartId: number | null;
+    error: string | null;
 }

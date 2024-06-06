@@ -1,6 +1,6 @@
 const productRouter = require("express").Router();
 const {
-    getAllProducts,
+    getProducts,
     getOneProduct,
     getProductsByCategory,
     getProductsInPromotion,
@@ -11,11 +11,9 @@ const {
     updateProductStock,
 } = require("../controllers/productController");
 
-productRouter.get("/", getAllProducts);
+productRouter.get("/", getProducts);
 
 productRouter.get("/category/:categoryName", getProductsByCategory);
-
-productRouter.get("/promotion/:promoId", getProductsInPromotion);
 
 productRouter.get("/:productNo", getOneProduct);
 
@@ -28,3 +26,5 @@ productRouter.put("/update-price/:productNo", updateProductPrice);
 productRouter.put("/update-stock/:productNo", updateProductStock);
 
 productRouter.delete("/delete/:productNo", deleteProduct);
+
+module.exports = productRouter;
