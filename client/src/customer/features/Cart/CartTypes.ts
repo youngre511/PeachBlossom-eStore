@@ -20,3 +20,13 @@ export interface CartState {
     cartId: number | null;
     error: string | null;
 }
+
+export interface ChangeQuantityRequest {
+    productIndex: number;
+    adjustmentAmount: number;
+}
+
+export interface ActionData {
+    productNo: string;
+    cartId: string;
+}

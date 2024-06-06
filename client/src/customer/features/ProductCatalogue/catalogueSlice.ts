@@ -7,6 +7,7 @@ import {
     CatalogueState,
     FetchProductsResponse,
 } from "./CatalogueTypes";
+import { arraysEqual } from "../../../common/utils/arraysEqual";
 
 const initialState: CatalogueState = {
     products: [],
@@ -48,8 +49,31 @@ export const fetchProducts = createAsyncThunk<
         const state = getState() as RootState;
         const itemsPerPage = state.userPreferences.itemsPerPage;
         const currentFilters = state.catalogue.filters;
+        let filterUnchanged = true;
 
-        if (currentFilters === filters) {
+        const keys = Object.keys(filters) as Array<keyof Filters>;
+        if (state.catalogue.filters) {
+            for (let key of keys) {
+                const currentValue = filters[key];
+                const existingValue = state.catalogue.filters[key];
+                if (
+                    Array.isArray(currentValue) &&
+                    Array.isArray(existingValue)
+                ) {
+                    if (!arraysEqual(currentValue, existingValue)) {
+                        filterUnchanged = false;
+                        break;
+                    }
+                } else if (currentValue !== existingValue) {
+                    filterUnchanged = false;
+                    break;
+                }
+            }
+        } else {
+            filterUnchanged = false;
+        }
+
+        if (filterUnchanged) {
             return { filters, products: state.catalogue.products };
         }
 
