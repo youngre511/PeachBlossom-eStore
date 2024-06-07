@@ -6,6 +6,7 @@ import {
     PrimaryKey,
     ForeignKey,
     Index,
+    BelongsTo,
     BelongsToMany,
     HasMany,
     HasOne,
@@ -14,9 +15,9 @@ import {
 import { sqlCategory } from "./sqlCategoryModel";
 import { sqlProductPromotion } from "./sqlProductPromotionModel";
 import { sqlPromotion } from "./sqlPromotionModel";
-import { sqlProductCategory } from "./sqlProductCategoryModel";
 import { sqlCartItem } from "./sqlCartItemModel";
 import { sqlInventory } from "./sqlInventoryModel";
+import { sqlSubCategory } from "./sqlSubCategoryModel";
 
 @Table({
     tableName: "Products",
@@ -52,11 +53,26 @@ export class sqlProduct extends Model {
     })
     description!: string;
 
+    @Index
+    @ForeignKey(() => sqlSubCategory)
+    @Column({
+        type: DataType.BIGINT,
+        allowNull: true,
+    })
+    subCategory_id?: number;
+
+    @BelongsTo(() => sqlSubCategory)
+    @Index
+    @ForeignKey(() => sqlCategory)
+    @Column({
+        type: DataType.BIGINT,
+        allowNull: false,
+    })
+    category_id!: number;
+
+    @BelongsTo(() => sqlCategory)
     @BelongsToMany(() => sqlPromotion, () => sqlProductPromotion)
     productPromotions!: sqlProductPromotion[];
-
-    @BelongsToMany(() => sqlCategory, () => sqlProductCategory)
-    productCategory!: sqlProductCategory[];
 
     @HasMany(() => sqlCartItem)
     cartItem!: sqlCartItem;

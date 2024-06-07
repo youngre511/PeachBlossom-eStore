@@ -7,7 +7,6 @@ import { RootState } from "../../store/store";
 import Item from "../../components/Item/Item";
 import { Product } from "./CatalogueTypes";
 import { fetchProducts } from "./catalogueSlice";
-import { Color, Material } from "./CatalogueTypes";
 
 interface Props {}
 const ProductCatalogue: React.FC<Props> = () => {
@@ -22,6 +21,7 @@ const ProductCatalogue: React.FC<Props> = () => {
 
     const search = searchParams.get("search");
     const category = searchParams.get("category");
+    const subCategory = searchParams.get("sub_category");
     const page = searchParams.get("page") || "1";
     const size = searchParams.get("size")?.split(",") || null;
     const color = searchParams.get("color")?.split(",") || null;
@@ -45,6 +45,7 @@ const ProductCatalogue: React.FC<Props> = () => {
         const params = {
             search,
             category,
+            subCategory,
             size,
             color,
             minPrice,
@@ -106,7 +107,20 @@ const ProductCatalogue: React.FC<Props> = () => {
     return (
         <div className="productCatalogue">
             {products.length > 0 &&
-                products.map((product: Product) => <Item product={product} />)}
+                products.map((product: Product) => (
+                    <Item
+                        productNo={product.productNo}
+                        name={product.name}
+                        description={product.description}
+                        price={product.price}
+                        discountPrice={product.discountPrice}
+                        promotionDesc={product.promotionDesc}
+                        singleProductProm={product.singleProductProm}
+                        attributes={product.attributes}
+                        images={product.images}
+                        stock={product.stock}
+                    />
+                ))}
         </div>
     );
 };

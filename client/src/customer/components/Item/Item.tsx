@@ -1,49 +1,40 @@
 import React from "react";
 import { useEffect } from "react";
+import AddToCartButton from "../AddToCartButton/AddToCartButton";
+import { Product } from "../../features/ProductCatalogue/CatalogueTypes";
 
-interface ItemProps {
-    productNo: string;
-    name: string;
-    description: string;
-    attributes: {
-        color: string;
-        material?: string;
-        size?: string;
-        weight: number;
-        dimensions: {
-            width?: number;
-            height?: number;
-            depth?: number;
-            diameter?: number;
-            circumference?: number;
-        };
-    };
-    price: number;
-    promotions: {
-        promoId: string;
-        name: string;
-        description: string;
-        discountType: "percentage" | "fixed";
-        discountValue: number;
-        startDate: string;
-        endDate: string;
-        active: boolean;
-    };
-    stock: number;
-    images: string[];
-    tags: string[];
-}
-const Item: React.FC<Props> = ({
+const Item: React.FC<Product> = ({
     productNo,
     name,
     description,
-    attributes,
     price,
-    promotions,
-    stock,
+    discountPrice,
+    promotionDesc,
+    singleProductProm,
+    attributes,
     images,
-    tags,
-}: ItemProps) => {
-    return <div className="item"></div>;
+    stock,
+}: Product) => {
+    const className = stock > 0 ? "item" : "item out-of-stock";
+
+    return (
+        <div className="item" id={productNo}>
+            <img src={images[0]} alt={name} />
+            <h2 className="cat-prod-name">{name}</h2>
+            {discountPrice && (
+                <div className="sale-pricing">
+                    <p className="sale-price">
+                        Sale ${discountPrice.toFixed(2)}
+                    </p>
+                    <p className="reg-price">reg. ${price.toFixed(2)}</p>
+                    {!singleProductProm && promotionDesc && (
+                        <p className="cat-promo-desc">{promotionDesc}</p>
+                    )}
+                </div>
+            )}
+            {!discountPrice && <p className="cat-price">${price}</p>}
+            <AddToCartButton available={stock} productNo={productNo} />
+        </div>
+    );
 };
 export default Item;

@@ -1,11 +1,25 @@
 import { Document, Schema, model } from "mongoose";
 
+export interface SubCategoryItem {
+    _id: Schema.Types.ObjectId;
+    name: string;
+}
 export interface CategoryItem extends Document {
     _id: Schema.Types.ObjectId;
     name: string;
+    subCategories: SubCategoryItem[];
     createdAt?: Date;
     updatedAt?: Date;
 }
+
+const SubCategorySchema: Schema = new Schema({
+    _id: { type: Schema.Types.ObjectId, auto: true },
+    name: {
+        type: String,
+        unique: true,
+        required: true,
+    },
+});
 
 const CategorySchema: Schema = new Schema(
     {
@@ -14,6 +28,7 @@ const CategorySchema: Schema = new Schema(
             unique: true,
             required: true,
         },
+        subCategories: [SubCategorySchema],
     },
     { timestamps: true }
 );

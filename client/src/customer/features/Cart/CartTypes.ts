@@ -2,7 +2,7 @@ export interface CartItem {
     productNo: string;
     name: string;
     price: number;
-    discountPrice: number;
+    discountPrice: number | null;
     quantity: number;
     thumbnailUrl: string;
     productUrl: string;
@@ -28,5 +28,5 @@ export interface ChangeQuantityRequest {
 
 export interface ActionData {
     productNo: string;
-    cartId: string;
+    cartId: number | null;
 }

@@ -6,30 +6,40 @@ import {
     PrimaryKey,
     AutoIncrement,
     Index,
+    BelongsTo,
+    ForeignKey,
     HasMany,
 } from "sequelize-typescript";
 import { sqlProduct } from "./sqlProductModel";
-import { sqlSubCategory } from "./sqlSubCategoryModel";
+import { sqlCategory } from "./sqlCategoryModel";
 
 @Table({
-    tableName: "Categories",
+    tableName: "SubCategories",
     timestamps: false,
 })
-export class sqlCategory extends Model {
+export class sqlSubCategory extends Model {
     @PrimaryKey
     @AutoIncrement
     @Column(DataType.BIGINT)
-    category_id!: number;
+    subCategory_id!: number;
 
     @Index
     @Column({
         type: DataType.STRING,
         allowNull: false,
     })
-    categoryName!: string;
+    subCategoryName!: string;
 
-    @HasMany(() => sqlSubCategory)
-    subCategory!: sqlSubCategory[];
+    @Index
+    @ForeignKey(() => sqlCategory)
+    @Column({
+        type: DataType.BIGINT,
+        allowNull: false,
+    })
+    category_id!: number;
+
+    @BelongsTo(() => sqlCategory)
+    category!: sqlCategory[];
 
     @HasMany(() => sqlProduct)
     products!: sqlProduct[];

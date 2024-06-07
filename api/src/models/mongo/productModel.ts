@@ -17,6 +17,7 @@ export interface ProductItem extends Document {
     name: string;
     category: Array<typeof Schema.Types.ObjectId>;
     description: string;
+    attributes: Attributes;
     price: number;
     promotions: Array<Promotion>;
     stock: number;
@@ -154,10 +155,18 @@ const ProductSchema: Schema = new Schema(
             unique: true,
             required: true,
         },
-        category: [
+        category: {
+            type: Schema.Types.ObjectId,
+            ref: "Category",
+        },
+        subCategory: {
+            type: Schema.Types.ObjectId,
+            ref: "Category.subCategories",
+        },
+        tags: [
             {
                 type: Schema.Types.ObjectId,
-                ref: "Category",
+                ref: "Tag",
             },
         ],
         description: {
@@ -179,12 +188,6 @@ const ProductSchema: Schema = new Schema(
         images: [
             {
                 type: String,
-            },
-        ],
-        tags: [
-            {
-                type: Schema.Types.ObjectId,
-                ref: "Tag",
             },
         ],
     },

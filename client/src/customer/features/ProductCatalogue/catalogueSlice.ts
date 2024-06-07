@@ -14,6 +14,7 @@ const initialState: CatalogueState = {
     filters: {
         search: null,
         category: null,
+        subCategory: null,
         size: null,
         color: null,
         minPrice: null,
@@ -48,14 +49,14 @@ export const fetchProducts = createAsyncThunk<
     async (filters: Filters, { getState, rejectWithValue }) => {
         const state = getState() as RootState;
         const itemsPerPage = state.userPreferences.itemsPerPage;
-        const currentFilters = state.catalogue.filters;
+        const existingFilters = state.catalogue.filters;
         let filterUnchanged = true;
 
         const keys = Object.keys(filters) as Array<keyof Filters>;
-        if (state.catalogue.filters) {
+        if (existingFilters) {
             for (let key of keys) {
                 const currentValue = filters[key];
-                const existingValue = state.catalogue.filters[key];
+                const existingValue = existingFilters[key];
                 if (
                     Array.isArray(currentValue) &&
                     Array.isArray(existingValue)

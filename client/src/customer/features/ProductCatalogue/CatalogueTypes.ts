@@ -34,9 +34,11 @@ export type Material =
 export interface Product {
     productNo: string;
     name: string;
+    description: string;
     price: number;
-    discountPrice: number;
-    promotionName: string;
+    discountPrice: number | null;
+    promotionDesc: string | null;
+    singleProductProm: boolean;
     attributes: {
         color: Color;
         material: Material;
@@ -51,13 +53,14 @@ export interface Product {
             circumference: number;
         };
     };
-    tags: string[];
     images: string[];
+    stock: number;
 }
 
 export interface Filters {
     search: string | null;
     category: string | null;
+    subCategory: string | null;
     size: string[] | null;
     color: string[] | null;
     minPrice: string | null;

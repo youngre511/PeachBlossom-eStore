@@ -13,6 +13,7 @@ import { Types } from "mongoose";
 import { ProductItem } from "../models/mongo/productModel";
 import { TagItem } from "../models/mongo/tagModel";
 import { CreateProduct } from "../controllers/productController";
+import { SubCategoryItem } from "../models/mongo/categoryModel";
 type BooleString = { success: boolean; message: string };
 
 type Color =
@@ -52,6 +53,7 @@ type Size = "small" | "medium" | "large";
 interface FilterObject {
     search?: string;
     category?: string;
+    subCategory?: string;
     tags?: string;
     page: number;
     size?: Size[];
@@ -73,16 +75,58 @@ interface FilterObject {
     itemsPerPage: string;
 }
 
+interface CatalogueResponse {
+    productNo: string;
+    name: string;
+    description: string;
+    price: number;
+    discountPrice: number | null;
+    promotionDesc: string | null;
+    singleProdProm: boolean;
+    attributes: {
+        color: Color;
+        material: Material;
+        size: "small" | "medium" | "large";
+        // Dimensions in inches
+        weight: number;
+        dimensions: {
+            width: number;
+            height: number;
+            depth: number;
+            diameter: number;
+            circumference: number;
+        };
+    };
+    images: string[];
+    stock: number;
+}
+
 //get sorted and filtered products
 exports.getProducts = async (filters: FilterObject) => {
     const skip = (filters.page - 1) * +filters.itemsPerPage;
     let categoryId: Types.ObjectId | undefined;
+    let subCategoryId: Types.ObjectId | undefined;
 
     // Retrieve category and tag object ids if names are provided
     if (filters.category) {
         const cat = await Category.findOne({ name: filters.category }).exec();
         if (cat) {
             categoryId = cat._id;
+            if (filters.subCategory) {
+                const subCat = cat.subCategories.filter(
+                    (subCategory: SubCategoryItem) =>
+                        subCategory.name === filters.subCategory
+                );
+                if (subCat.length === 0) {
+                    throw new Error(
+                        `Not a valid subcategory of ${filters.category}`
+                    );
+                } else {
+                    subCategoryId = subCat[0]._id;
+                }
+            }
+        } else {
+            throw new Error("Not a valid category");
         }
     }
     let tagIds: Array<Types.ObjectId> | undefined;
@@ -107,7 +151,9 @@ exports.getProducts = async (filters: FilterObject) => {
     }
 
     // Narrow by category
-    if (categoryId) {
+    if (subCategoryId) {
+        query = query.where({ subCategory: subCategoryId });
+    } else if (categoryId) {
         query = query.where({ category: categoryId });
     }
 
@@ -185,7 +231,60 @@ exports.getProducts = async (filters: FilterObject) => {
         .limit(filters.itemsPerPage)
         .exec();
 
-    return { totalCount, products };
+    const productRecords: Array<CatalogueResponse> = products.map((product) => {
+        let discountPrice: number | null = null;
+        const activePromos = product.promotions.filter((promotion) => {
+            const now = new Date(Date.now());
+            const startDate = new Date(promotion.startDate);
+            const endDate = new Date(promotion.endDate);
+            return (
+                promotion.active === true && startDate < now && endDate > now
+            );
+        });
+
+        let promoDesc: string | null = null;
+        let singleSale: boolean = false;
+        if (activePromos.length > 0) {
+            const activePromo = activePromos[0];
+            promoDesc = activePromo.description;
+            if (promoDesc === "single product") {
+                singleSale = true;
+            }
+            if (activePromo.discountType === "percentage") {
+                discountPrice =
+                    product.price - product.price * activePromo.discountValue;
+            } else {
+                discountPrice = product.price - activePromo.discountValue;
+            }
+        }
+        const catObj: CatalogueResponse = {
+            productNo: product.productNo,
+            name: product.name,
+            description: product.description,
+            price: product.price,
+            discountPrice: discountPrice,
+            promotionDesc: promoDesc,
+            singleProdProm: singleSale,
+            attributes: {
+                color: product.attributes.color,
+                material: product.attributes.material,
+                size: product.attributes.size,
+                weight: product.attributes.weight,
+                dimensions: {
+                    width: product.attributes.dimensions.width,
+                    height: product.attributes.dimensions.height,
+                    depth: product.attributes.dimensions.depth,
+                    diameter: product.attributes.dimensions.diameter,
+                    circumference: product.attributes.dimensions.circumference,
+                },
+            },
+            images: product.images,
+            stock: product.stock,
+        };
+        return catObj;
+    });
+
+    return { totalCount, productRecords };
 };
 
 //get one product

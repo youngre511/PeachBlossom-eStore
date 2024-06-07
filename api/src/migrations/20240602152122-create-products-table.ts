@@ -25,16 +25,48 @@ export default {
                 type: DataTypes.TEXT("tiny"),
                 allowNull: true,
             },
+            category_id: {
+                type: DataTypes.BIGINT,
+                allowNull: false,
+                references: {
+                    model: "Categories",
+                    key: "category_id",
+                },
+                onUpdate: "CASCADE",
+                onDelete: "Null",
+            },
+            subCategory_id: {
+                type: DataTypes.BIGINT,
+                allowNull: true,
+                references: {
+                    model: "SubCategories",
+                    key: "subCategory_id",
+                },
+                onUpdate: "CASCADE",
+                onDelete: "Null",
+            },
         });
 
         await queryInterface.addIndex("Products", ["productNo"], {
             name: "idx_productNo",
             unique: true,
         });
+
+        await queryInterface.addIndex("Products", ["subCategoryId"], {
+            name: "idx_subCategory_id",
+            unique: false,
+        });
+
+        await queryInterface.addIndex("Products", ["subCategoryId"], {
+            name: "idx_category_id",
+            unique: false,
+        });
     },
 
     down: async (queryInterface: QueryInterface) => {
         await queryInterface.removeIndex("Products", "idx_productNo");
+        await queryInterface.removeIndex("Products", "idx_category_id");
+        await queryInterface.removeIndex("Products", "idx_subCategory_id");
         await queryInterface.dropTable("Products");
     },
 };
