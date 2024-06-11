@@ -44,4 +44,17 @@ export class sqlOrderItem extends Model {
         allowNull: false,
     })
     priceWhenOrdered!: number;
+
+    @Index
+    @Column({
+        type: DataType.ENUM(
+            "unfulfilled",
+            "partially fulfilled",
+            "fulfilled",
+            "back ordered",
+            "on hold",
+            "exception"
+        ),
+    })
+    fulfillmentStatus!: string;
 }

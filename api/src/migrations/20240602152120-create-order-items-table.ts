@@ -35,6 +35,21 @@ export default {
                 type: DataTypes.DECIMAL(10, 2),
                 allowNull: false,
             },
+            fulfillmentStatus: {
+                type: DataTypes.ENUM(
+                    "unfulfilled",
+                    "partially fulfilled",
+                    "fulfilled",
+                    "back ordered",
+                    "on hold",
+                    "exception"
+                ),
+                allowNull: false,
+            },
+        });
+
+        await queryInterface.addIndex("OrderItems", ["fulfillmentStatus"], {
+            name: "idx_fulfillmentStatus",
         });
 
         await queryInterface.addIndex("OrderItems", ["order_id"], {
@@ -44,6 +59,7 @@ export default {
     },
 
     down: async (queryInterface: QueryInterface) => {
+        await queryInterface.removeIndex("OrderItems", "idx_fulfillmentStatus");
         await queryInterface.removeIndex("OrderItems", "idx_order_id");
         await queryInterface.dropTable("OrderItems");
     },

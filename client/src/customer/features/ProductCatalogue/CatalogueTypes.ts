@@ -83,7 +83,7 @@ export interface Filters {
 
 export interface CatalogueState {
     products: Product[];
-    filters: Filters | null;
+    filters: Filters;
     loading: boolean;
     error: string | null;
 }

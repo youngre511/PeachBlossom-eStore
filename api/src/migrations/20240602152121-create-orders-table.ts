@@ -75,24 +75,10 @@ export default {
                 ),
                 allowNull: false,
             },
-            fulfillmentStatus: {
-                type: DataTypes.ENUM(
-                    "unfulfilled",
-                    "partially fulfilled",
-                    "fulfilled",
-                    "on hold",
-                    "exception"
-                ),
-                allowNull: false,
-            },
         });
         await queryInterface.addIndex("Orders", ["orderNo"], {
             name: "idx_orderNumber",
             unique: true,
-        });
-
-        await queryInterface.addIndex("Orders", ["fulfillmentStatus"], {
-            name: "idx_fulfillmentStatus",
         });
 
         await queryInterface.addIndex("Orders", ["customer_id", "orderDate"], {
@@ -110,7 +96,6 @@ export default {
 
     down: async (queryInterface: QueryInterface) => {
         await queryInterface.removeIndex("Orders", "idx_orderNumber");
-        await queryInterface.removeIndex("Orders", "idx_fulfillmentStatus");
         await queryInterface.removeIndex("Orders", "idx_customer_orderDate");
         await queryInterface.removeIndex("Orders", "idx_customer_orderStatus");
         await queryInterface.dropTable("Orders");
