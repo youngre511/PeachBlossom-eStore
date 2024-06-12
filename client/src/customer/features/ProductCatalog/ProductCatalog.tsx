@@ -2,15 +2,15 @@ import React from "react";
 import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
 import { setItemsPerPage } from "../UserPreferences/userPreferencesSlice";
-import { RootState } from "../../store/store";
+import { RootState } from "../../store/customerStore";
 import Item from "../../components/Item/Item";
-import { Product } from "./CatalogueTypes";
+import { Product } from "./CatalogTypes";
 
 interface Props {}
-const ProductCatalogue: React.FC<Props> = () => {
+const ProductCatalog: React.FC<Props> = () => {
     const dispatch = useAppDispatch();
     const { products, loading, error } = useAppSelector(
-        (state: RootState) => state.catalogue
+        (state: RootState) => state.catalog
     );
     const itemsPerPage = useAppSelector(
         (state: RootState) => state.userPreferences.itemsPerPage
@@ -29,7 +29,7 @@ const ProductCatalogue: React.FC<Props> = () => {
     }
 
     return (
-        <div className="productCatalogue">
+        <div className="productCatalog">
             {products.length > 0 &&
                 products.map((product: Product) => (
                     <Item
@@ -48,4 +48,4 @@ const ProductCatalogue: React.FC<Props> = () => {
         </div>
     );
 };
-export default ProductCatalogue;
+export default ProductCatalog;

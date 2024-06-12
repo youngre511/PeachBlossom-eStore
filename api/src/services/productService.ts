@@ -49,14 +49,12 @@ type Material =
     | "natural fiber"
     | "bamboo";
 
-type Size = "small" | "medium" | "large";
 interface FilterObject {
     search?: string;
     category?: string;
     subCategory?: string;
     tags?: string;
     page: number;
-    size?: Size[];
     color?: Color[];
     material?: Material[];
     minPrice?: string;
@@ -67,15 +65,11 @@ interface FilterObject {
     maxHeight?: string;
     minDepth?: string;
     maxDepth?: string;
-    minCircum?: string;
-    maxCircum?: string;
-    minDiam?: string;
-    maxDiam?: string;
     sortMethod: string;
     itemsPerPage: string;
 }
 
-interface CatalogueResponse {
+interface CatalogResponse {
     productNo: string;
     name: string;
     description: string;
@@ -85,16 +79,13 @@ interface CatalogueResponse {
     singleProdProm: boolean;
     attributes: {
         color: Color;
-        material: Material;
-        size: "small" | "medium" | "large";
+        material: Material[];
         // Dimensions in inches
         weight: number;
         dimensions: {
             width: number;
             height: number;
             depth: number;
-            diameter: number;
-            circumference: number;
         };
     };
     images: string[];
@@ -162,11 +153,6 @@ exports.getProducts = async (filters: FilterObject) => {
         query = query.where({ tag: { $in: tagIds } });
     }
 
-    // Narrow by size
-    if (filters.size) {
-        query = query.where({ "attributes.size": { $in: filters.size } });
-    }
-
     // Narrow by color
     if (filters.color) {
         query = query.where({ "attributes.color": { $in: filters.color } });
@@ -175,19 +161,12 @@ exports.getProducts = async (filters: FilterObject) => {
     // Narrow by material
     if (filters.material) {
         query = query.where({
-            "attributes.material": { $in: filters.material },
+            "attributes.material": { $elemMatch: { $in: filters.material } },
         });
     }
 
     // Define and iterate through all min-max parameters and add query params asneeded
-    const minMaxParams = [
-        "price",
-        "width",
-        "height",
-        "depth",
-        "circum",
-        "diam",
-    ];
+    const minMaxParams = ["price", "width", "height", "depth"];
     for (const param of minMaxParams) {
         const minParam = `min${
             param.charAt(0).toUpperCase() + param.slice(1)
@@ -231,7 +210,8 @@ exports.getProducts = async (filters: FilterObject) => {
         .limit(filters.itemsPerPage)
         .exec();
 
-    const productRecords: Array<CatalogueResponse> = products.map((product) => {
+    // Find active promotions and calculate discount price if necessary
+    const productRecords: Array<CatalogResponse> = products.map((product) => {
         let discountPrice: number | null = null;
         const activePromos = product.promotions.filter((promotion) => {
             const now = new Date(Date.now());
@@ -242,6 +222,7 @@ exports.getProducts = async (filters: FilterObject) => {
             );
         });
 
+        // If there is an active promotion, grab the description and determine whether it is a single-product sale.
         let promoDesc: string | null = null;
         let singleSale: boolean = false;
         if (activePromos.length > 0) {
@@ -257,7 +238,9 @@ exports.getProducts = async (filters: FilterObject) => {
                 discountPrice = product.price - activePromo.discountValue;
             }
         }
-        const catObj: CatalogueResponse = {
+
+        // Formulate response
+        const catObj: CatalogResponse = {
             productNo: product.productNo,
             name: product.name,
             description: product.description,
@@ -268,14 +251,11 @@ exports.getProducts = async (filters: FilterObject) => {
             attributes: {
                 color: product.attributes.color,
                 material: product.attributes.material,
-                size: product.attributes.size,
                 weight: product.attributes.weight,
                 dimensions: {
                     width: product.attributes.dimensions.width,
                     height: product.attributes.dimensions.height,
                     depth: product.attributes.dimensions.depth,
-                    diameter: product.attributes.dimensions.diameter,
-                    circumference: product.attributes.dimensions.circumference,
                 },
             },
             images: product.images,

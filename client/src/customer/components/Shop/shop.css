@@ -1,0 +1,29 @@
+.shop-container {
+    display: flex;
+}
+
+.filter-options {
+    width: 350px;
+}
+
+.product-display {
+    flex-grow: 1;
+}
+
+.shop-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.min-max-fields {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-left: 10px;
+}
+
+.filter-submit {
+    display: flex;
+    justify-content: space-between;
+}

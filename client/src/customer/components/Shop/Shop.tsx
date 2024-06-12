@@ -1,18 +1,19 @@
 import React from "react";
 import { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
+import "./shop.css";
 
-import { RootState } from "../../store/store";
+import { RootState } from "../../store/customerStore";
 import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
-import { fetchProducts } from "../../features/ProductCatalogue/catalogueSlice";
-import ProductCatalogue from "../../features/ProductCatalogue/ProductCatalogue";
+import { fetchProducts } from "../../features/ProductCatalog/catalogSlice";
+import ProductCatalog from "../../features/ProductCatalog/ProductCatalog";
 import FilterOptions from "../../features/FilterOptions/FilterOptions";
 import SortMethodSelector from "../../features/SortMethodSelector/SortMethodSelector";
+import { Filters } from "../../features/ProductCatalog/CatalogTypes";
 
 const Shop = () => {
     const dispatch = useAppDispatch();
-    const catalogue = useAppSelector((state: RootState) => state.catalogue);
-    const currentSortMethod = catalogue.filters.sortMethod;
+    const catalog = useAppSelector((state: RootState) => state.catalog);
     const itemsPerPage = useAppSelector(
         (state: RootState) => state.userPreferences.itemsPerPage
     );
@@ -66,7 +67,6 @@ const Shop = () => {
         };
         //FetchLogic
         dispatch(fetchProducts(params));
-        // Need to supply
     }, [
         search,
         category,
@@ -93,8 +93,9 @@ const Shop = () => {
 
     const updateSearchParams = (newFilters: Record<string, string>): void => {
         Object.keys(newFilters).forEach((key) => {
-            if (newFilters[key]) {
-                searchParams.set(key, newFilters[key]);
+            const value = newFilters[key];
+            if (value) {
+                searchParams.set(key, value as string);
             } else {
                 searchParams.delete(key);
             }
@@ -104,17 +105,23 @@ const Shop = () => {
 
     return (
         <div className="shop-container">
-            <div className="shop-header">
-                <h1>Category</h1>
-                <p>number of results</p>
-                <SortMethodSelector
-                    currentSortMethod={currentSortMethod}
-                    updateSearchParams={updateSearchParams}
-                />
-            </div>
-            <div className="products-and-filters">
-                {/* <FilterOptions /> */}
-                <ProductCatalogue />
+            <FilterOptions updateSearchParams={updateSearchParams} />
+            <div className="product-display">
+                <div className="shop-header">
+                    <div className="per-page-selector">
+                        <p>Items Per Page</p>
+                        <button type="button">24</button>
+                        <button type="button">48</button>
+                        <button type="button">96</button>
+                    </div>
+                    <h1>{category ? category : "Shop All"}</h1>
+                    <p>number of results</p>
+                    <SortMethodSelector
+                        sortMethod={sortMethod}
+                        updateSearchParams={updateSearchParams}
+                    />
+                </div>
+                <ProductCatalog />
             </div>
         </div>
     );

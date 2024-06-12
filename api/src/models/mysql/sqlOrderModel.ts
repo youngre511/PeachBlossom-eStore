@@ -111,7 +111,7 @@ export class sqlOrder extends Model {
 
     @Column({
         type: DataType.ENUM(
-            "processing",
+            "in process",
             "cancelled",
             "ready to ship",
             "shipped",
@@ -120,18 +120,6 @@ export class sqlOrder extends Model {
         ),
     })
     orderStatus!: string;
-
-    @Index
-    @Column({
-        type: DataType.ENUM(
-            "unfulfilled",
-            "partially fulfilled",
-            "fulfilled",
-            "on hold",
-            "exception"
-        ),
-    })
-    fulfillmentStatus!: string;
 
     @HasMany(() => sqlOrderItem)
     orderItems!: sqlOrderItem[];

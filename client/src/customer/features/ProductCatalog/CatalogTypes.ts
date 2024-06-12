@@ -41,16 +41,13 @@ export interface Product {
     singleProductProm: boolean;
     attributes: {
         color: Color;
-        material: Material;
-        size: "small" | "medium" | "large";
+        material: Material[];
         // Dimensions in inches
         weight: number;
         dimensions: {
             width: number;
             height: number;
             depth: number;
-            diameter: number;
-            circumference: number;
         };
     };
     images: string[];
@@ -61,7 +58,6 @@ export interface Filters {
     search: string | null;
     category: string | null;
     subCategory: string | null;
-    size: string[] | null;
     color: string[] | null;
     minPrice: string | null;
     maxPrice: string | null;
@@ -71,17 +67,13 @@ export interface Filters {
     maxHeight: string | null;
     minDepth: string | null;
     maxDepth: string | null;
-    minCircum: string | null;
-    maxCircum: string | null;
-    minDiam: string | null;
-    maxDiam: string | null;
     tags: string[] | null;
     material: string[] | null;
     sortMethod: string;
     page: string;
 }
 
-export interface CatalogueState {
+export interface CatalogState {
     products: Product[];
     filters: Filters;
     loading: boolean;

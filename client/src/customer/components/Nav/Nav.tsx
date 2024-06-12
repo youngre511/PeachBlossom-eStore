@@ -19,14 +19,12 @@ const Nav: React.FC<Props> = () => {
     const { contextSafe } = useGSAP({ scope: header });
 
     const revealShopMen = contextSafe(() => {
-        gsap.timeline()
-            .set(".shop-nav", { display: "block" })
-            .to(".shop-nav", {
-                duration: 0.2,
-                opacity: 1,
-                scale: 1,
-                ease: "power1.inOut",
-            });
+        gsap.timeline().set(".shop-nav", { display: "block" }).to(".shop-nav", {
+            duration: 0.2,
+            opacity: 1,
+            scale: 1,
+            ease: "power1.inOut",
+        });
     });
 
     return (
@@ -60,28 +58,57 @@ const Nav: React.FC<Props> = () => {
                     <li className="nav-text">Orders</li>
                     <li className="nav-text">Support</li>
                     <li>
-                        <div className="nav-icon" id="search" role="button">
+                        <div
+                            className="nav-icon"
+                            id="search"
+                            aria-label="search"
+                            tabIndex={0}
+                            role="button"
+                        >
                             <Search />
                         </div>
                     </li>
                     <li>
-                        <div className="nav-icon" id="account" role="button">
+                        <div
+                            className="nav-icon"
+                            id="account"
+                            aria-label="account"
+                            tabIndex={0}
+                            role="button"
+                        >
                             <Account />
                         </div>
                     </li>
                     <li>
-                        <div className="nav-icon" id="recents" role="button">
+                        <div
+                            className="nav-icon"
+                            id="recents"
+                            aria-label="recently viewed"
+                            tabIndex={0}
+                            role="button"
+                        >
                             <Recent />
                         </div>
                     </li>
                     <li>
-                        <div className="nav-icon" id="cart" role="button">
+                        <div
+                            className="nav-icon"
+                            id="cart"
+                            aria-label="cart"
+                            tabIndex={0}
+                            role="button"
+                        >
                             <Cart />
                             {cartContents > 0 && (
-                                <div className="cart-badge">
+                                <div className="cart-badge" aria-live="polite">
                                     <div className="badge-background"></div>
                                     <div className="badge-background-overlay"></div>
-                                    <p id="cart-contents">{cartContents}</p>
+                                    <p
+                                        id="cart-contents"
+                                        aria-label={`Cart with ${cartContents} items`}
+                                    >
+                                        {cartContents}
+                                    </p>
                                 </div>
                             )}
                         </div>

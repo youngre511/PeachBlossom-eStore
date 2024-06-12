@@ -26,6 +26,19 @@ export interface ProductItem extends Document {
     updatedAt?: Date;
 }
 
+type Material =
+    | "glass"
+    | "plastic"
+    | "ceramic"
+    | "metal"
+    | "wood"
+    | "fabric"
+    | "leather"
+    | "stone"
+    | "rubber"
+    | "resin"
+    | "natural fiber"
+    | "bamboo";
 export interface Attributes {
     color:
         | "red"
@@ -45,28 +58,13 @@ export interface Attributes {
         | "beige"
         | "multicolor"
         | "clear";
-    material:
-        | "glass"
-        | "plastic"
-        | "ceramic"
-        | "metal"
-        | "wood"
-        | "fabric"
-        | "leather"
-        | "stone"
-        | "rubber"
-        | "resin"
-        | "natural fiber"
-        | "bamboo";
-    size: "small" | "medium" | "large";
+    material: Material[];
     // Dimensions in inches
     weight: number;
     dimensions: {
         width: number;
         height: number;
         depth: number;
-        diameter: number;
-        circumference: number;
     };
 }
 
@@ -75,12 +73,11 @@ const AttributesSchema: Schema = new Schema({
         type: String,
         required: true,
     },
-    material: {
-        type: String,
-    },
-    size: {
-        type: String,
-    },
+    material: [
+        {
+            type: String,
+        },
+    ],
     weight: {
         type: Number,
         required: true,
@@ -93,12 +90,6 @@ const AttributesSchema: Schema = new Schema({
             type: Number,
         },
         depth: {
-            type: Number,
-        },
-        diam: {
-            type: Number,
-        },
-        circum: {
             type: Number,
         },
     },

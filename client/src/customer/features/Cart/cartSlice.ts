@@ -5,7 +5,7 @@ import {
     CartState,
     ChangeQuantityRequest,
 } from "./CartTypes";
-import { RootState } from "../../store/store";
+import { RootState } from "../../store/customerStore";
 import axios from "axios";
 
 const initialState: CartState = {
@@ -44,7 +44,7 @@ export const addItemToCart = createAsyncThunk<
                 })
             );
         } else {
-            const productToAdd = state.catalogue.products.find(
+            const productToAdd = state.catalog.products.find(
                 (p: any) => p.productNo === productNo
             );
             if (!productToAdd) {

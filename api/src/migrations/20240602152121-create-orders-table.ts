@@ -66,7 +66,7 @@ export default {
             },
             orderStatus: {
                 type: DataTypes.ENUM(
-                    "processing",
+                    "in process",
                     "cancelled",
                     "ready to ship",
                     "shipped",

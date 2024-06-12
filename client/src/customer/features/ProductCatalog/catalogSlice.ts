@@ -1,21 +1,20 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import { RootState } from "../../store/store";
+import { RootState } from "../../store/customerStore";
 import axios from "axios";
 import {
     Product,
     Filters,
-    CatalogueState,
+    CatalogState,
     FetchProductsResponse,
-} from "./CatalogueTypes";
+} from "./CatalogTypes";
 import { arraysEqual } from "../../../common/utils/arraysEqual";
 
-const initialState: CatalogueState = {
+const initialState: CatalogState = {
     products: [],
     filters: {
         search: null,
         category: null,
         subCategory: null,
-        size: null,
         color: null,
         minPrice: null,
         maxPrice: null,
@@ -25,10 +24,6 @@ const initialState: CatalogueState = {
         maxHeight: null,
         minDepth: null,
         maxDepth: null,
-        minCircum: null,
-        maxCircum: null,
-        minDiam: null,
-        maxDiam: null,
         tags: null,
         material: null,
         sortMethod: "name-ascend",
@@ -45,11 +40,11 @@ export const fetchProducts = createAsyncThunk<
     Filters,
     { state: RootState }
 >(
-    "catalogue/fetchProducts",
+    "catalog/fetchProducts",
     async (filters: Filters, { getState, rejectWithValue }) => {
         const state = getState() as RootState;
         const itemsPerPage = state.userPreferences.itemsPerPage;
-        const existingFilters = state.catalogue.filters;
+        const existingFilters = state.catalog.filters;
         let filterUnchanged = true;
 
         const keys = Object.keys(filters) as Array<keyof Filters>;
@@ -75,7 +70,7 @@ export const fetchProducts = createAsyncThunk<
         }
 
         if (filterUnchanged) {
-            return { filters, products: state.catalogue.products };
+            return { filters, products: state.catalog.products };
         }
 
         const params = { ...filters, itemsPerPage: itemsPerPage.toString() };
@@ -94,8 +89,8 @@ export const fetchProducts = createAsyncThunk<
 );
 
 //Slice//
-const catalogueSlice = createSlice({
-    name: "catalogue",
+const catalogSlice = createSlice({
+    name: "catalog",
     initialState,
     reducers: {
         setProducts: (state, action: PayloadAction<Product[]>) => {
@@ -124,5 +119,5 @@ const catalogueSlice = createSlice({
     },
 });
 
-export const { setFilters, setProducts } = catalogueSlice.actions;
-export default catalogueSlice.reducer;
+export const { setFilters, setProducts } = catalogSlice.actions;
+export default catalogSlice.reducer;

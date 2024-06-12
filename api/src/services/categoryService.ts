@@ -7,12 +7,22 @@ import { ClientSession } from "mongoose";
 import { CategoryItem } from "../models/mongo/categoryModel";
 import { ProductItem } from "../models/mongo/productModel";
 
-exports.getAllCategories = async (): Promise<CategoryItem[]> => {
-    const categoryArray: Array<CategoryItem> = await Category.find({});
-
-    if (!categoryArray) {
+exports.getAllCategories = async (): Promise<
+    Array<{ name: string; subCategories: string[] }>
+> => {
+    const categories: Array<CategoryItem> = await Category.find({});
+    if (!categories) {
         throw new Error("No categories found");
     }
+
+    const categoryArray: Array<{ name: string; subCategories: string[] }> =
+        categories.map((category) => {
+            const catName = category.name;
+            const subCats = category.subCategories.map(
+                (subCategory) => subCategory.name
+            );
+            return { name: catName, subCategories: subCats };
+        });
 
     return categoryArray;
 };

@@ -1,7 +1,7 @@
 import React from "react";
 import { useEffect } from "react";
 import AddToCartButton from "../AddToCartButton/AddToCartButton";
-import { Product } from "../../features/ProductCatalogue/CatalogueTypes";
+import { Product } from "../../features/ProductCatalog/CatalogTypes";
 
 const Item: React.FC<Product> = ({
     productNo,

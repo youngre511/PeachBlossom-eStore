@@ -1,8 +1,7 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 import "./style/general.css";
 import Nav from "./components/Nav/Nav";
-import ProductCatalogue from "./features/ProductCatalogue/ProductCatalogue";
 import About from "./components/About/About";
 import Login from "./components/LogIn/Login";
 import Signup from "./components/SignUp/Signup";
@@ -14,8 +13,16 @@ import Footer from "./components/Footer/Footer";
 import TermsAndConditions from "./components/TermsAndConditions/TermsAndConditions";
 import ShippingAndReturns from "./components/ShippingAndReturns/ShippingAndReturns";
 import PrivacyAndCookies from "./components/PrivacyAndCookies/PrivacyAndCookies";
+import Shop from "./components/Shop/Shop";
+import { useAppDispatch } from "./hooks/reduxHooks";
+import { fetchCategories } from "./features/Categories/categoriesSlice";
 
-function App() {
+const App: React.FC = () => {
+    const dispatch = useAppDispatch();
+    useEffect(() => {
+        dispatch(fetchCategories());
+    }, [dispatch]);
+
     return (
         <div className="App">
             <Nav />
@@ -23,7 +30,7 @@ function App() {
             <main>
                 <Routes>
                     <Route path="/" element={<Home />} />
-                    <Route path="/shop" element={<ProductCatalogue />} />
+                    <Route path="/shop" element={<Shop />} />
                     <Route
                         path="/shop/product/:productNo"
                         element={<ProductDetails />}
@@ -47,6 +54,6 @@ function App() {
             <Footer />
         </div>
     );
-}
+};
 
 export default App;

@@ -1,5 +1,5 @@
 import React from "react";
-import { RootState } from "../../store/store";
+import { RootState } from "../../store/customerStore";
 import { useAppSelector } from "../../hooks/reduxHooks";
 import { CartItem } from "../../features/Cart/CartTypes";
 
