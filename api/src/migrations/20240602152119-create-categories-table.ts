@@ -4,7 +4,7 @@ export default {
     up: async (queryInterface: QueryInterface) => {
         await queryInterface.createTable("Categories", {
             category_id: {
-                type: DataTypes.INTEGER,
+                type: DataTypes.BIGINT,
                 autoIncrement: true,
                 primaryKey: true,
             },

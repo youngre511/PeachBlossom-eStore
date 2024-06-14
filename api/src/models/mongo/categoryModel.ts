@@ -13,7 +13,7 @@ export interface CategoryItem extends Document {
 }
 
 const SubCategorySchema: Schema = new Schema({
-    _id: { type: Schema.Types.ObjectId, auto: true },
+    _id: { type: Schema.Types.ObjectId, auto: false },
     name: {
         type: String,
         unique: true,

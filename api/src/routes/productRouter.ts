@@ -2,7 +2,6 @@ const productRouter = require("express").Router();
 const {
     getProducts,
     getOneProduct,
-    getProductsByCategory,
     getProductsInPromotion,
     createProduct,
     deleteProduct,
@@ -12,8 +11,6 @@ const {
 } = require("../controllers/productController");
 
 productRouter.get("/", getProducts);
-
-productRouter.get("/category/:categoryName", getProductsByCategory);
 
 productRouter.get("/:productNo", getOneProduct);
 

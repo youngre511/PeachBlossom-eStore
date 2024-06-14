@@ -1,5 +1,5 @@
-const Product = require("../models/productModel");
-const Category = require("../models/categoryModel");
+const Product = require("../models/mongo/productModel");
+const Category = require("../models/mongo/categoryModel");
 const generatePromoNo = require("../utils/generatePromoNo");
 const mongoose = require("mongoose");
 

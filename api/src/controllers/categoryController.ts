@@ -1,6 +1,7 @@
-const Category = require("../models/categoryModel");
+const Category = require("../models/mongo/categoryModel");
 const categoryService = require("../services/categoryService");
 
+import { BooleString } from "../../types/api_resp";
 //Types and Interfaces
 import { CategoryItem } from "../models/mongo/categoryModel";
 import { Request, Response } from "express";
@@ -100,14 +101,14 @@ exports.createCategory = async (req: CategoryCreateRequest, res: Response) => {
     try {
         // Accepting the front-end form data from the client to generate the document
         const { name } = req.body;
-
-        const newCategory: CategoryItem = await categoryService.createCategory(
+        console.log(name);
+        const response: BooleString = await categoryService.createCategory(
             name
         );
 
         res.json({
             message: "success",
-            payload: newCategory,
+            payload: response,
         });
     } catch (error) {
         let errorObj = {

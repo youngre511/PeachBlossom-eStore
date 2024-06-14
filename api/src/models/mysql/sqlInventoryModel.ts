@@ -54,6 +54,10 @@ export class sqlInventory extends Model {
     })
     available!: number;
 
-    @BelongsTo(() => sqlProduct)
+    @BelongsTo(() => sqlProduct, {
+        as: "Product",
+        foreignKey: "productNo",
+        targetKey: "productNo",
+    })
     product!: sqlProduct;
 }

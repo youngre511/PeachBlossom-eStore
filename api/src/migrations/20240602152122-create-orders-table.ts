@@ -9,7 +9,7 @@ export default {
                 primaryKey: true,
             },
             customer_id: {
-                type: DataTypes.INTEGER,
+                type: DataTypes.BIGINT,
                 allowNull: true,
                 references: {
                     model: "Customers",

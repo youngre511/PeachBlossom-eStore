@@ -1,11 +1,13 @@
 const cartRouter = require("express").Router();
 
-cartRouter.get("/cartId/:cartId");
+function dummyFunc() {}
 
-cartRouter.get("/customerId/:customerId");
+cartRouter.get("/cartId/:cartId", dummyFunc);
 
-cartRouter.post("/create");
+cartRouter.get("/customerId/:customerId", dummyFunc);
 
-cartRouter.put("/add-to-cart");
+cartRouter.post("/create", dummyFunc);
+
+cartRouter.put("/add-to-cart", dummyFunc);
 
 module.exports = cartRouter;

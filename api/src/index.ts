@@ -4,7 +4,7 @@ const path = require("path");
 const cors = require("cors");
 const logger = require("morgan");
 const connectToMongoDB = require("./db/mongodb");
-const connectToMySQLDatabase = require("./db/mysql");
+import connectToMySQLDatabase from "./db/mysql";
 require("dotenv").config();
 
 //Type imports

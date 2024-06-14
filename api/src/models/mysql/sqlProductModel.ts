@@ -54,15 +54,6 @@ export class sqlProduct extends Model {
     description!: string;
 
     @Index
-    @ForeignKey(() => sqlSubCategory)
-    @Column({
-        type: DataType.BIGINT,
-        allowNull: true,
-    })
-    subCategory_id?: number;
-
-    @BelongsTo(() => sqlSubCategory)
-    @Index
     @ForeignKey(() => sqlCategory)
     @Column({
         type: DataType.BIGINT,
@@ -70,13 +61,22 @@ export class sqlProduct extends Model {
     })
     category_id!: number;
 
-    @BelongsTo(() => sqlCategory)
+    @BelongsTo(() => sqlCategory, { as: "Category" })
+    @Index
+    @ForeignKey(() => sqlSubCategory)
+    @Column({
+        type: DataType.BIGINT,
+        allowNull: true,
+    })
+    subCategory_id?: number;
+
+    @BelongsTo(() => sqlSubCategory, { as: "SubCategory" })
     @BelongsToMany(() => sqlPromotion, () => sqlProductPromotion)
     productPromotions!: sqlProductPromotion[];
 
-    @HasMany(() => sqlCartItem)
+    @HasMany(() => sqlCartItem, { as: "CartItem" })
     cartItem!: sqlCartItem;
 
-    @HasOne(() => sqlInventory)
+    @HasOne(() => sqlInventory, { as: "Inventory" })
     inventory!: sqlInventory;
 }

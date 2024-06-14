@@ -76,8 +76,10 @@ export const fetchProducts = createAsyncThunk<
         const params = { ...filters, itemsPerPage: itemsPerPage.toString() };
         try {
             const response = await axios.get(
-                "https://api.peachblossom.ryanyoung.codes/product",
-                { params: params }
+                `${process.env.REACT_APP_API_URL}product`,
+                {
+                    params: params,
+                }
             );
             return { filters: filters, products: response.data };
         } catch (error: any) {

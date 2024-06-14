@@ -4,7 +4,6 @@ const Tag = require("../models/mongo/tagModel");
 const sqlCategory = require("../models/mysql/sqlCategoryModel");
 const sqlProduct = require("../models/mysql/sqlProductModel");
 const sqlInventory = require("../models/mysql/sqlInventoryModel");
-const sqlProductCategory = require("../models/mysql/sqlProductCategoryModel");
 const generateProductNo = require("../utils/generateProductNo");
 
 // Types and interfaces
@@ -14,7 +13,8 @@ import { ProductItem } from "../models/mongo/productModel";
 import { TagItem } from "../models/mongo/tagModel";
 import { CreateProduct } from "../controllers/productController";
 import { SubCategoryItem } from "../models/mongo/categoryModel";
-type BooleString = { success: boolean; message: string };
+import { sqlSubCategory } from "../models/mysql/sqlSubCategoryModel";
+import { BooleString } from "../../types/api_resp";
 
 type Color =
     | "red"
@@ -305,71 +305,108 @@ exports.createProduct = async (
         const {
             name,
             category,
+            subCategory = null,
             prefix,
             description,
             attributes,
             price,
             stock = 0,
             images = [],
-            tags,
+            tags = null,
         } = productData;
         const productNo = generateProductNo(prefix);
 
         //Construct SQL product
         const abbrDesc = description.substring(0, 79) + "...";
-        const newProduct = await sqlProduct.create({
-            productNo,
-            productName: name,
-            description: abbrDesc,
-            price,
+        const sqlCatRec = await sqlCategory.findOne({
+            where: { categoryName: category },
         });
-
-        // add SQL categories
-        for (const categoryName of category) {
-            const category = await sqlCategory.findOne({
-                where: { categoryName },
-            });
-            if (category) {
-                await sqlProductCategory.create({
-                    categoryName: category.categoryName,
-                    productNo: newProduct.productNo,
-                });
-            }
+        if (!sqlCatRec) {
+            throw new Error("category does not exist in SQL database");
         }
+        const sqlCategoryId: number = sqlCatRec.category_id;
+
+        let sqlSubCategoryId: number | null;
+        if (subCategory) {
+            const subCatRec = await sqlSubCategory.findOne({
+                where: { subCategoryName: subCategory },
+            });
+            if (!subCatRec) {
+                throw new Error("subcategory does not exist in SQL database");
+            }
+            if (subCatRec.category_id !== sqlCategoryId) {
+                throw new Error(
+                    `${subCategory} is not a subcategory of ${category}`
+                );
+            }
+            sqlSubCategoryId = subCatRec.subCategory_id;
+        } else {
+            sqlSubCategoryId = null;
+        }
+
+        const newSQLProduct = {
+            productNo: productNo,
+            productName: name,
+            price: price,
+            description: abbrDesc,
+            category_id: sqlCategoryId,
+            subCategory_id: sqlSubCategoryId,
+        };
+
+        const createdProduct = await sqlProduct.create(newSQLProduct);
 
         // create SQL inventory record
         await sqlInventory.create({
-            productNo: newProduct.productNo,
+            productNo: createdProduct.productNo,
             stock: stock,
+            reserved: 0,
         });
 
         // MongoDB operations
-        const categoryIds = await Promise.all(
-            category.map(async (catName): Promise<Types.ObjectId | null> => {
-                const categoryDoc = await Category.findOne({ name: catName });
-                return categoryDoc ? categoryDoc._id : null;
-            })
-        );
+        const categoryDoc = await Category.findOne({ name: category });
+        if (!categoryDoc) {
+            throw new Error("category does not exist in MongoDB database");
+        }
+        const categoryId: Types.ObjectId = categoryDoc._id;
 
-        const validCategoryIds: Types.ObjectId[] = categoryIds.filter(
-            (id): id is Types.ObjectId => id != null
-        );
+        let subCategoryId: Types.ObjectId | null;
+        if (subCategory) {
+            const filteredSubCat = categoryDoc.subCategories.filter(
+                (subCat: { name: string; _id: Types.ObjectId }) =>
+                    subCat.name === subCategory
+            );
+            if (filteredSubCat.length === 0) {
+                throw new Error(
+                    `${subCategory} is not a subcategory of ${category}`
+                );
+            }
+            subCategoryId = filteredSubCat[0]._id;
+        } else {
+            subCategoryId = null;
+        }
 
-        const tagIds = await Promise.all(
-            tags.map(async (tagName): Promise<Types.ObjectId | null> => {
-                const tagDoc = await Tag.findOne({ name: tagName });
-                return tagDoc ? tagDoc._id : null;
-            })
-        );
+        let validTagIds: Array<Types.ObjectId> | null;
 
-        const validTagIds: Types.ObjectId[] = tagIds.filter(
-            (id): id is Types.ObjectId => id != null
-        );
+        if (tags) {
+            const tagIds = await Promise.all(
+                tags.map(async (tagName): Promise<Types.ObjectId | null> => {
+                    const tagDoc = await Tag.findOne({ name: tagName });
+                    return tagDoc ? tagDoc._id : null;
+                })
+            );
+
+            validTagIds = tagIds.filter(
+                (id): id is Types.ObjectId => id != null
+            );
+        } else {
+            validTagIds = null;
+        }
 
         const newMongoProduct: ProductItem = await Product.create({
             productNo: productNo,
             name: name,
-            category: validCategoryIds,
+            category: categoryId,
+            subCategory: subCategoryId,
             description: description,
             attributes: attributes,
             price: price,

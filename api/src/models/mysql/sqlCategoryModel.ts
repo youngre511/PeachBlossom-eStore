@@ -28,9 +28,9 @@ export class sqlCategory extends Model {
     })
     categoryName!: string;
 
-    @HasMany(() => sqlSubCategory)
+    @HasMany(() => sqlSubCategory, { as: "SubCategory" })
     subCategory!: sqlSubCategory[];
 
-    @HasMany(() => sqlProduct)
+    @HasMany(() => sqlProduct, { as: "Product" })
     products!: sqlProduct[];
 }

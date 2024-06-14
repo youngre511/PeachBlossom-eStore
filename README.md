@@ -6,7 +6,7 @@
     -   Browsable Catalog
     -   Product Detail Pages
     -   Search
-    -   Filtering
+    -   Filtering [COMPLETE]
     -   Customer Service Links
     -   Cart
     -   Checkout

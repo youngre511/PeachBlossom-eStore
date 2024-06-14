@@ -33,7 +33,7 @@ export default {
                     key: "category_id",
                 },
                 onUpdate: "CASCADE",
-                onDelete: "Null",
+                onDelete: "CASCADE",
             },
             subCategory_id: {
                 type: DataTypes.BIGINT,
@@ -43,7 +43,7 @@ export default {
                     key: "subCategory_id",
                 },
                 onUpdate: "CASCADE",
-                onDelete: "Null",
+                onDelete: "SET NULL",
             },
         });
 
@@ -52,12 +52,12 @@ export default {
             unique: true,
         });
 
-        await queryInterface.addIndex("Products", ["subCategoryId"], {
+        await queryInterface.addIndex("Products", ["subCategory_id"], {
             name: "idx_subCategory_id",
             unique: false,
         });
 
-        await queryInterface.addIndex("Products", ["subCategoryId"], {
+        await queryInterface.addIndex("Products", ["subCategory_id"], {
             name: "idx_category_id",
             unique: false,
         });

@@ -24,7 +24,7 @@ export default {
                     key: "productNo",
                 },
                 onUpdate: "CASCADE",
-                onDelete: "NULL",
+                onDelete: "SET NULL",
             },
             quantity: {
                 type: DataTypes.INTEGER,

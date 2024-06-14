@@ -28,14 +28,17 @@ export class sqlCartItem extends Model {
     @Column(DataType.INTEGER)
     cart_id!: number;
 
-    @BelongsTo(() => sqlCart)
+    @BelongsTo(() => sqlCart, { as: "Cart" })
     cart!: sqlCart;
 
     @ForeignKey(() => sqlProduct)
     @Column(DataType.STRING(20))
     productNo!: string;
 
-    @BelongsTo(() => sqlProduct)
+    @BelongsTo(() => sqlProduct, {
+        foreignKey: "productNo",
+        targetKey: "productNo",
+    })
     product!: sqlProduct;
 
     @Column(DataType.STRING(50))
@@ -48,7 +51,11 @@ export class sqlCartItem extends Model {
     })
     promotionId?: string;
 
-    @BelongsTo(() => sqlPromotion)
+    @BelongsTo(() => sqlPromotion, {
+        as: "Promotion",
+        foreignKey: "promotionId",
+        targetKey: "promotionId",
+    })
     promotion?: sqlPromotion;
 
     @Column(DataType.INTEGER)

@@ -19,7 +19,7 @@ export const fetchCategories = createAsyncThunk<
     { state: RootState }
 >("categories/fetchCategories", async () => {
     const response = await axios.get<FetchCategoriesResponse>(
-        "https://api.peachblossom.ryanyoung.codes/category/"
+        `${process.env.REACT_APP_API_URL}category/`
     );
     return response.data.payload;
 });

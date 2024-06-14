@@ -36,7 +36,7 @@ export class sqlOrder extends Model {
 
     @ForeignKey(() => sqlCustomer)
     @Column({
-        type: DataType.INTEGER,
+        type: DataType.BIGINT,
         allowNull: true,
     })
     customer_id!: string;
@@ -121,6 +121,6 @@ export class sqlOrder extends Model {
     })
     orderStatus!: string;
 
-    @HasMany(() => sqlOrderItem)
+    @HasMany(() => sqlOrderItem, { as: "OrderItem" })
     orderItems!: sqlOrderItem[];
 }

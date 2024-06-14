@@ -28,14 +28,14 @@ export class sqlCart extends Model {
     @Unique
     @ForeignKey(() => sqlCustomer)
     @Column({
-        type: DataType.INTEGER,
+        type: DataType.BIGINT,
         allowNull: true,
     })
     customer_id?: number;
 
-    @HasMany(() => sqlCartItem)
+    @HasMany(() => sqlCartItem, { as: "CartItem" })
     cartItems!: sqlCartItem[];
 
-    @BelongsTo(() => sqlCustomer)
+    @BelongsTo(() => sqlCustomer, { as: "Customer" })
     customer?: sqlCustomer;
 }

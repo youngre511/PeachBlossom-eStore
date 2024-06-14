@@ -13,6 +13,7 @@ import {
 } from "@mui/material";
 import { Filters } from "../ProductCatalog/CatalogTypes";
 import DecimalField from "../../../common/components/DecimalField";
+import { Category } from "../Categories/CategoriesTypes";
 
 interface Props {
     updateSearchParams: (newFilters: Record<string, string>) => void;
@@ -22,11 +23,14 @@ const FilterOptions: React.FC<Props> = ({ updateSearchParams }: Props) => {
     const existingFilters: Filters = useAppSelector(
         (state: RootState) => state.catalog.filters
     );
+    const categories: Category[] = useAppSelector(
+        (state: RootState) => state.categories.categories
+    );
     const [localFilters, setLocalFilters] = useState<Filters>({
         search: null,
         category: null,
         subCategory: null,
-        color: null,
+        color: [],
         minPrice: null,
         maxPrice: null,
         minWidth: null,
@@ -36,7 +40,7 @@ const FilterOptions: React.FC<Props> = ({ updateSearchParams }: Props) => {
         minDepth: null,
         maxDepth: null,
         tags: null,
-        material: null,
+        material: [],
         sortMethod: "name-ascend",
         page: "1",
     });
@@ -60,8 +64,6 @@ const FilterOptions: React.FC<Props> = ({ updateSearchParams }: Props) => {
         updateSearchParams(updates);
     };
 
-    const timeoutRef = useRef<number | null>(null);
-
     const handleReset = () => {
         const resetValues: Record<string, string> = {
             color: "",
@@ -83,57 +85,198 @@ const FilterOptions: React.FC<Props> = ({ updateSearchParams }: Props) => {
         updateSearchParams(resetValues);
     };
 
-    const colors = ["red"];
-    const materials = ["glass"];
+    const handleCategoryClick = (category: string, subCategory?: string) => {
+        const catUpdate: Record<string, string> = {
+            category: category,
+        };
+        if (subCategory) {
+            catUpdate[subCategory] = subCategory;
+        }
+        setLocalFilters({
+            ...localFilters,
+            ...catUpdate,
+        });
+        updateSearchParams(catUpdate);
+    };
+
+    const handleColorChange = (
+        event: React.ChangeEvent<HTMLInputElement>
+    ): void => {
+        const { value, checked } = event.target;
+        const currentFilters = localFilters;
+        const currentColors = currentFilters.color;
+        const newColors = checked
+            ? [...(currentColors || []), value]
+            : (currentColors || []).filter((color) => color !== value);
+        setLocalFilters({ ...localFilters, color: newColors });
+    };
+
+    const handleMaterialChange = (
+        event: React.ChangeEvent<HTMLInputElement>
+    ): void => {
+        const { value, checked } = event.target;
+        console.log(value);
+        const currentFilters = localFilters;
+        const currentMaterials = currentFilters.material;
+        const newMaterials = checked
+            ? [...(currentMaterials || []), value]
+            : (currentMaterials || []).filter((material) => material !== value);
+        setLocalFilters({ ...localFilters, material: newMaterials });
+    };
+
+    const colors = [
+        "red",
+        "orange",
+        "yellow",
+        "green",
+        "blue",
+        "purple",
+        "pink",
+        "gold",
+        "silver",
+        "white",
+        "gray",
+        "black",
+        "brown",
+        "cream",
+        "beige",
+        "multicolor",
+        "clear",
+    ];
+    const materials = [
+        "glass",
+        "plastic",
+        "ceramic",
+        "metal",
+        "wood",
+        "fabric",
+        "leather",
+        "stone",
+        "rubber",
+        "resin",
+        "natural fiber",
+        "bamboo",
+    ];
     const dimensions = ["Price", "Width", "Height", "Depth"];
 
     return (
         <div className="filter-options">
             {!existingFilters.category && (
-                <div className="category-filters"></div>
+                <div className="category-filters">
+                    {categories &&
+                        categories.map((category, index) => (
+                            <div className="filter-category-cont">
+                                <p
+                                    className="filter-category"
+                                    key="index"
+                                    onClick={() =>
+                                        handleCategoryClick(category.name)
+                                    }
+                                >
+                                    {category.name}
+                                </p>
+                                {category.subCategories.length > 0 && (
+                                    <div className="filter-subcategory-cont">
+                                        {category.subCategories.map(
+                                            (subCategory, index) => (
+                                                <p
+                                                    className="filter-subcategory"
+                                                    key={index}
+                                                    onClick={() =>
+                                                        handleCategoryClick(
+                                                            category.name,
+                                                            subCategory
+                                                        )
+                                                    }
+                                                >
+                                                    {subCategory}
+                                                </p>
+                                            )
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                </div>
             )}
             {existingFilters.category && !existingFilters.subCategory && (
-                <div className="subcategory-filters"></div>
+                <div className="subcategory-filters">
+                    <p className="filter-category">
+                        {existingFilters.category}
+                    </p>
+                    {categories &&
+                        categories.filter(
+                            (category) =>
+                                category.name === existingFilters.category
+                        )[0].subCategories.length > 0 && (
+                            <div className="filter-subcategory-cont">
+                                {categories
+                                    .filter(
+                                        (category) =>
+                                            category.name ===
+                                            existingFilters.category
+                                    )[0]
+                                    .subCategories.map((subCategory, index) => (
+                                        <p
+                                            className="filter-subcategory"
+                                            key="index"
+                                            onClick={() =>
+                                                handleCategoryClick(
+                                                    existingFilters.category as string,
+                                                    subCategory
+                                                )
+                                            }
+                                        >
+                                            {subCategory}
+                                        </p>
+                                    ))}
+                            </div>
+                        )}
+                </div>
             )}
             <FormControl>
                 <div className="color-filters">
                     <FormGroup>
-                        {colors.map((color, index) => {
-                            const colorElement =
-                                localFilters.color &&
-                                localFilters.color.includes(color) ? (
-                                    <Checkbox defaultChecked />
-                                ) : (
-                                    <Checkbox />
-                                );
-                            return (
-                                <FormControlLabel
-                                    control={colorElement}
-                                    label={color}
-                                    key={index}
-                                />
-                            );
-                        })}
+                        {colors.map((color, index) => (
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        name="color"
+                                        value={color}
+                                        checked={
+                                            localFilters.color?.includes(
+                                                color
+                                            ) || false
+                                        }
+                                        onChange={handleColorChange}
+                                    />
+                                }
+                                label={color}
+                                key={index}
+                            />
+                        ))}
                     </FormGroup>
                 </div>
                 <div className="material-filters">
                     <FormGroup>
-                        {materials.map((material, index) => {
-                            const materialElement =
-                                localFilters.material &&
-                                localFilters.material.includes(material) ? (
-                                    <Checkbox defaultChecked />
-                                ) : (
-                                    <Checkbox />
-                                );
-                            return (
-                                <FormControlLabel
-                                    control={materialElement}
-                                    label={material}
-                                    key={index}
-                                />
-                            );
-                        })}
+                        {materials.map((material, index) => (
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        name="material"
+                                        value={material}
+                                        checked={
+                                            localFilters.material?.includes(
+                                                material
+                                            ) || false
+                                        }
+                                        onChange={handleMaterialChange}
+                                    />
+                                }
+                                label={material}
+                                key={index}
+                            />
+                        ))}
                     </FormGroup>
                 </div>
                 <div className="dimension-filters">

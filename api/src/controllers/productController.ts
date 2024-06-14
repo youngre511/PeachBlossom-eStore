@@ -1,6 +1,5 @@
-const Product = require("../models/productModel");
-const generateProductNo = require("../utils/generateProductNo");
-const Category = require("../models/categoryModel");
+const Product = require("../models/mongo/productModel");
+const Category = require("../models/mongo/categoryModel");
 const productService = require("../services/productService");
 const promotionService = require("../services/promotionService");
 
@@ -18,14 +17,15 @@ import { CategoryItem } from "../models/mongo/categoryModel";
 
 export interface CreateProduct {
     name: string;
-    category: Array<string>;
+    category: string;
+    subCategory?: string;
     prefix: string;
     description: string;
     attributes: Attributes;
     price: number;
     stock?: number;
     images?: Array<string>;
-    tags: Array<string>;
+    tags?: Array<string>;
 }
 
 interface CreateProductRequest extends Request {
