@@ -1,18 +1,14 @@
-const Product = require("../models/mongo/productModel");
-const Category = require("../models/mongo/categoryModel");
-const Tag = require("../models/mongo/tagModel");
-const sqlCategory = require("../models/mysql/sqlCategoryModel");
-const sqlProduct = require("../models/mysql/sqlProductModel");
-const sqlInventory = require("../models/mysql/sqlInventoryModel");
-const generateProductNo = require("../utils/generateProductNo");
+import Product, { ProductItem } from "../models/mongo/productModel";
+import Category, { SubCategoryItem } from "../models/mongo/categoryModel";
+import Tag, { TagItem } from "../models/mongo/tagModel";
+import { sqlCategory } from "../models/mysql/sqlCategoryModel";
+import { sqlProduct } from "../models/mysql/sqlProductModel";
+import { sqlInventory } from "../models/mysql/sqlInventoryModel";
+import generateProductNo from "../utils/generateProductNo";
+import sequelize from "../models/mysql";
 
-// Types and interfaces
-import { ClientSession } from "mongoose";
-import { Types } from "mongoose";
-import { ProductItem } from "../models/mongo/productModel";
-import { TagItem } from "../models/mongo/tagModel";
+import mongoose, { ClientSession, Types, Schema } from "mongoose";
 import { CreateProduct } from "../controllers/productController";
-import { SubCategoryItem } from "../models/mongo/categoryModel";
 import { sqlSubCategory } from "../models/mysql/sqlSubCategoryModel";
 import { BooleString } from "../../types/api_resp";
 
@@ -95,8 +91,8 @@ interface CatalogResponse {
 //get sorted and filtered products
 exports.getProducts = async (filters: FilterObject) => {
     const skip = (filters.page - 1) * +filters.itemsPerPage;
-    let categoryId: Types.ObjectId | undefined;
-    let subCategoryId: Types.ObjectId | undefined;
+    let categoryId: Schema.Types.ObjectId | undefined;
+    let subCategoryId: Schema.Types.ObjectId | undefined;
 
     // Retrieve category and tag object ids if names are provided
     if (filters.category) {
@@ -120,7 +116,7 @@ exports.getProducts = async (filters: FilterObject) => {
             throw new Error("Not a valid category");
         }
     }
-    let tagIds: Array<Types.ObjectId> | undefined;
+    let tagIds: Array<Schema.Types.ObjectId> | undefined;
     if (filters.tags) {
         const ts = await Tag.find({ name: { $in: filters.tags } });
         if (ts) {
@@ -200,14 +196,10 @@ exports.getProducts = async (filters: FilterObject) => {
     //Get number of total results
     const totalCount = await Product.countDocuments(query.getQuery());
 
-    if (totalCount === 0) {
-        throw new Error("No products found matching search parameters");
-    }
-
     // Get results with number limited and page of results specified
     const products: Array<ProductItem> = await query
         .skip(skip)
-        .limit(filters.itemsPerPage)
+        .limit(parseInt(filters.itemsPerPage))
         .exec();
 
     // Find active promotions and calculate discount price if necessary
@@ -270,7 +262,9 @@ exports.getProducts = async (filters: FilterObject) => {
 //get one product
 
 exports.getOneProduct = async (productNo: string) => {
-    let result: ProductItem = await Product.findOne({ productNo: productNo });
+    let result: ProductItem | null = await Product.findOne({
+        productNo: productNo,
+    });
     if (!result) {
         throw new Error("Product not found");
     }
@@ -286,7 +280,7 @@ exports.getProductsByCategory = async (categoryName: string) => {
         throw new Error("Category not found");
     }
 
-    let results: Array<ProductItem> = await Product.findOne({
+    let results: Array<ProductItem> | null = await Product.findOne({
         category: categoryId,
     });
     if (!results) {
@@ -299,8 +293,10 @@ exports.getProductsByCategory = async (categoryName: string) => {
 exports.createProduct = async (
     productData: CreateProduct
 ): Promise<BooleString> => {
-    const session: ClientSession = mongoose.startSession();
+    const session: ClientSession = await mongoose.startSession();
     session.startTransaction();
+    const sqlTransaction = await sequelize.transaction();
+
     try {
         const {
             name,
@@ -314,7 +310,7 @@ exports.createProduct = async (
             images = [],
             tags = null,
         } = productData;
-        const productNo = generateProductNo(prefix);
+        const productNo = await generateProductNo(prefix);
 
         //Construct SQL product
         const abbrDesc = description.substring(0, 79) + "...";
@@ -330,6 +326,7 @@ exports.createProduct = async (
         if (subCategory) {
             const subCatRec = await sqlSubCategory.findOne({
                 where: { subCategoryName: subCategory },
+                transaction: sqlTransaction,
             });
             if (!subCatRec) {
                 throw new Error("subcategory does not exist in SQL database");
@@ -353,26 +350,31 @@ exports.createProduct = async (
             subCategory_id: sqlSubCategoryId,
         };
 
-        const createdProduct = await sqlProduct.create(newSQLProduct);
+        const createdProduct = await sqlProduct.create(newSQLProduct, {
+            transaction: sqlTransaction,
+        });
 
         // create SQL inventory record
-        await sqlInventory.create({
-            productNo: createdProduct.productNo,
-            stock: stock,
-            reserved: 0,
-        });
+        await sqlInventory.create(
+            {
+                productNo: createdProduct.productNo,
+                stock: stock,
+                reserved: 0,
+            },
+            { transaction: sqlTransaction }
+        );
 
         // MongoDB operations
         const categoryDoc = await Category.findOne({ name: category });
         if (!categoryDoc) {
             throw new Error("category does not exist in MongoDB database");
         }
-        const categoryId: Types.ObjectId = categoryDoc._id;
+        const categoryId: Schema.Types.ObjectId = categoryDoc._id;
 
-        let subCategoryId: Types.ObjectId | null;
+        let subCategoryId: Schema.Types.ObjectId | null;
         if (subCategory) {
             const filteredSubCat = categoryDoc.subCategories.filter(
-                (subCat: { name: string; _id: Types.ObjectId }) =>
+                (subCat: { name: string; _id: Schema.Types.ObjectId }) =>
                     subCat.name === subCategory
             );
             if (filteredSubCat.length === 0) {
@@ -385,18 +387,20 @@ exports.createProduct = async (
             subCategoryId = null;
         }
 
-        let validTagIds: Array<Types.ObjectId> | null;
+        let validTagIds: Array<Schema.Types.ObjectId> | null;
 
         if (tags) {
             const tagIds = await Promise.all(
-                tags.map(async (tagName): Promise<Types.ObjectId | null> => {
-                    const tagDoc = await Tag.findOne({ name: tagName });
-                    return tagDoc ? tagDoc._id : null;
-                })
+                tags.map(
+                    async (tagName): Promise<Schema.Types.ObjectId | null> => {
+                        const tagDoc = await Tag.findOne({ name: tagName });
+                        return tagDoc ? tagDoc._id : null;
+                    }
+                )
             );
 
             validTagIds = tagIds.filter(
-                (id): id is Types.ObjectId => id != null
+                (id): id is Schema.Types.ObjectId => id != null
             );
         } else {
             validTagIds = null;
@@ -417,16 +421,19 @@ exports.createProduct = async (
         });
 
         await session.commitTransaction();
+        await sqlTransaction.commit();
+
         return {
             success: true,
             message: `Product successfully added to databases`,
         };
     } catch (error) {
         await session.abortTransaction();
+        await sqlTransaction.rollback();
         if (error instanceof Error) {
-            throw new Error("Error adding promotion: " + error.message);
+            throw new Error("Error adding product: " + error.message);
         } else {
-            throw new Error("An unknown error occurred while adding promotion");
+            throw new Error("An unknown error occurred while adding product");
         }
     } finally {
         session.endSession();

@@ -48,7 +48,7 @@ exports.createPromotion = async (
     args: CreateArgs
 ): Promise<BooleString | BooleString[]> => {
     const promotion = args.promotion;
-    const session: ClientSession = mongoose.startSession();
+    const session: ClientSession = await mongoose.startSession();
     session.startTransaction();
     try {
         const promoId = generatePromoNo();
@@ -117,7 +117,7 @@ exports.addProductsToPromo = async (
     let promo: Promotion;
 
     if (ownSession) {
-        session = mongoose.startSession();
+        session = await mongoose.startSession();
         session.startTransaction();
     } else {
         session = passedSession;
@@ -201,7 +201,7 @@ exports.addCategoriesToPromo = async (
     let promo: Promotion;
 
     if (ownSession) {
-        session = mongoose.startSession();
+        session = await mongoose.startSession();
         session.startTransaction();
     } else {
         session = passedSession;
@@ -299,7 +299,7 @@ exports.updatePromo = async (
         ].includes(key);
     }
 
-    const session: ClientSession = mongoose.startSession();
+    const session: ClientSession = await mongoose.startSession();
     session.startTransaction();
     try {
         //Creates new object with correct prefix to ensure that update only affects the particular promotion and not all promotions in an object's array.
@@ -334,7 +334,7 @@ exports.updatePromo = async (
 };
 
 exports.deletePromotion = async (args: DeleteArgs): Promise<BooleString> => {
-    const session: ClientSession = mongoose.startSession();
+    const session: ClientSession = await mongoose.startSession();
     session.startTransaction();
     try {
         if (args.products) {
@@ -383,7 +383,7 @@ exports.removeProductsFromPromo = async (
     let promo: Promotion;
 
     if (ownSession) {
-        session = mongoose.startSession();
+        session = await mongoose.startSession();
         session.startTransaction();
     } else {
         session = passedSession;
@@ -449,7 +449,7 @@ exports.removeCategoriesFromPromo = async (
     let promo: Promotion;
 
     if (ownSession) {
-        session = mongoose.startSession();
+        session = await mongoose.startSession();
         session.startTransaction();
     } else {
         session = passedSession;

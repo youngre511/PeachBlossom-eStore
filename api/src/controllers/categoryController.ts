@@ -23,6 +23,15 @@ interface CategoryCreateRequest extends Request {
         name: string;
     };
 }
+
+interface SubCategoryCreateRequest extends Request {
+    params: {
+        categoryName: string;
+    };
+    body: {
+        subCategoryName: string;
+    };
+}
 interface CategoryUpdateRequest extends Request {
     body: {
         oldName: string;
@@ -101,7 +110,6 @@ exports.createCategory = async (req: CategoryCreateRequest, res: Response) => {
     try {
         // Accepting the front-end form data from the client to generate the document
         const { name } = req.body;
-        console.log(name);
         const response: BooleString = await categoryService.createCategory(
             name
         );
@@ -113,6 +121,35 @@ exports.createCategory = async (req: CategoryCreateRequest, res: Response) => {
     } catch (error) {
         let errorObj = {
             message: "create Category failure",
+            payload: error,
+        };
+
+        console.log(errorObj);
+
+        res.json(errorObj);
+    }
+};
+
+exports.createSubCategory = async (
+    req: SubCategoryCreateRequest,
+    res: Response
+) => {
+    try {
+        // Accepting the front-end form data from the client to generate the document
+        const { categoryName } = req.params;
+        const { subCategoryName } = req.body;
+        const response: BooleString = await categoryService.createSubCategory(
+            categoryName,
+            subCategoryName
+        );
+
+        res.json({
+            message: "success",
+            payload: response,
+        });
+    } catch (error) {
+        let errorObj = {
+            message: "create sub category failure",
             payload: error,
         };
 

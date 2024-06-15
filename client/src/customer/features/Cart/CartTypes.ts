@@ -11,12 +11,12 @@ export interface CartItem {
 export interface CartState {
     items: CartItem[];
     subTotal: number;
-    taxRate: number | null;
-    tax: number | null;
-    shipping: number | null;
-    overallDiscount: number;
-    promoCode: string | null;
-    promoName: string | null;
+    // taxRate: number | null;
+    // tax: number | null;
+    // shipping: number | null;
+    // overallDiscount: number;
+    // promoCode: string | null;
+    // promoName: string | null;
     cartId: number | null;
     error: string | null;
 }

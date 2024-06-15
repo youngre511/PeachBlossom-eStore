@@ -11,6 +11,7 @@ import { arraysEqual } from "../../../common/utils/arraysEqual";
 
 const initialState: CatalogState = {
     products: [],
+    numberOfResults: 0,
     filters: {
         search: null,
         category: null,
@@ -70,18 +71,27 @@ export const fetchProducts = createAsyncThunk<
         }
 
         if (filterUnchanged) {
-            return { filters, products: state.catalog.products };
+            return {
+                filters,
+                products: state.catalog.products,
+                numberOfResults: state.catalog.numberOfResults,
+            };
         }
 
         const params = { ...filters, itemsPerPage: itemsPerPage.toString() };
         try {
+            console.log(`${process.env.REACT_APP_API_URL}product`);
             const response = await axios.get(
                 `${process.env.REACT_APP_API_URL}product`,
                 {
                     params: params,
                 }
             );
-            return { filters: filters, products: response.data };
+            return {
+                filters: filters,
+                products: response.data.payload.productRecords,
+                numberOfResults: response.data.payload.totalCount,
+            };
         } catch (error: any) {
             return rejectWithValue(
                 error.response?.data || "Error fetching products"
@@ -111,6 +121,7 @@ const catalogSlice = createSlice({
             .addCase(fetchProducts.fulfilled, (state, action) => {
                 state.filters = action.payload.filters;
                 state.products = action.payload.products;
+                state.numberOfResults = action.payload.numberOfResults;
                 state.loading = false;
             })
             .addCase(fetchProducts.rejected, (state, action) => {

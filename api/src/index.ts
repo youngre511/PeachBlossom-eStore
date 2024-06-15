@@ -1,7 +1,7 @@
-const express = require("express");
+import express from "express";
 const app = express();
 const path = require("path");
-const cors = require("cors");
+import cors, { CorsOptions } from "cors";
 const logger = require("morgan");
 const connectToMongoDB = require("./db/mongodb");
 import connectToMySQLDatabase from "./db/mysql";
@@ -17,18 +17,23 @@ app.use(express.json());
 app.use(logger("dev"));
 
 //Cors settings
-const allowedOrigins: string[] = ["https://www.domain.com"];
+const allowedOrigins: string[] = [
+    "https://www.domain.com",
+    "http://localhost:3000",
+];
 
-// app.use(cors({
-//     origin: (origin, callback) => {
-//         if (!origin || allowedOrigins.includes(origin)) {
-//             callback(null, true);
-//         } else {
-//             callback(new Error('Not allowed by CORS'))
-//         }
-//     },
-//     credentials: true
-// }))
+const corsOptions: CorsOptions = {
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error("Not allowed by CORS"));
+        }
+    },
+    credentials: true,
+};
+
+app.use(cors(corsOptions));
 
 const categoryRouter = require("./routes/categoryRouter");
 app.use("/category", categoryRouter);

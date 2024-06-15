@@ -11,12 +11,12 @@ import axios from "axios";
 const initialState: CartState = {
     items: [],
     subTotal: 0,
-    taxRate: null,
-    tax: null,
-    shipping: null,
-    overallDiscount: 0,
-    promoCode: null,
-    promoName: null,
+    // taxRate: null,
+    // tax: null,
+    // shipping: null,
+    // overallDiscount: 0,
+    // promoCode: null,
+    // promoName: null,
     cartId: null,
     error: null,
 };
@@ -165,12 +165,12 @@ const cartSlice = createSlice({
         clearCart: (state) => {
             state.items = [];
             state.subTotal = 0;
-            state.taxRate = null;
-            state.tax = null;
-            state.shipping = null;
-            state.overallDiscount = 0;
-            state.promoCode = null;
-            state.promoName = null;
+            // state.taxRate = null;
+            // state.tax = null;
+            // state.shipping = null;
+            // state.overallDiscount = 0;
+            // state.promoCode = null;
+            // state.promoName = null;
         },
         addCartPromo: (state, action: PayloadAction<string>) => {},
         removeCartPromo: (state, action: PayloadAction<string>) => {},
@@ -183,10 +183,10 @@ const cartSlice = createSlice({
             .addCase(addItemToCart.fulfilled, (state, action) => {
                 state.items = action.payload.items;
                 state.subTotal = action.payload.subTotal;
-                state.taxRate = action.payload.taxRate;
-                state.tax = action.payload.tax;
-                state.shipping = action.payload.shipping;
-                state.cartId = action.payload.cartId;
+                // state.taxRate = action.payload.taxRate;
+                // state.tax = action.payload.tax;
+                // state.shipping = action.payload.shipping;
+                // state.cartId = action.payload.cartId;
                 state.error = null;
             })
             .addCase(addItemToCart.rejected, (state, action) => {
@@ -198,9 +198,6 @@ const cartSlice = createSlice({
             .addCase(removeItemFromCart.fulfilled, (state, action) => {
                 state.items = action.payload.items;
                 state.subTotal = action.payload.subTotal;
-                state.taxRate = action.payload.taxRate;
-                state.tax = action.payload.tax;
-                state.shipping = action.payload.shipping;
                 state.cartId = action.payload.cartId;
                 state.error = null;
             })

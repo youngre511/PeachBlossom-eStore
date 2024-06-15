@@ -165,10 +165,9 @@ const FilterOptions: React.FC<Props> = ({ updateSearchParams }: Props) => {
                 <div className="category-filters">
                     {categories &&
                         categories.map((category, index) => (
-                            <div className="filter-category-cont">
+                            <div className="filter-category-cont" key={index}>
                                 <p
                                     className="filter-category"
-                                    key="index"
                                     onClick={() =>
                                         handleCategoryClick(category.name)
                                     }
@@ -219,7 +218,7 @@ const FilterOptions: React.FC<Props> = ({ updateSearchParams }: Props) => {
                                     .subCategories.map((subCategory, index) => (
                                         <p
                                             className="filter-subcategory"
-                                            key="index"
+                                            key={index}
                                             onClick={() =>
                                                 handleCategoryClick(
                                                     existingFilters.category as string,

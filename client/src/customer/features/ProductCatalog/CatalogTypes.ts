@@ -75,6 +75,7 @@ export interface Filters {
 
 export interface CatalogState {
     products: Product[];
+    numberOfResults: number;
     filters: Filters;
     loading: boolean;
     error: string | null;
@@ -83,4 +84,5 @@ export interface CatalogState {
 export interface FetchProductsResponse {
     filters: Filters;
     products: Product[];
+    numberOfResults: number;
 }

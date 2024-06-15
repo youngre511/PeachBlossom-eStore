@@ -11,6 +11,7 @@ const userPreferencesSlice = createSlice({
     reducers: {
         setItemsPerPage: (state, action: PayloadAction<24 | 48 | 96>) => {
             state.itemsPerPage = action.payload;
+            console.log(action.payload);
         },
     },
 });

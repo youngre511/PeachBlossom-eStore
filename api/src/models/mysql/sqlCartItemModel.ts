@@ -25,7 +25,7 @@ export class sqlCartItem extends Model {
 
     @Index
     @ForeignKey(() => sqlCart)
-    @Column(DataType.INTEGER)
+    @Column(DataType.BIGINT)
     cart_id!: number;
 
     @BelongsTo(() => sqlCart, { as: "Cart" })
