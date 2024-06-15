@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import {
-    ActionData,
+    AddActionData,
+    RemoveActionData,
     CartItem,
     CartState,
     ChangeQuantityRequest,
@@ -32,6 +33,7 @@ export const addItemToCart = createAsyncThunk<
     async (productNo: string, { getState, dispatch, rejectWithValue }) => {
         const state = getState() as RootState;
         const currentCartItems = [...state.cart.items];
+        let productThumbnail: string | null = null;
         const indexInCart = state.cart.items.findIndex(
             (item: any) => item.productNo === productNo
         );
@@ -51,25 +53,29 @@ export const addItemToCart = createAsyncThunk<
                 return rejectWithValue("Product not found");
             }
 
+            productThumbnail = productToAdd.images[0];
+
             const productObj: CartItem = {
                 productNo: productToAdd.productNo,
                 name: productToAdd.name,
                 price: productToAdd.price,
                 discountPrice: productToAdd.discountPrice,
                 quantity: 1,
-                thumbnailUrl: productToAdd.images[0],
+                thumbnailUrl: productThumbnail,
                 productUrl: `/shop/product/${productToAdd.productNo}`,
             };
             dispatch(addItemOptimistic(productObj));
         }
 
         try {
-            const actionData: ActionData = {
+            const actionData: AddActionData = {
                 productNo: productNo,
                 cartId: state.cart.cartId,
+                quantity: 1,
+                thumbnailUrl: productThumbnail,
             };
             const response = await axios.put<CartState>(
-                "https://api.peachblossom.ryanyoung.codes/cart/addto",
+                `${process.env.REACT_APP_API_URL}cart/add-to-cart`,
                 actionData
             );
             return response.data;
@@ -91,6 +97,10 @@ export const removeItemFromCart = createAsyncThunk<
     "cart/removeItemFromCart",
     async (productNo: string, { getState, dispatch, rejectWithValue }) => {
         const state = getState() as RootState;
+        const cartId = state.cart.cartId;
+        if (!cartId) {
+            return rejectWithValue("Cart not found");
+        }
         const currentCartItems = [...state.cart.items];
         const indexInCart = state.cart.items.findIndex(
             (item: any) => item.productNo === productNo
@@ -111,12 +121,13 @@ export const removeItemFromCart = createAsyncThunk<
         }
 
         try {
-            const actionData: ActionData = {
+            const actionData: RemoveActionData = {
                 productNo: productNo,
-                cartId: state.cart.cartId,
+                cartId: cartId,
+                quantity: 1,
             };
             const response = await axios.put<CartState>(
-                "https://api.peachblossom.ryanyoung.codes/cart/removeFrom",
+                `${process.env.REACT_APP_API_URL}cart/removeFrom`,
                 actionData
             );
             return response.data;
@@ -186,7 +197,7 @@ const cartSlice = createSlice({
                 // state.taxRate = action.payload.taxRate;
                 // state.tax = action.payload.tax;
                 // state.shipping = action.payload.shipping;
-                // state.cartId = action.payload.cartId;
+                state.cartId = action.payload.cartId;
                 state.error = null;
             })
             .addCase(addItemToCart.rejected, (state, action) => {

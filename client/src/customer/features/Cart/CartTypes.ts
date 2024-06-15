@@ -26,7 +26,15 @@ export interface ChangeQuantityRequest {
     adjustmentAmount: number;
 }
 
-export interface ActionData {
+export interface AddActionData {
     productNo: string;
     cartId: number | null;
+    quantity: number;
+    thumbnailUrl: string | null;
+}
+
+export interface RemoveActionData {
+    productNo: string;
+    cartId: number;
+    quantity: number;
 }
