@@ -328,9 +328,11 @@ exports.removeItemFromCart = async (
         }
 
         let subTotal = 0;
+        let itemCount = 0;
 
         const itemsArr = updatedCart.CartItem.map((item) => {
             subTotal += item.finalPrice * item.quantity;
+            itemCount += item.quantity;
             const itemObj = {
                 productNo: item.productNo,
                 name: item.Product.productName,
@@ -347,12 +349,13 @@ exports.removeItemFromCart = async (
             items: itemsArr,
             subTotal: subTotal,
             cartId: updatedCart.cart_id,
+            numberOfItems: itemCount,
         };
 
         return {
             success: true,
             message: "Item added to cart successfully",
-            cartId: returnCartObj,
+            cart: returnCartObj,
         };
     } catch (error) {
         await sqlTransaction.rollback();

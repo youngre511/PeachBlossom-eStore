@@ -11,6 +11,7 @@ export interface CartItem {
 export interface CartState {
     items: CartItem[];
     subTotal: number;
+    numberOfItems: number;
     // taxRate: number | null;
     // tax: number | null;
     // shipping: number | null;

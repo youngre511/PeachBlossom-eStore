@@ -12,6 +12,7 @@ import axios from "axios";
 const initialState: CartState = {
     items: [],
     subTotal: 0,
+    numberOfItems: 0,
     // taxRate: null,
     // tax: null,
     // shipping: null,
@@ -22,10 +23,30 @@ const initialState: CartState = {
     error: null,
 };
 
+interface updateQuantityArgs {
+    productNo: string;
+    newQuantity: number;
+}
+interface CartResponsePayload {
+    success: boolean;
+    message: string;
+    cart: {
+        items: CartItem[];
+        subTotal: number;
+        cartId: number;
+        numberOfItems: number;
+    };
+}
+
+interface CartResponse {
+    message: string;
+    payload: CartResponsePayload;
+}
+
 //Thunks//
 
 export const addItemToCart = createAsyncThunk<
-    CartState,
+    CartResponsePayload,
     string,
     { state: RootState; rejectValue: string }
 >(
@@ -33,6 +54,7 @@ export const addItemToCart = createAsyncThunk<
     async (productNo: string, { getState, dispatch, rejectWithValue }) => {
         const state = getState() as RootState;
         const currentCartItems = [...state.cart.items];
+        const currentNumberOfItems = state.cart.numberOfItems;
         let productThumbnail: string | null = null;
         const indexInCart = state.cart.items.findIndex(
             (item: any) => item.productNo === productNo
@@ -74,13 +96,18 @@ export const addItemToCart = createAsyncThunk<
                 quantity: 1,
                 thumbnailUrl: productThumbnail,
             };
-            const response = await axios.put<CartState>(
+            const response = await axios.put<CartResponse>(
                 `${process.env.REACT_APP_API_URL}cart/add-to-cart`,
                 actionData
             );
-            return response.data;
+            return response.data.payload;
         } catch (error: any) {
-            dispatch(rollbackCartItems(currentCartItems));
+            dispatch(
+                rollbackCartItems({
+                    rollbackItems: currentCartItems,
+                    rollbackNumber: currentNumberOfItems,
+                })
+            );
             return rejectWithValue(
                 error.response?.data || ("Error adding item to cart" as string)
             );
@@ -90,7 +117,7 @@ export const addItemToCart = createAsyncThunk<
 
 //Remove Item from Cart
 export const removeItemFromCart = createAsyncThunk<
-    CartState,
+    CartResponsePayload,
     string,
     { state: RootState; rejectValue: string }
 >(
@@ -102,6 +129,7 @@ export const removeItemFromCart = createAsyncThunk<
             return rejectWithValue("Cart not found");
         }
         const currentCartItems = [...state.cart.items];
+        const currentNumberOfItems = state.cart.numberOfItems;
         const indexInCart = state.cart.items.findIndex(
             (item: any) => item.productNo === productNo
         );
@@ -126,19 +154,33 @@ export const removeItemFromCart = createAsyncThunk<
                 cartId: cartId,
                 quantity: 1,
             };
-            const response = await axios.put<CartState>(
+            const response = await axios.put<CartResponse>(
                 `${process.env.REACT_APP_API_URL}cart/removeFrom`,
                 actionData
             );
-            return response.data;
+            return response.data.payload;
         } catch (error: any) {
-            dispatch(rollbackCartItems(currentCartItems));
+            dispatch(
+                rollbackCartItems({
+                    rollbackItems: currentCartItems,
+                    rollbackNumber: currentNumberOfItems,
+                })
+            );
             return rejectWithValue(
                 error.response?.data ||
                     ("Error removing item from cart" as string)
             );
         }
     }
+);
+
+export const updateQuantity = createAsyncThunk<
+    number,
+    updateQuantityArgs,
+    { state: RootState; rejectValue: string }
+>(
+    "cart/updateQuantity",
+    async (updateQuantityArgs, { getState, dispatch, rejectWithValue }) => {}
 );
 
 //Add Promo To Cart
@@ -153,6 +195,7 @@ const cartSlice = createSlice({
     reducers: {
         addItemOptimistic: (state, action: PayloadAction<CartItem>) => {
             state.items.push(action.payload);
+            state.numberOfItems++;
         },
         removeItemOptimistic: (state, action: PayloadAction<string>) => {
             const index = state.items.findIndex(
@@ -160,6 +203,7 @@ const cartSlice = createSlice({
             );
             if (index !== -1) {
                 state.items.splice(index, 1);
+                state.numberOfItems--;
             }
         },
         changeQuantityOptimistic: (
@@ -169,9 +213,17 @@ const cartSlice = createSlice({
             state.items[action.payload.productIndex].quantity =
                 state.items[action.payload.productIndex].quantity +
                 action.payload.adjustmentAmount;
+            state.numberOfItems += action.payload.adjustmentAmount;
         },
-        rollbackCartItems: (state, action: PayloadAction<CartItem[]>) => {
-            state.items = action.payload;
+        rollbackCartItems: (
+            state,
+            action: PayloadAction<{
+                rollbackItems: CartItem[];
+                rollbackNumber: number;
+            }>
+        ) => {
+            state.items = action.payload.rollbackItems;
+            state.numberOfItems = action.payload.rollbackNumber;
         },
         clearCart: (state) => {
             state.items = [];
@@ -192,12 +244,13 @@ const cartSlice = createSlice({
                 state.error = null;
             })
             .addCase(addItemToCart.fulfilled, (state, action) => {
-                state.items = action.payload.items;
-                state.subTotal = action.payload.subTotal;
+                state.items = action.payload.cart.items;
+                state.subTotal = action.payload.cart.subTotal;
                 // state.taxRate = action.payload.taxRate;
                 // state.tax = action.payload.tax;
                 // state.shipping = action.payload.shipping;
-                state.cartId = action.payload.cartId;
+                state.cartId = action.payload.cart.cartId;
+                state.numberOfItems = action.payload.cart.numberOfItems;
                 state.error = null;
             })
             .addCase(addItemToCart.rejected, (state, action) => {
@@ -207,9 +260,10 @@ const cartSlice = createSlice({
                 state.error = null;
             })
             .addCase(removeItemFromCart.fulfilled, (state, action) => {
-                state.items = action.payload.items;
-                state.subTotal = action.payload.subTotal;
-                state.cartId = action.payload.cartId;
+                state.items = action.payload.cart.items;
+                state.subTotal = action.payload.cart.subTotal;
+                state.cartId = action.payload.cart.cartId;
+                state.numberOfItems = action.payload.cart.numberOfItems;
                 state.error = null;
             })
             .addCase(removeItemFromCart.rejected, (state, action) => {

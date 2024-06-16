@@ -43,10 +43,16 @@ interface CartItemResponse {
     productUrl: string;
 }
 
-interface CartResponse extends Response {
+interface CartResponsePayload {
     items: CartItemResponse[];
     subTotal: number;
     cartId: number;
+    numberOfItems: number;
+}
+
+interface CartResponse extends Response {
+    message: string;
+    payload: CartResponsePayload;
 }
 
 exports.getCartById = async (req: CartIdBodyRequest, res: CartResponse) => {
