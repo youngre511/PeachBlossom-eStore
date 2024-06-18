@@ -66,7 +66,8 @@
     width: 20px;
     display: flex;
     align-items: center;
-    margin-left: 15px;
+    margin-left: 5px;
+    margin-right: 10px;
 }
 
 .nav-icon svg {
@@ -197,12 +198,21 @@
 .shop-nav {
     position: fixed;
     width: 300px;
-    height: 480px;
-    top: 48px;
+    height: 416px;
+    top: 112px;
     left: 20px;
     display: none;
     opacity: 0;
     scale: 0.6;
+}
+
+.shop-nav::after {
+    content: "";
+    height: 64px;
+    width: 56.12;
+    position: absolute;
+    top: -64px;
+    left: 0;
 }
 
 .shop-nav-bkg {
@@ -210,7 +220,7 @@
     width: 300px;
     height: 400px;
     background-color: var(--pale-gold);
-    top: 80px;
+    top: 16px;
     left: 0;
     z-index: 4;
     box-shadow: 2px 2px 2px 0 rgba(0, 0, 0, 0.406);
@@ -235,25 +245,11 @@
     background: var(--metallic-overlay);
     background-size: 200%;
     background-position: 50% 50%;
-    top: 80px;
+    top: 16px;
     left: 0;
     z-index: 6;
     mix-blend-mode: luminosity;
     opacity: 0.4;
-}
-
-.shop-nav-overlay::after {
-    content: "";
-    background: var(--metallic-overlay);
-    background-position: 50% 50%;
-    height: 15px;
-    width: 30px;
-    position: absolute;
-    top: -15px;
-    left: 12px;
-    clip-path: polygon(50% 0, 100% 100%, 0 100%);
-    z-index: 6;
-    mix-blend-mode: luminosity;
 }
 
 .shop-nav-menu {
@@ -261,7 +257,7 @@
     width: 292px;
     height: 392px;
     background-color: var(--peach-blossom);
-    top: 84px;
+    top: 20px;
     left: 4px;
     padding: 0 10px 5px 10px;
     z-index: 7;
@@ -294,4 +290,91 @@
 .shop-all {
     font-family: var(--Playfair);
     font-weight: 700;
+}
+
+/***** Cart Dropdown *****/
+.drop-cart {
+    position: fixed;
+    width: 300px;
+    height: 480px;
+    top: 48px;
+    right: 20px;
+    display: none;
+    opacity: 0;
+    scale: 0.6;
+}
+
+.drop-cart-bkg {
+    position: absolute;
+    width: 300px;
+    height: 400px;
+    background-color: var(--pale-gold);
+    top: 80px;
+    right: 0;
+    z-index: 4;
+    box-shadow: 2px 2px 2px 0 rgba(0, 0, 0, 0.406);
+}
+
+.drop-cart-bkg::after {
+    content: "";
+    background-color: var(--pale-gold);
+    height: 15px;
+    width: 30px;
+    position: absolute;
+    top: -15px;
+    right: 6px;
+    clip-path: polygon(50% 0, 100% 100%, 0 100%);
+    z-index: 4;
+}
+
+.drop-cart-bkg-overlay {
+    position: absolute;
+    width: 300px;
+    height: 400px;
+    background: var(--metallic-overlay);
+    background-size: 200%;
+    background-position: 50% 50%;
+    top: 80px;
+    right: 0;
+    z-index: 6;
+    mix-blend-mode: luminosity;
+    opacity: 0.4;
+}
+
+.drop-cart-bkg-overlay::after {
+    content: "";
+    background: var(--metallic-overlay);
+    background-position: 10% 10%;
+    background-size: 200%;
+    height: 15px;
+    width: 30px;
+    position: absolute;
+    top: -15px;
+    right: 6px;
+    clip-path: polygon(50% 0, 100% 100%, 0 100%);
+    z-index: 6;
+    mix-blend-mode: luminosity;
+}
+
+.drop-cart-container {
+    position: absolute;
+    width: 292px;
+    height: 392px;
+    background-color: var(--peach-blossom);
+    top: 84px;
+    right: 4px;
+    padding: 0 10px 5px 10px;
+    z-index: 7;
+}
+
+.drop-cart-container::after {
+    content: "";
+    background-color: var(--peach-blossom);
+    height: 15px;
+    width: 30px;
+    position: absolute;
+    top: -13px;
+    right: 2px;
+    clip-path: polygon(50% 0, 100% 100%, 0 100%);
+    z-index: 7;
 }

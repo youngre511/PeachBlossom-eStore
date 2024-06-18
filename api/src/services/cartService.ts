@@ -3,6 +3,7 @@ import { sqlProduct } from "../models/mysql/sqlProductModel";
 import { sqlPromotion } from "../models/mysql/sqlPromotionModel";
 import { sqlCart } from "../models/mysql/sqlCartModel";
 import { sqlCartItem } from "../models/mysql/sqlCartItemModel";
+import { sqlInventory } from "../models/mysql/sqlInventoryModel";
 import { Op } from "sequelize";
 
 // Types and Interfaces
@@ -15,6 +16,9 @@ interface Product {
     description: string;
     category_id: number;
     subCategory_id?: number;
+    Inventory: {
+        available: number;
+    };
 }
 
 interface JoinReqCartItem {
@@ -48,6 +52,13 @@ exports.getCartById = async (cartId: number) => {
                         {
                             model: sqlProduct,
                             as: "Product",
+                            include: [
+                                {
+                                    model: sqlInventory,
+                                    as: "Inventory",
+                                    attributes: ["available"],
+                                },
+                            ],
                         },
                     ],
                 },
@@ -70,6 +81,7 @@ exports.getCartById = async (cartId: number) => {
                 quantity: item.quantity,
                 thumbnailUrl: item.thumbnailUrl,
                 productUrl: `/product/${item.productNo}`,
+                maxAvailable: item.Product.Inventory.available,
             };
             return itemObj;
         });
@@ -203,6 +215,13 @@ exports.addItemToCart = async (
                         {
                             model: sqlProduct,
                             as: "Product",
+                            include: [
+                                {
+                                    model: sqlInventory,
+                                    as: "Inventory",
+                                    attributes: ["available"],
+                                },
+                            ],
                         },
                     ],
                 },
@@ -225,6 +244,7 @@ exports.addItemToCart = async (
                 quantity: item.quantity,
                 thumbnailUrl: item.thumbnailUrl,
                 productUrl: `/product/${item.productNo}`,
+                maxAvailable: item.Product.Inventory.available,
             };
             return itemObj;
         });
@@ -254,9 +274,9 @@ exports.addItemToCart = async (
     }
 };
 
-exports.removeItemFromCart = async (
+exports.updateItemQuantity = async (
     productNo: string,
-    cartId: number | null,
+    cartId: number,
     quantity: number
 ) => {
     const sqlTransaction = await sequelize.transaction();
@@ -289,21 +309,8 @@ exports.removeItemFromCart = async (
             throw new Error("Item not in cart");
         }
 
-        if (cartItem.quantity === quantity) {
-            const result = await sqlCartItem.destroy({
-                where: {
-                    cart_item_id: cartItem.cart_item_id,
-                },
-                transaction: sqlTransaction,
-            });
-
-            if (result === 0) {
-                throw new Error("Cart item not found or already deleted");
-            }
-        } else {
-            cartItem.quantity -= quantity;
-            await cartItem.save({ transaction: sqlTransaction });
-        }
+        cartItem.quantity = quantity;
+        await cartItem.save({ transaction: sqlTransaction });
 
         await sqlTransaction.commit();
 
@@ -317,6 +324,13 @@ exports.removeItemFromCart = async (
                         {
                             model: sqlProduct,
                             as: "Product",
+                            include: [
+                                {
+                                    model: sqlInventory,
+                                    as: "Inventory",
+                                    attributes: ["available"],
+                                },
+                            ],
                         },
                     ],
                 },
@@ -341,6 +355,125 @@ exports.removeItemFromCart = async (
                 quantity: item.quantity,
                 thumbnailUrl: item.thumbnailUrl,
                 productUrl: `/product/${item.productNo}`,
+                maxAvailable: item.Product.Inventory.available,
+            };
+            return itemObj;
+        });
+
+        const returnCartObj = {
+            items: itemsArr,
+            subTotal: subTotal,
+            cartId: updatedCart.cart_id,
+            numberOfItems: itemCount,
+        };
+
+        return {
+            success: true,
+            message: "Item added to cart successfully",
+            cart: returnCartObj,
+        };
+    } catch (error) {
+        await sqlTransaction.rollback();
+        if (error instanceof Error) {
+            // Rollback the transaction in case of any errors
+            throw new Error(
+                "Error updating item quantity in cart: " + error.message
+            );
+        } else {
+            // Rollback the transaction in case of any non-Error errors
+            throw new Error(
+                "An unknown error occurred while updating item quantity in cart"
+            );
+        }
+    }
+};
+
+exports.deleteItemFromCart = async (productNo: string, cartId: number) => {
+    const sqlTransaction = await sequelize.transaction();
+
+    try {
+        const product = await sqlProduct.findOne({
+            where: { productNo: productNo },
+            attributes: ["id", "productNo"],
+            transaction: sqlTransaction,
+        });
+        if (!product) {
+            throw new Error("ProductNo not found in database");
+        }
+
+        const cart = await sqlCart.findOne({
+            where: { cart_id: cartId },
+            include: [{ model: sqlCartItem, as: "CartItem" }],
+            transaction: sqlTransaction,
+        });
+
+        if (!cart) {
+            throw new Error("Invalid Cart Id");
+        }
+
+        let cartItem = cart.cartItems.find(
+            (item) => item.productNo === productNo
+        );
+
+        if (!cartItem) {
+            throw new Error("Item not in cart");
+        }
+
+        const result = await sqlCartItem.destroy({
+            where: {
+                cart_item_id: cartItem.cart_item_id,
+            },
+            transaction: sqlTransaction,
+        });
+
+        if (result === 0) {
+            throw new Error("Cart item not found or already deleted");
+        }
+
+        await sqlTransaction.commit();
+
+        const updatedCart = (await sqlCart.findOne({
+            where: { cart_id: cartId },
+            include: [
+                {
+                    model: sqlCartItem,
+                    as: "CartItem",
+                    include: [
+                        {
+                            model: sqlProduct,
+                            as: "Product",
+                            include: [
+                                {
+                                    model: sqlInventory,
+                                    as: "Inventory",
+                                    attributes: ["available"],
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        })) as unknown as JoinReqCart;
+
+        if (!updatedCart) {
+            throw new Error("Unable to retrieve new cart state");
+        }
+
+        let subTotal = 0;
+        let itemCount = 0;
+
+        const itemsArr = updatedCart.CartItem.map((item) => {
+            subTotal += item.finalPrice * item.quantity;
+            itemCount += item.quantity;
+            const itemObj = {
+                productNo: item.productNo,
+                name: item.Product.productName,
+                price: item.Product.price,
+                discountPrice: item.finalPrice,
+                quantity: item.quantity,
+                thumbnailUrl: item.thumbnailUrl,
+                productUrl: `/product/${item.productNo}`,
+                maxAvailable: item.Product.Inventory.available,
             };
             return itemObj;
         });

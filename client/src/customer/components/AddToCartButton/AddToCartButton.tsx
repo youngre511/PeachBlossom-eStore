@@ -1,7 +1,8 @@
 import React from "react";
 import { RootState } from "../../store/customerStore";
-import { useAppSelector } from "../../hooks/reduxHooks";
+import { useAppSelector, useAppDispatch } from "../../hooks/reduxHooks";
 import { CartItem } from "../../features/Cart/CartTypes";
+import { addItemToCart } from "../../features/Cart/cartSlice";
 
 interface Props {
     available: number;
@@ -10,6 +11,7 @@ interface Props {
 const AddToCartButton: React.FC<Props> = ({ available, productNo }: Props) => {
     const inStock: boolean = available > 0;
     const cart = useAppSelector((state: RootState) => state.cart);
+    const dispatch = useAppDispatch();
     const itemInCart: CartItem[] = cart.items.filter(
         (item) => item.productNo === productNo
     );
@@ -19,6 +21,10 @@ const AddToCartButton: React.FC<Props> = ({ available, productNo }: Props) => {
         numberInCart = itemInCart[0].quantity;
     }
 
+    const handleAddToCart = () => {
+        dispatch(addItemToCart(productNo));
+    };
+
     let buttonDisplay;
 
     if (!inStock) {
@@ -27,7 +33,11 @@ const AddToCartButton: React.FC<Props> = ({ available, productNo }: Props) => {
         );
     } else if (!isInCart) {
         buttonDisplay = (
-            <button className="add-to-cart-btn" id={productNo}>
+            <button
+                className="add-to-cart-btn"
+                id={productNo}
+                onClick={handleAddToCart}
+            >
                 ADD TO CART
             </button>
         );

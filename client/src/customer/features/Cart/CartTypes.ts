@@ -6,6 +6,7 @@ export interface CartItem {
     quantity: number;
     thumbnailUrl: string;
     productUrl: string;
+    maxAvailable: number;
 }
 
 export interface CartState {
@@ -34,8 +35,13 @@ export interface AddActionData {
     thumbnailUrl: string | null;
 }
 
-export interface RemoveActionData {
+export interface UpdateActionData {
     productNo: string;
     cartId: number;
     quantity: number;
+}
+
+export interface DeleteActionData {
+    productNo: string;
+    cartId: number;
 }

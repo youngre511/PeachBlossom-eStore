@@ -4,26 +4,21 @@ import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 
-interface Props {}
-const ShopNav: React.FC<Props> = () => {
+interface Props {
+    setShopMenuVisible: React.Dispatch<React.SetStateAction<boolean>>;
+}
+const ShopNav: React.FC<Props> = ({ setShopMenuVisible }) => {
     const categories = ["Planters", "Decor", "Candles", "Throws"];
     const shopNav = useRef<HTMLDivElement>(null);
     const { contextSafe } = useGSAP({ scope: shopNav });
 
-    const hideShopMen = contextSafe(() => {
-        if (shopNav.current) {
-            gsap.timeline()
-                .to(shopNav.current, {
-                    opacity: 0,
-                    scale: 0.6,
-                    ease: "back.out",
-                })
-                .set(shopNav.current, { display: "none" });
-        }
-    });
-
     return (
-        <div className="shop-nav" ref={shopNav} onMouseLeave={hideShopMen}>
+        <div
+            className="shop-nav"
+            ref={shopNav}
+            onMouseLeave={() => setShopMenuVisible(false)}
+            onMouseEnter={() => setShopMenuVisible(true)}
+        >
             <div className="shop-nav-bkg"></div>
             <div className="shop-nav-bkg-overlay"></div>
             <div className="shop-nav-menu">

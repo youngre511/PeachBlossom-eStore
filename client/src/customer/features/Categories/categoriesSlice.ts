@@ -17,11 +17,17 @@ export const fetchCategories = createAsyncThunk<
     Category[],
     void,
     { state: RootState }
->("categories/fetchCategories", async () => {
-    const response = await axios.get<FetchCategoriesResponse>(
-        `${process.env.REACT_APP_API_URL}category/`
-    );
-    return response.data.payload;
+>("categories/fetchCategories", async (_, { rejectWithValue }) => {
+    try {
+        const response = await axios.get<FetchCategoriesResponse>(
+            `${process.env.REACT_APP_API_URL}category`
+        );
+        return response.data.payload;
+    } catch (error: any) {
+        return rejectWithValue(
+            error.response?.data || ("Error fetching categories" as string)
+        );
+    }
 });
 
 const categoriesSlice = createSlice({

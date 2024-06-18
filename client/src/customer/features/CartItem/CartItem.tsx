@@ -1,9 +1,9 @@
-import React from "react";
-import { useState } from "react";
+import React, { useState } from "react";
 import { CartItem as item } from "../Cart/CartTypes";
-import { Link } from "react-router-dom";
-import { useAppSelector, useAppDispatch } from "../../hooks/reduxHooks";
+import { Link, useLocation } from "react-router-dom";
+import { useAppDispatch } from "../../hooks/reduxHooks";
 import { RootState } from "../../store/customerStore";
+import { updateItemQuantity } from "../Cart/cartSlice";
 
 interface Props {
     item: item;
@@ -14,11 +14,19 @@ const CartItem: React.FC<Props> = ({ item, key }: Props) => {
     const totalPrice =
         item.quantity * (item.discountPrice ? item.discountPrice : item.price);
     const dispatch = useAppDispatch();
-    // Future: update to set max value at current stock
 
     const handleUpdateQuantity = () => {
-        dispatch("cart/updateQuantity", +quantity);
+        dispatch(
+            updateItemQuantity({
+                productNo: item.productNo,
+                newQuantity: +quantity,
+            })
+        );
     };
+
+    const location = useLocation();
+
+    const cartView: boolean = location.pathname === "/shoppingcart/";
 
     const updateLocalQuantity = (
         event: React.ChangeEvent<HTMLInputElement>
@@ -33,14 +41,16 @@ const CartItem: React.FC<Props> = ({ item, key }: Props) => {
                 <Link to={item.productUrl}>
                     <img src={item.thumbnailUrl} alt={item.name} />
                 </Link>
-                <p
-                    className="remove-button"
-                    role="button"
-                    id={`remove-${item.productNo}`}
-                    data-productNo={item.productNo}
-                >
-                    Remove
-                </p>
+                {cartView && (
+                    <p
+                        className="remove-button"
+                        role="button"
+                        id={`remove-${item.productNo}`}
+                        data-productNo={item.productNo}
+                    >
+                        Remove
+                    </p>
+                )}
             </div>
             <div className="cartItemDetails">
                 <Link to={item.productUrl}>
@@ -48,6 +58,9 @@ const CartItem: React.FC<Props> = ({ item, key }: Props) => {
                 </Link>
                 <p className="cart-productNo">#{item.productNo}</p>
                 <div className="price-and-quantity">
+                    {!cartView && (
+                        <p className="drop-quantity">Qty: {item.quantity}</p>
+                    )}
                     {item.discountPrice && (
                         <div className="pricing">
                             <p className="discount-price">
@@ -61,24 +74,29 @@ const CartItem: React.FC<Props> = ({ item, key }: Props) => {
                             <p className="price">{item.price}</p>
                         </div>
                     )}
-                    <div className="quantity">
-                        <input
-                            type="number"
-                            value={quantity}
-                            onChange={updateLocalQuantity}
-                        />
-                        <p
-                            role="button"
-                            className="update-quantity"
-                            onClick={handleUpdateQuantity}
-                        >
-                            Update
-                        </p>
-                    </div>
-                    <div className="item-total">
-                        <p className="total-label">Item Total</p>
-                        <p className="item-total-price">${totalPrice}</p>
-                    </div>
+                    {cartView && (
+                        <div className="quantity">
+                            <input
+                                type="number"
+                                value={quantity}
+                                onChange={updateLocalQuantity}
+                                max={item.maxAvailable}
+                            />
+                            <p
+                                role="button"
+                                className="update-quantity"
+                                onClick={handleUpdateQuantity}
+                            >
+                                Update
+                            </p>
+                        </div>
+                    )}
+                    {cartView && (
+                        <div className="item-total">
+                            <p className="total-label">Item Total</p>
+                            <p className="item-total-price">${totalPrice}</p>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

@@ -2,6 +2,7 @@ const productRouter = require("express").Router();
 const {
     getProducts,
     getOneProduct,
+    getSearchOptions,
     getProductsInPromotion,
     createProduct,
     deleteProduct,
@@ -11,6 +12,8 @@ const {
 } = require("../controllers/productController");
 
 productRouter.get("/", getProducts);
+
+productRouter.get("/search-options", getSearchOptions);
 
 productRouter.get("/:productNo", getOneProduct);
 

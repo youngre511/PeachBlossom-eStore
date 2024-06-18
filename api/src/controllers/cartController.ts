@@ -25,11 +25,18 @@ interface AddItemRequest extends Request {
     };
 }
 
-interface RemoveItemRequest extends Request {
+interface UpdateQuantityRequest extends Request {
     body: {
         productNo: string;
         cartId: number;
         quantity: number;
+    };
+}
+
+interface DeleteItemRequest extends Request {
+    body: {
+        productNo: string;
+        cartId: number;
     };
 }
 
@@ -102,17 +109,41 @@ exports.addItemToCart = async (req: AddItemRequest, res: CartResponse) => {
     }
 };
 
-exports.removeItemFromCart = async (
-    req: RemoveItemRequest,
+exports.updateItemQuantity = async (
+    req: UpdateQuantityRequest,
     res: CartResponse
 ) => {
     try {
         const { productNo, cartId, quantity } = req.body;
-        const result = await cartService.removeItemFromCart(
+        const result = await cartService.updateItemQuantity(
             productNo,
             cartId,
             quantity
         );
+
+        res.json({
+            message: "success",
+            payload: result,
+        });
+    } catch (error) {
+        let errorObj = {
+            message: "remove from cart failure",
+            payload: error,
+        };
+
+        console.log(errorObj);
+
+        res.json(errorObj);
+    }
+};
+
+exports.deleteItemFromCart = async (
+    req: DeleteItemRequest,
+    res: CartResponse
+) => {
+    try {
+        const { productNo, cartId } = req.body;
+        const result = await cartService.deleteItemFromCart(productNo, cartId);
 
         res.json({
             message: "success",

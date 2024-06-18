@@ -1,31 +1,81 @@
 import React from "react";
 import "./nav.css";
-import { useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
-import { ReactComponent as Search } from "../../../assets/img/search.svg";
-import { ReactComponent as Cart } from "../../../assets/img/cart.svg";
-import { ReactComponent as Recent } from "../../../assets/img/recent.svg";
-import { ReactComponent as Account } from "../../../assets/img/account.svg";
+import { useEffect, useRef, useState } from "react";
+import { useAppSelector } from "../../hooks/reduxHooks";
+import { Link, useNavigate } from "react-router-dom";
+import { ReactComponent as SearchButton } from "../../../assets/img/search.svg";
+import { ReactComponent as CartButton } from "../../../assets/img/cart.svg";
+import { ReactComponent as RecentButton } from "../../../assets/img/recent.svg";
+import { ReactComponent as AccountButton } from "../../../assets/img/account.svg";
 import pblogo from "../../../assets/img/peach-blossom-logo.png";
 import ShopNav from "../ShopMenu/ShopNav";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
+import CartDropDown from "../../features/Cart/CartDropDown";
+import { RootState } from "../../store/customerStore";
 
 interface Props {}
 const Nav: React.FC<Props> = () => {
-    const cartContents = 8;
+    const cartContents = useAppSelector(
+        (state: RootState) => state.cart.numberOfItems
+    );
     const header = useRef<HTMLElement>(null);
 
-    const { contextSafe } = useGSAP({ scope: header });
+    const [isShopMenuVisible, setShopMenuVisible] = useState(false);
+    const [isCartDropdownVisible, setCartDropdownVisible] = useState(false);
 
-    const revealShopMen = contextSafe(() => {
-        gsap.timeline().set(".shop-nav", { display: "block" }).to(".shop-nav", {
-            duration: 0.2,
-            opacity: 1,
-            scale: 1,
-            ease: "power1.inOut",
-        });
-    });
+    const { contextSafe } = useGSAP({ scope: header });
+    const navigate = useNavigate();
+
+    useEffect(
+        contextSafe(() => {
+            if (isShopMenuVisible) {
+                gsap.timeline()
+                    .set(".shop-nav", { display: "block" })
+                    .to(".shop-nav", {
+                        duration: 0.2,
+                        opacity: 1,
+                        scale: 1,
+                        ease: "power1.inOut",
+                    });
+            } else {
+                gsap.timeline()
+                    .to(".shop-nav", {
+                        opacity: 0,
+                        scale: 0.6,
+                        ease: "back.out",
+                    })
+                    .set(".shop-nav", { display: "none" });
+            }
+        }),
+        [isShopMenuVisible]
+    );
+
+    useEffect(
+        contextSafe(() => {
+            if (cartContents > 0) {
+                if (isCartDropdownVisible) {
+                    gsap.timeline()
+                        .set(".drop-cart", { display: "block" })
+                        .to(".drop-cart", {
+                            duration: 0.2,
+                            opacity: 1,
+                            scale: 1,
+                            ease: "power1.inOut",
+                        });
+                } else {
+                    gsap.timeline()
+                        .to(".drop-cart", {
+                            opacity: 0,
+                            scale: 0.6,
+                            ease: "back.out",
+                        })
+                        .set(".shop-nav", { display: "none" });
+                }
+            }
+        }),
+        [isCartDropdownVisible]
+    );
 
     return (
         <header ref={header}>
@@ -33,7 +83,11 @@ const Nav: React.FC<Props> = () => {
             <div className="nav-bar">
                 {/* Main Nav */}
                 <ul className="left-menu">
-                    <li className="nav-text" onMouseEnter={revealShopMen}>
+                    <li
+                        className="nav-text"
+                        onMouseEnter={() => setShopMenuVisible(true)}
+                        onMouseLeave={() => setShopMenuVisible(false)}
+                    >
                         Shop
                     </li>
                     <li className="nav-text">
@@ -65,7 +119,7 @@ const Nav: React.FC<Props> = () => {
                             tabIndex={0}
                             role="button"
                         >
-                            <Search />
+                            <SearchButton />
                         </div>
                     </li>
                     <li>
@@ -76,7 +130,7 @@ const Nav: React.FC<Props> = () => {
                             tabIndex={0}
                             role="button"
                         >
-                            <Account />
+                            <AccountButton />
                         </div>
                     </li>
                     <li>
@@ -87,7 +141,7 @@ const Nav: React.FC<Props> = () => {
                             tabIndex={0}
                             role="button"
                         >
-                            <Recent />
+                            <RecentButton />
                         </div>
                     </li>
                     <li>
@@ -97,20 +151,28 @@ const Nav: React.FC<Props> = () => {
                             aria-label="cart"
                             tabIndex={0}
                             role="button"
+                            onMouseEnter={() => setCartDropdownVisible(true)}
+                            onMouseLeave={() => setCartDropdownVisible(false)}
+                            onClick={() => navigate("/shoppingcart")}
                         >
-                            <Cart />
-                            {cartContents > 0 && (
-                                <div className="cart-badge" aria-live="polite">
-                                    <div className="badge-background"></div>
-                                    <div className="badge-background-overlay"></div>
-                                    <p
-                                        id="cart-contents"
-                                        aria-label={`Cart with ${cartContents} items`}
+                            <Link to="/shoppingcart">
+                                <CartButton />
+                                {cartContents > 0 && (
+                                    <div
+                                        className="cart-badge"
+                                        aria-live="polite"
                                     >
-                                        {cartContents}
-                                    </p>
-                                </div>
-                            )}
+                                        <div className="badge-background"></div>
+                                        <div className="badge-background-overlay"></div>
+                                        <p
+                                            id="cart-contents"
+                                            aria-label={`Cart with ${cartContents} items`}
+                                        >
+                                            {cartContents}
+                                        </p>
+                                    </div>
+                                )}
+                            </Link>
                         </div>
                     </li>
                 </ul>
@@ -121,7 +183,8 @@ const Nav: React.FC<Props> = () => {
                     <div className="border-over"></div>
                     <img src={pblogo} alt="" />
                 </div>
-                <ShopNav />
+                <ShopNav setShopMenuVisible={setShopMenuVisible} />
+                <CartDropDown setCartDropdownVisible={setCartDropdownVisible} />
             </div>
         </header>
     );

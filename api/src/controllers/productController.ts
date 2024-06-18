@@ -28,6 +28,15 @@ export interface CreateProduct {
     tags?: Array<string>;
 }
 
+interface SearchOptions extends Response {
+    searchOptions: Array<{
+        display: string;
+        value: string;
+        id: number;
+        url: string;
+    }>;
+}
+
 interface CreateProductRequest extends Request {
     body: CreateProduct;
 }
@@ -141,6 +150,26 @@ exports.getOneProduct = async (req: ProductParamsRequest, res: Response) => {
     } catch (error) {
         let errorObj = {
             message: "get one product failure",
+            payload: error,
+        };
+
+        console.log(errorObj);
+
+        res.json(errorObj);
+    }
+};
+
+exports.getSearchOptions = async (req: Request, res: SearchOptions) => {
+    try {
+        const results = await productService.getSearchOptions();
+
+        res.json({
+            message: "success",
+            payload: results,
+        });
+    } catch (error) {
+        let errorObj = {
+            message: "get all products failure",
             payload: error,
         };
 

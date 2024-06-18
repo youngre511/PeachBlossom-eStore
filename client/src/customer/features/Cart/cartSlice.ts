@@ -1,7 +1,8 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import {
     AddActionData,
-    RemoveActionData,
+    UpdateActionData,
+    DeleteActionData,
     CartItem,
     CartState,
     ChangeQuantityRequest,
@@ -85,6 +86,7 @@ export const addItemToCart = createAsyncThunk<
                 quantity: 1,
                 thumbnailUrl: productThumbnail,
                 productUrl: `/shop/product/${productToAdd.productNo}`,
+                maxAvailable: productToAdd.stock,
             };
             dispatch(addItemOptimistic(productObj));
         }
@@ -115,14 +117,14 @@ export const addItemToCart = createAsyncThunk<
     }
 );
 
-//Remove Item from Cart
-export const removeItemFromCart = createAsyncThunk<
+export const updateItemQuantity = createAsyncThunk<
     CartResponsePayload,
-    string,
+    updateQuantityArgs,
     { state: RootState; rejectValue: string }
 >(
-    "cart/removeItemFromCart",
-    async (productNo: string, { getState, dispatch, rejectWithValue }) => {
+    "cart/updateItemQuantity",
+    async (updateQuantityArgs, { getState, dispatch, rejectWithValue }) => {
+        const { productNo, newQuantity } = updateQuantityArgs;
         const state = getState() as RootState;
         const cartId = state.cart.cartId;
         if (!cartId) {
@@ -131,34 +133,45 @@ export const removeItemFromCart = createAsyncThunk<
         const currentCartItems = [...state.cart.items];
         const currentNumberOfItems = state.cart.numberOfItems;
         const indexInCart = state.cart.items.findIndex(
-            (item: any) => item.productNo === productNo
+            (item: CartItem) => item.productNo === productNo
         );
         if (indexInCart === -1) {
             return rejectWithValue("Product not found");
         }
-
-        if (state.cart.items[indexInCart].quantity > 1) {
-            dispatch(
-                changeQuantityOptimistic({
-                    productIndex: indexInCart,
-                    adjustmentAmount: 1,
-                })
-            );
-        } else {
-            dispatch(removeItemOptimistic(productNo));
-        }
-
         try {
-            const actionData: RemoveActionData = {
-                productNo: productNo,
-                cartId: cartId,
-                quantity: 1,
-            };
-            const response = await axios.put<CartResponse>(
-                `${process.env.REACT_APP_API_URL}cart/removeFrom`,
-                actionData
-            );
-            return response.data.payload;
+            if (newQuantity > 0) {
+                dispatch(
+                    changeQuantityOptimistic({
+                        productIndex: indexInCart,
+                        adjustmentAmount:
+                            newQuantity -
+                            state.cart.items[indexInCart].quantity,
+                    })
+                );
+                const actionData: UpdateActionData = {
+                    productNo: productNo,
+                    cartId: cartId,
+                    quantity: newQuantity,
+                };
+
+                const response = await axios.put<CartResponse>(
+                    `${process.env.REACT_APP_API_URL}cart/update-quantity`,
+                    actionData
+                );
+                return response.data.payload;
+            } else {
+                dispatch(deleteItemOptimistic(productNo));
+
+                const actionData: DeleteActionData = {
+                    productNo: productNo,
+                    cartId: cartId,
+                };
+                const response = await axios.put<CartResponse>(
+                    `${process.env.REACT_APP_API_URL}cart/delete-from-cart`,
+                    actionData
+                );
+                return response.data.payload;
+            }
         } catch (error: any) {
             dispatch(
                 rollbackCartItems({
@@ -172,15 +185,6 @@ export const removeItemFromCart = createAsyncThunk<
             );
         }
     }
-);
-
-export const updateQuantity = createAsyncThunk<
-    number,
-    updateQuantityArgs,
-    { state: RootState; rejectValue: string }
->(
-    "cart/updateQuantity",
-    async (updateQuantityArgs, { getState, dispatch, rejectWithValue }) => {}
 );
 
 //Add Promo To Cart
@@ -197,13 +201,14 @@ const cartSlice = createSlice({
             state.items.push(action.payload);
             state.numberOfItems++;
         },
-        removeItemOptimistic: (state, action: PayloadAction<string>) => {
+        deleteItemOptimistic: (state, action: PayloadAction<string>) => {
             const index = state.items.findIndex(
                 (item) => item.productNo === action.payload
             );
             if (index !== -1) {
+                state.numberOfItems =
+                    state.numberOfItems - state.items[index].quantity;
                 state.items.splice(index, 1);
-                state.numberOfItems--;
             }
         },
         changeQuantityOptimistic: (
@@ -256,17 +261,17 @@ const cartSlice = createSlice({
             .addCase(addItemToCart.rejected, (state, action) => {
                 state.error = action.payload || "Failed to fetch products";
             })
-            .addCase(removeItemFromCart.pending, (state) => {
+            .addCase(updateItemQuantity.pending, (state) => {
                 state.error = null;
             })
-            .addCase(removeItemFromCart.fulfilled, (state, action) => {
+            .addCase(updateItemQuantity.fulfilled, (state, action) => {
                 state.items = action.payload.cart.items;
                 state.subTotal = action.payload.cart.subTotal;
                 state.cartId = action.payload.cart.cartId;
                 state.numberOfItems = action.payload.cart.numberOfItems;
                 state.error = null;
             })
-            .addCase(removeItemFromCart.rejected, (state, action) => {
+            .addCase(updateItemQuantity.rejected, (state, action) => {
                 state.error = action.payload || "Failed to fetch products";
             });
     },
@@ -274,7 +279,7 @@ const cartSlice = createSlice({
 
 export const {
     addItemOptimistic,
-    removeItemOptimistic,
+    deleteItemOptimistic,
     changeQuantityOptimistic,
     rollbackCartItems,
     clearCart,

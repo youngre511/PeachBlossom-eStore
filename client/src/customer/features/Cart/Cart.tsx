@@ -1,8 +1,6 @@
 import React from "react";
-import { useEffect } from "react";
 import { useAppSelector } from "../../hooks/reduxHooks";
 import { RootState } from "../../store/customerStore";
-import { Button } from "@mui/material";
 import CartItem from "../CartItem/CartItem";
 
 const Cart: React.FC = () => {

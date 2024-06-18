@@ -16,11 +16,14 @@ import PrivacyAndCookies from "./components/PrivacyAndCookies/PrivacyAndCookies"
 import Shop from "./components/Shop/Shop";
 import { useAppDispatch } from "./hooks/reduxHooks";
 import { fetchCategories } from "./features/Categories/categoriesSlice";
+import { fetchSearchOptions } from "./features/SearchOptions/searchOptionsSlice";
+import Cart from "./features/Cart/Cart";
 
 const App: React.FC = () => {
     const dispatch = useAppDispatch();
     useEffect(() => {
         dispatch(fetchCategories());
+        dispatch(fetchSearchOptions());
     }, [dispatch]);
 
     return (
@@ -39,6 +42,7 @@ const App: React.FC = () => {
                     <Route path="/login" element={<Login />} />
                     <Route path="/signup" element={<Signup />} />
                     <Route path="/orders" element={<OrderStatus />} />
+                    <Route path="/shoppingcart" element={<Cart />} />
                     <Route
                         path="/sustainability"
                         element={<Sustainability />}

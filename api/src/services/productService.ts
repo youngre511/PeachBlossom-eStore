@@ -88,6 +88,36 @@ interface CatalogResponse {
     stock: number;
 }
 
+exports.getSearchOptions = async () => {
+    const namesAndNumbers = await Product.find({}).select(
+        "name productNo -_id"
+    );
+    const results: Array<{
+        display: string;
+        value: string;
+        item: number;
+        url: string;
+    }> = [];
+    let i = 1;
+    namesAndNumbers.forEach((product) => {
+        results.push({
+            display: product.name,
+            value: product.name,
+            item: i,
+            url: `/shop/product/${product.productNo}`,
+        });
+        i++;
+        results.push({
+            display: product.name,
+            value: product.productNo,
+            item: i,
+            url: `/shop/product/${product.productNo}`,
+        });
+        i++;
+    });
+    return results;
+};
+
 //get sorted and filtered products
 exports.getProducts = async (filters: FilterObject) => {
     const skip = (filters.page - 1) * +filters.itemsPerPage;
