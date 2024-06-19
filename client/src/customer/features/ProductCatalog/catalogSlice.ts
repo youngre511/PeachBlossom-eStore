@@ -43,13 +43,21 @@ export const fetchProducts = createAsyncThunk<
 >(
     "catalog/fetchProducts",
     async (filters: Filters, { getState, rejectWithValue }) => {
+        console.log("running fetch products");
         const state = getState() as RootState;
         const itemsPerPage = state.userPreferences.itemsPerPage;
         const existingFilters = state.catalog.filters;
         let filterUnchanged = true;
 
+        if (!filters.sortMethod) {
+            filters.sortMethod = "name-ascend";
+        }
+        if (!filters.page) {
+            filters.page = "1";
+        }
+
         const keys = Object.keys(filters) as Array<keyof Filters>;
-        if (existingFilters) {
+        if (existingFilters && state.catalog.products.length > 0) {
             for (let key of keys) {
                 const currentValue = filters[key];
                 const existingValue = existingFilters[key];
@@ -68,6 +76,7 @@ export const fetchProducts = createAsyncThunk<
             }
         } else {
             filterUnchanged = false;
+            console.log("didn't change");
         }
 
         if (filterUnchanged) {

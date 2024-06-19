@@ -33,9 +33,13 @@ export class sqlCart extends Model {
     })
     customer_id?: number;
 
-    @HasMany(() => sqlCartItem, { as: "CartItem" })
+    @HasMany(() => sqlCartItem, { as: "CartItem", foreignKey: "cart_id" })
     cartItems!: sqlCartItem[];
 
-    @BelongsTo(() => sqlCustomer, { as: "Customer" })
+    @BelongsTo(() => sqlCustomer, {
+        as: "Customer",
+        foreignKey: "customer_id",
+        targetKey: "customer_id",
+    })
     customer?: sqlCustomer;
 }

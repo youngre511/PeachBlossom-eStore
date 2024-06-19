@@ -106,7 +106,7 @@ exports.getCustomerCart = async (customerId: number) => {
     console.log("yes");
 };
 
-exports.addItemToCart = async (
+exports.addToCart = async (
     productNo: string,
     cartId: number | null,
     quantity: number,
@@ -114,7 +114,7 @@ exports.addItemToCart = async (
 ) => {
     const sqlTransaction = await sequelize.transaction();
     let cartExists = cartId ? true : false;
-
+    console.log(productNo, cartId, quantity, thumbnailUrl);
     try {
         const product = await sqlProduct.findOne({
             where: { productNo: productNo },
@@ -125,6 +125,7 @@ exports.addItemToCart = async (
             throw new Error("ProductNo not found in database");
         }
 
+        console.log("still running1");
         const currentDate = new Date();
         const promotions = await sqlPromotion.findAll({
             include: [
@@ -143,7 +144,7 @@ exports.addItemToCart = async (
                 endDate: { [Op.gte]: currentDate },
             },
         });
-
+        console.log("still running2");
         const promotionId =
             promotions.length > 0 ? promotions[0].promotionId : undefined;
 
@@ -159,7 +160,7 @@ exports.addItemToCart = async (
         } else {
             finalPrice = product.price;
         }
-
+        console.log("still running3");
         let cart;
         if (cartExists) {
             cart = await sqlCart.findOne({
@@ -171,19 +172,23 @@ exports.addItemToCart = async (
                 cartExists = false;
             }
         }
-
+        console.log("still running4");
         if (!cartExists) {
             cart = await sqlCart.create({}, { transaction: sqlTransaction });
+            cartId = cart.cart_id;
         }
 
         if (!cart) {
             throw new Error("Cart creation failed");
         }
 
-        let cartItem = cart?.cartItems.find(
-            (item) => item.productNo === productNo
-        );
-
+        let cartItem = null;
+        if (cart.cartItems) {
+            cartItem = cart.cartItems.find(
+                (item) => item.productNo === productNo
+            );
+        }
+        console.log("still running5");
         if (cartItem) {
             cartItem.quantity += quantity;
             cartItem.promotionId = promotionId;
@@ -202,10 +207,87 @@ exports.addItemToCart = async (
                 { transaction: sqlTransaction }
             );
         }
-
+        console.log("still running6");
         await sqlTransaction.commit();
 
-        const updatedCart = (await sqlCart.findOne({
+        console.log(cartId);
+        // const update = await sqlCart.findOne({
+        //     where: { cart_id: cartId },
+        //     include: [
+        //         {
+        //             model: sqlCartItem,
+        //             as: "CartItem",
+        //             include: [
+        //                 {
+        //                     model: sqlProduct,
+        //                     as: "Product",
+        //                     attributes: [
+        //                         "productNo",
+        //                         "productName",
+        //                         "price",
+        //                         "description",
+        //                     ],
+        //                 },
+        //             ],
+        //             attributes: [
+        //                 "cart_item_id",
+        //                 "cart_id",
+        //                 "productNo",
+        //                 "quantity",
+        //                 "finalPrice",
+        //             ],
+        //         },
+        //     ],
+        // });
+
+        const update = await sqlCart.findOne({
+            where: { cart_id: cartId },
+            include: [
+                {
+                    model: sqlCartItem,
+                    as: "CartItem",
+                    include: [
+                        {
+                            model: sqlProduct,
+                            as: "Product",
+                            attributes: [
+                                "productNo",
+                                "productName",
+                                "price",
+                                "description",
+                            ],
+                            include: [
+                                {
+                                    model: sqlInventory,
+                                    as: "Inventory",
+                                    attributes: ["available"],
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        });
+
+        console.log("6.25", JSON.stringify(update?.toJSON(), null, 2));
+
+        const productt = await sqlProduct.findOne({
+            where: { productNo: "pl-b96838c3" },
+            include: [
+                {
+                    model: sqlInventory,
+                    as: "Inventory",
+                    attributes: ["stock", "reserved", "available"],
+                },
+            ],
+        });
+
+        console.log(
+            "Product Inventory:",
+            JSON.stringify(productt?.toJSON(), null, 2)
+        );
+
+        let updatedCart = (await sqlCart.findOne({
             where: { cart_id: cartId },
             include: [
                 {
@@ -227,6 +309,11 @@ exports.addItemToCart = async (
                 },
             ],
         })) as unknown as JoinReqCart;
+
+        // updatedCart = JSON.parse(updatedCart.toJSON());
+
+        console.log("still running6.5");
+        console.log(updatedCart);
 
         if (!updatedCart) {
             throw new Error("Unable to retrieve new cart state");
@@ -254,7 +341,7 @@ exports.addItemToCart = async (
             subTotal: subTotal,
             cartId: updatedCart.cart_id,
         };
-
+        console.log("still running7");
         return {
             success: true,
             message: "Item added to cart successfully",
@@ -388,7 +475,7 @@ exports.updateItemQuantity = async (
     }
 };
 
-exports.deleteItemFromCart = async (productNo: string, cartId: number) => {
+exports.deleteFromCart = async (productNo: string, cartId: number) => {
     const sqlTransaction = await sequelize.transaction();
 
     try {

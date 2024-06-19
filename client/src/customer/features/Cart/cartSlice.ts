@@ -53,6 +53,7 @@ export const addItemToCart = createAsyncThunk<
 >(
     "cart/addItemToCart",
     async (productNo: string, { getState, dispatch, rejectWithValue }) => {
+        console.log("running add item to cart");
         const state = getState() as RootState;
         const currentCartItems = [...state.cart.items];
         const currentNumberOfItems = state.cart.numberOfItems;
@@ -68,6 +69,7 @@ export const addItemToCart = createAsyncThunk<
                     adjustmentAmount: 1,
                 })
             );
+            console.log("running changeQuantity");
         } else {
             const productToAdd = state.catalog.products.find(
                 (p: any) => p.productNo === productNo
@@ -88,6 +90,7 @@ export const addItemToCart = createAsyncThunk<
                 productUrl: `/shop/product/${productToAdd.productNo}`,
                 maxAvailable: productToAdd.stock,
             };
+            console.log("adding optimistic");
             dispatch(addItemOptimistic(productObj));
         }
 
@@ -98,10 +101,14 @@ export const addItemToCart = createAsyncThunk<
                 quantity: 1,
                 thumbnailUrl: productThumbnail,
             };
+            console.log("making api request");
             const response = await axios.put<CartResponse>(
                 `${process.env.REACT_APP_API_URL}cart/add-to-cart`,
                 actionData
             );
+            if (!response.data.payload.cart) {
+                throw new Error(response.data.message);
+            }
             return response.data.payload;
         } catch (error: any) {
             dispatch(

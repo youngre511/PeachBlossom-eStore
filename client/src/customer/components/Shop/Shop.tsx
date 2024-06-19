@@ -129,6 +129,49 @@ const Shop = () => {
         itemsPerPage,
     ]);
 
+    useEffect(() => {
+        const initialParams: Record<string, string> = {};
+
+        if (!searchParams.get("sort")) {
+            initialParams.sort = "name-ascend";
+        }
+        if (!searchParams.get("page")) {
+            initialParams.page = "1";
+        }
+
+        if (Object.keys(initialParams).length > 0) {
+            setSearchParams((prevParams) => {
+                const newParams = new URLSearchParams(prevParams);
+                Object.keys(initialParams).forEach((key) => {
+                    if (!newParams.get(key)) {
+                        newParams.set(key, initialParams[key]);
+                    }
+                });
+                return newParams;
+            });
+        }
+        const params = {
+            search,
+            category,
+            subCategory,
+            color,
+            minPrice,
+            maxPrice,
+            minWidth,
+            maxWidth,
+            minHeight,
+            maxHeight,
+            minDepth,
+            maxDepth,
+            tags,
+            material,
+            sortMethod,
+            page,
+        };
+        console.log(params);
+        dispatch(fetchProducts(params as Filters));
+    }, [searchParams, setSearchParams]);
+
     const handleItemsPerPageChange = (newItemsPerPage: 24 | 48 | 96) => {
         dispatch(setItemsPerPage(newItemsPerPage));
     };

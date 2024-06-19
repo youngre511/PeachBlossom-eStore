@@ -7,9 +7,8 @@ import { updateItemQuantity } from "../Cart/cartSlice";
 
 interface Props {
     item: item;
-    key: string;
 }
-const CartItem: React.FC<Props> = ({ item, key }: Props) => {
+const CartItem: React.FC<Props> = ({ item }: Props) => {
     const [quantity, setQuantity] = useState<string>(String(item.quantity));
     const totalPrice =
         item.quantity * (item.discountPrice ? item.discountPrice : item.price);
@@ -26,7 +25,7 @@ const CartItem: React.FC<Props> = ({ item, key }: Props) => {
 
     const location = useLocation();
 
-    const cartView: boolean = location.pathname === "/shoppingcart/";
+    const cartView: boolean = location.pathname === "/shoppingcart";
 
     const updateLocalQuantity = (
         event: React.ChangeEvent<HTMLInputElement>
@@ -35,8 +34,17 @@ const CartItem: React.FC<Props> = ({ item, key }: Props) => {
         setQuantity(newQuantity);
     };
 
+    const handleRemoveProduct = () => {
+        dispatch(
+            updateItemQuantity({
+                productNo: item.productNo,
+                newQuantity: 0,
+            })
+        );
+    };
+
     return (
-        <div className="cart-item" key={key}>
+        <div className="cart-item">
             <div className="thumbnail-remove">
                 <Link to={item.productUrl}>
                     <img src={item.thumbnailUrl} alt={item.name} />
@@ -47,6 +55,7 @@ const CartItem: React.FC<Props> = ({ item, key }: Props) => {
                         role="button"
                         id={`remove-${item.productNo}`}
                         data-productNo={item.productNo}
+                        onClick={handleRemoveProduct}
                     >
                         Remove
                     </p>

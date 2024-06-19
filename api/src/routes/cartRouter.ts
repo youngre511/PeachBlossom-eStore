@@ -1,8 +1,8 @@
 const cartRouter = require("express").Router();
 const {
     getCartById,
-    addItemToCart,
-    deleteItemFromCart,
+    addToCart,
+    deleteFromCart,
     updateItemQuantity,
 } = require("../controllers/cartController");
 
@@ -12,10 +12,10 @@ cartRouter.get("/cartId/:cartId", getCartById);
 
 cartRouter.get("/customerId/:customerId", dummyFunc);
 
-cartRouter.put("/add-to-cart", addItemToCart);
+cartRouter.put("/add-to-cart", addToCart);
 
 cartRouter.put("/update-quantity", updateItemQuantity);
 
-cartRouter.put("/delete-from-cart", deleteItemFromCart);
+cartRouter.put("/delete-from-cart", deleteFromCart);
 
 module.exports = cartRouter;

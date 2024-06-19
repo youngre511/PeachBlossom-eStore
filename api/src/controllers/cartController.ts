@@ -1,6 +1,5 @@
 import Product from "../models/mongo/productModel";
 import Category from "../models/mongo/categoryModel";
-import { addItemToCart } from "../../../client/src/customer/features/Cart/cartSlice";
 const cartService = require("../services/cartService");
 import { Request, Response } from "express";
 
@@ -83,10 +82,10 @@ exports.getCartById = async (req: CartIdBodyRequest, res: CartResponse) => {
     }
 };
 
-exports.addItemToCart = async (req: AddItemRequest, res: CartResponse) => {
+exports.addToCart = async (req: AddItemRequest, res: CartResponse) => {
     try {
         const { productNo, cartId, quantity, thumbnailUrl } = req.body;
-        const result = await cartService.addItemToCart(
+        const result = await cartService.addToCart(
             productNo,
             cartId,
             quantity,
@@ -137,13 +136,10 @@ exports.updateItemQuantity = async (
     }
 };
 
-exports.deleteItemFromCart = async (
-    req: DeleteItemRequest,
-    res: CartResponse
-) => {
+exports.deleteFromCart = async (req: DeleteItemRequest, res: CartResponse) => {
     try {
         const { productNo, cartId } = req.body;
-        const result = await cartService.deleteItemFromCart(productNo, cartId);
+        const result = await cartService.deleteFromCart(productNo, cartId);
 
         res.json({
             message: "success",

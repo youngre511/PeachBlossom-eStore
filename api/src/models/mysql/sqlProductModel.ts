@@ -29,7 +29,6 @@ export class sqlProduct extends Model {
     id!: number;
 
     @Index
-    @Unique
     @Column({
         type: DataType.STRING(20),
         allowNull: false,
@@ -61,7 +60,7 @@ export class sqlProduct extends Model {
     })
     category_id!: number;
 
-    @BelongsTo(() => sqlCategory, { as: "Category" })
+    @BelongsTo(() => sqlCategory, { as: "Category", foreignKey: "category_id" })
     @Index
     @ForeignKey(() => sqlSubCategory)
     @Column({
@@ -70,13 +69,16 @@ export class sqlProduct extends Model {
     })
     subCategory_id?: number;
 
-    @BelongsTo(() => sqlSubCategory, { as: "SubCategory" })
+    @BelongsTo(() => sqlSubCategory, {
+        as: "SubCategory",
+        foreignKey: "subCategory_id",
+    })
     @BelongsToMany(() => sqlPromotion, () => sqlProductPromotion)
     productPromotions!: sqlProductPromotion[];
 
-    @HasMany(() => sqlCartItem, { as: "CartItem" })
+    @HasMany(() => sqlCartItem, { as: "CartItem", foreignKey: "productNo" })
     cartItem!: sqlCartItem;
 
-    @HasOne(() => sqlInventory, { as: "Inventory" })
+    @HasOne(() => sqlInventory, { as: "Inventory", foreignKey: "product_id" })
     inventory!: sqlInventory;
 }

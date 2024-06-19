@@ -28,7 +28,11 @@ export class sqlCartItem extends Model {
     @Column(DataType.BIGINT)
     cart_id!: number;
 
-    @BelongsTo(() => sqlCart, { as: "Cart" })
+    @BelongsTo(() => sqlCart, {
+        as: "Cart",
+        foreignKey: "cart_id",
+        targetKey: "cart_id",
+    })
     cart!: sqlCart;
 
     @ForeignKey(() => sqlProduct)
@@ -38,6 +42,7 @@ export class sqlCartItem extends Model {
     @BelongsTo(() => sqlProduct, {
         foreignKey: "productNo",
         targetKey: "productNo",
+        as: "Product",
     })
     product!: sqlProduct;
 

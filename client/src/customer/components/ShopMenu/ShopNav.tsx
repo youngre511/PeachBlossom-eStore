@@ -3,14 +3,20 @@ import { Link } from "react-router-dom";
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
+import { useAppSelector } from "../../hooks/reduxHooks";
+import { RootState } from "../../store/customerStore";
+import "./shop-menu.css";
 
 interface Props {
     setShopMenuVisible: React.Dispatch<React.SetStateAction<boolean>>;
 }
 const ShopNav: React.FC<Props> = ({ setShopMenuVisible }) => {
-    const categories = ["Planters", "Decor", "Candles", "Throws"];
+    // const categories = ["Planters", "Decor", "Candles", "Throws"];
     const shopNav = useRef<HTMLDivElement>(null);
     const { contextSafe } = useGSAP({ scope: shopNav });
+    const categories = useAppSelector(
+        (state: RootState) => state.categories.categories
+    );
 
     return (
         <div
@@ -25,15 +31,36 @@ const ShopNav: React.FC<Props> = ({ setShopMenuVisible }) => {
                 <p className="shop-all">
                     <Link to="/shop">Shop All</Link>
                 </p>
-                <ul>
+                <ul className="shopnav-options">
                     {categories &&
                         categories.length > 0 &&
                         categories.map((category, index) => {
                             return (
                                 <li key={index}>
-                                    <Link to={`/shop?category=${category}`}>
-                                        {category}
+                                    <Link
+                                        to={`/shop?category=${category.name}`}
+                                    >
+                                        {category.name}
                                     </Link>
+                                    {category.subCategories.length > 0 && (
+                                        <ul className="shopnav-subcategory-list">
+                                            {category.subCategories.map(
+                                                (subCategory, index) => (
+                                                    <li key={index}>
+                                                        <Link
+                                                            to={`/shop?category=${
+                                                                category.name
+                                                            }&sub_category=${encodeURI(
+                                                                subCategory
+                                                            )}`}
+                                                        >
+                                                            {subCategory}
+                                                        </Link>
+                                                    </li>
+                                                )
+                                            )}
+                                        </ul>
+                                    )}
                                 </li>
                             );
                         })}

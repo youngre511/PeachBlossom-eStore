@@ -14,6 +14,7 @@ import cartReducer from "../features/Cart/cartSlice";
 import catalogReducer from "../features/ProductCatalog/catalogSlice";
 import userPreferencesReducer from "../features/UserPreferences/userPreferencesSlice";
 import categoriesReducer from "../features/Categories/categoriesSlice";
+import searchOptionsReducer from "../features/SearchOptions/searchOptionsSlice";
 
 const persistConfig = {
     key: "root",
@@ -25,6 +26,7 @@ const rootReducer = combineReducers({
     categories: categoriesReducer,
     catalog: catalogReducer,
     userPreferences: userPreferencesReducer,
+    searchOptions: searchOptionsReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

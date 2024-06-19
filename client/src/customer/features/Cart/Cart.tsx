@@ -6,6 +6,8 @@ import CartItem from "../CartItem/CartItem";
 const Cart: React.FC = () => {
     const cart = useAppSelector((state: RootState) => state.cart);
 
+    console.log(cart);
+
     return (
         <div className="cart-container">
             <div className="cart">

@@ -120,6 +120,12 @@ exports.getSearchOptions = async () => {
 
 //get sorted and filtered products
 exports.getProducts = async (filters: FilterObject) => {
+    if (!filters.page) {
+        filters.page = 1;
+    }
+    if (!filters.sortMethod) {
+        filters.sortMethod = "name-ascend";
+    }
     const skip = (filters.page - 1) * +filters.itemsPerPage;
     let categoryId: Schema.Types.ObjectId | undefined;
     let subCategoryId: Schema.Types.ObjectId | undefined;
@@ -231,7 +237,6 @@ exports.getProducts = async (filters: FilterObject) => {
         .skip(skip)
         .limit(parseInt(filters.itemsPerPage))
         .exec();
-
     // Find active promotions and calculate discount price if necessary
     const productRecords: Array<CatalogResponse> = products.map((product) => {
         let discountPrice: number | null = null;
