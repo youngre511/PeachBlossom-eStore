@@ -23,11 +23,10 @@ export class sqlInventory extends Model {
     @Column(DataType.BIGINT)
     inventory_id!: number;
 
-    @Index
     @Unique
     @ForeignKey(() => sqlProduct)
-    @Column(DataType.STRING(20))
-    productNo!: string;
+    @Column(DataType.BIGINT)
+    product_id!: number;
 
     @Column({
         type: DataType.INTEGER,
@@ -56,8 +55,8 @@ export class sqlInventory extends Model {
 
     @BelongsTo(() => sqlProduct, {
         as: "Product",
-        foreignKey: "productNo",
-        targetKey: "productNo",
+        foreignKey: "product_id",
+        targetKey: "id",
     })
     product!: sqlProduct;
 }

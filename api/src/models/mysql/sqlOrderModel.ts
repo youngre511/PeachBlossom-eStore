@@ -41,7 +41,6 @@ export class sqlOrder extends Model {
     })
     customer_id!: string;
 
-    @Index
     @Unique
     @Column({
         type: DataType.STRING(50),

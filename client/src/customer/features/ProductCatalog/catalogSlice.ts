@@ -89,7 +89,6 @@ export const fetchProducts = createAsyncThunk<
 
         const params = { ...filters, itemsPerPage: itemsPerPage.toString() };
         try {
-            console.log(`${process.env.REACT_APP_API_URL}product`);
             const response = await axios.get(
                 `${process.env.REACT_APP_API_URL}product`,
                 {

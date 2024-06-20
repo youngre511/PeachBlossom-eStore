@@ -8,12 +8,12 @@ export default {
                 autoIncrement: true,
                 primaryKey: true,
             },
-            productNo: {
-                type: DataTypes.STRING(20),
+            product_id: {
+                type: DataTypes.BIGINT,
                 unique: true,
                 references: {
                     model: "Products",
-                    key: "productNo",
+                    key: "product_id",
                 },
                 onUpdate: "CASCADE",
                 onDelete: "CASCADE",
@@ -40,14 +40,14 @@ export default {
             },
         });
 
-        await queryInterface.addIndex("Inventory", ["productNo"], {
-            name: "idx_productNo",
+        await queryInterface.addIndex("Inventory", ["product_id"], {
+            name: "idx_product_id",
             unique: true,
         });
     },
 
     down: async (queryInterface: QueryInterface) => {
-        await queryInterface.removeIndex("Inventory", "idx_productNo");
+        await queryInterface.removeIndex("Inventory", "idx_product_id");
         await queryInterface.dropTable("Inventory");
     },
 };

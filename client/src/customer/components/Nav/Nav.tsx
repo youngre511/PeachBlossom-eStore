@@ -2,7 +2,7 @@ import React from "react";
 import "./nav.css";
 import { useEffect, useRef, useState } from "react";
 import { useAppSelector } from "../../hooks/reduxHooks";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { ReactComponent as SearchButton } from "../../../assets/img/search.svg";
 import { ReactComponent as CartButton } from "../../../assets/img/cart.svg";
 import { ReactComponent as RecentButton } from "../../../assets/img/recent.svg";
@@ -16,9 +16,9 @@ import { RootState } from "../../store/customerStore";
 
 interface Props {}
 const Nav: React.FC<Props> = () => {
-    const cartContents = useAppSelector(
-        (state: RootState) => state.cart.numberOfItems
-    );
+    const cart = useAppSelector((state: RootState) => state.cart);
+    const cartContents = cart.numberOfItems;
+    console.log("cart:", cart);
     const header = useRef<HTMLElement>(null);
 
     const [isShopMenuVisible, setShopMenuVisible] = useState(false);
@@ -26,6 +26,7 @@ const Nav: React.FC<Props> = () => {
 
     const { contextSafe } = useGSAP({ scope: header });
     const navigate = useNavigate();
+    const location = useLocation();
 
     useEffect(
         contextSafe(() => {
@@ -54,7 +55,10 @@ const Nav: React.FC<Props> = () => {
     useEffect(
         contextSafe(() => {
             if (cartContents > 0) {
-                if (isCartDropdownVisible) {
+                if (
+                    isCartDropdownVisible &&
+                    location.pathname != "/shoppingcart"
+                ) {
                     gsap.timeline()
                         .set(".drop-cart", { display: "block" })
                         .to(".drop-cart", {
@@ -70,7 +74,7 @@ const Nav: React.FC<Props> = () => {
                             scale: 0.6,
                             ease: "back.out",
                         })
-                        .set(".shop-nav", { display: "none" });
+                        .set(".drop-cart", { display: "none" });
                 }
             }
         }),
@@ -88,7 +92,12 @@ const Nav: React.FC<Props> = () => {
                         onMouseEnter={() => setShopMenuVisible(true)}
                         onMouseLeave={() => setShopMenuVisible(false)}
                     >
-                        Shop
+                        <Link
+                            to="/shop"
+                            onClick={() => setShopMenuVisible(false)}
+                        >
+                            Shop
+                        </Link>
                     </li>
                     <li className="nav-text">
                         <Link to="/about">About</Link>
@@ -155,7 +164,10 @@ const Nav: React.FC<Props> = () => {
                             onMouseLeave={() => setCartDropdownVisible(false)}
                             onClick={() => navigate("/shoppingcart")}
                         >
-                            <Link to="/shoppingcart">
+                            <Link
+                                to="/shoppingcart"
+                                onClick={() => setCartDropdownVisible(false)}
+                            >
                                 <CartButton />
                                 {cartContents > 0 && (
                                     <div

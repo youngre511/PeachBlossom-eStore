@@ -14,12 +14,71 @@ import {
 import { Filters } from "../ProductCatalog/CatalogTypes";
 import DecimalField from "../../../common/components/DecimalField";
 import { Category } from "../Categories/CategoriesTypes";
+import { useTheme, styled } from "@mui/material/styles";
+import PeachButton from "../../../common/components/PeachButton";
+
+const MetallicButton = styled(Button)(({ theme }) => ({
+    position: "relative",
+    backgroundColor: theme.palette.gold.main, // Base metallic color
+    color: theme.palette.common.white, // Text color
+    overflow: "hidden",
+
+    "&::before": {
+        content: '""',
+        position: "absolute",
+        top: 0,
+        left: 0,
+        width: "100%",
+        height: "100%",
+        background: `
+        radial-gradient(
+          ellipse farthest-corner at right bottom,
+          #b2b2b2 0%,
+          #bdbdbd 8%,
+          #444444 30%,
+          #333333 40%,
+          transparent 80%
+        ),
+        radial-gradient(
+          ellipse farthest-corner at left top,
+          #fefefe 0%,
+          #ffffff 8%,
+          #999999 25%,
+          #222222 62.5%,
+          #222222 100%
+        )
+      `,
+        backgroundSize: "130% 110%",
+        backgroundPosition: "100% 50%",
+        mixBlendMode: "overlay",
+        zIndex: 1,
+        pointerEvents: "none", // Ensures the gradient doesn't interfere with button interactions
+    },
+
+    "& .MuiButton-label": {
+        position: "relative",
+        zIndex: 3,
+    },
+
+    "&:hover": {
+        backgroundColor: "#FFC107", // Darker shade on hover
+    },
+}));
 
 interface Props {
     updateSearchParams: (newFilters: Record<string, string>) => void;
+    addSubCategory: (subCategory: string) => void;
+    addSubCategoryAndCategory: (subCategory: string, category: string) => void;
+    addCategory: (category: string) => void;
 }
 
-const FilterOptions: React.FC<Props> = ({ updateSearchParams }: Props) => {
+const FilterOptions: React.FC<Props> = ({
+    updateSearchParams,
+    addSubCategory,
+    addCategory,
+    addSubCategoryAndCategory,
+}: Props) => {
+    const theme = useTheme();
     const existingFilters: Filters = useAppSelector(
         (state: RootState) => state.catalog.filters
     );
@@ -83,20 +142,6 @@ const FilterOptions: React.FC<Props> = ({ updateSearchParams }: Props) => {
             ...resetValues,
         });
         updateSearchParams(resetValues);
-    };
-
-    const handleCategoryClick = (category: string, subCategory?: string) => {
-        const catUpdate: Record<string, string> = {
-            category: category,
-        };
-        if (subCategory) {
-            catUpdate[subCategory] = subCategory;
-        }
-        setLocalFilters({
-            ...localFilters,
-            ...catUpdate,
-        });
-        updateSearchParams(catUpdate);
     };
 
     const handleColorChange = (
@@ -163,14 +208,13 @@ const FilterOptions: React.FC<Props> = ({ updateSearchParams }: Props) => {
         <div className="filter-options">
             {!existingFilters.category && (
                 <div className="category-filters">
+                    <p className="cat-label">Categories</p>
                     {categories &&
                         categories.map((category, index) => (
                             <div className="filter-category-cont" key={index}>
                                 <p
                                     className="filter-category"
-                                    onClick={() =>
-                                        handleCategoryClick(category.name)
-                                    }
+                                    onClick={() => addCategory(category.name)}
                                 >
                                     {category.name}
                                 </p>
@@ -182,9 +226,9 @@ const FilterOptions: React.FC<Props> = ({ updateSearchParams }: Props) => {
                                                     className="filter-subcategory"
                                                     key={index}
                                                     onClick={() =>
-                                                        handleCategoryClick(
-                                                            category.name,
-                                                            subCategory
+                                                        addSubCategoryAndCategory(
+                                                            subCategory,
+                                                            category.name
                                                         )
                                                     }
                                                 >
@@ -200,9 +244,7 @@ const FilterOptions: React.FC<Props> = ({ updateSearchParams }: Props) => {
             )}
             {existingFilters.category && !existingFilters.subCategory && (
                 <div className="subcategory-filters">
-                    <p className="filter-category">
-                        {existingFilters.category}
-                    </p>
+                    <p className="subcat-label">Subcategories</p>
                     {categories &&
                         categories.filter(
                             (category) =>
@@ -220,10 +262,7 @@ const FilterOptions: React.FC<Props> = ({ updateSearchParams }: Props) => {
                                             className="filter-subcategory"
                                             key={index}
                                             onClick={() =>
-                                                handleCategoryClick(
-                                                    existingFilters.category as string,
-                                                    subCategory
-                                                )
+                                                addSubCategory(subCategory)
                                             }
                                         >
                                             {subCategory}
@@ -330,12 +369,12 @@ const FilterOptions: React.FC<Props> = ({ updateSearchParams }: Props) => {
                     })}
                 </div>
                 <div className="filter-submit">
-                    <Button variant="contained" onClick={handleSubmit}>
-                        Filter
-                    </Button>
-                    <Button variant="contained" onClick={handleReset}>
-                        Reset Filter
-                    </Button>
+                    <PeachButton text="Filter" onClick={handleSubmit} />
+                    <PeachButton
+                        text="Reset Filter"
+                        onClick={handleReset}
+                        width="120px"
+                    />
                 </div>
             </FormControl>
         </div>

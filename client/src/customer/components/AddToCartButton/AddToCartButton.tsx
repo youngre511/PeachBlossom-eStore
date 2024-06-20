@@ -2,7 +2,10 @@ import React from "react";
 import { RootState } from "../../store/customerStore";
 import { useAppSelector, useAppDispatch } from "../../hooks/reduxHooks";
 import { CartItem } from "../../features/Cart/CartTypes";
-import { addItemToCart } from "../../features/Cart/cartSlice";
+import {
+    addItemToCart,
+    updateItemQuantity,
+} from "../../features/Cart/cartSlice";
 
 interface Props {
     available: number;
@@ -25,6 +28,28 @@ const AddToCartButton: React.FC<Props> = ({ available, productNo }: Props) => {
         dispatch(addItemToCart(productNo));
     };
 
+    const handleIncrease = () => {
+        const currentQuantity = numberInCart as number;
+        const newQuantity = currentQuantity + 1;
+        dispatch(
+            updateItemQuantity({
+                productNo: productNo,
+                newQuantity: newQuantity,
+            })
+        );
+    };
+
+    const handleDecrease = () => {
+        const currentQuantity = numberInCart as number;
+        const newQuantity = currentQuantity - 1;
+        dispatch(
+            updateItemQuantity({
+                productNo: productNo,
+                newQuantity: newQuantity,
+            })
+        );
+    };
+
     let buttonDisplay;
 
     if (!inStock) {
@@ -44,19 +69,13 @@ const AddToCartButton: React.FC<Props> = ({ available, productNo }: Props) => {
     } else {
         buttonDisplay = (
             <div className="add-subtract">
-                <button
-                    className="decrease-quantity"
-                    id={`decrease-${productNo}`}
-                >
+                <button className="decrease-quantity" onClick={handleDecrease}>
                     -
                 </button>
                 <div className="quantity-display">
                     <p id={`quantity-${productNo}`}>{numberInCart}</p>
                 </div>
-                <button
-                    className="increase-quantity"
-                    id={`increase-${productNo}`}
-                >
+                <button className="increase-quantity" onClick={handleIncrease}>
                     +
                 </button>
             </div>

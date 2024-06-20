@@ -22,7 +22,6 @@ export class sqlPromotion extends Model {
     @Column(DataType.BIGINT)
     promo_data_id!: number;
 
-    @Index
     @Unique
     @Column({
         type: DataType.STRING,

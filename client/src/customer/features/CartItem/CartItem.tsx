@@ -53,8 +53,6 @@ const CartItem: React.FC<Props> = ({ item }: Props) => {
                     <p
                         className="remove-button"
                         role="button"
-                        id={`remove-${item.productNo}`}
-                        data-productNo={item.productNo}
                         onClick={handleRemoveProduct}
                     >
                         Remove

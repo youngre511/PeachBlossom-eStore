@@ -24,7 +24,6 @@ export class sqlCart extends Model {
     @Column(DataType.BIGINT)
     cart_id!: number;
 
-    @Index
     @Unique
     @ForeignKey(() => sqlCustomer)
     @Column({

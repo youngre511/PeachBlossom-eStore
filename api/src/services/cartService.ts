@@ -4,7 +4,7 @@ import { sqlPromotion } from "../models/mysql/sqlPromotionModel";
 import { sqlCart } from "../models/mysql/sqlCartModel";
 import { sqlCartItem } from "../models/mysql/sqlCartItemModel";
 import { sqlInventory } from "../models/mysql/sqlInventoryModel";
-import { Op } from "sequelize";
+import { Op, Model } from "sequelize";
 
 // Types and Interfaces
 
@@ -36,6 +36,12 @@ interface JoinReqCart {
     cart_id: number;
     customer_id?: number;
     CartItem: JoinReqCartItem[];
+}
+
+interface JoinReqUpdateCart {
+    cart_id: number;
+    customer_id?: number;
+    CartItem: (JoinReqCartItem & Model)[];
 }
 
 // Services
@@ -114,18 +120,18 @@ exports.addToCart = async (
 ) => {
     const sqlTransaction = await sequelize.transaction();
     let cartExists = cartId ? true : false;
-    console.log(productNo, cartId, quantity, thumbnailUrl);
+
     try {
+        // Find product record
         const product = await sqlProduct.findOne({
             where: { productNo: productNo },
-            attributes: ["id", "productNo"],
             transaction: sqlTransaction,
         });
         if (!product) {
             throw new Error("ProductNo not found in database");
         }
 
-        console.log("still running1");
+        //Find any current and active promotions
         const currentDate = new Date();
         const promotions = await sqlPromotion.findAll({
             include: [
@@ -144,11 +150,13 @@ exports.addToCart = async (
                 endDate: { [Op.gte]: currentDate },
             },
         });
-        console.log("still running2");
+
         const promotionId =
             promotions.length > 0 ? promotions[0].promotionId : undefined;
 
         let finalPrice: number;
+
+        // If there is an active promotion, calculate final price. Otherwise, set final price equal to regular price
         if (promotionId) {
             const promo = promotions[0];
             if (promo.discountType === "percentage") {
@@ -160,7 +168,8 @@ exports.addToCart = async (
         } else {
             finalPrice = product.price;
         }
-        console.log("still running3");
+
+        // If a cartId is supplied, fetch cart record from cart table. If cart cannot be found, set cartExists equal to false.
         let cart;
         if (cartExists) {
             cart = await sqlCart.findOne({
@@ -172,7 +181,8 @@ exports.addToCart = async (
                 cartExists = false;
             }
         }
-        console.log("still running4");
+
+        // If cartExists is false, create new cart.
         if (!cartExists) {
             cart = await sqlCart.create({}, { transaction: sqlTransaction });
             cartId = cart.cart_id;
@@ -182,13 +192,15 @@ exports.addToCart = async (
             throw new Error("Cart creation failed");
         }
 
+        //Search cart items to determine whether product already exists in cart.
         let cartItem = null;
         if (cart.cartItems) {
             cartItem = cart.cartItems.find(
                 (item) => item.productNo === productNo
             );
         }
-        console.log("still running5");
+
+        // If the product is already in the cart, increment the quantity, otherwise, create a new cart item.
         if (cartItem) {
             cartItem.quantity += quantity;
             cartItem.promotionId = promotionId;
@@ -207,86 +219,11 @@ exports.addToCart = async (
                 { transaction: sqlTransaction }
             );
         }
-        console.log("still running6");
+
+        // Commit transaction
         await sqlTransaction.commit();
 
-        console.log(cartId);
-        // const update = await sqlCart.findOne({
-        //     where: { cart_id: cartId },
-        //     include: [
-        //         {
-        //             model: sqlCartItem,
-        //             as: "CartItem",
-        //             include: [
-        //                 {
-        //                     model: sqlProduct,
-        //                     as: "Product",
-        //                     attributes: [
-        //                         "productNo",
-        //                         "productName",
-        //                         "price",
-        //                         "description",
-        //                     ],
-        //                 },
-        //             ],
-        //             attributes: [
-        //                 "cart_item_id",
-        //                 "cart_id",
-        //                 "productNo",
-        //                 "quantity",
-        //                 "finalPrice",
-        //             ],
-        //         },
-        //     ],
-        // });
-
-        const update = await sqlCart.findOne({
-            where: { cart_id: cartId },
-            include: [
-                {
-                    model: sqlCartItem,
-                    as: "CartItem",
-                    include: [
-                        {
-                            model: sqlProduct,
-                            as: "Product",
-                            attributes: [
-                                "productNo",
-                                "productName",
-                                "price",
-                                "description",
-                            ],
-                            include: [
-                                {
-                                    model: sqlInventory,
-                                    as: "Inventory",
-                                    attributes: ["available"],
-                                },
-                            ],
-                        },
-                    ],
-                },
-            ],
-        });
-
-        console.log("6.25", JSON.stringify(update?.toJSON(), null, 2));
-
-        const productt = await sqlProduct.findOne({
-            where: { productNo: "pl-b96838c3" },
-            include: [
-                {
-                    model: sqlInventory,
-                    as: "Inventory",
-                    attributes: ["stock", "reserved", "available"],
-                },
-            ],
-        });
-
-        console.log(
-            "Product Inventory:",
-            JSON.stringify(productt?.toJSON(), null, 2)
-        );
-
+        // Fetch the updated cart. Format and return data to update store.
         let updatedCart = (await sqlCart.findOne({
             where: { cart_id: cartId },
             include: [
@@ -301,7 +238,6 @@ exports.addToCart = async (
                                 {
                                     model: sqlInventory,
                                     as: "Inventory",
-                                    attributes: ["available"],
                                 },
                             ],
                         },
@@ -310,24 +246,23 @@ exports.addToCart = async (
             ],
         })) as unknown as JoinReqCart;
 
-        // updatedCart = JSON.parse(updatedCart.toJSON());
-
-        console.log("still running6.5");
-        console.log(updatedCart);
-
         if (!updatedCart) {
             throw new Error("Unable to retrieve new cart state");
         }
 
         let subTotal = 0;
+        let itemCount = 0;
 
         const itemsArr = updatedCart.CartItem.map((item) => {
             subTotal += item.finalPrice * item.quantity;
+            itemCount += item.quantity;
+            const discountPrice =
+                item.finalPrice !== item.Product.price ? item.finalPrice : null;
             const itemObj = {
                 productNo: item.productNo,
                 name: item.Product.productName,
                 price: item.Product.price,
-                discountPrice: item.finalPrice,
+                discountPrice: discountPrice,
                 quantity: item.quantity,
                 thumbnailUrl: item.thumbnailUrl,
                 productUrl: `/product/${item.productNo}`,
@@ -340,12 +275,13 @@ exports.addToCart = async (
             items: itemsArr,
             subTotal: subTotal,
             cartId: updatedCart.cart_id,
+            numberOfItems: itemCount,
         };
-        console.log("still running7");
+
         return {
             success: true,
             message: "Item added to cart successfully",
-            cartId: returnCartObj,
+            cart: returnCartObj,
         };
     } catch (error) {
         await sqlTransaction.rollback();
@@ -378,17 +314,16 @@ exports.updateItemQuantity = async (
             throw new Error("ProductNo not found in database");
         }
 
-        const cart = await sqlCart.findOne({
+        const cart = (await sqlCart.findOne({
             where: { cart_id: cartId },
             include: [{ model: sqlCartItem, as: "CartItem" }],
             transaction: sqlTransaction,
-        });
-
+        })) as unknown as JoinReqUpdateCart;
         if (!cart) {
             throw new Error("Invalid Cart Id");
         }
 
-        let cartItem = cart.cartItems.find(
+        let cartItem = cart.CartItem.find(
             (item) => item.productNo === productNo
         );
 
@@ -415,7 +350,6 @@ exports.updateItemQuantity = async (
                                 {
                                     model: sqlInventory,
                                     as: "Inventory",
-                                    attributes: ["available"],
                                 },
                             ],
                         },
@@ -434,11 +368,13 @@ exports.updateItemQuantity = async (
         const itemsArr = updatedCart.CartItem.map((item) => {
             subTotal += item.finalPrice * item.quantity;
             itemCount += item.quantity;
+            const discountPrice =
+                item.finalPrice !== item.Product.price ? item.finalPrice : null;
             const itemObj = {
                 productNo: item.productNo,
                 name: item.Product.productName,
                 price: item.Product.price,
-                discountPrice: item.finalPrice,
+                discountPrice: discountPrice,
                 quantity: item.quantity,
                 thumbnailUrl: item.thumbnailUrl,
                 productUrl: `/product/${item.productNo}`,
@@ -477,7 +413,9 @@ exports.updateItemQuantity = async (
 
 exports.deleteFromCart = async (productNo: string, cartId: number) => {
     const sqlTransaction = await sequelize.transaction();
-
+    console.log("still working 1");
+    console.log("productNo", productNo);
+    console.log("cartId", cartId);
     try {
         const product = await sqlProduct.findOne({
             where: { productNo: productNo },
@@ -488,17 +426,22 @@ exports.deleteFromCart = async (productNo: string, cartId: number) => {
             throw new Error("ProductNo not found in database");
         }
 
-        const cart = await sqlCart.findOne({
+        console.log("still working 2");
+
+        const cart = (await sqlCart.findOne({
             where: { cart_id: cartId },
             include: [{ model: sqlCartItem, as: "CartItem" }],
             transaction: sqlTransaction,
-        });
+        })) as unknown as JoinReqCart;
 
+        console.log("still working, cart:", cart);
         if (!cart) {
             throw new Error("Invalid Cart Id");
         }
 
-        let cartItem = cart.cartItems.find(
+        console.log("cartItems", cart.CartItem);
+
+        let cartItem = cart.CartItem.find(
             (item) => item.productNo === productNo
         );
 
@@ -512,6 +455,8 @@ exports.deleteFromCart = async (productNo: string, cartId: number) => {
             },
             transaction: sqlTransaction,
         });
+
+        console.log("still working, result:", result);
 
         if (result === 0) {
             throw new Error("Cart item not found or already deleted");
@@ -542,6 +487,7 @@ exports.deleteFromCart = async (productNo: string, cartId: number) => {
             ],
         })) as unknown as JoinReqCart;
 
+        console.log("updatedCart:", updatedCart);
         if (!updatedCart) {
             throw new Error("Unable to retrieve new cart state");
         }
@@ -552,11 +498,13 @@ exports.deleteFromCart = async (productNo: string, cartId: number) => {
         const itemsArr = updatedCart.CartItem.map((item) => {
             subTotal += item.finalPrice * item.quantity;
             itemCount += item.quantity;
+            const discountPrice =
+                item.finalPrice !== item.Product.price ? item.finalPrice : null;
             const itemObj = {
                 productNo: item.productNo,
                 name: item.Product.productName,
                 price: item.Product.price,
-                discountPrice: item.finalPrice,
+                discountPrice: discountPrice,
                 quantity: item.quantity,
                 thumbnailUrl: item.thumbnailUrl,
                 productUrl: `/product/${item.productNo}`,
@@ -564,6 +512,8 @@ exports.deleteFromCart = async (productNo: string, cartId: number) => {
             };
             return itemObj;
         });
+
+        console.log(itemsArr);
 
         const returnCartObj = {
             items: itemsArr,
@@ -574,7 +524,7 @@ exports.deleteFromCart = async (productNo: string, cartId: number) => {
 
         return {
             success: true,
-            message: "Item added to cart successfully",
+            message: "Item successfully deleted",
             cart: returnCartObj,
         };
     } catch (error) {

@@ -21,10 +21,10 @@ const CartDropDown: React.FC<Props> = ({ setCartDropdownVisible }) => {
             <div className="drop-cart-container">
                 <div className="drop-cart-items">
                     {cart.numberOfItems === 1 && (
-                        <h1>`{cart.numberOfItems} item in your cart`</h1>
+                        <h1>{cart.numberOfItems} item in your cart</h1>
                     )}
                     {cart.numberOfItems > 1 && (
-                        <h1>`{cart.numberOfItems} items in your cart`</h1>
+                        <h1>{cart.numberOfItems} items in your cart</h1>
                     )}
                     <div className="drop-cart-items-container">
                         {cart.items.length === 0 && <p>No items in cart</p>}

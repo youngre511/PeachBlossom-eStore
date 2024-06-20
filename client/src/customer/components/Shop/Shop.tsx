@@ -188,40 +188,86 @@ const Shop = () => {
         setSearchParams(searchParams);
     };
 
+    const removeSubCategory = (): void => {
+        searchParams.delete("sub_category");
+        setSearchParams(searchParams);
+    };
+
+    const addSubCategoryAndCategory = (
+        subCategory: string,
+        category: string
+    ): void => {
+        searchParams.set("sub_category", subCategory);
+        searchParams.set("category", category);
+        setSearchParams(searchParams);
+    };
+
+    const addSubCategory = (subCategory: string): void => {
+        searchParams.set("sub_category", subCategory);
+        setSearchParams(searchParams);
+    };
+
+    const addCategory = (category: string): void => {
+        searchParams.set("category", category);
+        setSearchParams(searchParams);
+    };
+
     return (
         <div className="shop-container">
-            <FilterOptions updateSearchParams={updateSearchParams} />
+            <FilterOptions
+                updateSearchParams={updateSearchParams}
+                addSubCategory={addSubCategory}
+                addSubCategoryAndCategory={addSubCategoryAndCategory}
+                addCategory={addCategory}
+            />
             <div className="product-display">
                 <div className="shop-header">
-                    <div className="per-page-selector">
-                        <p>Items Per Page</p>
-                        <button
-                            type="button"
-                            onClick={() => handleItemsPerPageChange(24)}
-                        >
-                            24
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => handleItemsPerPageChange(48)}
-                        >
-                            48
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => handleItemsPerPageChange(96)}
-                        >
-                            96
-                        </button>
+                    {!subCategory && (
+                        <h1>{category ? category : "Shop All"}</h1>
+                    )}
+                    {subCategory && (
+                        <h1>
+                            <span
+                                className="back-to-category"
+                                onClick={removeSubCategory}
+                            >
+                                {category}
+                            </span>{" "}
+                            / {subCategory}
+                        </h1>
+                    )}
+                    <div className="sort-and-ipp">
+                        <SortMethodSelector
+                            sortMethod={sortMethod}
+                            updateSearchParams={updateSearchParams}
+                        />
+                        <div className="per-page-selector">
+                            <p>Items Per Page</p>
+                            <button
+                                type="button"
+                                onClick={() => handleItemsPerPageChange(24)}
+                            >
+                                24
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => handleItemsPerPageChange(48)}
+                            >
+                                48
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => handleItemsPerPageChange(96)}
+                            >
+                                96
+                            </button>
+                        </div>
                     </div>
-                    <h1>{category ? category : "Shop All"}</h1>
-                    <p>number of results: {catalog.numberOfResults}</p>
-                    <SortMethodSelector
-                        sortMethod={sortMethod}
-                        updateSearchParams={updateSearchParams}
-                    />
                 </div>
-                <ProductCatalog />
+                <ProductCatalog
+                    page={+page}
+                    results={catalog.numberOfResults}
+                />
             </div>
         </div>
     );

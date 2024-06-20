@@ -14,12 +14,6 @@ const initialState: CartState = {
     items: [],
     subTotal: 0,
     numberOfItems: 0,
-    // taxRate: null,
-    // tax: null,
-    // shipping: null,
-    // overallDiscount: 0,
-    // promoCode: null,
-    // promoName: null,
     cartId: null,
     error: null,
 };
@@ -106,6 +100,7 @@ export const addItemToCart = createAsyncThunk<
                 `${process.env.REACT_APP_API_URL}cart/add-to-cart`,
                 actionData
             );
+            console.log(response);
             if (!response.data.payload.cart) {
                 throw new Error(response.data.message);
             }
@@ -160,7 +155,6 @@ export const updateItemQuantity = createAsyncThunk<
                     cartId: cartId,
                     quantity: newQuantity,
                 };
-
                 const response = await axios.put<CartResponse>(
                     `${process.env.REACT_APP_API_URL}cart/update-quantity`,
                     actionData
@@ -256,11 +250,11 @@ const cartSlice = createSlice({
                 state.error = null;
             })
             .addCase(addItemToCart.fulfilled, (state, action) => {
+                console.log(state);
+                console.log(action.payload);
                 state.items = action.payload.cart.items;
                 state.subTotal = action.payload.cart.subTotal;
-                // state.taxRate = action.payload.taxRate;
-                // state.tax = action.payload.tax;
-                // state.shipping = action.payload.shipping;
+
                 state.cartId = action.payload.cart.cartId;
                 state.numberOfItems = action.payload.cart.numberOfItems;
                 state.error = null;

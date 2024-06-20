@@ -34,7 +34,7 @@ const sequelize = new Sequelize({
         sqlPromotion,
         sqlSubCategory,
     ],
-    logging: console.log,
+    logging: false,
 });
 
 export { sequelize };

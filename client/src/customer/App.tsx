@@ -1,6 +1,8 @@
 import React, { useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 import "./style/general.css";
+import { ThemeProvider } from "@mui/material/styles";
+import theme from "../common/utils/materialUITheme";
 import Nav from "./components/Nav/Nav";
 import About from "./components/About/About";
 import Login from "./components/LogIn/Login";
@@ -27,36 +29,40 @@ const App: React.FC = () => {
     }, [dispatch]);
 
     return (
-        <div className="App">
-            <Nav />
-
-            <main>
-                <Routes>
-                    <Route path="/" element={<Home />} />
-                    <Route path="/shop" element={<Shop />} />
-                    <Route
-                        path="/shop/product/:productNo"
-                        element={<ProductDetails />}
-                    />
-                    <Route path="/about" element={<About />} />
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/signup" element={<Signup />} />
-                    <Route path="/orders" element={<OrderStatus />} />
-                    <Route path="/shoppingcart" element={<Cart />} />
-                    <Route
-                        path="/sustainability"
-                        element={<Sustainability />}
-                    />
-                    <Route path="/terms" element={<TermsAndConditions />} />
-                    <Route
-                        path="/shipping-returns"
-                        element={<ShippingAndReturns />}
-                    />
-                    <Route path="/privacy" element={<PrivacyAndCookies />} />
-                </Routes>
-            </main>
-            <Footer />
-        </div>
+        <ThemeProvider theme={theme}>
+            <div className="App">
+                <Nav />
+                <main>
+                    <Routes>
+                        <Route path="/" element={<Home />} />
+                        <Route path="/shop" element={<Shop />} />
+                        <Route
+                            path="/shop/product/:productNo"
+                            element={<ProductDetails />}
+                        />
+                        <Route path="/about" element={<About />} />
+                        <Route path="/login" element={<Login />} />
+                        <Route path="/signup" element={<Signup />} />
+                        <Route path="/orders" element={<OrderStatus />} />
+                        <Route path="/shoppingcart" element={<Cart />} />
+                        <Route
+                            path="/sustainability"
+                            element={<Sustainability />}
+                        />
+                        <Route path="/terms" element={<TermsAndConditions />} />
+                        <Route
+                            path="/shipping-returns"
+                            element={<ShippingAndReturns />}
+                        />
+                        <Route
+                            path="/privacy"
+                            element={<PrivacyAndCookies />}
+                        />
+                    </Routes>
+                </main>
+                <Footer />
+            </div>
+        </ThemeProvider>
     );
 };
 
