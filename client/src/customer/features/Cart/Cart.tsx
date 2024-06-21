@@ -2,9 +2,11 @@ import React from "react";
 import { useAppSelector } from "../../hooks/reduxHooks";
 import { RootState } from "../../store/customerStore";
 import CartItem from "../CartItem/CartItem";
+import { useNavigate } from "react-router-dom";
 
 const Cart: React.FC = () => {
     const cart = useAppSelector((state: RootState) => state.cart);
+    const navigate = useNavigate();
 
     console.log(cart);
 
@@ -26,7 +28,7 @@ const Cart: React.FC = () => {
                     <p>Subtotal ({cart.numberOfItems} items)</p>
                     <p>${cart.subTotal}</p>
                 </div>
-                <button>CHECKOUT</button>
+                <button onClick={() => navigate("/checkout")}>CHECKOUT</button>
             </div>
         </div>
     );

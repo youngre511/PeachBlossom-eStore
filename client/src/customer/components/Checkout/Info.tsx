@@ -1,0 +1,39 @@
+import * as React from "react";
+
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemText from "@mui/material/ListItemText";
+import Typography from "@mui/material/Typography";
+import { CartItem } from "../../features/Cart/CartTypes";
+
+interface InfoProps {
+    totalPrice: number;
+    items: CartItem[];
+}
+
+export default function Info({ totalPrice, items }: InfoProps) {
+    return (
+        <React.Fragment>
+            <Typography variant="subtitle2" color="text.secondary">
+                Total
+            </Typography>
+            <Typography variant="h4" gutterBottom>
+                {`$${totalPrice.toFixed(2)}`}
+            </Typography>
+            <List disablePadding>
+                {items.map((item) => (
+                    <ListItem key={item.productNo} sx={{ py: 1, px: 0 }}>
+                        <ListItemText
+                            sx={{ mr: 2 }}
+                            primary={item.name}
+                            secondary={`Qty ${item.quantity}`}
+                        />
+                        <Typography variant="body1" fontWeight="medium">
+                            {`$${item.price}`}
+                        </Typography>
+                    </ListItem>
+                ))}
+            </List>
+        </React.Fragment>
+    );
+}

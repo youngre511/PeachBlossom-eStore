@@ -47,7 +47,9 @@ const CartDropDown: React.FC<Props> = ({ setCartDropdownVisible }) => {
                     <button onClick={() => navigate("/shoppingcart")}>
                         VIEW CART
                     </button>
-                    <button>CHECKOUT</button>
+                    <button onClick={() => navigate("/checkout")}>
+                        CHECKOUT
+                    </button>
                 </div>
             </div>
         </div>

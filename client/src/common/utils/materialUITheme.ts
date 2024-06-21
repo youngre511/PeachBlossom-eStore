@@ -32,6 +32,9 @@ declare module "@mui/material/styles" {
 
 const theme = createTheme({
     palette: {
+        primary: {
+            main: "#EC7F52",
+        },
         peach: {
             light: "#f3d9c8",
             main: "#f6b99d",
@@ -46,6 +49,9 @@ const theme = createTheme({
             light: "#fcca73",
             contrastText: "#000000",
         },
+    },
+    typography: {
+        fontFamily: "'Lato', sans-serif",
     },
 });
 

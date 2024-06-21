@@ -20,6 +20,7 @@ import { useAppDispatch } from "./hooks/reduxHooks";
 import { fetchCategories } from "./features/Categories/categoriesSlice";
 import { fetchSearchOptions } from "./features/SearchOptions/searchOptionsSlice";
 import Cart from "./features/Cart/Cart";
+import Checkout from "./components/Checkout/Checkout";
 
 const App: React.FC = () => {
     const dispatch = useAppDispatch();
@@ -45,6 +46,7 @@ const App: React.FC = () => {
                         <Route path="/signup" element={<Signup />} />
                         <Route path="/orders" element={<OrderStatus />} />
                         <Route path="/shoppingcart" element={<Cart />} />
+                        <Route path="/checkout" element={<Checkout />} />
                         <Route
                             path="/sustainability"
                             element={<Sustainability />}
