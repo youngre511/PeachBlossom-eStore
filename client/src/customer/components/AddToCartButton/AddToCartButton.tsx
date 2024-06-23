@@ -6,6 +6,7 @@ import {
     addItemToCart,
     updateItemQuantity,
 } from "../../features/Cart/cartSlice";
+import PeachButton from "../../../common/components/PeachButton";
 
 interface Props {
     available: number;
@@ -58,26 +59,36 @@ const AddToCartButton: React.FC<Props> = ({ available, productNo }: Props) => {
         );
     } else if (!isInCart) {
         buttonDisplay = (
-            <button
+            <PeachButton
                 className="add-to-cart-btn"
-                id={productNo}
                 onClick={handleAddToCart}
-            >
-                ADD TO CART
-            </button>
+                text="ADD TO CART"
+                width="120px"
+                height="40px"
+            />
         );
     } else {
         buttonDisplay = (
             <div className="add-subtract">
-                <button className="decrease-quantity" onClick={handleDecrease}>
-                    -
-                </button>
+                <PeachButton
+                    className="decrease-quantity"
+                    onClick={handleDecrease}
+                    text="-"
+                    height="25px"
+                    width="25px"
+                />
                 <div className="quantity-display">
                     <p id={`quantity-${productNo}`}>{numberInCart}</p>
                 </div>
-                <button className="increase-quantity" onClick={handleIncrease}>
-                    +
-                </button>
+                {numberInCart && numberInCart < available && (
+                    <PeachButton
+                        className="increase-quantity"
+                        onClick={handleIncrease}
+                        text="+"
+                        height="25px"
+                        width="25px"
+                    />
+                )}
             </div>
         );
     }

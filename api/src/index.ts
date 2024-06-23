@@ -47,6 +47,9 @@ app.use("/promotion", promotionRouter);
 const cartRouter = require("./routes/cartRouter");
 app.use("/cart", cartRouter);
 
+const inventoryRouter = require("./routes/inventoryRouter");
+app.use("/inventory", inventoryRouter);
+
 const PORT = process.env.PORT;
 
 app.listen(PORT, () => {

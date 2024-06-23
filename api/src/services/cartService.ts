@@ -17,6 +17,10 @@ interface Product {
     category_id: number;
     subCategory_id?: number;
     Inventory: {
+        inventory_id: number;
+        product_id: number;
+        stock: number;
+        reserved: number;
         available: number;
     };
 }
@@ -30,9 +34,10 @@ interface JoinReqCartItem {
     promotionId?: string;
     quantity: number;
     finalPrice: number;
+    reserved: boolean;
 }
 
-interface JoinReqCart {
+export interface JoinReqCart {
     cart_id: number;
     customer_id?: number;
     CartItem: JoinReqCartItem[];
@@ -48,7 +53,7 @@ interface JoinReqUpdateCart {
 
 exports.getCartById = async (cartId: number) => {
     try {
-        const cart = (await sqlCart.findOne({
+        let updatedCart = (await sqlCart.findOne({
             where: { cart_id: cartId },
             include: [
                 {
@@ -62,7 +67,6 @@ exports.getCartById = async (cartId: number) => {
                                 {
                                     model: sqlInventory,
                                     as: "Inventory",
-                                    attributes: ["available"],
                                 },
                             ],
                         },
@@ -71,19 +75,23 @@ exports.getCartById = async (cartId: number) => {
             ],
         })) as unknown as JoinReqCart;
 
-        if (!cart) {
-            throw new Error("Unable to retrieve cart");
+        if (!updatedCart) {
+            throw new Error("Unable to retrieve cart state");
         }
 
         let subTotal = 0;
+        let itemCount = 0;
 
-        const itemsArr = cart.CartItem.map((item) => {
+        const itemsArr = updatedCart.CartItem.map((item) => {
             subTotal += item.finalPrice * item.quantity;
+            itemCount += item.quantity;
+            const discountPrice =
+                item.finalPrice !== item.Product.price ? item.finalPrice : null;
             const itemObj = {
                 productNo: item.productNo,
                 name: item.Product.productName,
                 price: item.Product.price,
-                discountPrice: item.finalPrice,
+                discountPrice: discountPrice,
                 quantity: item.quantity,
                 thumbnailUrl: item.thumbnailUrl,
                 productUrl: `/product/${item.productNo}`,
@@ -95,8 +103,11 @@ exports.getCartById = async (cartId: number) => {
         const returnCartObj = {
             items: itemsArr,
             subTotal: subTotal,
-            cartId: cart.cart_id,
+            cartId: updatedCart.cart_id,
+            numberOfItems: itemCount,
         };
+
+        return returnCartObj;
     } catch (error) {
         if (error instanceof Error) {
             // Rollback the transaction in case of any errors
@@ -215,68 +226,23 @@ exports.addToCart = async (
                     promotionId: promotionId,
                     thumbnailUrl: thumbnailUrl,
                     finalPrice: finalPrice,
+                    reserved: false,
                 },
                 { transaction: sqlTransaction }
             );
         }
 
         // Commit transaction
+
         await sqlTransaction.commit();
 
         // Fetch the updated cart. Format and return data to update store.
-        let updatedCart = (await sqlCart.findOne({
-            where: { cart_id: cartId },
-            include: [
-                {
-                    model: sqlCartItem,
-                    as: "CartItem",
-                    include: [
-                        {
-                            model: sqlProduct,
-                            as: "Product",
-                            include: [
-                                {
-                                    model: sqlInventory,
-                                    as: "Inventory",
-                                },
-                            ],
-                        },
-                    ],
-                },
-            ],
-        })) as unknown as JoinReqCart;
+        const returnCartObj = await exports.getCartById(cartId);
+        console.log(returnCartObj);
 
-        if (!updatedCart) {
+        if (!returnCartObj) {
             throw new Error("Unable to retrieve new cart state");
         }
-
-        let subTotal = 0;
-        let itemCount = 0;
-
-        const itemsArr = updatedCart.CartItem.map((item) => {
-            subTotal += item.finalPrice * item.quantity;
-            itemCount += item.quantity;
-            const discountPrice =
-                item.finalPrice !== item.Product.price ? item.finalPrice : null;
-            const itemObj = {
-                productNo: item.productNo,
-                name: item.Product.productName,
-                price: item.Product.price,
-                discountPrice: discountPrice,
-                quantity: item.quantity,
-                thumbnailUrl: item.thumbnailUrl,
-                productUrl: `/product/${item.productNo}`,
-                maxAvailable: item.Product.Inventory.available,
-            };
-            return itemObj;
-        });
-
-        const returnCartObj = {
-            items: itemsArr,
-            subTotal: subTotal,
-            cartId: updatedCart.cart_id,
-            numberOfItems: itemCount,
-        };
 
         return {
             success: true,
@@ -336,59 +302,12 @@ exports.updateItemQuantity = async (
 
         await sqlTransaction.commit();
 
-        const updatedCart = (await sqlCart.findOne({
-            where: { cart_id: cartId },
-            include: [
-                {
-                    model: sqlCartItem,
-                    as: "CartItem",
-                    include: [
-                        {
-                            model: sqlProduct,
-                            as: "Product",
-                            include: [
-                                {
-                                    model: sqlInventory,
-                                    as: "Inventory",
-                                },
-                            ],
-                        },
-                    ],
-                },
-            ],
-        })) as unknown as JoinReqCart;
+        // Fetch the updated cart. Format and return data to update store.
+        const returnCartObj = await exports.getCartById(cartId);
 
-        if (!updatedCart) {
+        if (!returnCartObj) {
             throw new Error("Unable to retrieve new cart state");
         }
-
-        let subTotal = 0;
-        let itemCount = 0;
-
-        const itemsArr = updatedCart.CartItem.map((item) => {
-            subTotal += item.finalPrice * item.quantity;
-            itemCount += item.quantity;
-            const discountPrice =
-                item.finalPrice !== item.Product.price ? item.finalPrice : null;
-            const itemObj = {
-                productNo: item.productNo,
-                name: item.Product.productName,
-                price: item.Product.price,
-                discountPrice: discountPrice,
-                quantity: item.quantity,
-                thumbnailUrl: item.thumbnailUrl,
-                productUrl: `/product/${item.productNo}`,
-                maxAvailable: item.Product.Inventory.available,
-            };
-            return itemObj;
-        });
-
-        const returnCartObj = {
-            items: itemsArr,
-            subTotal: subTotal,
-            cartId: updatedCart.cart_id,
-            numberOfItems: itemCount,
-        };
 
         return {
             success: true,
@@ -464,64 +383,12 @@ exports.deleteFromCart = async (productNo: string, cartId: number) => {
 
         await sqlTransaction.commit();
 
-        const updatedCart = (await sqlCart.findOne({
-            where: { cart_id: cartId },
-            include: [
-                {
-                    model: sqlCartItem,
-                    as: "CartItem",
-                    include: [
-                        {
-                            model: sqlProduct,
-                            as: "Product",
-                            include: [
-                                {
-                                    model: sqlInventory,
-                                    as: "Inventory",
-                                    attributes: ["available"],
-                                },
-                            ],
-                        },
-                    ],
-                },
-            ],
-        })) as unknown as JoinReqCart;
+        // Fetch the updated cart. Format and return data to update store.
+        const returnCartObj = await exports.getCartById(cartId);
 
-        console.log("updatedCart:", updatedCart);
-        if (!updatedCart) {
+        if (!returnCartObj) {
             throw new Error("Unable to retrieve new cart state");
         }
-
-        let subTotal = 0;
-        let itemCount = 0;
-
-        const itemsArr = updatedCart.CartItem.map((item) => {
-            subTotal += item.finalPrice * item.quantity;
-            itemCount += item.quantity;
-            const discountPrice =
-                item.finalPrice !== item.Product.price ? item.finalPrice : null;
-            const itemObj = {
-                productNo: item.productNo,
-                name: item.Product.productName,
-                price: item.Product.price,
-                discountPrice: discountPrice,
-                quantity: item.quantity,
-                thumbnailUrl: item.thumbnailUrl,
-                productUrl: `/product/${item.productNo}`,
-                maxAvailable: item.Product.Inventory.available,
-            };
-            return itemObj;
-        });
-
-        console.log(itemsArr);
-
-        const returnCartObj = {
-            items: itemsArr,
-            subTotal: subTotal,
-            cartId: updatedCart.cart_id,
-            numberOfItems: itemCount,
-        };
-
         return {
             success: true,
             message: "Item successfully deleted",

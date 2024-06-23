@@ -68,7 +68,11 @@ exports.getCartById = async (req: CartIdBodyRequest, res: CartResponse) => {
 
         res.json({
             message: "success",
-            payload: result,
+            payload: {
+                success: true,
+                message: "successfully retrieved cart",
+                cart: result,
+            },
         });
     } catch (error) {
         let errorObj = {

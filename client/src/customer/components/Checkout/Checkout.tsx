@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation, Location } from "react-router-dom";
 
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -27,6 +28,7 @@ import PaymentForm from "./PaymentForm";
 import Review from "./Review";
 import { useAppSelector } from "../../hooks/reduxHooks";
 import { RootState } from "../../store/customerStore";
+import axios, { AxiosError } from "axios";
 
 export interface PaymentDetails {
     cardType: string;
@@ -57,6 +59,8 @@ interface ToggleCustomThemeProps {
 const steps = ["Shipping address", "Payment details", "Review your order"];
 
 const Checkout: React.FC = () => {
+    const navigate = useNavigate();
+    const location: Location = useLocation();
     const [activeStep, setActiveStep] = useState(0);
     const [paymentDetails, setPaymentDetails] = useState<PaymentDetails>({
         cardType: "Visa",
@@ -83,6 +87,80 @@ const Checkout: React.FC = () => {
     const items = cart.items;
     const subTotal = cart.subTotal;
     const [orderTotal, setOrderTotal] = useState(subTotal);
+
+    // Hold stock till checkout is complete or user navigates away from page.
+    useEffect(() => {
+        // Function to hold stock when the component mounts
+        const holdStock = async () => {
+            try {
+                await axios.put(
+                    `${process.env.REACT_APP_API_URL}inventory/holdStock`,
+                    { cartId: cart.cartId }
+                );
+            } catch (error) {
+                if (error instanceof AxiosError) {
+                    console.error("Error holding stock", error);
+                } else {
+                    console.error(
+                        "An unknown error has ocurred while placing hold on stock"
+                    );
+                }
+            }
+        };
+
+        // Function to release stock when component dismounts
+        const releaseStock = async () => {
+            try {
+                await axios.put(
+                    `${process.env.REACT_APP_API_URL}inventory/releaseStock`,
+                    { cartId: cart.cartId }
+                );
+            } catch (error) {
+                if (error instanceof AxiosError) {
+                    console.error("Error releasing stock", error);
+                } else {
+                    console.error(
+                        "An unknown error has ocurred while releasing hold on stock"
+                    );
+                }
+            }
+        };
+
+        // Hold stock when component mounts
+        holdStock();
+
+        const handleNavigation = () => {
+            releaseStock();
+        };
+
+        // Clean up the listener and release stock if the component unmounts
+        return () => {
+            releaseStock();
+        };
+    }, []);
+
+    useEffect(() => {
+        const releaseStockOnNavigate = async () => {
+            if (location.pathname !== "/checkout") {
+                try {
+                    await axios.put(
+                        `${process.env.REACT_APP_API_URL}inventory/releaseStock`,
+                        { cartId: cart.cartId }
+                    );
+                } catch (error) {
+                    if (error instanceof AxiosError) {
+                        console.error("Error releasing stock", error);
+                    } else {
+                        console.error(
+                            "An unknown error has ocurred while releasing hold on stock"
+                        );
+                    }
+                }
+            }
+        };
+
+        releaseStockOnNavigate();
+    }, [location]);
 
     function getStepContent(step: number) {
         switch (step) {

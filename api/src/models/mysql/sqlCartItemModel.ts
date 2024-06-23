@@ -68,4 +68,7 @@ export class sqlCartItem extends Model {
 
     @Column(DataType.DECIMAL(10, 2))
     finalPrice!: number;
+
+    @Column(DataType.BOOLEAN)
+    reserved!: boolean;
 }

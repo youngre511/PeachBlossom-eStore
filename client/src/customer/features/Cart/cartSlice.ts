@@ -188,6 +188,24 @@ export const updateItemQuantity = createAsyncThunk<
     }
 );
 
+export const syncCart = createAsyncThunk<
+    CartResponsePayload,
+    number,
+    { state: RootState; rejectValue: string }
+>("cart/syncCart", async (_, { getState, rejectWithValue }) => {
+    try {
+        const state = getState() as RootState;
+        const response = await axios.get<CartResponse>(
+            `${process.env.REACT_APP_API_URL}cart/cartId/${state.cart}`
+        );
+        return response.data.payload;
+    } catch (error: any) {
+        return rejectWithValue(
+            error.response?.data || ("Error removing item from cart" as string)
+        );
+    }
+});
+
 //Add Promo To Cart
 
 //Remove Promo From Cart
@@ -234,12 +252,9 @@ const cartSlice = createSlice({
         clearCart: (state) => {
             state.items = [];
             state.subTotal = 0;
-            // state.taxRate = null;
-            // state.tax = null;
-            // state.shipping = null;
-            // state.overallDiscount = 0;
-            // state.promoCode = null;
-            // state.promoName = null;
+            state.cartId = null;
+            state.error = null;
+            state.numberOfItems = 0;
         },
         addCartPromo: (state, action: PayloadAction<string>) => {},
         removeCartPromo: (state, action: PayloadAction<string>) => {},
@@ -250,8 +265,6 @@ const cartSlice = createSlice({
                 state.error = null;
             })
             .addCase(addItemToCart.fulfilled, (state, action) => {
-                console.log(state);
-                console.log(action.payload);
                 state.items = action.payload.cart.items;
                 state.subTotal = action.payload.cart.subTotal;
 
@@ -273,6 +286,19 @@ const cartSlice = createSlice({
                 state.error = null;
             })
             .addCase(updateItemQuantity.rejected, (state, action) => {
+                state.error = action.payload || "Failed to fetch products";
+            })
+            .addCase(syncCart.pending, (state) => {
+                state.error = null;
+            })
+            .addCase(syncCart.fulfilled, (state, action) => {
+                state.items = action.payload.cart.items;
+                state.subTotal = action.payload.cart.subTotal;
+                state.cartId = action.payload.cart.cartId;
+                state.numberOfItems = action.payload.cart.numberOfItems;
+                state.error = null;
+            })
+            .addCase(syncCart.rejected, (state, action) => {
                 state.error = action.payload || "Failed to fetch products";
             });
     },

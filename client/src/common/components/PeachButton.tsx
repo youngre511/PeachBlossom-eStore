@@ -7,6 +7,7 @@ interface Props {
     type?: "button" | "submit" | "reset";
     width?: string;
     height?: string;
+    className?: string;
 }
 
 const PeachButton: React.FC<Props> = ({
@@ -16,6 +17,7 @@ const PeachButton: React.FC<Props> = ({
     type,
     width,
     height,
+    className,
 }) => {
     const divStyle: CSSProperties = {
         width: width ? width : "100px",
@@ -78,7 +80,7 @@ const PeachButton: React.FC<Props> = ({
     const buttonProps = {
         type: type ? type : "button",
         ...(id && { id }),
-        className: "button-comp",
+        className: className ? "button-comp" + " " + className : "button-comp",
         onClick: onClick,
         style: buttonStyle,
     };
