@@ -1,7 +1,7 @@
-import { Document, Schema, model } from "mongoose";
+import { Document, Schema, model, Types } from "mongoose";
 
 export interface SubCategoryItem {
-    _id: Schema.Types.ObjectId;
+    _id: Types.ObjectId;
     name: string;
 }
 export interface CategoryItem extends Document {

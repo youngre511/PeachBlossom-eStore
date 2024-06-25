@@ -12,7 +12,7 @@ import { CreateProduct } from "../controllers/productController";
 import { sqlSubCategory } from "../models/mysql/sqlSubCategoryModel";
 import { BooleString } from "../../types/api_resp";
 
-type Color =
+export type Color =
     | "red"
     | "orange"
     | "yellow"
@@ -31,7 +31,7 @@ type Color =
     | "multicolor"
     | "clear";
 
-type Material =
+export type Material =
     | "glass"
     | "plastic"
     | "ceramic"
@@ -50,7 +50,7 @@ interface FilterObject {
     category?: string;
     subCategory?: string;
     tags?: string;
-    page: number;
+    page: string;
     color?: Color[];
     material?: Material[];
     minPrice?: string;
@@ -88,7 +88,7 @@ interface CatalogResponse {
     stock: number;
 }
 
-exports.getSearchOptions = async () => {
+export const getSearchOptions = async () => {
     const namesAndNumbers = await Product.find({}).select(
         "name productNo -_id"
     );
@@ -119,16 +119,16 @@ exports.getSearchOptions = async () => {
 };
 
 //get sorted and filtered products
-exports.getProducts = async (filters: FilterObject) => {
+export const getProducts = async (filters: FilterObject) => {
     if (!filters.page) {
-        filters.page = 1;
+        filters.page = "1";
     }
     if (!filters.sortMethod) {
         filters.sortMethod = "name-ascend";
     }
-    const skip = (filters.page - 1) * +filters.itemsPerPage;
+    const skip = (+filters.page - 1) * +filters.itemsPerPage;
     let categoryId: Schema.Types.ObjectId | undefined;
-    let subCategoryId: Schema.Types.ObjectId | undefined;
+    let subCategoryId: Types.ObjectId | undefined;
 
     // Retrieve category and tag object ids if names are provided
     if (filters.category) {
@@ -208,10 +208,14 @@ exports.getProducts = async (filters: FilterObject) => {
         }` as keyof FilterObject;
 
         if (filters[minParam]) {
-            query = query.where(param).gte(filters[minParam] as number);
+            query = query
+                .where(param)
+                .gte(filters[minParam] as unknown as number);
         }
         if (filters[maxParam]) {
-            query = query.where(param).lte(filters[maxParam] as number);
+            query = query
+                .where(param)
+                .lte(filters[maxParam] as unknown as number);
         }
     }
 
@@ -296,7 +300,7 @@ exports.getProducts = async (filters: FilterObject) => {
 
 //get one product
 
-exports.getOneProduct = async (productNo: string) => {
+export const getOneProduct = async (productNo: string) => {
     let result: ProductItem | null = await Product.findOne({
         productNo: productNo,
     });
@@ -309,7 +313,7 @@ exports.getOneProduct = async (productNo: string) => {
 
 //get products by category
 
-exports.getProductsByCategory = async (categoryName: string) => {
+export const getProductsByCategory = async (categoryName: string) => {
     const categoryId = Category.findOne({ name: categoryName });
     if (!categoryId) {
         throw new Error("Category not found");
@@ -325,7 +329,7 @@ exports.getProductsByCategory = async (categoryName: string) => {
     return results;
 };
 
-exports.createProduct = async (
+export const createProduct = async (
     productData: CreateProduct
 ): Promise<BooleString> => {
     const session: ClientSession = await mongoose.startSession();
@@ -406,10 +410,10 @@ exports.createProduct = async (
         }
         const categoryId: Schema.Types.ObjectId = categoryDoc._id;
 
-        let subCategoryId: Schema.Types.ObjectId | null;
+        let subCategoryId: Types.ObjectId | null;
         if (subCategory) {
             const filteredSubCat = categoryDoc.subCategories.filter(
-                (subCat: { name: string; _id: Schema.Types.ObjectId }) =>
+                (subCat: { name: string; _id: Types.ObjectId }) =>
                     subCat.name === subCategory
             );
             if (filteredSubCat.length === 0) {
@@ -441,19 +445,24 @@ exports.createProduct = async (
             validTagIds = null;
         }
 
-        const newMongoProduct: ProductItem = await Product.create({
-            productNo: productNo,
-            name: name,
-            category: categoryId,
-            subCategory: subCategoryId,
-            description: description,
-            attributes: attributes,
-            price: price,
-            promotions: [],
-            stock: stock,
-            images: images,
-            tags: validTagIds,
-        });
+        await Product.create(
+            [
+                {
+                    productNo: productNo,
+                    name: name,
+                    category: categoryId,
+                    subCategory: subCategoryId,
+                    description: description,
+                    attributes: attributes,
+                    price: price,
+                    promotions: [],
+                    stock: stock,
+                    images: images,
+                    tags: validTagIds,
+                },
+            ],
+            { session: session }
+        );
 
         await session.commitTransaction();
         await sqlTransaction.commit();

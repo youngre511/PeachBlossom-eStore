@@ -1,12 +1,12 @@
-const Product = require("../models/mongo/productModel");
-const Category = require("../models/mongo/categoryModel");
-const generatePromoNo = require("../utils/generatePromoNo");
-const mongoose = require("mongoose");
+import Product from "../models/mongo/productModel";
+import Category from "../models/mongo/categoryModel";
+import generatePromoNo from "../utils/generatePromoNo";
+import mongoose from "mongoose";
 
 import { ClientSession } from "mongoose";
 import { ProductItem, Promotion } from "../models/mongo/productModel";
 import { CreatePromo } from "../controllers/promotionController";
-import { Types } from "mongoose";
+import { Types, Schema } from "mongoose";
 
 type PromoUpdate = Partial<Promotion>;
 type BooleString = { success: boolean; message: string };
@@ -21,16 +21,16 @@ interface DeleteArgs {
     categories?: string[];
 }
 
-exports.getAllPromotions = async (req: Request, res: Response) => {
+export const getAllPromotions = async (req: Request, res: Response) => {
     //Fetch all promos from SQL
 };
 
-exports.getOnePromotion = async (req: Request, res: Response) => {
+export const getOnePromotion = async (req: Request, res: Response) => {
     //Fetch promo data from SQL
 };
 
 //get all products in a promotion
-exports.getProductsInPromotion = async (
+export const getProductsInPromotion = async (
     promoNum: string
 ): Promise<ProductItem[]> => {
     //insert logic to check SQL and ensure promoNum is valid
@@ -44,7 +44,7 @@ exports.getProductsInPromotion = async (
     return productArray;
 };
 
-exports.createPromotion = async (
+export const createPromotion = async (
     args: CreateArgs
 ): Promise<BooleString | BooleString[]> => {
     const promotion = args.promotion;
@@ -71,7 +71,7 @@ exports.createPromotion = async (
                 },
             ];
             if (args.products) {
-                const prodResult = await exports.addProductsToPromo(
+                const prodResult = await addProductsToPromo(
                     newMongoPromo,
                     args.products,
                     session
@@ -79,7 +79,7 @@ exports.createPromotion = async (
                 result.push(prodResult);
             }
             if (args.categories) {
-                const catResult = await exports.addCategoriesToPromo(
+                const catResult = await addCategoriesToPromo(
                     newMongoPromo,
                     args.categories,
                     session
@@ -107,11 +107,11 @@ exports.createPromotion = async (
     }
 };
 
-exports.addProductsToPromo = async (
+export const addProductsToPromo = async (
     promotion: string | Promotion,
     productNos: string[],
     passedSession?: ClientSession
-): Promise<{ success: Boolean; message: string }> => {
+): Promise<{ success: boolean; message: string }> => {
     const ownSession = !passedSession;
     let session: ClientSession;
     let promo: Promotion;
@@ -191,7 +191,7 @@ exports.addProductsToPromo = async (
 };
 
 //add promotion to all products in a category
-exports.addCategoriesToPromo = async (
+export const addCategoriesToPromo = async (
     promotion: string | Promotion,
     categoryNames: string[],
     passedSession?: ClientSession
@@ -208,7 +208,7 @@ exports.addCategoriesToPromo = async (
     }
 
     try {
-        const categoryIdArr: Array<{ _id: Types.ObjectId }> =
+        const categoryIdArr: Array<{ _id: Schema.Types.ObjectId }> =
             await Category.find({ name: { $in: categoryNames } })
                 .select("_id")
                 .session(session)
@@ -282,7 +282,7 @@ exports.addCategoriesToPromo = async (
 };
 
 //update promotion
-exports.updatePromo = async (
+export const updatePromo = async (
     promoId: string,
     updatedData: PromoUpdate
 ): Promise<{ success: boolean }> => {
@@ -333,19 +333,21 @@ exports.updatePromo = async (
     }
 };
 
-exports.deletePromotion = async (args: DeleteArgs): Promise<BooleString> => {
+export const deletePromotion = async (
+    args: DeleteArgs
+): Promise<BooleString> => {
     const session: ClientSession = await mongoose.startSession();
     session.startTransaction();
     try {
         if (args.products) {
-            await exports.removeProductsFromPromo(
+            await removeProductsFromPromo(
                 args.promotion,
                 args.products,
                 session
             );
         }
         if (args.categories) {
-            const catResult = await exports.removeCategoriesFromPromo(
+            const catResult = await removeCategoriesFromPromo(
                 args.promotion,
                 args.categories,
                 session
@@ -373,11 +375,11 @@ exports.deletePromotion = async (args: DeleteArgs): Promise<BooleString> => {
     }
 };
 
-exports.removeProductsFromPromo = async (
+export const removeProductsFromPromo = async (
     promotion: string,
     productNos: string[],
     passedSession?: ClientSession
-): Promise<{ success: Boolean; message: string }> => {
+): Promise<{ success: boolean; message: string }> => {
     const ownSession = !passedSession;
     let session: ClientSession;
     let promo: Promotion;
@@ -439,7 +441,7 @@ exports.removeProductsFromPromo = async (
 };
 
 //add promotion to all products in a category
-exports.removeCategoriesFromPromo = async (
+export const removeCategoriesFromPromo = async (
     promotion: string,
     categoryNames: string[],
     passedSession?: ClientSession
@@ -456,7 +458,7 @@ exports.removeCategoriesFromPromo = async (
     }
 
     try {
-        const categoryIdArr: Array<{ _id: Types.ObjectId }> =
+        const categoryIdArr: Array<{ _id: Schema.Types.ObjectId }> =
             await Category.find({ name: { $in: categoryNames } })
                 .select("_id")
                 .session(session)

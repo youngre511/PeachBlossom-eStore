@@ -13,12 +13,6 @@ export interface CartState {
     items: CartItem[];
     subTotal: number;
     numberOfItems: number;
-    // taxRate: number | null;
-    // tax: number | null;
-    // shipping: number | null;
-    // overallDiscount: number;
-    // promoCode: string | null;
-    // promoName: string | null;
     cartId: number | null;
     error: string | null;
 }
@@ -44,4 +38,29 @@ export interface UpdateActionData {
 export interface DeleteActionData {
     productNo: string;
     cartId: number;
+}
+
+export interface UpdateQuantityArgs {
+    productNo: string;
+    newQuantity: number;
+}
+export interface CartResponsePayload {
+    success: boolean;
+    message: string;
+    cart: {
+        items: CartItem[];
+        subTotal: number;
+        cartId: number;
+        numberOfItems: number;
+    };
+}
+
+export interface CartResponse {
+    message: string;
+    payload: CartResponsePayload;
+}
+
+export interface MergeActionData {
+    cartId1: number;
+    cartId2: number;
 }

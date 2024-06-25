@@ -143,36 +143,6 @@ const AddressForm: React.FC<AddressFormProps> = ({
                 />
             </FormGrid>
             <FormGrid item xs={6}>
-                <FormLabel htmlFor="country" required>
-                    Country
-                </FormLabel>
-                <OutlinedInput
-                    id="country"
-                    name="country"
-                    type="country"
-                    value={shippingDetails.country}
-                    onChange={handleFieldChange}
-                    placeholder="United States"
-                    autoComplete="shipping country"
-                    required
-                />
-            </FormGrid>
-            <FormGrid item xs={6}>
-                <FormLabel htmlFor="email" required>
-                    Email
-                </FormLabel>
-                <OutlinedInput
-                    id="email"
-                    name="email"
-                    type="email"
-                    placeholder="Email"
-                    autoComplete="email"
-                    value={shippingDetails.email}
-                    onChange={handleFieldChange}
-                    required
-                />
-            </FormGrid>
-            <FormGrid item xs={6}>
                 <FormLabel htmlFor="phone" required>
                     Phone Number
                 </FormLabel>

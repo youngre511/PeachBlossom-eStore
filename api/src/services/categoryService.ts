@@ -1,9 +1,9 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 import Category, {
     CategoryItem,
     SubCategoryItem,
 } from "../models/mongo/categoryModel";
-const Product = require("../models/mongo/productModel");
+import Product from "../models/mongo/productModel";
 
 //types and interfaces
 import { ClientSession } from "mongoose";
@@ -11,8 +11,9 @@ import { ProductItem } from "../models/mongo/productModel";
 import { sqlCategory } from "../models/mysql/sqlCategoryModel";
 import { BooleString } from "../../types/api_resp";
 import { sqlSubCategory } from "../models/mysql/sqlSubCategoryModel";
+import sequelize from "../models/mysql";
 
-exports.getAllCategories = async (): Promise<
+export const getAllCategories = async (): Promise<
     Array<{ name: string; subCategories: string[] }>
 > => {
     const categories: Array<CategoryItem> = await Category.find({});
@@ -32,7 +33,7 @@ exports.getAllCategories = async (): Promise<
     return categoryArray;
 };
 
-exports.getCategoryByName = async (
+export const getCategoryByName = async (
     categoryName: string
 ): Promise<CategoryItem> => {
     const foundCategory = await Category.findOne({
@@ -47,7 +48,9 @@ exports.getCategoryByName = async (
 };
 //create category
 
-exports.createCategory = async (categoryName: string): Promise<BooleString> => {
+export const createCategory = async (
+    categoryName: string
+): Promise<BooleString> => {
     const session: ClientSession = await mongoose.startSession();
     session.startTransaction();
 
@@ -82,7 +85,7 @@ exports.createCategory = async (categoryName: string): Promise<BooleString> => {
 
 //create subcategory
 
-exports.createSubCategory = async (
+export const createSubCategory = async (
     categoryName: string,
     subCategoryName: string
 ): Promise<BooleString> => {
@@ -135,54 +138,67 @@ exports.createSubCategory = async (
     }
 };
 
-//update category name
+// update category name
 
-// exports.updateCategoryName = async (
-//     oldName: string,
-//     newName: string
-// ): Promise<CategoryItem> => {
-//     const targetCategory = await Category.findOne({ name: oldName });
+export const updateCategoryName = async (
+    oldName: string,
+    newName: string
+): Promise<CategoryItem> => {
+    const targetCategory = await Category.findOne({ name: oldName });
 
-//     if (!targetCategory) {
-//         throw new Error("Category not found");
-//     }
+    if (!targetCategory) {
+        throw new Error("Category not found");
+    }
 
-//     const session: ClientSession = await mongoose.startSession();
-//     session.startTransaction();
+    const session: ClientSession = await mongoose.startSession();
+    session.startTransaction();
+    const sqlTransaction = await sequelize.transaction();
 
-//     try {
-//         // ternaries avoid inputting undefined values
-//         let updatedData = {
-//             name: newName ? newName : targetCategory.name,
-//         };
+    try {
+        // ternaries avoid inputting undefined values
+        let updatedData = {
+            name: newName ? newName : targetCategory.name,
+        };
 
-//         const updatedCategory = await Category.updateOne(
-//             { name: oldName },
-//             { $set: updatedData },
-//             { upsert: true }
-//         ).session(session);
+        const updatedCategory = await Category.findOneAndUpdate(
+            { name: oldName },
+            { $set: updatedData },
+            { upsert: true, new: true, session: session }
+        );
 
-//         //SQL Update Function
+        //SQL Update Function
+        const foundSqlCat = await sqlCategory.findOne({
+            where: { categoryName: oldName },
+            transaction: sqlTransaction,
+        });
 
-//         await session.commitTransaction();
-//         return updatedCategory;
-//     } catch (error) {
-//         await session.abortTransaction();
-//         if (error instanceof Error) {
-//             throw new Error("Error updating category: " + error.message);
-//         } else {
-//             throw new Error(
-//                 "An unknown error occurred while updating category"
-//             );
-//         }
-//     } finally {
-//         session.endSession();
-//     }
-// };
+        if (!foundSqlCat) {
+            throw new Error("Old category name not found in sql database");
+        }
+
+        foundSqlCat.categoryName = newName;
+        await foundSqlCat.save();
+
+        await session.commitTransaction();
+        return updatedCategory;
+    } catch (error) {
+        await session.abortTransaction();
+        await sqlTransaction.rollback();
+        if (error instanceof Error) {
+            throw new Error("Error updating category: " + error.message);
+        } else {
+            throw new Error(
+                "An unknown error occurred while updating category"
+            );
+        }
+    } finally {
+        session.endSession();
+    }
+};
 
 //delete category (must delete category from all products as well)
 
-exports.deleteCategory = async (
+export const deleteCategory = async (
     categoryName: string
 ): Promise<{ success: boolean }> => {
     const targetCategory: CategoryItem | null = await Category.findOne({

@@ -1,4 +1,4 @@
-const inventoryService = require("../services/cartService");
+import * as inventoryService from "../services/inventoryService";
 import { Request, Response } from "express";
 
 interface CartIdRequest extends Request {
@@ -7,7 +7,7 @@ interface CartIdRequest extends Request {
     };
 }
 
-exports.holdStock = async (req: CartIdRequest, res: Response) => {
+export const holdStock = async (req: CartIdRequest, res: Response) => {
     try {
         const { cartId } = req.body;
         const result = await inventoryService.holdStock(cartId);
@@ -28,7 +28,7 @@ exports.holdStock = async (req: CartIdRequest, res: Response) => {
     }
 };
 
-exports.releaseStock = async (req: CartIdRequest, res: Response) => {
+export const releaseStock = async (req: CartIdRequest, res: Response) => {
     try {
         const { cartId } = req.body;
         const result = await inventoryService.releaseStock(cartId);

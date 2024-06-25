@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation, Location } from "react-router-dom";
+import React, { useState, useEffect, useRef } from "react";
+import { useLocation, Location, useNavigate } from "react-router-dom";
 
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -13,9 +13,6 @@ import StepLabel from "@mui/material/StepLabel";
 import Stepper from "@mui/material/Stepper";
 import Typography from "@mui/material/Typography";
 
-import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { PaletteMode } from "@mui/material";
-
 import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 import AutoAwesomeRoundedIcon from "@mui/icons-material/AutoAwesomeRounded";
 import ChevronLeftRoundedIcon from "@mui/icons-material/ChevronLeftRounded";
@@ -26,9 +23,11 @@ import Info from "./Info";
 import InfoMobile from "./InfoMobile";
 import PaymentForm from "./PaymentForm";
 import Review from "./Review";
-import { useAppSelector } from "../../hooks/reduxHooks";
+import { useAppSelector, useAppDispatch } from "../../hooks/reduxHooks";
 import { RootState } from "../../store/customerStore";
 import axios, { AxiosError } from "axios";
+import { syncCart, clearCart } from "../../features/Cart/cartSlice";
+import { CartState } from "../../features/Cart/CartTypes";
 
 export interface PaymentDetails {
     cardType: string;
@@ -43,24 +42,33 @@ export interface ShippingDetails {
     shippingAddress2: string;
     firstName: string;
     lastName: string;
-    country: string;
     zipCode: string;
     phoneNumber: string;
-    email: string;
     state: string;
     city: string;
 }
 
-interface ToggleCustomThemeProps {
-    showCustomTheme: Boolean;
-    toggleCustomTheme: () => void;
+interface OrderData {
+    customerId?: number;
+    shipping: ShippingDetails;
+    email: string;
+    orderDetails: {
+        subTotal: number;
+        shipping: number;
+        tax: number;
+        totalAmount: number;
+        items: Array<{
+            productNo: string;
+            quantity: number;
+            priceAtCheckout: number;
+        }>;
+    };
 }
 
 const steps = ["Shipping address", "Payment details", "Review your order"];
 
 const Checkout: React.FC = () => {
-    const navigate = useNavigate();
-    const location: Location = useLocation();
+    const dispatch = useAppDispatch();
     const [activeStep, setActiveStep] = useState(0);
     const [paymentDetails, setPaymentDetails] = useState<PaymentDetails>({
         cardType: "Visa",
@@ -74,28 +82,36 @@ const Checkout: React.FC = () => {
         shippingAddress2: "",
         firstName: "",
         lastName: "",
-        country: "",
         zipCode: "",
         phoneNumber: "",
-        email: "",
         state: "",
         city: "",
     });
+    const [email, setEmail] = useState<string>("");
     const shippingRate = 9.99;
     const taxRate = 0.06;
     const cart = useAppSelector((state: RootState) => state.cart);
-    const items = cart.items;
-    const subTotal = cart.subTotal;
+    const [currentCartId, setCurrentCartId] = useState(cart.cartId);
+    const [currentCartItems, setCurrentCartItems] = useState([...cart.items]);
+    const [currentCart, setCurrentCart] = useState<CartState>(cart);
+    const [placeOrderSuccess, setPlaceOrderSuccess] = useState<boolean>(false);
+    const [orderNumber, setOrderNumber] = useState<string>("");
+    const subTotal = currentCart.subTotal;
     const [orderTotal, setOrderTotal] = useState(subTotal);
+    const navigate = useNavigate();
 
     // Hold stock till checkout is complete or user navigates away from page.
     useEffect(() => {
         // Function to hold stock when the component mounts
         const holdStock = async () => {
+            if (cart.cartId) {
+                dispatch(syncCart());
+                setCurrentCartItems([...cart.items]);
+            }
             try {
                 await axios.put(
                     `${process.env.REACT_APP_API_URL}inventory/holdStock`,
-                    { cartId: cart.cartId }
+                    { cartId: currentCartId }
                 );
             } catch (error) {
                 if (error instanceof AxiosError) {
@@ -113,7 +129,7 @@ const Checkout: React.FC = () => {
             try {
                 await axios.put(
                     `${process.env.REACT_APP_API_URL}inventory/releaseStock`,
-                    { cartId: cart.cartId }
+                    { cartId: currentCartId }
                 );
             } catch (error) {
                 if (error instanceof AxiosError) {
@@ -129,38 +145,11 @@ const Checkout: React.FC = () => {
         // Hold stock when component mounts
         holdStock();
 
-        const handleNavigation = () => {
-            releaseStock();
-        };
-
         // Clean up the listener and release stock if the component unmounts
         return () => {
             releaseStock();
         };
     }, []);
-
-    useEffect(() => {
-        const releaseStockOnNavigate = async () => {
-            if (location.pathname !== "/checkout") {
-                try {
-                    await axios.put(
-                        `${process.env.REACT_APP_API_URL}inventory/releaseStock`,
-                        { cartId: cart.cartId }
-                    );
-                } catch (error) {
-                    if (error instanceof AxiosError) {
-                        console.error("Error releasing stock", error);
-                    } else {
-                        console.error(
-                            "An unknown error has ocurred while releasing hold on stock"
-                        );
-                    }
-                }
-            }
-        };
-
-        releaseStockOnNavigate();
-    }, [location]);
 
     function getStepContent(step: number) {
         switch (step) {
@@ -179,25 +168,93 @@ const Checkout: React.FC = () => {
                     />
                 );
             case 2:
-                return <Review />;
+                return (
+                    <Review
+                        cart={currentCart}
+                        taxRate={taxRate}
+                        shipping={shippingRate}
+                        total={orderTotal}
+                        paymentDetails={paymentDetails}
+                        shippingDetails={shippingDetails}
+                        email={email}
+                        setEmail={setEmail}
+                    />
+                );
             // paymentDetails={paymentDetails} onPlaceOrder={handlePlaceOrder}
             default:
                 throw new Error("Unknown step");
         }
     }
 
-    const handleNext = () => {
-        if (activeStep === 0) {
-            updateTotal();
+    const handleNext = async () => {
+        if (activeStep === 2) {
+            const orderNo = await handlePlaceOrder();
+            if (orderNumber) {
+                setOrderNumber(orderNo);
+                setPlaceOrderSuccess(true);
+                setActiveStep(activeStep + 1);
+            } else {
+                setActiveStep(activeStep + 1);
+            }
+        } else {
+            if (activeStep === 0) {
+                updateTotal();
+            }
+            if (activeStep === 1) {
+                dispatch(syncCart());
+                setCurrentCartItems([...cart.items]);
+            }
+            setActiveStep(activeStep + 1);
         }
-        setActiveStep(activeStep + 1);
     };
 
     const handleBack = () => {
         setActiveStep(activeStep - 1);
     };
 
-    const handlePlaceOrder = async () => {};
+    const handlePlaceOrder = async () => {
+        const orderData: OrderData = {
+            shipping: shippingDetails,
+            email: email,
+            orderDetails: {
+                subTotal: currentCart.subTotal,
+                shipping: shippingRate,
+                tax: (currentCart.subTotal + shippingRate) * taxRate,
+                totalAmount: orderTotal,
+                items: currentCartItems.map((item) => {
+                    const returnItem = {
+                        productNo: item.productNo,
+                        quantity: item.quantity,
+                        priceAtCheckout: item.discountPrice
+                            ? item.discountPrice
+                            : item.price,
+                    };
+                    return returnItem;
+                }),
+            },
+        };
+
+        try {
+            const response = await axios.post(
+                `${process.env.REACT_APP_API_URL}order/create`,
+                orderData
+            );
+            if (response.data.payload.orderNo) {
+                dispatch(clearCart());
+                return response.data.payload.orderNo;
+            } else {
+                throw new Error("no orderNo returned");
+            }
+        } catch (error) {
+            if (error instanceof AxiosError) {
+                console.error("Error releasing stock", error);
+            } else {
+                console.error(
+                    "An unknown error has ocurred while releasing hold on stock"
+                );
+            }
+        }
+    };
 
     const updateTotal = () => {
         setOrderTotal(
@@ -255,7 +312,10 @@ const Checkout: React.FC = () => {
                             maxWidth: 500,
                         }}
                     >
-                        <Info totalPrice={orderTotal} items={items} />
+                        <Info
+                            totalPrice={orderTotal}
+                            items={currentCartItems}
+                        />
                     </Box>
                 </Grid>
                 <Grid
@@ -362,7 +422,10 @@ const Checkout: React.FC = () => {
                                     {activeStep >= 2 ? "$144.97" : "$134.98"}
                                 </Typography>
                             </div>
-                            <InfoMobile totalPrice={orderTotal} items={items} />
+                            <InfoMobile
+                                totalPrice={orderTotal}
+                                items={currentCartItems}
+                            />
                         </CardContent>
                     </Card>
                     <Box
@@ -405,31 +468,58 @@ const Checkout: React.FC = () => {
                                 </Step>
                             ))}
                         </Stepper>
+
+                        {/* Main content */}
                         {activeStep === steps.length ? (
-                            <Stack spacing={2} useFlexGap>
-                                <Typography variant="h1">📦</Typography>
-                                <Typography variant="h5">
-                                    Thank you for your order!
-                                </Typography>
-                                <Typography
-                                    variant="body1"
-                                    color="text.secondary"
-                                >
-                                    Your order number is
-                                    <strong>&nbsp;#140396</strong>. We have
-                                    emailed your order confirmation and will
-                                    update you once its shipped.
-                                </Typography>
-                                <Button
-                                    variant="contained"
-                                    sx={{
-                                        alignSelf: "start",
-                                        width: { xs: "100%", sm: "auto" },
-                                    }}
-                                >
-                                    Go to my orders
-                                </Button>
-                            </Stack>
+                            placeOrderSuccess === true ? (
+                                <Stack spacing={2} useFlexGap>
+                                    <Typography variant="h1">📦</Typography>
+                                    <Typography variant="h5">
+                                        Thank you for your order!
+                                    </Typography>
+                                    <Typography
+                                        variant="body1"
+                                        color="text.secondary"
+                                    >
+                                        Your order number is
+                                        <strong>&nbsp;#140396</strong>. We have
+                                        emailed your order confirmation and will
+                                        update you once its shipped.
+                                    </Typography>
+                                    <Button
+                                        variant="contained"
+                                        sx={{
+                                            alignSelf: "start",
+                                            width: { xs: "100%", sm: "auto" },
+                                        }}
+                                    >
+                                        Go to my orders
+                                    </Button>
+                                </Stack>
+                            ) : (
+                                <Stack spacing={2} useFlexGap>
+                                    <Typography variant="h1">📦</Typography>
+                                    <Typography variant="h5">
+                                        Thank you for your order!
+                                    </Typography>
+                                    <Typography
+                                        variant="body1"
+                                        color="text.secondary"
+                                    >
+                                        Oops! Something went wrong when placing
+                                        your order.
+                                    </Typography>
+                                    <Button
+                                        variant="contained"
+                                        sx={{
+                                            alignSelf: "start",
+                                            width: { xs: "100%", sm: "auto" },
+                                        }}
+                                    >
+                                        Go to my orders
+                                    </Button>
+                                </Stack>
+                            )
                         ) : (
                             <React.Fragment>
                                 {getStepContent(activeStep)}
@@ -509,11 +599,6 @@ const Checkout: React.FC = () => {
                 </Grid>
             </Grid>
         </React.Fragment>
-        //     <ToggleCustomTheme
-        //         toggleCustomTheme={toggleCustomTheme}
-        //         showCustomTheme={showCustomTheme}
-        //     />
-        // </ThemeProvider>
     );
 };
 

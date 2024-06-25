@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
-const { sqlProduct } = require("../models/mysql/sqlProductModel");
+import { sqlProduct } from "../models/mysql/sqlProductModel";
 
 const generateProductNo = async (prefix: string): Promise<string> => {
     let productNo: string;

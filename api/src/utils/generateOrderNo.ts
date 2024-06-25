@@ -1,12 +1,13 @@
-const { customAlphabet } = require("nanoid");
-const { sqlOrder } = require("../models/mysql/sqlOrderModel");
+import { customAlphabet } from "nanoid";
+import { sqlOrder } from "../models/mysql/sqlOrderModel";
+const nanoid = customAlphabet("1234567890ABCDEF", 8);
 
-const generateOrderNo = async (): Promise<string> => {
-    let orderNo;
+export const generateOrderNo = async (): Promise<string> => {
+    let orderNo: string;
     let isUnique = false;
 
     do {
-        orderNo = customAlphabet("1234567890ABCDEF", 8);
+        orderNo = nanoid();
         const existingOrder = await sqlOrder.findOne({
             where: { orderNo: orderNo },
         });

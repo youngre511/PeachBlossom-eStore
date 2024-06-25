@@ -1,5 +1,6 @@
-const productRouter = require("express").Router();
-const {
+import { Router } from "express";
+const productRouter = Router();
+import {
     getProducts,
     getOneProduct,
     getSearchOptions,
@@ -9,7 +10,7 @@ const {
     updateProductDetails,
     updateProductPrice,
     updateProductStock,
-} = require("../controllers/productController");
+} from "../controllers/productController";
 
 productRouter.get("/", getProducts);
 
@@ -27,4 +28,4 @@ productRouter.delete("/delete/:productNo", deleteProduct);
 
 productRouter.get("/:productNo", getOneProduct);
 
-module.exports = productRouter;
+export default productRouter;

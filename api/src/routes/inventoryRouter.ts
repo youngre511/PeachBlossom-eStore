@@ -1,11 +1,9 @@
-const inventoryRouter = require("express").Router();
-const {
-    holdStock,
-    releaseStock,
-} = require("../controllers/inventoryController");
+import { Router } from "express";
+const inventoryRouter = Router();
+import { holdStock, releaseStock } from "../controllers/inventoryController";
 
 inventoryRouter.put("/holdStock", holdStock);
 
 inventoryRouter.put("/releaseStock", releaseStock);
 
-module.exports = inventoryRouter;
+export default inventoryRouter;

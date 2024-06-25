@@ -1,6 +1,7 @@
-const promotionRouter = require("express").Router();
+import { Router } from "express";
+const promotionRouter = Router();
 
-const {
+import {
     getAllPromotions,
     getOnePromotion,
     createPromotion,
@@ -8,7 +9,7 @@ const {
     updatePromotion,
     removeFromPromotion,
     deletePromotion,
-} = require("../controllers/promotionController");
+} from "../controllers/promotionController";
 
 promotionRouter.get("/", getAllPromotions);
 
@@ -24,4 +25,4 @@ promotionRouter.put("/remove/:promoId", removeFromPromotion);
 
 promotionRouter.delete("/delete/:promoId", deletePromotion);
 
-module.exports = promotionRouter;
+export default promotionRouter;

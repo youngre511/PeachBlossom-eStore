@@ -1,7 +1,7 @@
-const Product = require("../models/mongo/productModel");
-const Category = require("../models/mongo/categoryModel");
-const productService = require("../services/productService");
-const promotionService = require("../services/promotionService");
+import Product from "../models/mongo/productModel";
+import Category from "../models/mongo/categoryModel";
+import * as productService from "../services/productService";
+import * as promotionService from "../services/promotionService";
 
 ////////////////////////
 //Types and Interfaces//
@@ -12,7 +12,7 @@ import {
     Promotion,
     Attributes,
 } from "../models/mongo/productModel";
-import { Request, Response } from "express";
+import { Request, Response, RequestHandler } from "express";
 import { CategoryItem } from "../models/mongo/categoryModel";
 
 export interface CreateProduct {
@@ -53,8 +53,8 @@ interface ProductGetRequest extends Request {
         tags?: string;
         page: string;
         size?: string[];
-        color?: string[];
-        material?: string[];
+        color?: productService.Color[];
+        material?: productService.Material[];
         minPrice?: string;
         maxPrice?: string;
         minWidth?: string;
@@ -118,7 +118,7 @@ interface UpdateStockRequest extends Request {
 /////GET FUNCTIONS//////
 ////////////////////////
 
-exports.getProducts = async (req: ProductGetRequest, res: Response) => {
+export const getProducts = async (req: ProductGetRequest, res: Response) => {
     try {
         const results = await productService.getProducts(req.query);
 
@@ -138,7 +138,10 @@ exports.getProducts = async (req: ProductGetRequest, res: Response) => {
     }
 };
 
-exports.getOneProduct = async (req: ProductParamsRequest, res: Response) => {
+export const getOneProduct = async (
+    req: ProductParamsRequest,
+    res: Response
+) => {
     try {
         const { productNo } = req.params;
         const result = await productService.getOneProduct(productNo);
@@ -159,11 +162,14 @@ exports.getOneProduct = async (req: ProductParamsRequest, res: Response) => {
     }
 };
 
-exports.getSearchOptions = async (req: Request, res: SearchOptions) => {
+export const getSearchOptions: RequestHandler = async (
+    req: Request,
+    res: Response
+) => {
     try {
         const results = await productService.getSearchOptions();
 
-        res.json({
+        (res as SearchOptions).json({
             message: "success",
             payload: results,
         });
@@ -179,7 +185,7 @@ exports.getSearchOptions = async (req: Request, res: SearchOptions) => {
     }
 };
 
-exports.getProductsInPromotion = async (
+export const getProductsInPromotion = async (
     req: PromoParamsRequest,
     res: Response
 ) => {
@@ -207,7 +213,10 @@ exports.getProductsInPromotion = async (
 /////CREATE FUNCTION////
 ////////////////////////
 
-exports.createProduct = async (req: CreateProductRequest, res: Response) => {
+export const createProduct = async (
+    req: CreateProductRequest,
+    res: Response
+) => {
     try {
         const result = await productService.createProduct(req.body);
 
@@ -228,7 +237,10 @@ exports.createProduct = async (req: CreateProductRequest, res: Response) => {
 /////DELETE FUNCTION////
 ////////////////////////
 
-exports.deleteProduct = async (req: ProductParamsRequest, res: Response) => {
+export const deleteProduct = async (
+    req: ProductParamsRequest,
+    res: Response
+) => {
     try {
         await Product.deleteOne({ productNo: req.params.productNo });
 
@@ -252,12 +264,12 @@ exports.deleteProduct = async (req: ProductParamsRequest, res: Response) => {
 /////UPDATE FUNCTIONS///
 ////////////////////////
 
-exports.updateProductDetails = async (
+export const updateProductDetails = async (
     req: UpdateProductDetailsRequest,
     res: Response
 ) => {
     try {
-        const updateData = req.body;
+        const updateData: any = { ...req.body };
         const { productNo } = req.params;
 
         if (updateData.category) {
@@ -294,12 +306,15 @@ exports.updateProductDetails = async (
     }
 };
 
-exports.updateProductPrice = async (req: UpdatePriceRequest, res: Response) => {
+export const updateProductPrice = async (
+    req: UpdatePriceRequest,
+    res: Response
+) => {
     try {
         const updateData = req.body;
         const { productNo } = req.params;
 
-        const updatedProduct: ProductItem = await Product.findOneAndUpdate(
+        const updatedProduct = await Product.findOneAndUpdate(
             { productNo },
             updateData,
             { new: true }
@@ -323,7 +338,10 @@ exports.updateProductPrice = async (req: UpdatePriceRequest, res: Response) => {
     }
 };
 
-exports.updateProductStock = async (req: UpdateStockRequest, res: Response) => {
+export const updateProductStock = async (
+    req: UpdateStockRequest,
+    res: Response
+) => {
     try {
         const updateData = req.body;
         const { productNo } = req.params;

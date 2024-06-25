@@ -1,11 +1,20 @@
 import express from "express";
 const app = express();
-const path = require("path");
+import path from "path";
 import cors, { CorsOptions } from "cors";
-const logger = require("morgan");
-const connectToMongoDB = require("./db/mongodb");
+import logger from "morgan";
+import connectToMongoDB from "./db/mongodb";
 import connectToMySQLDatabase from "./db/mysql";
-require("dotenv").config();
+import dotenv from "dotenv";
+dotenv.config();
+
+// Router Imports
+import categoryRouter from "./routes/categoryRouter";
+import productRouter from "./routes/productRouter";
+import promotionRouter from "./routes/promotionRouter";
+import cartRouter from "./routes/cartRouter";
+import inventoryRouter from "./routes/inventoryRouter";
+import orderRouter from "./routes/orderRouter";
 
 //Type imports
 import { Express, Request, Response } from "express";
@@ -35,20 +44,17 @@ const corsOptions: CorsOptions = {
 
 app.use(cors(corsOptions));
 
-const categoryRouter = require("./routes/categoryRouter");
 app.use("/category", categoryRouter);
 
-const productRouter = require("./routes/productRouter");
 app.use("/product", productRouter);
 
-const promotionRouter = require("./routes/promotionRouter");
 app.use("/promotion", promotionRouter);
 
-const cartRouter = require("./routes/cartRouter");
 app.use("/cart", cartRouter);
 
-const inventoryRouter = require("./routes/inventoryRouter");
 app.use("/inventory", inventoryRouter);
+
+app.use("/order", orderRouter);
 
 const PORT = process.env.PORT;
 

@@ -1,17 +1,22 @@
 import Product from "../models/mongo/productModel";
 import Category from "../models/mongo/categoryModel";
-const cartService = require("../services/cartService");
-import { Request, Response } from "express";
+import * as cartService from "../services/cartService";
+import { Request, RequestHandler, Response } from "express";
 
-interface CartIdBodyRequest extends Request {
-    body: {
-        cartId: number;
-    };
+interface CartIdRequestParams extends Request {
+    cartId: string;
 }
 
 interface CustomerIdBodyRequest extends Request {
     body: {
         customerId: number;
+    };
+}
+
+interface MergeCartsRequest extends Request {
+    body: {
+        cartId1: number;
+        cartId2: number;
     };
 }
 
@@ -61,12 +66,15 @@ interface CartResponse extends Response {
     payload: CartResponsePayload;
 }
 
-exports.getCartById = async (req: CartIdBodyRequest, res: CartResponse) => {
+export const getCartById: RequestHandler<CartIdRequestParams> = async (
+    req: Request<CartIdRequestParams>,
+    res: Response
+) => {
     try {
-        const { cartId } = req.body;
-        const result = await cartService.getCartById(cartId);
+        const { cartId } = req.params;
+        const result = await cartService.getCartById(+cartId);
 
-        res.json({
+        (res as CartResponse).json({
             message: "success",
             payload: {
                 success: true,
@@ -86,7 +94,10 @@ exports.getCartById = async (req: CartIdBodyRequest, res: CartResponse) => {
     }
 };
 
-exports.addToCart = async (req: AddItemRequest, res: CartResponse) => {
+export const addToCart: RequestHandler = async (
+    req: AddItemRequest,
+    res: Response
+) => {
     try {
         const { productNo, cartId, quantity, thumbnailUrl } = req.body;
         const result = await cartService.addToCart(
@@ -96,7 +107,7 @@ exports.addToCart = async (req: AddItemRequest, res: CartResponse) => {
             thumbnailUrl
         );
 
-        res.json({
+        (res as CartResponse).json({
             message: "success",
             payload: result,
         });
@@ -112,9 +123,9 @@ exports.addToCart = async (req: AddItemRequest, res: CartResponse) => {
     }
 };
 
-exports.updateItemQuantity = async (
+export const updateItemQuantity: RequestHandler = async (
     req: UpdateQuantityRequest,
-    res: CartResponse
+    res: Response
 ) => {
     try {
         const { productNo, cartId, quantity } = req.body;
@@ -124,7 +135,31 @@ exports.updateItemQuantity = async (
             quantity
         );
 
-        res.json({
+        (res as CartResponse).json({
+            message: "success",
+            payload: result,
+        });
+    } catch (error) {
+        let errorObj = {
+            message: "update quantity failure",
+            payload: error,
+        };
+
+        console.log(errorObj);
+
+        res.json(errorObj);
+    }
+};
+
+export const deleteFromCart: RequestHandler = async (
+    req: DeleteItemRequest,
+    res: Response
+) => {
+    try {
+        const { productNo, cartId } = req.body;
+        const result = await cartService.deleteFromCart(productNo, cartId);
+
+        (res as CartResponse).json({
             message: "success",
             payload: result,
         });
@@ -140,18 +175,21 @@ exports.updateItemQuantity = async (
     }
 };
 
-exports.deleteFromCart = async (req: DeleteItemRequest, res: CartResponse) => {
+export const mergeCarts: RequestHandler = async (
+    req: MergeCartsRequest,
+    res: Response
+) => {
     try {
-        const { productNo, cartId } = req.body;
-        const result = await cartService.deleteFromCart(productNo, cartId);
+        const { cartId1, cartId2 } = req.body;
+        const result = await cartService.mergeCarts(cartId1, cartId2);
 
-        res.json({
+        (res as CartResponse).json({
             message: "success",
             payload: result,
         });
     } catch (error) {
         let errorObj = {
-            message: "remove from cart failure",
+            message: "merge cart failure",
             payload: error,
         };
 

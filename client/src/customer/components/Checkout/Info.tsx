@@ -28,9 +28,35 @@ export default function Info({ totalPrice, items }: InfoProps) {
                             primary={item.name}
                             secondary={`Qty ${item.quantity}`}
                         />
-                        <Typography variant="body1" fontWeight="medium">
-                            {`$${item.price}`}
-                        </Typography>
+                        {item.discountPrice && (
+                            <React.Fragment>
+                                <Typography
+                                    variant="body1"
+                                    fontWeight="medium"
+                                    sx={{
+                                        color: "#EC7F52",
+                                        fontWeight: 700,
+                                    }}
+                                >
+                                    {`$${item.price}`}
+                                </Typography>
+                                <Typography
+                                    variant="body1"
+                                    fontWeight="medium"
+                                    sx={{
+                                        textDecoration: "line-through",
+                                        marginLeft: "5px",
+                                    }}
+                                >
+                                    {`$${item.price}`}
+                                </Typography>
+                            </React.Fragment>
+                        )}
+                        {!item.discountPrice && (
+                            <Typography variant="body1" fontWeight="medium">
+                                {`$${item.price}`}
+                            </Typography>
+                        )}
                     </ListItem>
                 ))}
             </List>

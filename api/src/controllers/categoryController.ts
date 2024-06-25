@@ -1,5 +1,5 @@
-const Category = require("../models/mongo/categoryModel");
-const categoryService = require("../services/categoryService");
+import Category from "../models/mongo/categoryModel";
+import * as categoryService from "../services/categoryService";
 
 import { BooleString } from "../../types/api_resp";
 //Types and Interfaces
@@ -39,9 +39,9 @@ interface CategoryUpdateRequest extends Request {
     };
 }
 
-exports.getAllCategories = async (req: Request, res: Response) => {
+export const getAllCategories = async (req: Request, res: Response) => {
     try {
-        const results: Array<CategoryItem> =
+        const results: Array<{ name: string; subCategories: string[] }> =
             await categoryService.getAllCategories();
 
         res.json({
@@ -60,30 +60,7 @@ exports.getAllCategories = async (req: Request, res: Response) => {
     }
 };
 
-exports.getCategoryById = async (
-    req: CategoryParamsIdRequest,
-    res: Response
-) => {
-    try {
-        const result = await categoryService.getCategoryById(req.params.id);
-
-        res.json({
-            message: "success",
-            payload: result,
-        });
-    } catch (error) {
-        let errorObj = {
-            message: "get Category by ID failure",
-            payload: error,
-        };
-
-        console.log(errorObj);
-
-        res.json(errorObj);
-    }
-};
-
-exports.getCategoryByName = async (
+export const getCategoryByName = async (
     req: CategoryParamsNameRequest,
     res: Response
 ) => {
@@ -106,7 +83,10 @@ exports.getCategoryByName = async (
     }
 };
 
-exports.createCategory = async (req: CategoryCreateRequest, res: Response) => {
+export const createCategory = async (
+    req: CategoryCreateRequest,
+    res: Response
+) => {
     try {
         // Accepting the front-end form data from the client to generate the document
         const { name } = req.body;
@@ -130,7 +110,7 @@ exports.createCategory = async (req: CategoryCreateRequest, res: Response) => {
     }
 };
 
-exports.createSubCategory = async (
+export const createSubCategory = async (
     req: SubCategoryCreateRequest,
     res: Response
 ) => {
@@ -159,7 +139,7 @@ exports.createSubCategory = async (
     }
 };
 
-exports.updateCategoryName = async (
+export const updateCategoryName = async (
     req: CategoryUpdateRequest,
     res: Response
 ) => {
@@ -184,7 +164,7 @@ exports.updateCategoryName = async (
     }
 };
 
-exports.deleteCategory = async (
+export const deleteCategory = async (
     req: CategoryParamsNameRequest,
     res: Response
 ) => {

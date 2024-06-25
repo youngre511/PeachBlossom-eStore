@@ -1,10 +1,12 @@
-const cartRouter = require("express").Router();
-const {
+import { Router } from "express";
+const cartRouter = Router();
+import {
     getCartById,
     addToCart,
     deleteFromCart,
     updateItemQuantity,
-} = require("../controllers/cartController");
+    mergeCarts,
+} from "../controllers/cartController";
 
 function dummyFunc() {}
 
@@ -18,4 +20,6 @@ cartRouter.put("/update-quantity", updateItemQuantity);
 
 cartRouter.put("/delete-from-cart", deleteFromCart);
 
-module.exports = cartRouter;
+cartRouter.put("/merge-carts", mergeCarts);
+
+export default cartRouter;

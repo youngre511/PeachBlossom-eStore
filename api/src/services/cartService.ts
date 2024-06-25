@@ -51,7 +51,7 @@ interface JoinReqUpdateCart {
 
 // Services
 
-exports.getCartById = async (cartId: number) => {
+export const getCartById = async (cartId: number) => {
     try {
         let updatedCart = (await sqlCart.findOne({
             where: { cart_id: cartId },
@@ -119,11 +119,11 @@ exports.getCartById = async (cartId: number) => {
     }
 };
 
-exports.getCustomerCart = async (customerId: number) => {
+export const getCustomerCart = async (customerId: number) => {
     console.log("yes");
 };
 
-exports.addToCart = async (
+export const addToCart = async (
     productNo: string,
     cartId: number | null,
     quantity: number,
@@ -237,7 +237,7 @@ exports.addToCart = async (
         await sqlTransaction.commit();
 
         // Fetch the updated cart. Format and return data to update store.
-        const returnCartObj = await exports.getCartById(cartId);
+        const returnCartObj = await getCartById(cartId as number);
         console.log(returnCartObj);
 
         if (!returnCartObj) {
@@ -263,7 +263,7 @@ exports.addToCart = async (
     }
 };
 
-exports.updateItemQuantity = async (
+export const updateItemQuantity = async (
     productNo: string,
     cartId: number,
     quantity: number
@@ -303,7 +303,7 @@ exports.updateItemQuantity = async (
         await sqlTransaction.commit();
 
         // Fetch the updated cart. Format and return data to update store.
-        const returnCartObj = await exports.getCartById(cartId);
+        const returnCartObj = await getCartById(cartId);
 
         if (!returnCartObj) {
             throw new Error("Unable to retrieve new cart state");
@@ -330,7 +330,7 @@ exports.updateItemQuantity = async (
     }
 };
 
-exports.deleteFromCart = async (productNo: string, cartId: number) => {
+export const deleteFromCart = async (productNo: string, cartId: number) => {
     const sqlTransaction = await sequelize.transaction();
     console.log("still working 1");
     console.log("productNo", productNo);
@@ -384,7 +384,7 @@ exports.deleteFromCart = async (productNo: string, cartId: number) => {
         await sqlTransaction.commit();
 
         // Fetch the updated cart. Format and return data to update store.
-        const returnCartObj = await exports.getCartById(cartId);
+        const returnCartObj = await getCartById(cartId);
 
         if (!returnCartObj) {
             throw new Error("Unable to retrieve new cart state");
@@ -404,6 +404,54 @@ exports.deleteFromCart = async (productNo: string, cartId: number) => {
             throw new Error(
                 "An unknown error occurred while removing item from cart"
             );
+        }
+    }
+};
+
+export const mergeCarts = async (cartId1: number, cartId2: number) => {
+    const sqlTransaction = await sequelize.transaction();
+
+    try {
+        const cart2 = (await sqlCart.findOne({
+            where: { cart_id: cartId2 },
+            include: [{ model: sqlCartItem, as: "CartItem" }],
+            transaction: sqlTransaction,
+        })) as unknown as JoinReqUpdateCart;
+        if (!cart2) {
+            throw new Error("Invalid Cart Id");
+        }
+
+        for (const item of cart2.CartItem) {
+            await addToCart(
+                item.productNo,
+                cartId1,
+                item.quantity,
+                item.thumbnailUrl as string
+            );
+        }
+
+        // Fetch the updated cart. Format and return data to update store.
+        const returnCartObj = await getCartById(cartId1);
+
+        if (!returnCartObj) {
+            throw new Error(
+                "Unable to retrieve new cart state during cart merge"
+            );
+        }
+
+        return {
+            success: true,
+            message: "Carts successfully merged",
+            cart: returnCartObj,
+        };
+    } catch (error) {
+        await sqlTransaction.rollback();
+        if (error instanceof Error) {
+            // Rollback the transaction in case of any errors
+            throw new Error("Error merging carts: " + error.message);
+        } else {
+            // Rollback the transaction in case of any non-Error errors
+            throw new Error("An unknown error occurred while merging carts");
         }
     }
 };

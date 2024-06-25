@@ -1,10 +1,11 @@
 // Import mongoose, setup .env use
-const mongoose = require("mongoose");
-require("dotenv").config();
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+dotenv.config();
 mongoose.set("strictQuery", false);
 
 // Create a connection function
-async function connectToMongoDB(): Promise<void> {
+const connectToMongoDB = async (): Promise<void> => {
     mongoose
         .connect(process.env.MONGODB_URI as string)
         .then(() => {
@@ -13,7 +14,7 @@ async function connectToMongoDB(): Promise<void> {
         .catch((e: any) => {
             console.log(e);
         });
-}
+};
 
 // Export the function
-module.exports = connectToMongoDB;
+export default connectToMongoDB;

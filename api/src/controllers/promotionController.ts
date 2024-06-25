@@ -1,10 +1,10 @@
-const Product = require("../models/mongo/productModel");
-const Category = require("../models/mongo/categoryModel");
-const promotionService = require("../services/promotionService");
+import Product from "../models/mongo/productModel";
+import Category from "../models/mongo/categoryModel";
+import * as promotionService from "../services/promotionService";
 
 // Types and interfaces
 import { ProductItem, Promotion } from "../models/mongo/productModel";
-import { Request, Response } from "express";
+import { Request, Response, RequestHandler } from "express";
 
 export type CreatePromo = {
     name: string;
@@ -16,12 +16,10 @@ export type CreatePromo = {
     active: boolean;
 };
 
-type UpdatePromo = Partial<CreatePromo>;
+type UpdatePromo = Partial<Promotion>;
 
-interface PromoParamsRequest extends Request {
-    params: {
-        promoNum: string;
-    };
+interface PromoParamsRequestParams {
+    promoNum: string;
 }
 
 interface CreatePromoRequest extends Request {
@@ -32,46 +30,56 @@ interface CreatePromoRequest extends Request {
     };
 }
 
-interface AddToPromoRequest extends Request {
-    params: {
-        promoId: string;
-    };
-    body: {
-        categories?: string[];
-        products?: string[];
-    };
+interface AddToPromoRequestParams {
+    promoId: string;
 }
 
-interface UpdatePromoRequest extends Request {
-    params: {
-        promoId: string;
-    };
-    body: {
-        updatedData: UpdatePromo;
-    };
+interface CategoriesAndProductsBody {
+    categories?: string[];
+    products?: string[];
 }
 
-interface RemovePromoRequest extends Request {
-    params: {
-        promoId: string;
-    };
-    body: {
-        categories?: string[];
-        products?: string[];
-    };
+interface AddToPromoRequest
+    extends Request<AddToPromoRequestParams, any, CategoriesAndProductsBody> {}
+
+interface UpdatePromoRequestParams {
+    promoId: string;
 }
+
+interface UpdatePromoRequestBody {
+    updatedData: UpdatePromo;
+}
+
+interface UpdatePromoRequest
+    extends Request<UpdatePromoRequestParams, any, UpdatePromoRequestBody> {}
+
+interface RemovePromoRequestParams {
+    promoId: string;
+}
+
+interface RemovePromoRequest
+    extends Request<RemovePromoRequestParams, any, CategoriesAndProductsBody> {}
 
 // Controllers
 
-exports.getAllPromotions = async (req: Request, res: Response) => {
+export const getAllPromotions: RequestHandler = async (
+    req: Request,
+    res: Response
+) => {
     //Fetch promos from SQL
 };
 
-exports.getOnePromotion = async (req: PromoParamsRequest, res: Response) => {
+export const getOnePromotion: RequestHandler<PromoParamsRequestParams> = async (
+    req: Request<PromoParamsRequestParams>,
+    res: Response
+) => {
     // Fetch one promo from SQL
 };
 
-exports.createPromotion = async (req: CreatePromoRequest, res: Response) => {
+export const createPromotion: RequestHandler = async (
+    req: CreatePromoRequest,
+    res: Response
+) => {
     try {
         const args: {
             promotion: CreatePromo;
@@ -100,7 +108,11 @@ exports.createPromotion = async (req: CreatePromoRequest, res: Response) => {
     }
 };
 
-exports.addToPromotion = async (req: AddToPromoRequest, res: Response) => {
+export const addToPromotion: RequestHandler<
+    AddToPromoRequestParams,
+    any,
+    CategoriesAndProductsBody
+> = async (req: AddToPromoRequest, res: Response) => {
     const { promoId } = req.params;
     try {
         let result: Array<{ success: boolean; message: string }> = [];
@@ -110,7 +122,7 @@ exports.addToPromotion = async (req: AddToPromoRequest, res: Response) => {
 
         if (req.body.categories) {
             const catResult: { success: boolean; message: string } =
-                await promotionService.addCategoryToPromo(
+                await promotionService.addCategoriesToPromo(
                     promoId,
                     req.body.categories
                 );
@@ -118,7 +130,7 @@ exports.addToPromotion = async (req: AddToPromoRequest, res: Response) => {
         }
         if (req.body.products) {
             const prodResult: { success: boolean; message: string } =
-                await promotionService.addProductToPromo(
+                await promotionService.addProductsToPromo(
                     promoId,
                     req.body.products
                 );
@@ -138,12 +150,16 @@ exports.addToPromotion = async (req: AddToPromoRequest, res: Response) => {
     }
 };
 
-exports.updatePromotion = async (req: UpdatePromoRequest, res: Response) => {
+export const updatePromotion: RequestHandler<
+    UpdatePromoRequestParams,
+    any,
+    UpdatePromoRequestBody
+> = async (req: UpdatePromoRequest, res: Response) => {
     try {
-        const updateData = req.body;
+        const { updatedData } = req.body;
         const { promoId } = req.params;
 
-        const result = await promotionService.updatePromo(promoId, updateData);
+        const result = await promotionService.updatePromo(promoId, updatedData);
 
         res.status(200).json(result);
     } catch (error) {
@@ -158,10 +174,11 @@ exports.updatePromotion = async (req: UpdatePromoRequest, res: Response) => {
     }
 };
 
-exports.removeFromPromotion = async (
-    req: RemovePromoRequest,
-    res: Response
-) => {
+export const removeFromPromotion: RequestHandler<
+    RemovePromoRequestParams,
+    any,
+    CategoriesAndProductsBody
+> = async (req: RemovePromoRequest, res: Response) => {
     const { promoId } = req.params;
     try {
         let result: Array<{ success: boolean; message: string }> = [];
@@ -171,7 +188,7 @@ exports.removeFromPromotion = async (
 
         if (req.body.categories) {
             const catResult: { success: boolean; message: string } =
-                await promotionService.removeCategoryFromPromo(
+                await promotionService.removeCategoriesFromPromo(
                     promoId,
                     req.body.categories
                 );
@@ -179,7 +196,7 @@ exports.removeFromPromotion = async (
         }
         if (req.body.products) {
             const prodResult: { success: boolean; message: string } =
-                await promotionService.removeProductFromPromo(
+                await promotionService.removeProductsFromPromo(
                     promoId,
                     req.body.products
                 );
@@ -199,31 +216,34 @@ exports.removeFromPromotion = async (
     }
 };
 
-exports.deletePromotion = async (req: RemovePromoRequest, res: Response) => {
-    try {
-        const args: {
-            promotion: string;
-            products?: string[];
-            categories?: string[];
-        } = { promotion: req.params.promoId };
-        if (req.body.products) {
-            args["products"] = req.body.products;
-        }
-        if (req.body.categories) {
-            args["categories"] = req.body.categories;
-        }
+// export const deletePromotion: RequestHandler = async (
+//     req: RemovePromoRequest,
+//     res: Response
+// ) => {
+//     try {
+//         const args: {
+//             promotion: string;
+//             products?: string[];
+//             categories?: string[];
+//         } = { promotion: req.params.promoId };
+//         if (req.body.products) {
+//             args["products"] = req.body.products;
+//         }
+//         if (req.body.categories) {
+//             args["categories"] = req.body.categories;
+//         }
 
-        const result = await promotionService.deletePromotion(args);
+//         const result = await promotionService.deletePromotion(args);
 
-        res.status(200).json(result);
-    } catch (error) {
-        let errorObj = {
-            message: "delete promotions failure",
-            payload: error,
-        };
+//         res.status(200).json(result);
+//     } catch (error) {
+//         let errorObj = {
+//             message: "delete promotions failure",
+//             payload: error,
+//         };
 
-        console.log(errorObj);
+//         console.log(errorObj);
 
-        res.json(errorObj);
-    }
-};
+//         res.json(errorObj);
+//     }
+// };

@@ -6,6 +6,10 @@ import {
     CartItem,
     CartState,
     ChangeQuantityRequest,
+    UpdateQuantityArgs,
+    CartResponsePayload,
+    CartResponse,
+    MergeActionData,
 } from "./CartTypes";
 import { RootState } from "../../store/customerStore";
 import axios from "axios";
@@ -17,26 +21,6 @@ const initialState: CartState = {
     cartId: null,
     error: null,
 };
-
-interface updateQuantityArgs {
-    productNo: string;
-    newQuantity: number;
-}
-interface CartResponsePayload {
-    success: boolean;
-    message: string;
-    cart: {
-        items: CartItem[];
-        subTotal: number;
-        cartId: number;
-        numberOfItems: number;
-    };
-}
-
-interface CartResponse {
-    message: string;
-    payload: CartResponsePayload;
-}
 
 //Thunks//
 
@@ -121,7 +105,7 @@ export const addItemToCart = createAsyncThunk<
 
 export const updateItemQuantity = createAsyncThunk<
     CartResponsePayload,
-    updateQuantityArgs,
+    UpdateQuantityArgs,
     { state: RootState; rejectValue: string }
 >(
     "cart/updateItemQuantity",
@@ -159,6 +143,7 @@ export const updateItemQuantity = createAsyncThunk<
                     `${process.env.REACT_APP_API_URL}cart/update-quantity`,
                     actionData
                 );
+                console.log("cart response:", response.data);
                 return response.data.payload;
             } else {
                 dispatch(deleteItemOptimistic(productNo));
@@ -190,15 +175,43 @@ export const updateItemQuantity = createAsyncThunk<
 
 export const syncCart = createAsyncThunk<
     CartResponsePayload,
-    number,
+    void,
     { state: RootState; rejectValue: string }
 >("cart/syncCart", async (_, { getState, rejectWithValue }) => {
     try {
         const state = getState() as RootState;
         const response = await axios.get<CartResponse>(
-            `${process.env.REACT_APP_API_URL}cart/cartId/${state.cart}`
+            `${process.env.REACT_APP_API_URL}cart/cartId/${state.cart.cartId}`
         );
         return response.data.payload;
+    } catch (error: any) {
+        return rejectWithValue(
+            error.response?.data || ("Error removing item from cart" as string)
+        );
+    }
+});
+
+export const mergeCart = createAsyncThunk<
+    CartResponsePayload,
+    number,
+    { state: RootState; rejectValue: string }
+>("cart/mergeCart", async (cartId, { getState, rejectWithValue }) => {
+    console.log("running merge cart");
+    try {
+        const state = getState() as RootState;
+        if (state.cart.cartId) {
+            const actionData: MergeActionData = {
+                cartId1: cartId,
+                cartId2: state.cart.cartId,
+            };
+            const response = await axios.put<CartResponse>(
+                `${process.env.REACT_APP_API_URL}cart/merge-carts`,
+                actionData
+            );
+            return response.data.payload;
+        } else {
+            throw new Error("No cart to merge with. Sync cart instead.");
+        }
     } catch (error: any) {
         return rejectWithValue(
             error.response?.data || ("Error removing item from cart" as string)
@@ -256,6 +269,9 @@ const cartSlice = createSlice({
             state.error = null;
             state.numberOfItems = 0;
         },
+        setCartId: (state, action: PayloadAction<{ cartId: number }>) => {
+            state.cartId = action.payload.cartId;
+        },
         addCartPromo: (state, action: PayloadAction<string>) => {},
         removeCartPromo: (state, action: PayloadAction<string>) => {},
     },
@@ -284,6 +300,7 @@ const cartSlice = createSlice({
                 state.cartId = action.payload.cart.cartId;
                 state.numberOfItems = action.payload.cart.numberOfItems;
                 state.error = null;
+                console.log(action.payload.cart.subTotal);
             })
             .addCase(updateItemQuantity.rejected, (state, action) => {
                 state.error = action.payload || "Failed to fetch products";
@@ -300,6 +317,19 @@ const cartSlice = createSlice({
             })
             .addCase(syncCart.rejected, (state, action) => {
                 state.error = action.payload || "Failed to fetch products";
+            })
+            .addCase(mergeCart.pending, (state) => {
+                state.error = null;
+            })
+            .addCase(mergeCart.fulfilled, (state, action) => {
+                state.items = action.payload.cart.items;
+                state.subTotal = action.payload.cart.subTotal;
+                state.cartId = action.payload.cart.cartId;
+                state.numberOfItems = action.payload.cart.numberOfItems;
+                state.error = null;
+            })
+            .addCase(mergeCart.rejected, (state, action) => {
+                state.error = action.payload || "Failed to fetch products";
             });
     },
 });
@@ -310,5 +340,6 @@ export const {
     changeQuantityOptimistic,
     rollbackCartItems,
     clearCart,
+    setCartId,
 } = cartSlice.actions;
 export default cartSlice.reducer;

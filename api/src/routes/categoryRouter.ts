@@ -1,12 +1,13 @@
-const categoryRouter = require("express").Router();
-const {
+import { Router } from "express";
+const categoryRouter = Router();
+import {
     getAllCategories,
     getCategoryByName,
     createCategory,
     createSubCategory,
     updateCategoryName,
     deleteCategory,
-} = require("../controllers/categoryController");
+} from "../controllers/categoryController";
 
 categoryRouter.get("/", getAllCategories);
 
@@ -20,4 +21,4 @@ categoryRouter.delete("/delete/:name", deleteCategory);
 
 categoryRouter.post("/:categoryName/create-sub", createSubCategory);
 
-module.exports = categoryRouter;
+export default categoryRouter;
