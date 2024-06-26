@@ -8,8 +8,8 @@ import {
     Index,
     HasMany,
 } from "sequelize-typescript";
-import { sqlProduct } from "./sqlProductModel";
-import { sqlSubCategory } from "./sqlSubCategoryModel";
+import { sqlProduct } from "./sqlProductModel.js";
+import { sqlSubCategory } from "./sqlSubCategoryModel.js";
 
 @Table({
     tableName: "Categories",

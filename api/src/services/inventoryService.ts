@@ -1,9 +1,9 @@
-import { sqlInventory } from "../models/mysql/sqlInventoryModel";
-import { sqlCart } from "../models/mysql/sqlCartModel";
-import { sqlCartItem } from "../models/mysql/sqlCartItemModel";
-import { sqlProduct } from "../models/mysql/sqlProductModel";
-import { JoinReqCart } from "./cartService";
-import sequelize from "../models/mysql";
+import { sqlInventory } from "../models/mysql/sqlInventoryModel.js";
+import { sqlCart } from "../models/mysql/sqlCartModel.js";
+import { sqlCartItem } from "../models/mysql/sqlCartItemModel.js";
+import { sqlProduct } from "../models/mysql/sqlProductModel.js";
+import { JoinReqCart } from "./cartService.js";
+import sequelize from "../models/mysql/index.js";
 
 export const holdStock = async (cartId: number) => {
     const sqlTransaction = await sequelize.transaction();

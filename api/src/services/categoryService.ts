@@ -2,16 +2,16 @@ import mongoose from "mongoose";
 import Category, {
     CategoryItem,
     SubCategoryItem,
-} from "../models/mongo/categoryModel";
-import Product from "../models/mongo/productModel";
+} from "../models/mongo/categoryModel.js";
+import Product from "../models/mongo/productModel.js";
 
 //types and interfaces
 import { ClientSession } from "mongoose";
-import { ProductItem } from "../models/mongo/productModel";
-import { sqlCategory } from "../models/mysql/sqlCategoryModel";
-import { BooleString } from "../../types/api_resp";
-import { sqlSubCategory } from "../models/mysql/sqlSubCategoryModel";
-import sequelize from "../models/mysql";
+import { ProductItem } from "../models/mongo/productModel.js";
+import { sqlCategory } from "../models/mysql/sqlCategoryModel.js";
+import { BooleString } from "../../types/api_resp.js";
+import { sqlSubCategory } from "../models/mysql/sqlSubCategoryModel.js";
+import sequelize from "../models/mysql/index.js";
 
 export const getAllCategories = async (): Promise<
     Array<{ name: string; subCategories: string[] }>

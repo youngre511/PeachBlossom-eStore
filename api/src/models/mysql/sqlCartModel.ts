@@ -11,8 +11,8 @@ import {
     Index,
     Unique,
 } from "sequelize-typescript";
-import { sqlCustomer } from "./sqlCustomerModel";
-import { sqlCartItem } from "./sqlCartItemModel";
+import { sqlCustomer } from "./sqlCustomerModel.js";
+import { sqlCartItem } from "./sqlCartItemModel.js";
 
 @Table({
     tableName: "Carts",

@@ -1,16 +1,16 @@
 import { Sequelize } from "sequelize-typescript";
-import config from "../../config/config";
-import { sqlCategory } from "./sqlCategoryModel";
-import { sqlSubCategory } from "./sqlSubCategoryModel";
-import { sqlProduct } from "./sqlProductModel";
-import { sqlCart } from "./sqlCartModel";
-import { sqlCartItem } from "./sqlCartItemModel";
-import { sqlInventory } from "./sqlInventoryModel";
-import { sqlOrder } from "./sqlOrderModel";
-import { sqlOrderItem } from "./sqlOrderItemModel";
-import { sqlProductPromotion } from "./sqlProductPromotionModel";
-import { sqlPromotion } from "./sqlPromotionModel";
-import { sqlCustomer } from "./sqlCustomerModel";
+import config from "../../config/config.js";
+import { sqlCategory } from "./sqlCategoryModel.js";
+import { sqlSubCategory } from "./sqlSubCategoryModel.js";
+import { sqlProduct } from "./sqlProductModel.js";
+import { sqlCart } from "./sqlCartModel.js";
+import { sqlCartItem } from "./sqlCartItemModel.js";
+import { sqlInventory } from "./sqlInventoryModel.js";
+import { sqlOrder } from "./sqlOrderModel.js";
+import { sqlOrderItem } from "./sqlOrderItemModel.js";
+import { sqlProductPromotion } from "./sqlProductPromotionModel.js";
+import { sqlPromotion } from "./sqlPromotionModel.js";
+import { sqlCustomer } from "./sqlCustomerModel.js";
 
 const env = process.env.NODE_ENV || "development";
 const dbConfig = config[env];

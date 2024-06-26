@@ -10,8 +10,8 @@ import {
     ForeignKey,
     HasMany,
 } from "sequelize-typescript";
-import { sqlProduct } from "./sqlProductModel";
-import { sqlCategory } from "./sqlCategoryModel";
+import { sqlProduct } from "./sqlProductModel.js";
+import { sqlCategory } from "./sqlCategoryModel.js";
 
 @Table({
     tableName: "SubCategories",

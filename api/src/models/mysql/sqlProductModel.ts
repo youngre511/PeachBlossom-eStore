@@ -12,12 +12,12 @@ import {
     HasOne,
     Unique,
 } from "sequelize-typescript";
-import { sqlCategory } from "./sqlCategoryModel";
-import { sqlProductPromotion } from "./sqlProductPromotionModel";
-import { sqlPromotion } from "./sqlPromotionModel";
-import { sqlCartItem } from "./sqlCartItemModel";
-import { sqlInventory } from "./sqlInventoryModel";
-import { sqlSubCategory } from "./sqlSubCategoryModel";
+import { sqlCategory } from "./sqlCategoryModel.js";
+import { sqlProductPromotion } from "./sqlProductPromotionModel.js";
+import { sqlPromotion } from "./sqlPromotionModel.js";
+import { sqlCartItem } from "./sqlCartItemModel.js";
+import { sqlInventory } from "./sqlInventoryModel.js";
+import { sqlSubCategory } from "./sqlSubCategoryModel.js";
 
 @Table({
     tableName: "Products",
@@ -26,7 +26,7 @@ import { sqlSubCategory } from "./sqlSubCategoryModel";
 export class sqlProduct extends Model {
     @PrimaryKey
     @Column(DataType.BIGINT)
-    id!: number;
+    declare id: number;
 
     @Index
     @Column({

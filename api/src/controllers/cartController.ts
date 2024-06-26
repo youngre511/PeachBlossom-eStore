@@ -1,6 +1,6 @@
-import Product from "../models/mongo/productModel";
-import Category from "../models/mongo/categoryModel";
-import * as cartService from "../services/cartService";
+import Product from "../models/mongo/productModel.js";
+import Category from "../models/mongo/categoryModel.js";
+import * as cartService from "../services/cartService.js";
 import { Request, RequestHandler, Response } from "express";
 
 interface CartIdRequestParams extends Request {

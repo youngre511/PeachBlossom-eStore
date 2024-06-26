@@ -8,8 +8,8 @@ import {
     addToPromotion,
     updatePromotion,
     removeFromPromotion,
-    deletePromotion,
-} from "../controllers/promotionController";
+    // deletePromotion,
+} from "../controllers/promotionController.js";
 
 promotionRouter.get("/", getAllPromotions);
 
@@ -23,6 +23,6 @@ promotionRouter.put("/add/:promoId", addToPromotion);
 
 promotionRouter.put("/remove/:promoId", removeFromPromotion);
 
-promotionRouter.delete("/delete/:promoId", deletePromotion);
+// promotionRouter.delete("/delete/:promoId", deletePromotion);
 
 export default promotionRouter;

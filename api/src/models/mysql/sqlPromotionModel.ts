@@ -9,8 +9,8 @@ import {
     Index,
     Unique,
 } from "sequelize-typescript";
-import { sqlProductPromotion } from "./sqlProductPromotionModel";
-import { sqlProduct } from "./sqlProductModel";
+import { sqlProductPromotion } from "./sqlProductPromotionModel.js";
+import { sqlProduct } from "./sqlProductModel.js";
 
 @Table({
     tableName: "Promotions",

@@ -1,7 +1,7 @@
-import Product from "../models/mongo/productModel";
-import Category from "../models/mongo/categoryModel";
-import * as productService from "../services/productService";
-import * as promotionService from "../services/promotionService";
+import Product from "../models/mongo/productModel.js";
+import Category from "../models/mongo/categoryModel.js";
+import * as productService from "../services/productService.js";
+import * as promotionService from "../services/promotionService.js";
 
 ////////////////////////
 //Types and Interfaces//
@@ -11,9 +11,9 @@ import {
     ProductItem,
     Promotion,
     Attributes,
-} from "../models/mongo/productModel";
+} from "../models/mongo/productModel.js";
 import { Request, Response, RequestHandler } from "express";
-import { CategoryItem } from "../models/mongo/categoryModel";
+import { CategoryItem } from "../models/mongo/categoryModel.js";
 
 export interface CreateProduct {
     name: string;

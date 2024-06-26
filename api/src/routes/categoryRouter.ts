@@ -7,7 +7,7 @@ import {
     createSubCategory,
     updateCategoryName,
     deleteCategory,
-} from "../controllers/categoryController";
+} from "../controllers/categoryController.js";
 
 categoryRouter.get("/", getAllCategories);
 

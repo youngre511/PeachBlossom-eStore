@@ -1,9 +1,9 @@
-import Product from "../models/mongo/productModel";
-import Category from "../models/mongo/categoryModel";
-import * as promotionService from "../services/promotionService";
+import Product from "../models/mongo/productModel.js";
+import Category from "../models/mongo/categoryModel.js";
+import * as promotionService from "../services/promotionService.js";
 
 // Types and interfaces
-import { ProductItem, Promotion } from "../models/mongo/productModel";
+import { ProductItem, Promotion } from "../models/mongo/productModel.js";
 import { Request, Response, RequestHandler } from "express";
 
 export type CreatePromo = {

@@ -83,13 +83,11 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
     };
 
     const handleNameChange = (event: { target: { value: string } }) => {
-        if (event.target.value.length >= 2) {
-            setName(event.target.value);
-            setPaymentDetails({
-                ...paymentDetails,
-                cardHolder: event.target.value,
-            });
-        }
+        setName(event.target.value);
+        setPaymentDetails({
+            ...paymentDetails,
+            cardHolder: event.target.value,
+        });
     };
 
     return (

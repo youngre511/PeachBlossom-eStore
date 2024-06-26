@@ -10,7 +10,7 @@ import {
     updateProductDetails,
     updateProductPrice,
     updateProductStock,
-} from "../controllers/productController";
+} from "../controllers/productController.js";
 
 productRouter.get("/", getProducts);
 

@@ -1,4 +1,4 @@
-import { Dialect } from "sequelize/types";
+import { Dialect } from "sequelize";
 
 interface DatabaseConfig {
     [key: string]: {
@@ -34,5 +34,4 @@ const config: DatabaseConfig = {
     },
 };
 
-module.exports = config;
 export default config;

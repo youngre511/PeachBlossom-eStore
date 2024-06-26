@@ -1,5 +1,5 @@
 import { Request, Response, RequestHandler } from "express";
-import * as orderService from "../services/orderService";
+import * as orderService from "../services/orderService.js";
 
 interface ShippingDetails {
     shippingAddress: string;

@@ -11,7 +11,7 @@ import {
     Unique,
 } from "sequelize-typescript";
 
-import { sqlProduct } from "./sqlProductModel";
+import { sqlProduct } from "./sqlProductModel.js";
 
 @Table({
     tableName: "Inventory",

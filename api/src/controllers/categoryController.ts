@@ -1,9 +1,9 @@
-import Category from "../models/mongo/categoryModel";
-import * as categoryService from "../services/categoryService";
+import Category from "../models/mongo/categoryModel.js";
+import * as categoryService from "../services/categoryService.js";
 
-import { BooleString } from "../../types/api_resp";
+import { BooleString } from "../../types/api_resp.js";
 //Types and Interfaces
-import { CategoryItem } from "../models/mongo/categoryModel";
+import { CategoryItem } from "../models/mongo/categoryModel.js";
 import { Request, Response } from "express";
 
 interface CategoryParamsIdRequest extends Request {

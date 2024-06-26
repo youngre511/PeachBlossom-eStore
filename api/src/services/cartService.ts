@@ -1,9 +1,9 @@
-import sequelize from "../models/mysql";
-import { sqlProduct } from "../models/mysql/sqlProductModel";
-import { sqlPromotion } from "../models/mysql/sqlPromotionModel";
-import { sqlCart } from "../models/mysql/sqlCartModel";
-import { sqlCartItem } from "../models/mysql/sqlCartItemModel";
-import { sqlInventory } from "../models/mysql/sqlInventoryModel";
+import sequelize from "../models/mysql/index.js";
+import { sqlProduct } from "../models/mysql/sqlProductModel.js";
+import { sqlPromotion } from "../models/mysql/sqlPromotionModel.js";
+import { sqlCart } from "../models/mysql/sqlCartModel.js";
+import { sqlCartItem } from "../models/mysql/sqlCartItemModel.js";
+import { sqlInventory } from "../models/mysql/sqlInventoryModel.js";
 import { Op, Model } from "sequelize";
 
 // Types and Interfaces
@@ -52,6 +52,8 @@ interface JoinReqUpdateCart {
 // Services
 
 export const getCartById = async (cartId: number) => {
+    console.log("running");
+    console.log(cartId);
     try {
         let updatedCart = (await sqlCart.findOne({
             where: { cart_id: cartId },
@@ -73,7 +75,16 @@ export const getCartById = async (cartId: number) => {
                     ],
                 },
             ],
+            raw: true,
+            nest: true,
         })) as unknown as JoinReqCart;
+
+        // Ensure CartItem is an array
+        if (updatedCart && !Array.isArray(updatedCart.CartItem)) {
+            updatedCart.CartItem = [updatedCart.CartItem];
+        }
+
+        console.log("updatedCart", updatedCart);
 
         if (!updatedCart) {
             throw new Error("Unable to retrieve cart state");
@@ -81,6 +92,9 @@ export const getCartById = async (cartId: number) => {
 
         let subTotal = 0;
         let itemCount = 0;
+
+        console.log("still working 1");
+        console.log(updatedCart.CartItem);
 
         const itemsArr = updatedCart.CartItem.map((item) => {
             subTotal += item.finalPrice * item.quantity;
@@ -100,6 +114,7 @@ export const getCartById = async (cartId: number) => {
             return itemObj;
         });
 
+        console.log("still working: itemsArr:", itemsArr);
         const returnCartObj = {
             items: itemsArr,
             subTotal: subTotal,
@@ -129,14 +144,16 @@ export const addToCart = async (
     quantity: number,
     thumbnailUrl: string
 ) => {
+    console.log("addToCart cartID", cartId);
     const sqlTransaction = await sequelize.transaction();
     let cartExists = cartId ? true : false;
-
+    console.log("cartExists:", cartExists);
     try {
         // Find product record
         const product = await sqlProduct.findOne({
             where: { productNo: productNo },
             transaction: sqlTransaction,
+            raw: true,
         });
         if (!product) {
             throw new Error("ProductNo not found in database");
@@ -187,6 +204,7 @@ export const addToCart = async (
                 where: { cart_id: cartId },
                 include: [{ model: sqlCartItem, as: "CartItem" }],
                 transaction: sqlTransaction,
+                raw: true,
             });
             if (!cart) {
                 cartExists = false;
@@ -207,7 +225,7 @@ export const addToCart = async (
         let cartItem = null;
         if (cart.cartItems) {
             cartItem = cart.cartItems.find(
-                (item) => item.productNo === productNo
+                (item: any) => item.productNo === productNo
             );
         }
 
@@ -218,7 +236,8 @@ export const addToCart = async (
             cartItem.finalPrice = finalPrice;
             await cartItem.save({ transaction: sqlTransaction });
         } else {
-            await sqlCartItem.create(
+            console.log(cartId, product.productNo, quantity);
+            const cartItemCreate = await sqlCartItem.create(
                 {
                     cart_id: cartId,
                     productNo: product.productNo,
@@ -230,12 +249,13 @@ export const addToCart = async (
                 },
                 { transaction: sqlTransaction }
             );
+            console.log("cartItemCreate", cartItemCreate);
         }
 
         // Commit transaction
 
         await sqlTransaction.commit();
-
+        console.log("function type:", typeof getCartById);
         // Fetch the updated cart. Format and return data to update store.
         const returnCartObj = await getCartById(cartId as number);
         console.log(returnCartObj);

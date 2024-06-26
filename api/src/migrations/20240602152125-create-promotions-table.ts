@@ -48,11 +48,6 @@ export default {
             },
         });
 
-        await queryInterface.addIndex("Promotions", ["promotionId"], {
-            name: "idx_promotionId",
-            unique: true,
-        });
-
         await queryInterface.addIndex("Promotions", ["promotionCode"], {
             name: "idx_promotionCode",
             unique: false,
@@ -60,7 +55,6 @@ export default {
     },
 
     down: async (queryInterface: QueryInterface) => {
-        await queryInterface.removeIndex("Promotions", "idx_promotionId");
         await queryInterface.removeIndex("Promotions", "idx_promotionCode");
         await queryInterface.dropTable("Promotions");
     },

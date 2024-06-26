@@ -1,16 +1,16 @@
-import Product, { ProductItem } from "../models/mongo/productModel";
-import Category, { SubCategoryItem } from "../models/mongo/categoryModel";
-import Tag, { TagItem } from "../models/mongo/tagModel";
-import { sqlCategory } from "../models/mysql/sqlCategoryModel";
-import { sqlProduct } from "../models/mysql/sqlProductModel";
-import { sqlInventory } from "../models/mysql/sqlInventoryModel";
-import generateProductNo from "../utils/generateProductNo";
-import sequelize from "../models/mysql";
+import Product, { ProductItem } from "../models/mongo/productModel.js";
+import Category, { SubCategoryItem } from "../models/mongo/categoryModel.js";
+import Tag, { TagItem } from "../models/mongo/tagModel.js";
+import { sqlCategory } from "../models/mysql/sqlCategoryModel.js";
+import { sqlProduct } from "../models/mysql/sqlProductModel.js";
+import { sqlInventory } from "../models/mysql/sqlInventoryModel.js";
+import generateProductNo from "../utils/generateProductNo.js";
+import sequelize from "../models/mysql/index.js";
 
 import mongoose, { ClientSession, Types, Schema } from "mongoose";
-import { CreateProduct } from "../controllers/productController";
-import { sqlSubCategory } from "../models/mysql/sqlSubCategoryModel";
-import { BooleString } from "../../types/api_resp";
+import { CreateProduct } from "../controllers/productController.js";
+import { sqlSubCategory } from "../models/mysql/sqlSubCategoryModel.js";
+import { BooleString } from "../../types/api_resp.js";
 
 export type Color =
     | "red"

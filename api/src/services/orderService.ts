@@ -1,8 +1,8 @@
-import { OrderData } from "../controllers/orderController";
-import sequelize from "../models/mysql";
-import { sqlOrder } from "../models/mysql/sqlOrderModel";
-import { sqlOrderItem } from "../models/mysql/sqlOrderItemModel";
-import { generateOrderNo } from "../utils/generateOrderNo";
+import { OrderData } from "../controllers/orderController.js";
+import sequelize from "../models/mysql/index.js";
+import { sqlOrder } from "../models/mysql/sqlOrderModel.js";
+import { sqlOrderItem } from "../models/mysql/sqlOrderItemModel.js";
+import { generateOrderNo } from "../utils/generateOrderNo.js";
 
 export const placeOrder = async (orderData: OrderData) => {
     const sqlTransaction = await sequelize.transaction();
@@ -10,7 +10,7 @@ export const placeOrder = async (orderData: OrderData) => {
     try {
         const shipping = orderData.shipping;
         const orderDetails = orderData.orderDetails;
-        const orderNo = generateOrderNo();
+        const orderNo: string = await generateOrderNo();
 
         const newOrder = {
             customerId: orderData.customerId,

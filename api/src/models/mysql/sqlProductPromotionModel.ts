@@ -5,8 +5,8 @@ import {
     DataType,
     ForeignKey,
 } from "sequelize-typescript";
-import { sqlPromotion } from "./sqlPromotionModel";
-import { sqlProduct } from "./sqlProductModel";
+import { sqlPromotion } from "./sqlPromotionModel.js";
+import { sqlProduct } from "./sqlProductModel.js";
 
 @Table({
     tableName: "ProductPromotions",

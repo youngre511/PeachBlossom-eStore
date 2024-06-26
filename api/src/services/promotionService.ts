@@ -1,11 +1,11 @@
-import Product from "../models/mongo/productModel";
-import Category from "../models/mongo/categoryModel";
-import generatePromoNo from "../utils/generatePromoNo";
+import Product from "../models/mongo/productModel.js";
+import Category from "../models/mongo/categoryModel.js";
+import generatePromoNo from "../utils/generatePromoNo.js";
 import mongoose from "mongoose";
 
 import { ClientSession } from "mongoose";
-import { ProductItem, Promotion } from "../models/mongo/productModel";
-import { CreatePromo } from "../controllers/promotionController";
+import { ProductItem, Promotion } from "../models/mongo/productModel.js";
+import { CreatePromo } from "../controllers/promotionController.js";
 import { Types, Schema } from "mongoose";
 
 type PromoUpdate = Partial<Promotion>;

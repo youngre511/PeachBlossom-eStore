@@ -76,10 +76,6 @@ export default {
                 allowNull: false,
             },
         });
-        await queryInterface.addIndex("Orders", ["orderNo"], {
-            name: "idx_orderNumber",
-            unique: true,
-        });
 
         await queryInterface.addIndex("Orders", ["customer_id", "orderDate"], {
             name: "idx_customer_orderDate",
@@ -95,7 +91,6 @@ export default {
     },
 
     down: async (queryInterface: QueryInterface) => {
-        await queryInterface.removeIndex("Orders", "idx_orderNumber");
         await queryInterface.removeIndex("Orders", "idx_customer_orderDate");
         await queryInterface.removeIndex("Orders", "idx_customer_orderStatus");
         await queryInterface.dropTable("Orders");

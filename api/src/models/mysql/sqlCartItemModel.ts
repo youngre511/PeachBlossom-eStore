@@ -9,9 +9,9 @@ import {
     BelongsTo,
     Index,
 } from "sequelize-typescript";
-import { sqlCart } from "./sqlCartModel";
-import { sqlProduct } from "./sqlProductModel";
-import { sqlPromotion } from "./sqlPromotionModel";
+import { sqlCart } from "./sqlCartModel.js";
+import { sqlProduct } from "./sqlProductModel.js";
+import { sqlPromotion } from "./sqlPromotionModel.js";
 
 @Table({
     tableName: "CartItems",

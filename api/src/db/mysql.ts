@@ -1,4 +1,4 @@
-import { sequelize } from "../models/mysql/index";
+import { sequelize } from "../models/mysql/index.js";
 
 const connectToMySQLDatabase = async () => {
     try {

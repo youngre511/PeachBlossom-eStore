@@ -189,7 +189,7 @@ const Checkout: React.FC = () => {
     const handleNext = async () => {
         if (activeStep === 2) {
             const orderNo = await handlePlaceOrder();
-            if (orderNumber) {
+            if (orderNo) {
                 setOrderNumber(orderNo);
                 setPlaceOrderSuccess(true);
                 setActiveStep(activeStep + 1);
@@ -239,9 +239,9 @@ const Checkout: React.FC = () => {
                 `${process.env.REACT_APP_API_URL}order/create`,
                 orderData
             );
-            if (response.data.payload.orderNo) {
+            if (response.data.orderNo) {
                 dispatch(clearCart());
-                return response.data.payload.orderNo;
+                return response.data.orderNo;
             } else {
                 throw new Error("no orderNo returned");
             }

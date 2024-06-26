@@ -6,7 +6,7 @@ import {
     deleteFromCart,
     updateItemQuantity,
     mergeCarts,
-} from "../controllers/cartController";
+} from "../controllers/cartController.js";
 
 function dummyFunc() {}
 

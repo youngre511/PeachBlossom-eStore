@@ -8,8 +8,8 @@ import {
     ForeignKey,
     Index,
 } from "sequelize-typescript";
-import { sqlProduct } from "./sqlProductModel";
-import { sqlOrder } from "./sqlOrderModel";
+import { sqlProduct } from "./sqlProductModel.js";
+import { sqlOrder } from "./sqlOrderModel.js";
 
 @Table({
     tableName: "OrderItems",

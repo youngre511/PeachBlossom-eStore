@@ -1,23 +1,19 @@
 import express from "express";
 const app = express();
-import path from "path";
 import cors, { CorsOptions } from "cors";
 import logger from "morgan";
-import connectToMongoDB from "./db/mongodb";
-import connectToMySQLDatabase from "./db/mysql";
+import connectToMongoDB from "./db/mongodb.js";
+import connectToMySQLDatabase from "./db/mysql.js";
 import dotenv from "dotenv";
 dotenv.config();
 
 // Router Imports
-import categoryRouter from "./routes/categoryRouter";
-import productRouter from "./routes/productRouter";
-import promotionRouter from "./routes/promotionRouter";
-import cartRouter from "./routes/cartRouter";
-import inventoryRouter from "./routes/inventoryRouter";
-import orderRouter from "./routes/orderRouter";
-
-//Type imports
-import { Express, Request, Response } from "express";
+import categoryRouter from "./routes/categoryRouter.js";
+import productRouter from "./routes/productRouter.js";
+import promotionRouter from "./routes/promotionRouter.js";
+import cartRouter from "./routes/cartRouter.js";
+import inventoryRouter from "./routes/inventoryRouter.js";
+import orderRouter from "./routes/orderRouter.js";
 
 // Read incoming requests properly
 app.use(express.urlencoded({ extended: false }));

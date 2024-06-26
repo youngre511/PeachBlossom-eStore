@@ -1,4 +1,4 @@
-import * as inventoryService from "../services/inventoryService";
+import * as inventoryService from "../services/inventoryService.js";
 import { Request, Response } from "express";
 
 interface CartIdRequest extends Request {

@@ -11,8 +11,8 @@ import {
     Index,
     Unique,
 } from "sequelize-typescript";
-import { sqlCustomer } from "./sqlCustomerModel";
-import { sqlOrderItem } from "./sqlOrderItemModel";
+import { sqlCustomer } from "./sqlCustomerModel.js";
+import { sqlOrderItem } from "./sqlOrderItemModel.js";
 
 @Table({
     tableName: "Orders",
