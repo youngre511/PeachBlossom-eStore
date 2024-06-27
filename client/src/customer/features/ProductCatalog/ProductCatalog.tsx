@@ -1,10 +1,11 @@
 import React from "react";
-import { useEffect } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
 import { RootState } from "../../store/customerStore";
 import Item from "../../components/Item/Item";
 import { Product } from "./CatalogTypes";
 import { CircularProgress } from "@mui/material";
+import "./product-catalog.css";
 
 interface Props {
     page: number;
@@ -23,6 +24,39 @@ const ProductCatalog: React.FC<Props> = ({ page, results }) => {
 
     const totalPages = Math.ceil(results / itemsPerPage);
 
+    const [productGridWidth, setProductGridWidth] = useState(0);
+    const [spacing, setSpacing] = useState<number | string>(0);
+    const productGrid = useRef<HTMLDivElement | null>(null);
+    const [numInRow, setNumInRow] = useState(1);
+
+    const updateContWidth = () => {
+        if (productGrid.current) {
+            const rect = productGrid.current.getBoundingClientRect();
+            setProductGridWidth(rect.width);
+        }
+    };
+
+    useEffect(() => {
+        updateContWidth();
+
+        window.addEventListener("resize", updateContWidth);
+
+        return () => {
+            window.removeEventListener("resize", updateContWidth);
+        };
+    }, []);
+
+    useEffect(() => {
+        setNumInRow(Math.floor((productGridWidth + 20) / 265));
+        console.log(productGridWidth);
+        setSpacing((productGridWidth - 245 * numInRow) / (numInRow - 1));
+        // if (productGridWidth >= 512) {
+        //     setSpacing((productGridWidth - 245 * numInRow) / (numInRow - 1));
+        // } else {
+        //     setSpacing("auto");
+        // }
+    }, [productGridWidth]);
+
     if (loading) {
         return (
             <div className="loading">
@@ -37,7 +71,14 @@ const ProductCatalog: React.FC<Props> = ({ page, results }) => {
 
     return (
         <div className="productCatalog">
-            <div className="catalog-item-container">
+            <div
+                className="catalog-item-container"
+                ref={productGrid}
+                style={{
+                    gap: spacing,
+                    gridTemplateColumns: `repeat(${numInRow}, 1fr)`,
+                }}
+            >
                 {numberOfResults === 0 && (
                     <h2>
                         No products matching criteria. Try selecting different

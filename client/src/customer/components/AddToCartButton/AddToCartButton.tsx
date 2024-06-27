@@ -7,6 +7,7 @@ import {
     updateItemQuantity,
 } from "../../features/Cart/cartSlice";
 import PeachButton from "../../../common/components/PeachButton";
+import "./AddToCartButton.css";
 
 interface Props {
     available: number;
@@ -19,12 +20,14 @@ const AddToCartButton: React.FC<Props> = ({ available, productNo }: Props) => {
     const itemInCart: CartItem[] = cart.items.filter(
         (item) => item.productNo === productNo
     );
+    console.log(itemInCart);
     const isInCart: boolean = itemInCart.length > 0;
     let numberInCart: number | null = null;
     if (isInCart) {
         numberInCart = itemInCart[0].quantity;
     }
 
+    console.log(productNo);
     const handleAddToCart = () => {
         dispatch(addItemToCart(productNo));
     };
@@ -64,7 +67,7 @@ const AddToCartButton: React.FC<Props> = ({ available, productNo }: Props) => {
                 onClick={handleAddToCart}
                 text="ADD TO CART"
                 width="120px"
-                height="40px"
+                height="30px"
             />
         );
     } else {

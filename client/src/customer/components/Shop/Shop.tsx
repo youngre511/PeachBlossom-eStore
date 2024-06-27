@@ -242,7 +242,7 @@ const Shop = () => {
                             updateSearchParams={updateSearchParams}
                         />
                         <div className="per-page-selector">
-                            <p>Items Per Page</p>
+                            <p>Items per page</p>
                             <button
                                 type="button"
                                 onClick={() => handleItemsPerPageChange(24)}

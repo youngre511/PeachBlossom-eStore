@@ -32,6 +32,7 @@ export const addItemToCart = createAsyncThunk<
     "cart/addItemToCart",
     async (productNo: string, { getState, dispatch, rejectWithValue }) => {
         console.log("running add item to cart");
+        console.log(productNo);
         const state = getState() as RootState;
         const currentCartItems = [...state.cart.items];
         const currentNumberOfItems = state.cart.numberOfItems;
@@ -55,7 +56,7 @@ export const addItemToCart = createAsyncThunk<
             if (!productToAdd) {
                 return rejectWithValue("Product not found");
             }
-
+            console.log("product to add", productToAdd);
             productThumbnail = productToAdd.images[0];
 
             const productObj: CartItem = {
@@ -73,6 +74,7 @@ export const addItemToCart = createAsyncThunk<
         }
 
         try {
+            console.log("api product no", productNo);
             const actionData: AddActionData = {
                 productNo: productNo,
                 cartId: state.cart.cartId,
@@ -156,6 +158,7 @@ export const updateItemQuantity = createAsyncThunk<
                     `${process.env.REACT_APP_API_URL}cart/delete-from-cart`,
                     actionData
                 );
+                console.log("cart response", response.data);
                 return response.data.payload;
             }
         } catch (error: any) {

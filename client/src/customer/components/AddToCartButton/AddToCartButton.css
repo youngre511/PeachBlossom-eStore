@@ -1,0 +1,14 @@
+.add-subtract {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.quantity-display {
+    width: 35px;
+}
+
+.quantity-display p {
+    text-align: center;
+    margin: 0;
+}

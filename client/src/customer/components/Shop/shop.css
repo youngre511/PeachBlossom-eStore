@@ -27,3 +27,11 @@
     display: flex;
     justify-content: space-between;
 }
+
+.sort-and-ipp {
+    display: flex;
+}
+
+.per-page-selector {
+    margin-left: 20px;
+}

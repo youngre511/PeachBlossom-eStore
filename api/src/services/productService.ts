@@ -355,6 +355,8 @@ export const createProduct = async (
         const abbrDesc = description.substring(0, 79) + "...";
         const sqlCatRec = await sqlCategory.findOne({
             where: { categoryName: category },
+            transaction: sqlTransaction,
+            raw: true,
         });
         if (!sqlCatRec) {
             throw new Error("category does not exist in SQL database");
@@ -366,10 +368,12 @@ export const createProduct = async (
             const subCatRec = await sqlSubCategory.findOne({
                 where: { subCategoryName: subCategory },
                 transaction: sqlTransaction,
+                raw: true,
             });
             if (!subCatRec) {
                 throw new Error("subcategory does not exist in SQL database");
             }
+
             if (subCatRec.category_id !== sqlCategoryId) {
                 throw new Error(
                     `${subCategory} is not a subcategory of ${category}`
@@ -393,10 +397,12 @@ export const createProduct = async (
             transaction: sqlTransaction,
         });
 
+        const createdProductNo = createdProduct.get().productNo;
+
         // create SQL inventory record
         await sqlInventory.create(
             {
-                productNo: createdProduct.productNo,
+                product_id: createdProduct.id,
                 stock: stock,
                 reserved: 0,
             },
