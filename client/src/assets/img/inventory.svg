@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" width="800" height="800" version="1.1" viewBox="0 0 800 800">
+  <polygon points="400 33 0 231.7 0 767 45.7 767 45.7 260.1 400 84 754.3 260.1 754.3 767 800 767 800 231.7 400 33" fill="#000" stroke-width="0"/>
+  <path d="M114.3,767h251.4v-230.9H114.3v230.9ZM160,581.9h160v139.4h-160v-139.4Z" fill="#000" stroke-width="0"/>
+  <path d="M434.3,767h251.4v-230.9h-251.4v230.9ZM480,581.9h160v139.4h-160v-139.4Z" fill="#000" stroke-width="0"/>
+  <path d="M525.7,241.3h-251.4v230.9h251.4v-230.9ZM480,426.5h-160v-139.4h160v139.4Z" fill="#000" stroke-width="0"/>
+</svg>

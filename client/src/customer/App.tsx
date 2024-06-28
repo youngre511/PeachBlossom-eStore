@@ -22,7 +22,7 @@ import { fetchSearchOptions } from "./features/SearchOptions/searchOptionsSlice"
 import Cart from "./features/Cart/Cart";
 import Checkout from "./components/Checkout/Checkout";
 
-const App: React.FC = () => {
+const CustomerApp: React.FC = () => {
     const dispatch = useAppDispatch();
     useEffect(() => {
         dispatch(fetchCategories());
@@ -68,4 +68,4 @@ const App: React.FC = () => {
     );
 };
 
-export default App;
+export default CustomerApp;
