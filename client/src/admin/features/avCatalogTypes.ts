@@ -34,11 +34,23 @@ export type AVMaterial =
 export interface AVProduct {
     productNo: string;
     name: string;
+    tags: string[];
+    price: number;
+    category: string;
+    subcategory: string;
+    thumbnail: string;
+    stock: number;
+    createdAt: string;
+    lastModified: string;
+}
+
+export interface AVFullProduct {
+    productNo: string;
+    name: string;
     description: string;
     price: number;
-    discountPrice: number | null;
-    promotionDesc: string | null;
-    singleProductProm: boolean;
+    category: string;
+    subcategory: string;
     attributes: {
         color: AVColor;
         material: AVMaterial[];
@@ -58,17 +70,7 @@ export interface AVFilters {
     search: string | null;
     category: string | null;
     subCategory: string | null;
-    color: string[] | null;
-    minPrice: string | null;
-    maxPrice: string | null;
-    minWidth: string | null;
-    maxWidth: string | null;
-    minHeight: string | null;
-    maxHeight: string | null;
-    minDepth: string | null;
-    maxDepth: string | null;
     tags: string[] | null;
-    material: string[] | null;
     sortMethod: string;
     page: string;
     itemsPerPage: string;

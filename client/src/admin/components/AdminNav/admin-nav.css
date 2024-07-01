@@ -1,17 +1,9 @@
-nav > ul {
-    list-style: none;
-}
-
-.menu-item {
-    display: flex;
-    align-items: center;
-}
-
-nav svg {
+.menu-svg {
     width: 25px;
     height: auto;
 }
 
-nav svg path {
-    fill: black;
+.menu-svg path,
+.menu-svg polygon {
+    fill: white;
 }
