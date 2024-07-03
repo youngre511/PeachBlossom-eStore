@@ -1,0 +1,16 @@
+main {
+    width: calc(100vw - 240px);
+    height: 100%;
+    position: absolute;
+    left: 240px;
+    top: 0;
+    padding: 20px;
+    overflow: scroll;
+}
+
+h1,
+h2,
+h3,
+h4 {
+    font-family: var(--Playfair);
+}

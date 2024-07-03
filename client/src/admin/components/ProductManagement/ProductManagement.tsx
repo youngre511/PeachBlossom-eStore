@@ -97,10 +97,10 @@ const ProductManagement: React.FC<Props> = () => {
 
     return (
         <div className="product-management">
-            <div>ProductManagement</div>
+            <h1>Product Management</h1>
             <div className="add-and-search">
                 <PeachButton
-                    text={`Add New Product ${(<AddCircleOutlineSharpIcon />)}`}
+                    text={`Add New Product`}
                     onClick={() => navigate("/products/add")}
                 />
             </div>

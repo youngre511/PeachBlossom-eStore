@@ -17,16 +17,6 @@ import { sqlOrderItem } from "./sqlOrderItemModel.js";
 @Table({
     tableName: "Orders",
     timestamps: false,
-    indexes: [
-        {
-            fields: ["customer_id", "orderDate"],
-            name: "idx_customer_orderDate",
-        },
-        {
-            fields: ["customer_id", "orderStatus"],
-            name: "idx-customer_orderStatus",
-        },
-    ],
 })
 export class sqlOrder extends Model {
     @PrimaryKey

@@ -76,23 +76,9 @@ export default {
                 allowNull: false,
             },
         });
-
-        await queryInterface.addIndex("Orders", ["customer_id", "orderDate"], {
-            name: "idx_customer_orderDate",
-        });
-
-        await queryInterface.addIndex(
-            "Orders",
-            ["customer_id", "orderStatus"],
-            {
-                name: "idx_customer_orderStatus",
-            }
-        );
     },
 
     down: async (queryInterface: QueryInterface) => {
-        await queryInterface.removeIndex("Orders", "idx_customer_orderDate");
-        await queryInterface.removeIndex("Orders", "idx_customer_orderStatus");
         await queryInterface.dropTable("Orders");
     },
 };

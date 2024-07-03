@@ -70,7 +70,7 @@ export const headCells: readonly HeadCell[] = [
     {
         id: "actions",
         disablePadding: false,
-        label: "Actions",
+        label: "ACTIONS",
         sortable: false,
     },
 ];
@@ -123,9 +123,7 @@ const AVCatalogHead: React.FC<EnhancedTableProps> = (props) => {
                         return (
                             <TableCell
                                 key={headCell.id}
-                                align={
-                                    headCell.id === "price" ? "right" : "left"
-                                }
+                                align={"left"}
                                 padding={
                                     headCell.disablePadding ? "none" : "normal"
                                 }

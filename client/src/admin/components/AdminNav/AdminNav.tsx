@@ -1,6 +1,5 @@
 import React from "react";
-import { useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { ReactComponent as DashboardIcon } from "../../../assets/img/dashboard.svg";
 import { ReactComponent as CustomerIcon } from "../../../assets/img/customers.svg";
 import { ReactComponent as ProductsIcon } from "../../../assets/img/products.svg";
@@ -10,98 +9,26 @@ import { ReactComponent as AdminIcon } from "../../../assets/img/admin.svg";
 import { ReactComponent as SettingsIcon } from "../../../assets/img/settings.svg";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
-import CssBaseline from "@mui/material/CssBaseline";
 import Divider from "@mui/material/Divider";
 import Drawer from "@mui/material/Drawer";
 import IconButton from "@mui/material/IconButton";
-import InboxIcon from "@mui/icons-material/MoveToInbox";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
-import MailIcon from "@mui/icons-material/Mail";
 import MenuIcon from "@mui/icons-material/Menu";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import Accordion from "@mui/material/Accordion";
-import AccordionActions from "@mui/material/AccordionActions";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIconSharp from "@mui/icons-material/ExpandMoreSharp";
 import "./admin-nav.css";
-import theme from "../../../common/utils/materialUITheme";
 
-const drawerWidth = 240;
+export const drawerWidth = 240;
 
-interface Props {}
-// const AdminNav: React.FC<Props> = () => {
-//     return (
-//         <nav>
-//             <ul className="admin-nav-bar">
-//                 <li>
-//                     <div className="menu-item">
-//                         <DashboardIcon />
-//                         <span className="menu-item-text">Dashboard</span>
-//                     </div>
-//                     <ul className="sub-menu" id="dashboard-menu">
-//                         <li>Sales Analytics</li>
-//                         <li>Revenue by Period</li>
-//                     </ul>
-//                 </li>
-//                 <li>
-//                     <div className="menu-item">
-//                         <ProductsIcon />
-//                         <span className="menu-item-text">Products</span>
-//                     </div>
-//                     <ul className="sub-menu" id="products-menu">
-//                         <li>Top Products</li>
-//                         <li>
-//                             <Link to="/products/manage">
-//                                 Product Management
-//                             </Link>
-//                         </li>
-//                         <li>Product Categories</li>
-//                     </ul>
-//                 </li>
-//                 <li>
-//                     <div className="menu-item">
-//                         <InventoryIcon />
-//                         <span className="menu-item-text">Inventory</span>
-//                     </div>
-//                 </li>
-//                 <li>
-//                     <div className="menu-item">
-//                         <OrdersIcon />
-//                         <span className="menu-item-text">Orders</span>
-//                     </div>
-//                 </li>
-//                 <li>
-//                     <div className="menu-item">
-//                         <CustomerIcon />
-//                         <span className="menu-item-text">Customers</span>
-//                     </div>
-//                     <ul className="sub-menu" id="customers-menu">
-//                         <li>Customers Overview</li>
-//                         <li>Customer Account Management</li>
-//                     </ul>
-//                 </li>
-//                 <li>
-//                     <div className="menu-item">
-//                         <AdminIcon />
-//                         <span className="menu-item-text">Admin Users</span>
-//                     </div>
-//                 </li>
-//                 <li>
-//                     <div className="menu-item">
-//                         <SettingsIcon />
-//                         <span className="menu-item-text">Settings</span>
-//                     </div>
-//                 </li>
-//             </ul>
-//         </nav>
-//     );
-// };
+export interface Props {}
 
 const AdminNav: React.FC<Props> = (props: Props) => {
     const [mobileOpen, setMobileOpen] = React.useState(false);
@@ -109,6 +36,7 @@ const AdminNav: React.FC<Props> = (props: Props) => {
     const [expanded, setExpanded] = React.useState<string | false>(
         "dashboard-menu"
     );
+    const navigate = useNavigate();
 
     const handleDrawerClose = () => {
         setIsClosing(true);
@@ -160,34 +88,24 @@ const AdminNav: React.FC<Props> = (props: Props) => {
                         </AccordionSummary>
                         <AccordionDetails
                             sx={{
-                                paddingLeft: 3,
-                                paddingTop: 2,
-                                paddingBottom: 2,
+                                padding: 0,
                                 bgcolor: "peach.main",
                             }}
                         >
                             <List sx={{ padding: 0 }}>
-                                <ListItem
-                                    disablePadding
-                                    sx={{
-                                        marginTop: "5px",
-                                        marginBottom: "5px",
-                                    }}
-                                >
-                                    <ListItemText
-                                        secondary={"Sales Analytics"}
-                                    />
+                                <ListItem disablePadding>
+                                    <ListItemButton sx={{ paddingLeft: 2 }}>
+                                        <ListItemText
+                                            secondary={"Sales Analytics"}
+                                        />
+                                    </ListItemButton>
                                 </ListItem>
-                                <ListItem
-                                    disablePadding
-                                    sx={{
-                                        marginTop: "5px",
-                                        marginBottom: "5px",
-                                    }}
-                                >
-                                    <ListItemText
-                                        secondary={"Revenue by Period"}
-                                    />
+                                <ListItem disablePadding>
+                                    <ListItemButton sx={{ paddingLeft: 2 }}>
+                                        <ListItemText
+                                            secondary={"Revenue by Period"}
+                                        />
+                                    </ListItemButton>
                                 </ListItem>
                             </List>
                         </AccordionDetails>
@@ -217,43 +135,36 @@ const AdminNav: React.FC<Props> = (props: Props) => {
                         </AccordionSummary>
                         <AccordionDetails
                             sx={{
-                                paddingLeft: 3,
-                                paddingTop: 2,
-                                paddingBottom: 2,
+                                padding: 0,
                                 bgcolor: "peach.main",
                             }}
                         >
                             <List>
-                                <ListItem
-                                    disablePadding
-                                    sx={{
-                                        marginTop: "5px",
-                                        marginBottom: "5px",
-                                    }}
-                                >
-                                    <ListItemText secondary={"Top Products"} />
+                                <ListItem disablePadding>
+                                    <ListItemButton sx={{ paddingLeft: 2 }}>
+                                        <ListItemText
+                                            secondary={"Top Products"}
+                                        />
+                                    </ListItemButton>
                                 </ListItem>
-                                <ListItem
-                                    disablePadding
-                                    sx={{
-                                        marginTop: "5px",
-                                        marginBottom: "5px",
-                                    }}
-                                >
-                                    <ListItemText
-                                        secondary={"Product Management"}
-                                    />
+                                <ListItem disablePadding>
+                                    <ListItemButton
+                                        sx={{ paddingLeft: 2 }}
+                                        onClick={() =>
+                                            navigate("/products/manage")
+                                        }
+                                    >
+                                        <ListItemText
+                                            secondary={"Product Management"}
+                                        />
+                                    </ListItemButton>
                                 </ListItem>
-                                <ListItem
-                                    disablePadding
-                                    sx={{
-                                        marginTop: "5px",
-                                        marginBottom: "5px",
-                                    }}
-                                >
-                                    <ListItemText
-                                        secondary={"Product Categories"}
-                                    />
+                                <ListItem disablePadding>
+                                    <ListItemButton sx={{ paddingLeft: 2 }}>
+                                        <ListItemText
+                                            secondary={"Product Categories"}
+                                        />
+                                    </ListItemButton>
                                 </ListItem>
                             </List>
                         </AccordionDetails>
@@ -299,36 +210,26 @@ const AdminNav: React.FC<Props> = (props: Props) => {
                         </AccordionSummary>
                         <AccordionDetails
                             sx={{
-                                paddingLeft: 3,
-                                paddingTop: 2,
-                                paddingBottom: 2,
+                                padding: 0,
                                 bgcolor: "peach.main",
                             }}
                         >
                             <List>
-                                <ListItem
-                                    disablePadding
-                                    sx={{
-                                        marginTop: "5px",
-                                        marginBottom: "5px",
-                                    }}
-                                >
-                                    <ListItemText
-                                        secondary={"Customers Overview"}
-                                    />
+                                <ListItem disablePadding>
+                                    <ListItemButton sx={{ paddingLeft: 2 }}>
+                                        <ListItemText
+                                            secondary={"Customers Overview"}
+                                        />
+                                    </ListItemButton>
                                 </ListItem>
-                                <ListItem
-                                    disablePadding
-                                    sx={{
-                                        marginTop: "5px",
-                                        marginBottom: "5px",
-                                    }}
-                                >
-                                    <ListItemText
-                                        secondary={
-                                            "Customer Account Management"
-                                        }
-                                    />
+                                <ListItem disablePadding>
+                                    <ListItemButton sx={{ paddingLeft: 2 }}>
+                                        <ListItemText
+                                            secondary={
+                                                "Customer Account Management"
+                                            }
+                                        />
+                                    </ListItemButton>
                                 </ListItem>
                             </List>
                         </AccordionDetails>
@@ -355,12 +256,13 @@ const AdminNav: React.FC<Props> = (props: Props) => {
     );
 
     return (
-        <Box sx={{ display: "flex" }}>
+        <Box sx={{ display: "flex", flexShrink: 0 }}>
             <AppBar
                 position="fixed"
                 sx={{
                     width: { sm: `calc(100% - ${drawerWidth}px)` },
                     ml: { sm: `${drawerWidth}px` },
+                    display: { xs: "block", sm: "none" },
                 }}
             >
                 <Toolbar>
@@ -381,11 +283,10 @@ const AdminNav: React.FC<Props> = (props: Props) => {
             <Box
                 component="nav"
                 sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
-                aria-label="mailbox folders"
+                aria-label="navigation bar"
             >
                 {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
                 <Drawer
-                    // container={container}
                     variant="temporary"
                     open={mobileOpen}
                     onTransitionEnd={handleDrawerTransitionEnd}

@@ -65,7 +65,7 @@ const AVProductCatalog: React.FC<AVCatProps> = (props) => {
             price: `$${product.price.toFixed(2)}`,
             category: product.category,
             subcategory: product.subcategory,
-            tags: product.tags.join(","),
+            tags: product.tags ? product.tags.join(",") : "",
             lastModified: product.lastModified,
             createdAt: product.createdAt,
         };
