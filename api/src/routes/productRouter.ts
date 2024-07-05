@@ -11,12 +11,13 @@ import {
     updateProductPrice,
     updateProductStock,
 } from "../controllers/productController.js";
+import upload from "../middleware/uploadMiddleware.js";
 
 productRouter.get("/", getProducts);
 
 productRouter.get("/search-options", getSearchOptions);
 
-productRouter.post("/create", createProduct);
+productRouter.post("/create", upload.array("images", 10), createProduct);
 
 productRouter.put("/update-details/:productNo", updateProductDetails);
 

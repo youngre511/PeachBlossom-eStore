@@ -45,6 +45,10 @@ export default {
                 onUpdate: "CASCADE",
                 onDelete: "SET NULL",
             },
+            thumbnailUrl: {
+                type: DataTypes.STRING,
+                allowNull: true,
+            },
         });
 
         await queryInterface.addIndex("Products", ["productNo"], {

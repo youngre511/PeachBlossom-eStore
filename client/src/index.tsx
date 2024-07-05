@@ -15,18 +15,18 @@ const root = ReactDOM.createRoot(
 );
 root.render(
     <React.StrictMode>
-        {/* <Provider store={customerStore}>
+        <Provider store={customerStore}>
             <PersistGate loading={null} persistor={persistor}>
                 <BrowserRouter>
                     <CustomerApp />
                 </BrowserRouter>
             </PersistGate>
-        </Provider> */}
-        <Provider store={adminStore}>
+        </Provider>
+        {/* <Provider store={adminStore}>
             <BrowserRouter>
                 <AdminApp />
             </BrowserRouter>
-        </Provider>
+        </Provider> */}
     </React.StrictMode>
 );
 

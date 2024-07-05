@@ -24,8 +24,18 @@ export interface CreateProduct {
     attributes: Attributes;
     price: number;
     stock?: number;
-    images?: Array<string>;
+    images?: Array<{
+        fileContent: Buffer;
+        fileName: string;
+        mimeType: string;
+    }>;
     tags?: Array<string>;
+}
+
+interface MulterFile {
+    buffer: Buffer;
+    originalname: string;
+    mimetype: string;
 }
 
 interface SearchOptions extends Response {
@@ -38,7 +48,20 @@ interface SearchOptions extends Response {
 }
 
 interface CreateProductRequest extends Request {
-    body: CreateProduct;
+    body: {
+        name: string;
+        category: string;
+        subCategory?: string;
+        prefix: string;
+        description: string;
+        attributes: string;
+        price: number;
+        stock?: number;
+        tags?: Array<string>;
+    };
+    files?:
+        | Express.Multer.File[]
+        | { [fieldname: string]: Express.Multer.File[] };
 }
 
 interface ProductParamsRequest extends Request {
@@ -218,7 +241,62 @@ export const createProduct = async (
     res: Response
 ) => {
     try {
-        const result = await productService.createProduct(req.body);
+        //Extract files and product data
+        const {
+            name,
+            category,
+            subCategory,
+            prefix,
+            description,
+            attributes,
+            price,
+            stock,
+            tags,
+        } = req.body;
+
+        let images: Array<{
+            fileContent: Buffer;
+            fileName: string;
+            mimeType: string;
+        }> = [];
+        if (req.files) {
+            if (Array.isArray(req.files)) {
+                images = req.files.map((file: Express.Multer.File) => ({
+                    fileContent: file.buffer,
+                    fileName: file.originalname,
+                    mimeType: file.mimetype,
+                }));
+            } else {
+                for (const key in req.files) {
+                    images = images.concat(
+                        req.files[key].map((file: Express.Multer.File) => ({
+                            fileContent: file.buffer,
+                            fileName: file.originalname,
+                            mimeType: file.mimetype,
+                        }))
+                    );
+                }
+            }
+        }
+        const attributesObj =
+            typeof attributes === "string"
+                ? JSON.parse(attributes)
+                : attributes;
+        console.log(attributesObj);
+        const productData = {
+            name,
+            category,
+            subCategory,
+            prefix,
+            description,
+            attributes: attributesObj,
+            price,
+            stock,
+            images,
+            tags,
+        };
+
+        const result = await productService.createProduct(productData);
 
         res.status(200).json(result);
     } catch (error) {

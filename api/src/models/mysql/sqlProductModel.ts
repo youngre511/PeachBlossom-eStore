@@ -73,6 +73,12 @@ export class sqlProduct extends Model {
         as: "SubCategory",
         foreignKey: "subCategory_id",
     })
+    @Column({
+        type: DataType.STRING,
+        allowNull: true,
+    })
+    thumbnailUrl?: string;
+
     @BelongsToMany(() => sqlPromotion, () => sqlProductPromotion)
     productPromotions!: sqlProductPromotion[];
 

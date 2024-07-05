@@ -27,8 +27,9 @@ import { SelectField } from "../Fields/SelectField";
 import axios, { AxiosError } from "axios";
 import "./add-product.css";
 import PeachButton from "../../../common/components/PeachButton";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import ImageUploader from "../ImageUploader/ImageUploader";
+import { ImageListType } from "react-images-uploading";
 
 ///////////////////
 ///////TYPES///////
@@ -138,41 +139,6 @@ const inputStyle = {
     },
 };
 
-///////////////////////////////
-///////FORMIK PARAMETERS///////
-///////////////////////////////
-
-const initialValues: Submission = {
-    name: "",
-    prefix: "",
-    price: 0,
-    category: "",
-    subcategory: "",
-    color: "",
-    material: [],
-    height: "",
-    width: "",
-    depth: "",
-    weight: "",
-    description: "",
-};
-
-const validate = (values: Submission) => {
-    const errors: Record<string, string> = {};
-    if (+values.price === 0 || !values.price) {
-        errors.price = "Price must be greater than 0";
-        console.log(errors);
-    }
-    console.log(values);
-};
-
-const handleSubmit = async (
-    values: Submission,
-    actions: FormikHelpers<Submission>
-) => {
-    actions.setSubmitting(true);
-};
-
 ////////////////////////////////////////
 ///////SPECIALIZED CATEGORY FIELD///////
 ////////////////////////////////////////
@@ -245,6 +211,90 @@ const AddProduct: React.FC = () => {
     const [subCategories, setSubCategories] = useState<string[] | "disabled">(
         "disabled"
     );
+    const [images, setImages] = useState<ImageListType>([]);
+    const navigate = useNavigate();
+
+    ///////FORMIK PARAMETERS///////
+
+    const initialValues: Submission = {
+        name: "",
+        prefix: "",
+        price: 0,
+        category: "",
+        subcategory: "",
+        color: "",
+        material: [],
+        height: "",
+        width: "",
+        depth: "",
+        weight: "",
+        description: "",
+    };
+
+    const validate = (values: Submission) => {
+        const errors: Record<string, string> = {};
+        if (+values.price === 0 || !values.price) {
+            errors.price = "Price must be greater than 0";
+            console.log(errors);
+        }
+        console.log(values);
+    };
+
+    const handleSubmit = async (
+        values: Submission,
+        actions: FormikHelpers<Submission>
+    ) => {
+        actions.setSubmitting(true);
+        console.log("starting submit process");
+        const formData = new FormData();
+        formData.append("name", values.name);
+        formData.append("category", values.category);
+        if (values.subcategory) {
+            formData.append("subCategory", values.subcategory);
+        }
+        formData.append("prefix", values.prefix.toLowerCase());
+        formData.append("description", values.description);
+        formData.append(
+            "attributes",
+            JSON.stringify({
+                color: values.color,
+                material: values.material,
+                weight: values.weight,
+                dimensions: {
+                    width: values.width,
+                    height: values.height,
+                    depth: values.depth,
+                },
+            })
+        );
+        formData.append("price", values.price.toString());
+        images.forEach((image, index) => {
+            const newFileName = `${values.name
+                .replace(/\s+/g, "_")
+                .toLowerCase()}_${index + 1}`;
+            formData.append("images", image.file as File, newFileName);
+        });
+
+        try {
+            const response = await axios.post(
+                `${process.env.REACT_APP_API_URL}product/create`,
+                formData,
+                {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                    },
+                }
+            );
+            console.log("Response:", response.data);
+        } catch (error) {
+            console.error("Error uploading files:", error);
+        } finally {
+            actions.setSubmitting(false);
+            navigate("/products/manage");
+        }
+    };
+
+    //////////////////////////////
 
     useEffect(() => {
         console.log("running getCategories");
@@ -284,19 +334,33 @@ const AddProduct: React.FC = () => {
                     <Grid container spacing={3} mt={3} sx={{ width: "100%" }}>
                         <Grid
                             item
-                            md={6}
+                            xs={12}
+                            lg={5}
                             sx={{
                                 paddingTop: "0 !important",
                                 alignItems: "stretch",
                                 alignSelf: "stretch",
+                                display: "flex",
+                                justifyContent: {
+                                    xs: "center",
+                                    lg: "flex-start",
+                                },
+                                marginBottom: {
+                                    xs: 3,
+                                    lg: 0,
+                                },
                             }}
                         >
-                            <ImageUploader />
+                            <ImageUploader
+                                setImages={setImages}
+                                images={images}
+                            />
                         </Grid>
                         <Grid
                             container
                             item
-                            md={6}
+                            xs={12}
+                            lg={7}
                             rowSpacing={3}
                             sx={{ alignItems: "space-between", height: "auto" }}
                         >
@@ -313,8 +377,9 @@ const AddProduct: React.FC = () => {
                                 sx={{ display: "flex", flexWrap: "wrap" }}
                                 item
                                 container
+                                xs={12}
                             >
-                                <Grid item md={6}>
+                                <Grid item sm={6}>
                                     <FormField
                                         label="Prefix"
                                         name="prefix"
@@ -324,7 +389,7 @@ const AddProduct: React.FC = () => {
                                         inputSx={{ backgroundColor: "white" }}
                                     />
                                 </Grid>
-                                <Grid item md={6}>
+                                <Grid item sm={6}>
                                     <FormField
                                         label="Price"
                                         name="price"
@@ -364,9 +429,10 @@ const AddProduct: React.FC = () => {
                                 columnSpacing={3}
                                 sx={{ display: "flex", flexWrap: "wrap" }}
                                 item
+                                xs={12}
                                 container
                             >
-                                <Grid item md={6}>
+                                <Grid item sm={6}>
                                     <DynamicCategory
                                         label="Category"
                                         name="category"
@@ -378,7 +444,7 @@ const AddProduct: React.FC = () => {
                                         sx={inputStyle}
                                     />
                                 </Grid>
-                                <Grid item md={6}>
+                                <Grid item sm={6}>
                                     <SelectField
                                         label="Subcategory"
                                         name="subcategory"
@@ -393,9 +459,10 @@ const AddProduct: React.FC = () => {
                                 columnSpacing={3}
                                 sx={{ display: "flex", flexWrap: "wrap" }}
                                 item
+                                xs={12}
                                 container
                             >
-                                <Grid item md={6}>
+                                <Grid item sm={6}>
                                     <SelectField
                                         label="Color"
                                         name="color"
@@ -405,7 +472,7 @@ const AddProduct: React.FC = () => {
                                         sx={inputStyle}
                                     />
                                 </Grid>
-                                <Grid item md={6}>
+                                <Grid item sm={6}>
                                     <SelectField
                                         label="Material"
                                         name="material"
@@ -417,8 +484,14 @@ const AddProduct: React.FC = () => {
                                 </Grid>
                             </Grid>
                         </Grid>
-                        <Grid container item xs={12} columnSpacing={6}>
-                            <Grid item md={3}>
+                        <Grid
+                            container
+                            item
+                            xs={12}
+                            columnSpacing={{ xs: 3, md: 6 }}
+                            rowSpacing={3}
+                        >
+                            <Grid item xs={6} md={3}>
                                 <FormField
                                     label="Height"
                                     name="height"
@@ -452,7 +525,7 @@ const AddProduct: React.FC = () => {
                                     }}
                                 />
                             </Grid>
-                            <Grid item md={3}>
+                            <Grid item xs={6} md={3}>
                                 <FormField
                                     label="Width"
                                     name="width"
@@ -486,7 +559,7 @@ const AddProduct: React.FC = () => {
                                     }}
                                 />
                             </Grid>
-                            <Grid item md={3}>
+                            <Grid item xs={6} md={3}>
                                 <FormField
                                     label="Depth"
                                     name="depth"
@@ -520,7 +593,7 @@ const AddProduct: React.FC = () => {
                                     }}
                                 />
                             </Grid>
-                            <Grid item md={3}>
+                            <Grid item xs={6} md={3}>
                                 <FormField
                                     label="Weight"
                                     name="weight"

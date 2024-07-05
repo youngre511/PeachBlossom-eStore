@@ -6,12 +6,13 @@ import { sqlProduct } from "../models/mysql/sqlProductModel.js";
 import { sqlInventory } from "../models/mysql/sqlInventoryModel.js";
 import generateProductNo from "../utils/generateProductNo.js";
 import sequelize from "../models/mysql/index.js";
-
+import uploadFile from "./s3Service.js";
 import mongoose, { ClientSession, Types, Schema } from "mongoose";
 import { CreateProduct } from "../controllers/productController.js";
 import { sqlSubCategory } from "../models/mysql/sqlSubCategoryModel.js";
 import { BooleString } from "../../types/api_resp.js";
 
+////// TYPES AND INTERFACES //////
 export type Color =
     | "red"
     | "orange"
@@ -88,6 +89,10 @@ interface CatalogResponse {
     stock: number;
 }
 
+///////////////////////////////
+////// SERVICE FUNCTIONS //////
+///////////////////////////////
+
 export const getSearchOptions = async () => {
     const namesAndNumbers = await Product.find({}).select(
         "name productNo -_id"
@@ -118,7 +123,7 @@ export const getSearchOptions = async () => {
     return results;
 };
 
-//get sorted and filtered products
+////// GET SORTED AND FILTERED PRODUCTS //////
 export const getProducts = async (filters: FilterObject) => {
     if (!filters.page) {
         filters.page = "1";
@@ -298,7 +303,7 @@ export const getProducts = async (filters: FilterObject) => {
     return { totalCount, productRecords };
 };
 
-//get one product
+////// GET ONE PRODUCT //////
 
 export const getOneProduct = async (productNo: string) => {
     let result: ProductItem | null = await Product.findOne({
@@ -311,23 +316,9 @@ export const getOneProduct = async (productNo: string) => {
     return result;
 };
 
-//get products by category
+////// UPLOAD PRODUCT IMAGE //////
 
-export const getProductsByCategory = async (categoryName: string) => {
-    const categoryId = Category.findOne({ name: categoryName });
-    if (!categoryId) {
-        throw new Error("Category not found");
-    }
-
-    let results: Array<ProductItem> | null = await Product.findOne({
-        category: categoryId,
-    });
-    if (!results) {
-        throw new Error("No products found");
-    }
-
-    return results;
-};
+////// CREATE NEW PRODUCT //////
 
 export const createProduct = async (
     productData: CreateProduct
@@ -350,6 +341,21 @@ export const createProduct = async (
             tags = null,
         } = productData;
         const productNo = await generateProductNo(prefix);
+
+        console.log(attributes);
+
+        // Upload images to S3 and get URLs
+        const imageUrls = await Promise.all(
+            images.map(async (image) => {
+                const { fileContent, fileName, mimeType } = image;
+                const uploadResult = await uploadFile(
+                    fileContent,
+                    fileName,
+                    mimeType
+                );
+                return uploadResult; // URL of the uploaded image
+            })
+        );
 
         //Construct SQL product
         const abbrDesc = description.substring(0, 79) + "...";
@@ -384,6 +390,7 @@ export const createProduct = async (
             sqlSubCategoryId = null;
         }
 
+        const thumbnailUrl = imageUrls[0] ? imageUrls[0] : null;
         const newSQLProduct = {
             productNo: productNo,
             productName: name,
@@ -391,6 +398,7 @@ export const createProduct = async (
             description: abbrDesc,
             category_id: sqlCategoryId,
             subCategory_id: sqlSubCategoryId,
+            thumbnailUrl: thumbnailUrl,
         };
 
         const createdProduct = await sqlProduct.create(newSQLProduct, {
@@ -463,7 +471,7 @@ export const createProduct = async (
                     price: price,
                     promotions: [],
                     stock: stock,
-                    images: images,
+                    images: imageUrls,
                     tags: validTagIds,
                 },
             ],
