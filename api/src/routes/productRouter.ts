@@ -10,10 +10,13 @@ import {
     updateProductDetails,
     updateProductPrice,
     updateProductStock,
+    getAdminProducts,
 } from "../controllers/productController.js";
 import upload from "../middleware/uploadMiddleware.js";
 
 productRouter.get("/", getProducts);
+
+productRouter.get("/admin", getAdminProducts);
 
 productRouter.get("/search-options", getSearchOptions);
 

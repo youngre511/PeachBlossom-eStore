@@ -10,7 +10,7 @@ import {
     BelongsToMany,
     HasMany,
     HasOne,
-    Unique,
+    Default,
 } from "sequelize-typescript";
 import { sqlCategory } from "./sqlCategoryModel.js";
 import { sqlProductPromotion } from "./sqlProductPromotionModel.js";
@@ -21,7 +21,7 @@ import { sqlSubCategory } from "./sqlSubCategoryModel.js";
 
 @Table({
     tableName: "Products",
-    timestamps: false,
+    timestamps: true,
 })
 export class sqlProduct extends Model {
     @PrimaryKey
@@ -78,6 +78,20 @@ export class sqlProduct extends Model {
         allowNull: true,
     })
     thumbnailUrl?: string;
+
+    @Default(DataType.NOW)
+    @Column({
+        type: DataType.DATE,
+        allowNull: false,
+    })
+    declare createdAt: Date;
+
+    @Default(DataType.NOW)
+    @Column({
+        type: DataType.DATE,
+        allowNull: false,
+    })
+    declare updatedAt: Date;
 
     @BelongsToMany(() => sqlPromotion, () => sqlProductPromotion)
     productPromotions!: sqlProductPromotion[];

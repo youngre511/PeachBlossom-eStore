@@ -7,9 +7,11 @@ import {
     Box,
     Checkbox,
     TableSortLabel,
+    Icon,
 } from "@mui/material";
 import { visuallyHidden } from "@mui/utils";
 import { Order } from "./AVProductCatalog";
+import ImageSharpIcon from "@mui/icons-material/ImageSharp";
 
 interface HeadCell {
     disablePadding: boolean;
@@ -19,12 +21,6 @@ interface HeadCell {
 }
 
 export const headCells: readonly HeadCell[] = [
-    {
-        id: "thumbnail",
-        disablePadding: true,
-        label: "PRODUCT NAME",
-        sortable: false,
-    },
     {
         id: "name",
         disablePadding: true,
@@ -50,7 +46,7 @@ export const headCells: readonly HeadCell[] = [
         sortable: true,
     },
     {
-        id: "subcategory",
+        id: "subCategory",
         disablePadding: false,
         label: "SUBCATEGORY",
         sortable: true,
@@ -117,6 +113,11 @@ const AVCatalogHead: React.FC<EnhancedTableProps> = (props) => {
                             "aria-label": "select all products",
                         }}
                     />
+                </TableCell>
+                <TableCell>
+                    <Icon>
+                        <ImageSharpIcon />
+                    </Icon>
                 </TableCell>
                 {headCells.map((headCell) => {
                     if (headCell.sortable) {

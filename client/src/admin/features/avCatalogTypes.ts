@@ -32,16 +32,19 @@ export type AVMaterial =
     | "bamboo";
 
 export interface AVProduct {
-    productNo: string;
+    thumbnailUrl: string;
     name: string;
-    tags: string[];
+    productNo: string;
     price: number;
     category: string;
-    subcategory: string;
-    thumbnail: string;
-    stock: number;
-    createdAt: string;
+    subCategory: string;
     lastModified: string;
+    createdAt: string;
+    description: string;
+    tags?: string[];
+    stock: number;
+    reserved: number;
+    available: number;
 }
 
 export interface AVFullProduct {

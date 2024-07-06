@@ -38,7 +38,7 @@ interface Row {
     productNo: string;
     price: string;
     category: string;
-    subcategory: string | null;
+    subCategory: string | null;
     tags: string;
     lastModified: string;
     createdAt: string;
@@ -59,12 +59,12 @@ const AVProductCatalog: React.FC<AVCatProps> = (props) => {
     const rows = products.map((product) => {
         const rowData: Row = {
             id: product.productNo,
-            thumbnailUrl: product.thumbnail,
+            thumbnailUrl: product.thumbnailUrl,
             name: product.name,
             productNo: product.productNo,
             price: `$${product.price.toFixed(2)}`,
             category: product.category,
-            subcategory: product.subcategory,
+            subCategory: product.subCategory,
             tags: product.tags ? product.tags.join(",") : "",
             lastModified: product.lastModified,
             createdAt: product.createdAt,
@@ -179,7 +179,10 @@ const AVProductCatalog: React.FC<AVCatProps> = (props) => {
                                             scope="row"
                                             padding="none"
                                         >
-                                            {row.name}
+                                            <img
+                                                src={row.thumbnailUrl}
+                                                alt="{row.name}"
+                                            />
                                         </TableCell>
                                         <TableCell
                                             component="th"
@@ -199,7 +202,7 @@ const AVProductCatalog: React.FC<AVCatProps> = (props) => {
                                             {row.category}
                                         </TableCell>
                                         <TableCell align="left">
-                                            {row.subcategory}
+                                            {row.subCategory}
                                         </TableCell>
                                         <TableCell align="left">
                                             {row.tags}

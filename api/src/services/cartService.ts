@@ -17,7 +17,7 @@ interface Inventory extends Model {
     available: number;
 }
 
-interface Product extends Model {
+export interface JoinReqProduct extends Model {
     id: number;
     productNo: string;
     productName: string;
@@ -25,6 +25,9 @@ interface Product extends Model {
     description: string;
     category_id: number;
     subCategory_id?: number;
+    thumbnailUrl?: string;
+    createdAt: Date;
+    updatedAt: Date;
     Inventory: Inventory;
 }
 
@@ -32,7 +35,7 @@ interface JoinReqCartItem extends Model {
     cart_item_id: number;
     cart_id: number;
     productNo: string;
-    Product: Product;
+    Product: JoinReqProduct;
     thumbnailUrl?: string;
     promotionId?: string;
     quantity: number;

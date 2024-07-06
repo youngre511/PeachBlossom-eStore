@@ -11,6 +11,9 @@ import mongoose, { ClientSession, Types, Schema } from "mongoose";
 import { CreateProduct } from "../controllers/productController.js";
 import { sqlSubCategory } from "../models/mysql/sqlSubCategoryModel.js";
 import { BooleString } from "../../types/api_resp.js";
+import { Op } from "sequelize";
+import { JoinReqProduct } from "./cartService.js";
+import { Model } from "sequelize-typescript";
 
 ////// TYPES AND INTERFACES //////
 export type Color =
@@ -62,8 +65,33 @@ interface FilterObject {
     maxHeight?: string;
     minDepth?: string;
     maxDepth?: string;
-    sortMethod: string;
+    sort: string;
     itemsPerPage: string;
+}
+
+interface AdminFilterObj {
+    search?: string;
+    category?: string;
+    subCategory?: string;
+    tags?: string;
+    page: string;
+    sort: string;
+    itemsPerPage: string;
+}
+
+interface AdminCatalogResponse {
+    thumbnailUrl: string | null;
+    name: string;
+    productNo: string;
+    price: number;
+    category: string;
+    subCategory: string;
+    lastModified: string;
+    createdAt: string;
+    description: string;
+    stock: number;
+    reserved: number;
+    available: number;
 }
 
 interface CatalogResponse {
@@ -89,9 +117,47 @@ interface CatalogResponse {
     stock: number;
 }
 
+interface JoinReqCategory extends Model {
+    category_id: number;
+    categoryName: string;
+}
+
+interface JoinReqSubCategory extends Model {
+    subCategory_id: number;
+    subCategoryName: string;
+    category_id: number;
+}
+
+interface AdminProduct extends JoinReqProduct {
+    SubCategory: JoinReqSubCategory;
+    Category: JoinReqCategory;
+}
+
+interface JoinReqSQLProduct {
+    count: number;
+    rows: AdminProduct[];
+}
+
 ///////////////////////////////
 ////// SERVICE FUNCTIONS //////
 ///////////////////////////////
+
+export const extractSqlProductData = (productData: JoinReqSQLProduct) => {
+    const products = productData.rows.map((product) => {
+        const parsedProduct = product.get();
+        if (parsedProduct.Category) {
+            parsedProduct.Category = parsedProduct.Category.get();
+        }
+        if (parsedProduct.SubCategory) {
+            parsedProduct.SubCategory = parsedProduct.SubCategory.get();
+        }
+        if (parsedProduct.Inventory) {
+            parsedProduct.Inventory = parsedProduct.Inventory.get();
+        }
+        return parsedProduct;
+    });
+    return products;
+};
 
 export const getSearchOptions = async () => {
     const namesAndNumbers = await Product.find({}).select(
@@ -128,8 +194,8 @@ export const getProducts = async (filters: FilterObject) => {
     if (!filters.page) {
         filters.page = "1";
     }
-    if (!filters.sortMethod) {
-        filters.sortMethod = "name-ascend";
+    if (!filters.sort) {
+        filters.sort = "name-ascend";
     }
     const skip = (+filters.page - 1) * +filters.itemsPerPage;
     let categoryId: Schema.Types.ObjectId | undefined;
@@ -232,8 +298,8 @@ export const getProducts = async (filters: FilterObject) => {
     ];
 
     // Add sort parameters
-    if (validSortMethods.includes(filters.sortMethod)) {
-        const sortParams = filters.sortMethod.split("-");
+    if (validSortMethods.includes(filters.sort)) {
+        const sortParams = filters.sort.split("-");
         const sortOrder = sortParams[1] === "ascend" ? 1 : -1;
         query = query.sort({ [sortParams[1]]: sortOrder });
     }
@@ -299,6 +365,107 @@ export const getProducts = async (filters: FilterObject) => {
         };
         return catObj;
     });
+
+    return { totalCount, productRecords };
+};
+
+////// GET SORTED AND FILTERED ADMIN PRODUCTS ///////
+
+export const getAdminProducts = async (filters: AdminFilterObj) => {
+    if (!filters.sort) {
+        filters.sort = "name-ascend";
+    }
+
+    const page = +filters.page || 1;
+    const offset = (+filters.page - 1) * +filters.itemsPerPage;
+
+    const whereClause: any = {};
+
+    if (filters.search) {
+        whereClause[Op.or] = [
+            { name: { [Op.like]: `%${filters.search}%` } },
+            { productNo: { [Op.like]: `%${filters.search}%` } },
+        ];
+    }
+
+    const validSortMethods = [
+        "price-ascend",
+        "price-descend",
+        "name-ascend",
+        "name-descend",
+        "lastModified-ascend",
+        "lastModified-descend",
+        "createdAt-ascend",
+        "createdAt-descend",
+    ];
+
+    let sortBy: string;
+    let sortOrder: string;
+    if (validSortMethods.includes(filters.sort)) {
+        const splitSort = filters.sort.split("-");
+        sortOrder = splitSort[1].split("e")[0].toUpperCase();
+        // Substitute updatedAt for lastModified and productName for name
+        sortBy =
+            splitSort[0] === "lastModified"
+                ? "updatedAt"
+                : splitSort[0] === "name"
+                ? "productName"
+                : splitSort[0];
+    } else {
+        (sortOrder = "ASC"), (sortBy = "name");
+    }
+
+    const products = (await sqlProduct.findAndCountAll({
+        where: whereClause,
+        include: [
+            {
+                model: sqlCategory,
+                as: "Category",
+                where: filters.category
+                    ? { categoryName: filters.category }
+                    : undefined,
+            },
+            {
+                model: sqlSubCategory,
+                as: "SubCategory",
+                where: filters.subCategory
+                    ? { subCategoryName: filters.subCategory }
+                    : undefined,
+            },
+            {
+                model: sqlInventory,
+                as: "Inventory",
+            },
+        ],
+        order: [[sortBy, sortOrder]],
+        limit: +filters.itemsPerPage,
+        offset: offset,
+        nest: true,
+    })) as unknown as JoinReqSQLProduct;
+
+    const totalCount = products.count;
+    const parsedProducts = extractSqlProductData(products);
+
+    //Format Data
+    const productRecords: Array<AdminCatalogResponse> = parsedProducts.map(
+        (product) => {
+            const catObj = {
+                thumbnailUrl: product.thumbnailUrl,
+                name: product.productName,
+                productNo: product.productNo,
+                price: product.price,
+                category: product.Category.categoryName,
+                subCategory: product.SubCategory.subCategoryName,
+                lastModified: product.updatedAt.toLocaleString(),
+                createdAt: product.createdAt.toLocaleString(),
+                description: product.description,
+                stock: product.Inventory.stock,
+                reserved: product.Inventory.reserved,
+                available: product.Inventory.available,
+            };
+            return catObj;
+        }
+    );
 
     return { totalCount, productRecords };
 };
@@ -405,12 +572,12 @@ export const createProduct = async (
             transaction: sqlTransaction,
         });
 
-        const createdProductNo = createdProduct.get().productNo;
+        const createdProductId = createdProduct.get().id;
 
         // create SQL inventory record
         await sqlInventory.create(
             {
-                product_id: createdProduct.id,
+                product_id: createdProductId,
                 stock: stock,
                 reserved: 0,
             },

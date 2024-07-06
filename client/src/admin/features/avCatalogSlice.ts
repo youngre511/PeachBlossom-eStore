@@ -79,7 +79,7 @@ export const avFetchProducts = createAsyncThunk<
         const params = { ...filters };
         try {
             const response = await axios.get(
-                `${process.env.REACT_APP_API_URL}product`,
+                `${process.env.REACT_APP_API_URL}product/admin`,
                 {
                     params: params,
                 }

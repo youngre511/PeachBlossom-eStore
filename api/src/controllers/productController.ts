@@ -75,7 +75,6 @@ interface ProductGetRequest extends Request {
         category?: string;
         tags?: string;
         page: string;
-        size?: string[];
         color?: productService.Color[];
         material?: productService.Material[];
         minPrice?: string;
@@ -86,12 +85,20 @@ interface ProductGetRequest extends Request {
         maxHeight?: string;
         minDepth?: string;
         maxDepth?: string;
-        minCircum?: string;
-        maxCircum?: string;
-        minDiam?: string;
-        maxDiam?: string;
-        sortMethod: string;
+        sort: string;
         itemsPerPage: string;
+    };
+}
+
+interface AdminProductGetRequest extends Request {
+    query: {
+        category?: string;
+        subCategory?: string;
+        tags?: string;
+        page: string;
+        sort: string;
+        itemsPerPage: string;
+        search?: string;
     };
 }
 
@@ -144,6 +151,29 @@ interface UpdateStockRequest extends Request {
 export const getProducts = async (req: ProductGetRequest, res: Response) => {
     try {
         const results = await productService.getProducts(req.query);
+
+        res.json({
+            message: "success",
+            payload: results,
+        });
+    } catch (error) {
+        let errorObj = {
+            message: "get products failure",
+            payload: error,
+        };
+
+        console.log(errorObj);
+
+        res.json(errorObj);
+    }
+};
+
+export const getAdminProducts = async (
+    req: AdminProductGetRequest,
+    res: Response
+) => {
+    try {
+        const results = await productService.getAdminProducts(req.query);
 
         res.json({
             message: "success",
