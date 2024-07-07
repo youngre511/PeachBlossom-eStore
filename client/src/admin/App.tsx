@@ -6,6 +6,7 @@ import AdminNav from "./components/AdminNav/AdminNav";
 import ProductManagement from "./components/ProductManagement/ProductManagement";
 import "./style/admin-general.css";
 import AddProduct from "./components/AddProduct/AddProduct";
+import InventoryManagement from "./components/InventoryManagement/InventoryManagement";
 
 function AdminApp() {
     return (
@@ -17,6 +18,10 @@ function AdminApp() {
                         <Route
                             path="/products/manage"
                             element={<ProductManagement />}
+                        />
+                        <Route
+                            path="/inventory"
+                            element={<InventoryManagement />}
                         />
                         <Route path="/products/add" element={<AddProduct />} />
                     </Routes>

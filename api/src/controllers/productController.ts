@@ -150,6 +150,7 @@ interface UpdateStockRequest extends Request {
 
 export const getProducts = async (req: ProductGetRequest, res: Response) => {
     try {
+        console.log("req.query", req.query);
         const results = await productService.getProducts(req.query);
 
         res.json({
@@ -173,6 +174,7 @@ export const getAdminProducts = async (
     res: Response
 ) => {
     try {
+        console.log("req.query", req.query);
         const results = await productService.getAdminProducts(req.query);
 
         res.json({

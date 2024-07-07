@@ -1,0 +1,16 @@
+.add-and-search {
+    margin: 10px 0;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.search-bar {
+    width: 250px;
+    margin-left: 20px;
+}
+
+.admin-catalog-thumbnail {
+    width: 40px;
+    height: auto;
+}

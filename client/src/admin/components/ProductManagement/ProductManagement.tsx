@@ -10,6 +10,14 @@ import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
 import PeachButton from "../../../common/components/PeachButton";
 import AddCircleOutlineSharpIcon from "@mui/icons-material/AddCircleOutlineSharp";
 import { SvgIcon } from "@mui/material";
+import "./product-management.css";
+import SearchField from "../../../common/components/SearchField";
+
+const inputStyle = {
+    "& .MuiInputBase-root.MuiOutlinedInput-root": {
+        backgroundColor: "white",
+    },
+};
 
 interface Props {}
 const ProductManagement: React.FC<Props> = () => {
@@ -22,8 +30,8 @@ const ProductManagement: React.FC<Props> = () => {
     const subCategory = searchParams.get("sub_category");
     const page = searchParams.get("page") || "1";
     const tags = searchParams.get("tags")?.split(",") || null;
-    const sortMethod = searchParams.get("sort") || "name-ascend";
-    const itemsPerPage = searchParams.get("itemsPerPage") || 12;
+    const sort = searchParams.get("sort") || "name-ascend";
+    const itemsPerPage = searchParams.get("itemsPerPage") || 24;
 
     const navigate = useNavigate();
 
@@ -33,11 +41,11 @@ const ProductManagement: React.FC<Props> = () => {
             category,
             subCategory,
             tags,
-            sortMethod,
+            sort,
             page,
             itemsPerPage,
         };
-    }, [search, category, subCategory, tags, sortMethod, page, itemsPerPage]);
+    }, [search, category, subCategory, tags, sort, page, itemsPerPage]);
 
     useEffect(() => {
         const params = {
@@ -45,8 +53,9 @@ const ProductManagement: React.FC<Props> = () => {
             category,
             subCategory,
             tags,
-            sortMethod,
+            sort,
             page,
+            itemsPerPage,
         };
         //FetchLogic
         const currentFilters = Object.values(memoParams).map((value) =>
@@ -54,13 +63,12 @@ const ProductManagement: React.FC<Props> = () => {
         );
         const existingFilters = Object.values({
             ...avCatalog.filters,
-            itemsPerPage: itemsPerPage,
         }).map((value) => (value ? value.toString() : ""));
         const filtersChanged = !arraysEqual(currentFilters, existingFilters);
         if (filtersChanged) {
             dispatch(avFetchProducts(params as AVFilters));
         }
-    }, [search, category, subCategory, page, tags, sortMethod, itemsPerPage]);
+    }, [search, category, subCategory, page, tags, sort, itemsPerPage]);
 
     useEffect(() => {
         const initialParams: Record<string, string> = {};
@@ -70,6 +78,10 @@ const ProductManagement: React.FC<Props> = () => {
         }
         if (!searchParams.get("page")) {
             initialParams.page = "1";
+        }
+
+        if (!searchParams.get("itemsPerPage")) {
+            initialParams.itemsPerPage = "24";
         }
 
         if (Object.keys(initialParams).length > 0) {
@@ -88,12 +100,25 @@ const ProductManagement: React.FC<Props> = () => {
             category,
             subCategory,
             tags,
-            sortMethod,
+            sort,
             page,
+            itemsPerPage,
         };
-        console.log(params);
+        console.log("Params:", params);
         dispatch(avFetchProducts(params as AVFilters));
     }, [searchParams, setSearchParams]);
+
+    const updateSearchParams = (newFilters: Record<string, string>): void => {
+        Object.keys(newFilters).forEach((key) => {
+            const value = newFilters[key];
+            if (value) {
+                searchParams.set(key, value as string);
+            } else {
+                searchParams.delete(key);
+            }
+        });
+        setSearchParams(searchParams);
+    };
 
     return (
         <div className="product-management">
@@ -102,11 +127,20 @@ const ProductManagement: React.FC<Props> = () => {
                 <PeachButton
                     text={`Add New Product`}
                     onClick={() => navigate("/products/add")}
+                    width="150px"
                 />
+                <div className="search-bar">
+                    <SearchField
+                        updateSearchParams={updateSearchParams}
+                        sx={inputStyle}
+                        inputSx={{ backgroundColor: "white" }}
+                    />
+                </div>
             </div>
             <AVProductCatalog
                 page={+page}
                 results={avCatalog.numberOfResults}
+                updateSearchParams={updateSearchParams}
             />
         </div>
     );

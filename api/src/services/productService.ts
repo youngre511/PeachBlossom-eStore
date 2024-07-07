@@ -14,6 +14,7 @@ import { BooleString } from "../../types/api_resp.js";
 import { Op } from "sequelize";
 import { JoinReqProduct } from "./cartService.js";
 import { Model } from "sequelize-typescript";
+import { Order } from "sequelize";
 
 ////// TYPES AND INTERFACES //////
 export type Color =
@@ -377,13 +378,12 @@ export const getAdminProducts = async (filters: AdminFilterObj) => {
     }
 
     const page = +filters.page || 1;
-    const offset = (+filters.page - 1) * +filters.itemsPerPage;
+    const offset = (page - 1) * +filters.itemsPerPage;
 
     const whereClause: any = {};
-
     if (filters.search) {
         whereClause[Op.or] = [
-            { name: { [Op.like]: `%${filters.search}%` } },
+            { productName: { [Op.like]: `%${filters.search}%` } },
             { productNo: { [Op.like]: `%${filters.search}%` } },
         ];
     }
@@ -403,7 +403,7 @@ export const getAdminProducts = async (filters: AdminFilterObj) => {
     let sortOrder: string;
     if (validSortMethods.includes(filters.sort)) {
         const splitSort = filters.sort.split("-");
-        sortOrder = splitSort[1].split("e")[0].toUpperCase();
+        sortOrder = splitSort[1].split("en")[0].toUpperCase();
         // Substitute updatedAt for lastModified and productName for name
         sortBy =
             splitSort[0] === "lastModified"
@@ -413,6 +413,11 @@ export const getAdminProducts = async (filters: AdminFilterObj) => {
                 : splitSort[0];
     } else {
         (sortOrder = "ASC"), (sortBy = "name");
+    }
+
+    const orderArray: Order = [[sortBy, sortOrder]];
+    if (sortBy !== "productName") {
+        orderArray.push(["productName", "ASC"]);
     }
 
     const products = (await sqlProduct.findAndCountAll({
@@ -437,7 +442,7 @@ export const getAdminProducts = async (filters: AdminFilterObj) => {
                 as: "Inventory",
             },
         ],
-        order: [[sortBy, sortOrder]],
+        order: orderArray,
         limit: +filters.itemsPerPage,
         offset: offset,
         nest: true,

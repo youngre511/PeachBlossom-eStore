@@ -1,5 +1,5 @@
 import React from "react";
-import { AVProduct } from "./avCatalogTypes";
+import { AVProduct } from "../../features/avCatalogTypes";
 import {
     TableCell,
     TableHead,
@@ -10,7 +10,7 @@ import {
     Icon,
 } from "@mui/material";
 import { visuallyHidden } from "@mui/utils";
-import { Order } from "./AVProductCatalog";
+import { Order } from "./InventoryCatalog";
 import ImageSharpIcon from "@mui/icons-material/ImageSharp";
 
 interface HeadCell {
@@ -34,6 +34,24 @@ export const headCells: readonly HeadCell[] = [
         sortable: false,
     },
     {
+        id: "stock",
+        disablePadding: false,
+        label: "STOCK",
+        sortable: false,
+    },
+    {
+        id: "reserved",
+        disablePadding: false,
+        label: "RESERVED",
+        sortable: false,
+    },
+    {
+        id: "available",
+        disablePadding: false,
+        label: "AVAILABLE",
+        sortable: false,
+    },
+    {
         id: "price",
         disablePadding: false,
         label: "PRICE",
@@ -51,24 +69,6 @@ export const headCells: readonly HeadCell[] = [
         label: "SUBCATEGORY",
         sortable: false,
     },
-    {
-        id: "lastModified",
-        disablePadding: false,
-        label: "LAST MODIFIED",
-        sortable: true,
-    },
-    {
-        id: "createdAt",
-        disablePadding: false,
-        label: "CREATED AT",
-        sortable: true,
-    },
-    {
-        id: "actions",
-        disablePadding: false,
-        label: "ACTIONS",
-        sortable: false,
-    },
 ];
 
 export interface EnhancedTableProps {
@@ -77,21 +77,13 @@ export interface EnhancedTableProps {
         event: React.MouseEvent<unknown>,
         property: keyof AVProduct
     ) => void;
-    onSelectAllClick: (event: React.ChangeEvent<HTMLInputElement>) => void;
     order: Order;
     orderBy: string;
     rowCount: number;
 }
 
-const AVCatalogHead: React.FC<EnhancedTableProps> = (props) => {
-    const {
-        onSelectAllClick,
-        order,
-        orderBy,
-        numSelected,
-        rowCount,
-        onRequestSort,
-    } = props;
+const InventoryCatalogHead: React.FC<EnhancedTableProps> = (props) => {
+    const { order, orderBy, numSelected, rowCount, onRequestSort } = props;
 
     const handleSort =
         (property: keyof AVProduct) => (event: React.MouseEvent<unknown>) => {
@@ -101,24 +93,6 @@ const AVCatalogHead: React.FC<EnhancedTableProps> = (props) => {
     return (
         <TableHead>
             <TableRow>
-                <TableCell padding="checkbox">
-                    <Checkbox
-                        color="primary"
-                        indeterminate={
-                            numSelected > 0 && numSelected < rowCount
-                        }
-                        checked={rowCount > 0 && numSelected === rowCount}
-                        onChange={onSelectAllClick}
-                        inputProps={{
-                            "aria-label": "select all products",
-                        }}
-                    />
-                </TableCell>
-                <TableCell>
-                    <Icon>
-                        <ImageSharpIcon />
-                    </Icon>
-                </TableCell>
                 {headCells.map((headCell) => {
                     if (headCell.sortable) {
                         return (
@@ -174,4 +148,4 @@ const AVCatalogHead: React.FC<EnhancedTableProps> = (props) => {
     );
 };
 
-export default AVCatalogHead;
+export default InventoryCatalogHead;

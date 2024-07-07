@@ -17,9 +17,9 @@ const initialState: AVCatalogState = {
         category: null,
         subCategory: null,
         tags: null,
-        sortMethod: "name-ascend",
+        sort: "name-ascend",
         page: "1",
-        itemsPerPage: "12",
+        itemsPerPage: "24",
     },
     loading: false,
     error: null,
@@ -32,14 +32,14 @@ export const avFetchProducts = createAsyncThunk<
     AVFilters,
     { state: RootState }
 >(
-    "catalog/fetchProducts",
+    "avCatalog/avFetchProducts",
     async (filters: AVFilters, { getState, rejectWithValue }) => {
         const state = getState() as RootState;
         const existingFilters = state.avCatalog.filters;
         let filterUnchanged = true;
 
-        if (!filters.sortMethod) {
-            filters.sortMethod = "name-ascend";
+        if (!filters.sort) {
+            filters.sort = "name-ascend";
         }
         if (!filters.page) {
             filters.page = "1";
@@ -77,6 +77,7 @@ export const avFetchProducts = createAsyncThunk<
         }
 
         const params = { ...filters };
+        console.log("params", params);
         try {
             const response = await axios.get(
                 `${process.env.REACT_APP_API_URL}product/admin`,
@@ -84,6 +85,8 @@ export const avFetchProducts = createAsyncThunk<
                     params: params,
                 }
             );
+            console.log("response", response);
+            console.log(response.data.payload.productRecords);
             return {
                 filters: filters,
                 products: response.data.payload.productRecords,
@@ -99,7 +102,7 @@ export const avFetchProducts = createAsyncThunk<
 
 //Slice//
 const catalogSlice = createSlice({
-    name: "catalog",
+    name: "avCatalog",
     initialState,
     reducers: {
         setProducts: (state, action: PayloadAction<AVProduct[]>) => {

@@ -102,7 +102,7 @@ const materialOptions = [
 ///////FIELD STYLE///////
 /////////////////////////
 
-const inputStyle = {
+export const inputStyle = {
     // backgroundColor: "white",
     "&.MuiFilledInput-root": {
         borderRadius: 0,

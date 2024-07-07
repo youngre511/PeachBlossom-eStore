@@ -1,7 +1,7 @@
 import React from "react";
 import { useEffect } from "react";
-import { useAppSelector } from "../hooks/reduxHooks";
-import { RootState } from "../store/store";
+import { useAppSelector } from "../../hooks/reduxHooks";
+import { RootState } from "../../store/store";
 import {
     styled,
     Paper,
@@ -22,9 +22,8 @@ import MoreVertSharpIcon from "@mui/icons-material/MoreVertSharp";
 import ImageSharpIcon from "@mui/icons-material/ImageSharp";
 import ModeEditSharpIcon from "@mui/icons-material/ModeEditSharp";
 import AddAPhotoSharpIcon from "@mui/icons-material/AddAPhotoSharp";
-import AVCatalogHead from "./AVCatalogHead";
-import AVProductTableToolbar from "./AVProductTableToolbar";
-import { AVProduct } from "./avCatalogTypes";
+import AVCatalogHead from "./InventoryCatalogHead";
+import { AVProduct } from "../../features/avCatalogTypes";
 
 interface AVCatProps {
     page: number;
@@ -34,20 +33,19 @@ interface AVCatProps {
 
 interface Row {
     id: string;
-    thumbnailUrl: string;
     name: string;
     productNo: string;
+    stock: number;
+    reserved: number;
+    available: number;
     price: string;
     category: string;
     subCategory: string | null;
-    tags: string;
-    lastModified: string;
-    createdAt: string;
 }
 
 export type Order = "asc" | "desc";
 
-const AVProductCatalog: React.FC<AVCatProps> = ({
+const InventoryCatalog: React.FC<AVCatProps> = ({
     page,
     results,
     updateSearchParams,
@@ -64,15 +62,14 @@ const AVProductCatalog: React.FC<AVCatProps> = ({
     const rows = products.map((product) => {
         const rowData: Row = {
             id: product.productNo,
-            thumbnailUrl: product.thumbnailUrl,
             name: product.name,
             productNo: product.productNo,
+            stock: product.stock,
+            reserved: product.reserved,
+            available: product.available,
             price: `$${Number(product.price).toFixed(2)}`,
             category: product.category,
             subCategory: product.subCategory,
-            tags: product.tags ? product.tags.join(",") : "",
-            lastModified: product.lastModified,
-            createdAt: product.createdAt,
         };
         return rowData;
     });
@@ -133,8 +130,6 @@ const AVProductCatalog: React.FC<AVCatProps> = ({
         updateSearchParams({ page: "1", itemsPerPage: event.target.value });
     };
 
-    const isSelected = (id: string) => selected.indexOf(id) !== -1;
-
     // Avoid a layout jump when reaching the last page with empty rows.
     const emptyRows =
         page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
@@ -142,7 +137,6 @@ const AVProductCatalog: React.FC<AVCatProps> = ({
     return (
         <Box sx={{ width: "100%" }}>
             <Paper sx={{ width: "100%", mb: 2 }}>
-                <AVProductTableToolbar numSelected={selected.length} />
                 <TableContainer>
                     <Table
                         sx={{ minWidth: 750 }}
@@ -153,13 +147,11 @@ const AVProductCatalog: React.FC<AVCatProps> = ({
                             numSelected={selected.length}
                             order={order}
                             orderBy={orderBy}
-                            onSelectAllClick={handleSelectAllClick}
                             onRequestSort={handleRequestSort}
                             rowCount={rows.length}
                         />
                         <TableBody>
                             {rows.map((row, index) => {
-                                const isItemSelected = isSelected(row.id);
                                 const labelId = `enhanced-table-checkbox-${index}`;
 
                                 return (
@@ -169,33 +161,10 @@ const AVProductCatalog: React.FC<AVCatProps> = ({
                                             handleClick(event, row.id)
                                         }
                                         role="checkbox"
-                                        aria-checked={isItemSelected}
                                         tabIndex={-1}
                                         key={row.id}
-                                        selected={isItemSelected}
                                         sx={{ cursor: "pointer" }}
                                     >
-                                        <TableCell padding="checkbox">
-                                            <Checkbox
-                                                color="primary"
-                                                checked={isItemSelected}
-                                                inputProps={{
-                                                    "aria-labelledby": labelId,
-                                                }}
-                                            />
-                                        </TableCell>
-                                        <TableCell
-                                            component="th"
-                                            id={labelId}
-                                            scope="row"
-                                            padding="none"
-                                        >
-                                            <img
-                                                src={row.thumbnailUrl}
-                                                alt="{row.name}"
-                                                className="admin-catalog-thumbnail"
-                                            />
-                                        </TableCell>
                                         <TableCell
                                             component="th"
                                             id={labelId}
@@ -208,6 +177,15 @@ const AVProductCatalog: React.FC<AVCatProps> = ({
                                             {row.productNo}
                                         </TableCell>
                                         <TableCell align="right">
+                                            {row.stock}
+                                        </TableCell>
+                                        <TableCell align="right">
+                                            {row.reserved}
+                                        </TableCell>
+                                        <TableCell align="right">
+                                            {row.available}
+                                        </TableCell>
+                                        <TableCell align="right">
                                             {row.price}
                                         </TableCell>
                                         <TableCell align="left">
@@ -215,27 +193,6 @@ const AVProductCatalog: React.FC<AVCatProps> = ({
                                         </TableCell>
                                         <TableCell align="left">
                                             {row.subCategory}
-                                        </TableCell>
-                                        {/* <TableCell align="left">
-                                            {row.tags}
-                                        </TableCell> */}
-                                        <TableCell align="left">
-                                            {row.lastModified}
-                                        </TableCell>
-                                        <TableCell align="left">
-                                            {row.createdAt}
-                                        </TableCell>
-                                        <TableCell align="left">
-                                            <Tooltip title="Edit">
-                                                <IconButton>
-                                                    <ModeEditSharpIcon />
-                                                </IconButton>
-                                            </Tooltip>
-                                            <Tooltip title="Delete">
-                                                <IconButton>
-                                                    <MoreVertSharpIcon />
-                                                </IconButton>
-                                            </Tooltip>
                                         </TableCell>
                                     </TableRow>
                                 );
@@ -266,4 +223,4 @@ const AVProductCatalog: React.FC<AVCatProps> = ({
     );
 };
 
-export default AVProductCatalog;
+export default InventoryCatalog;

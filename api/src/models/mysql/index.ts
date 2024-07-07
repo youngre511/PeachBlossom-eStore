@@ -37,5 +37,14 @@ const sequelize = new Sequelize({
     logging: console.log,
 });
 
+sequelize
+    .sync({ alter: true })
+    .then(() => {
+        console.log("Database & tables updated!");
+    })
+    .catch((error) => {
+        console.error("Unable to sync the database:", error);
+    });
+
 export { sequelize };
 export default sequelize;

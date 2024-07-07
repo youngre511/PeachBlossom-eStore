@@ -74,7 +74,7 @@ export interface AVFilters {
     category: string | null;
     subCategory: string | null;
     tags: string[] | null;
-    sortMethod: string;
+    sort: string;
     page: string;
     itemsPerPage: string;
 }
