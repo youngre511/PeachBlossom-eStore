@@ -1,6 +1,6 @@
 import React, { ChangeEvent, ReactNode } from "react";
 import { TextField, InputAdornment } from "@mui/material";
-import { Filters } from "../../customer/features/ProductCatalog/CatalogTypes";
+import { Filters } from "../../../customer/features/ProductCatalog/CatalogTypes";
 
 interface DecimalTextFieldProps {
     label: string;

@@ -1,17 +1,22 @@
 import React from "react";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import AVProductCatalog from "../../features/AVProductCatalog";
-import { AVFilters } from "../../features/avCatalogTypes";
-import { avFetchProducts } from "../../features/avCatalogSlice";
+import AVProductCatalog from "../../features/AVCatalog/AVProductCatalog";
+import { AVFilters } from "../../features/AVCatalog/avCatalogTypes";
+import {
+    avFetchProducts,
+    updateInventory,
+} from "../../features/AVCatalog/avCatalogSlice";
 import { arraysEqual } from "../../../common/utils/arraysEqual";
 import { RootState } from "../../store/store.js";
 import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
 import PeachButton from "../../../common/components/PeachButton";
 import AddCircleOutlineSharpIcon from "@mui/icons-material/AddCircleOutlineSharp";
-import { SvgIcon } from "@mui/material";
-import SearchField from "../../../common/components/SearchField";
+import { Button, SvgIcon } from "@mui/material";
+import SearchField from "../../../common/components/Fields/SearchField";
 import InventoryCatalog from "./InventoryCatalog";
+import "./inventory-management.css";
+import StatusPopup from "../../../common/components/StatusPopup";
 
 const inputStyle = {
     "& .MuiInputBase-root.MuiOutlinedInput-root": {
@@ -21,9 +26,16 @@ const inputStyle = {
 
 interface Props {}
 const InventoryManagement: React.FC<Props> = () => {
+    const avMenuData = useAppSelector((state: RootState) => state.avMenuData);
     const avCatalog = useAppSelector((state: RootState) => state.avCatalog);
     const dispatch = useAppDispatch();
-
+    const [pendingInventoryUpdates, setPendingInventoryUpdates] = useState<
+        Record<string, number>
+    >({});
+    const [status, setStatus] = useState<"loading" | "success" | "failure">(
+        "loading"
+    );
+    const [isSaving, setIsSaving] = useState<boolean>(false);
     const [searchParams, setSearchParams] = useSearchParams();
     const search = searchParams.get("search");
     const category = searchParams.get("category");
@@ -120,6 +132,30 @@ const InventoryManagement: React.FC<Props> = () => {
         setSearchParams(searchParams);
     };
 
+    // Save changes functions
+    const handleSaveChanges = () => {
+        if (Object.keys(pendingInventoryUpdates).length > 0) {
+            setStatus("loading");
+            setIsSaving(true);
+            dispatch(updateInventory(pendingInventoryUpdates));
+        }
+    };
+
+    useEffect(() => {
+        if (avCatalog.loading) {
+            setStatus("loading");
+        } else if (!avCatalog.loading && avCatalog.error) {
+            setStatus("failure");
+        } else {
+            setStatus("success");
+        }
+    }, [avCatalog.loading, avCatalog.error]);
+
+    const confirmStatus = () => {
+        setPendingInventoryUpdates({});
+        setIsSaving(false);
+    };
+
     return (
         <div className="inventory-management">
             <h1>Inventory Management</h1>
@@ -129,14 +165,41 @@ const InventoryManagement: React.FC<Props> = () => {
                         updateSearchParams={updateSearchParams}
                         sx={inputStyle}
                         inputSx={{ backgroundColor: "white" }}
+                        options={avMenuData.searchOptions}
                     />
                 </div>
+                {Object.keys(pendingInventoryUpdates).length > 0 ? (
+                    <Button variant="contained" onClick={handleSaveChanges}>
+                        SAVE CHANGES
+                    </Button>
+                ) : (
+                    <Button variant="contained" disabled>
+                        SAVE CHANGES
+                    </Button>
+                )}
+                <Button
+                    variant="outlined"
+                    onClick={() => setPendingInventoryUpdates({})}
+                >
+                    RESET
+                </Button>
             </div>
             <InventoryCatalog
                 page={+page}
                 results={avCatalog.numberOfResults}
                 updateSearchParams={updateSearchParams}
+                pendingInventoryUpdates={pendingInventoryUpdates}
+                setPendingInventoryUpdates={setPendingInventoryUpdates}
             />
+            {isSaving && (
+                <StatusPopup
+                    status={status}
+                    loadingMessage="Saving changes..."
+                    successMessage="Inventory stock levels updated."
+                    failureMessage={`Oops! Something went wrong: ${avCatalog.error}`}
+                    actionFunction={confirmStatus}
+                />
+            )}
         </div>
     );
 };

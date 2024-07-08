@@ -1,9 +1,9 @@
 import React from "react";
 import { useEffect, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import AVProductCatalog from "../../features/AVProductCatalog";
-import { AVFilters } from "../../features/avCatalogTypes";
-import { avFetchProducts } from "../../features/avCatalogSlice";
+import AVProductCatalog from "../../features/AVCatalog/AVProductCatalog";
+import { AVFilters } from "../../features/AVCatalog/avCatalogTypes";
+import { avFetchProducts } from "../../features/AVCatalog/avCatalogSlice";
 import { arraysEqual } from "../../../common/utils/arraysEqual";
 import { RootState } from "../../store/store.js";
 import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
@@ -11,7 +11,7 @@ import PeachButton from "../../../common/components/PeachButton";
 import AddCircleOutlineSharpIcon from "@mui/icons-material/AddCircleOutlineSharp";
 import { SvgIcon } from "@mui/material";
 import "./product-management.css";
-import SearchField from "../../../common/components/SearchField";
+import SearchField from "../../../common/components/Fields/SearchField";
 
 const inputStyle = {
     "& .MuiInputBase-root.MuiOutlinedInput-root": {
@@ -21,9 +21,9 @@ const inputStyle = {
 
 interface Props {}
 const ProductManagement: React.FC<Props> = () => {
+    const avMenuData = useAppSelector((state: RootState) => state.avMenuData);
     const avCatalog = useAppSelector((state: RootState) => state.avCatalog);
     const dispatch = useAppDispatch();
-
     const [searchParams, setSearchParams] = useSearchParams();
     const search = searchParams.get("search");
     const category = searchParams.get("category");
@@ -134,6 +134,7 @@ const ProductManagement: React.FC<Props> = () => {
                         updateSearchParams={updateSearchParams}
                         sx={inputStyle}
                         inputSx={{ backgroundColor: "white" }}
+                        options={avMenuData.searchOptions}
                     />
                 </div>
             </div>

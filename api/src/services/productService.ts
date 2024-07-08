@@ -70,7 +70,7 @@ interface FilterObject {
     itemsPerPage: string;
 }
 
-interface AdminFilterObj {
+export interface AdminFilterObj {
     search?: string;
     category?: string;
     subCategory?: string;
@@ -513,8 +513,6 @@ export const createProduct = async (
             tags = null,
         } = productData;
         const productNo = await generateProductNo(prefix);
-
-        console.log(attributes);
 
         // Upload images to S3 and get URLs
         const imageUrls = await Promise.all(

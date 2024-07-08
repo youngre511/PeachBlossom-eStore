@@ -12,7 +12,7 @@ import {
     InputAdornment,
 } from "@mui/material";
 import { Filters } from "../ProductCatalog/CatalogTypes";
-import DecimalField from "../../../common/components/DecimalField";
+import DecimalField from "../../../common/components/Fields/DecimalField";
 import { Category } from "../Categories/CategoriesTypes";
 import { useTheme, styled } from "@mui/material/styles";
 import PeachButton from "../../../common/components/PeachButton";

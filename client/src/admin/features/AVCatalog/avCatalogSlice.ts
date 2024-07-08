@@ -1,13 +1,14 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import { RootState } from "../store/store";
+import { RootState } from "../../store/store";
 import axios from "axios";
 import {
     AVProduct,
     AVFilters,
     AVCatalogState,
     AVFetchProductsResponse,
-} from "./avCatalogTypes.js";
-import { arraysEqual } from "../../common/utils/arraysEqual";
+    AVUpdateInventoryResponse,
+} from "./avCatalogTypes";
+import { arraysEqual } from "../../../common/utils/arraysEqual";
 
 const initialState: AVCatalogState = {
     products: [],
@@ -100,6 +101,39 @@ export const avFetchProducts = createAsyncThunk<
     }
 );
 
+export const updateInventory = createAsyncThunk<
+    AVUpdateInventoryResponse,
+    Record<string, number>,
+    { state: RootState }
+>(
+    "avCatalog/updateInventory",
+    async (
+        updateData: Record<string, number>,
+        { getState, rejectWithValue }
+    ) => {
+        const state = getState() as RootState;
+        const filters = state.avCatalog.filters;
+
+        try {
+            const response = await axios.put(
+                `${process.env.REACT_APP_API_URL}inventory/updateStockLevels`,
+                {
+                    updateData: updateData,
+                    filters: filters,
+                }
+            );
+            return {
+                products: response.data.payload.productRecords,
+                numberOfResults: response.data.payload.totalCount,
+            };
+        } catch (error: any) {
+            return rejectWithValue(
+                error.response?.data || "Error fetching products"
+            );
+        }
+    }
+);
+
 //Slice//
 const catalogSlice = createSlice({
     name: "avCatalog",
@@ -127,7 +161,22 @@ const catalogSlice = createSlice({
             .addCase(avFetchProducts.rejected, (state, action) => {
                 state.loading = false;
                 state.error =
-                    action.error.message || "Failed to fetch products";
+                    action.error.message || "Failed to update inventory";
+            })
+            .addCase(updateInventory.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(updateInventory.fulfilled, (state, action) => {
+                console.log("updating products with", action.payload.products);
+                state.products = action.payload.products;
+                state.numberOfResults = action.payload.numberOfResults;
+                state.loading = false;
+            })
+            .addCase(updateInventory.rejected, (state, action) => {
+                state.loading = false;
+                state.error =
+                    action.error.message || "Failed to update inventory";
             });
     },
 });

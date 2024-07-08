@@ -3,20 +3,20 @@
 ### Phase 1: E-Store MVP
 
 -   Minimal Front-End
-    -   Browsable Catalog
+    -   Browsable Catalog [COMPLETE]
     -   Product Detail Pages
     -   Search
     -   Filtering [COMPLETE]
     -   Customer Service Links
     -   Cart
-    -   Checkout
+    -   Checkout [COMPLETE]
     -   Order Status
-    -   Order Confirmation
+    -   Order Confirmation [COMPLETE]
 -   Basic Back-End
     -   Databases
         -   SQL
-            -   Orders
-            -   Basic Product Info
+            -   Orders [COMPLETE]
+            -   Basic Product Info [COMPLETE]
             -   Shipments
             -   Inventory
         -   MongoDB

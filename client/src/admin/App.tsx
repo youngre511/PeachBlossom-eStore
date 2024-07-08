@@ -7,8 +7,19 @@ import ProductManagement from "./components/ProductManagement/ProductManagement"
 import "./style/admin-general.css";
 import AddProduct from "./components/AddProduct/AddProduct";
 import InventoryManagement from "./components/InventoryManagement/InventoryManagement";
+import { useAppDispatch } from "./hooks/reduxHooks";
+import {
+    avFetchCategories,
+    avFetchSearchOptions,
+} from "./features/AVMenuData/avMenuDataSlice";
 
 function AdminApp() {
+    const dispatch = useAppDispatch();
+
+    useEffect(() => {
+        dispatch(avFetchCategories());
+        dispatch(avFetchSearchOptions());
+    }, []);
     return (
         <ThemeProvider theme={theme}>
             <div className="app-content">

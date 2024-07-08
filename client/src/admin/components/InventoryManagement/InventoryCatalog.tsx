@@ -23,12 +23,17 @@ import ImageSharpIcon from "@mui/icons-material/ImageSharp";
 import ModeEditSharpIcon from "@mui/icons-material/ModeEditSharp";
 import AddAPhotoSharpIcon from "@mui/icons-material/AddAPhotoSharp";
 import AVCatalogHead from "./InventoryCatalogHead";
-import { AVProduct } from "../../features/avCatalogTypes";
+import { AVProduct } from "../../features/AVCatalog/avCatalogTypes";
+import StockField from "./StockField";
 
 interface AVCatProps {
     page: number;
     results: number;
     updateSearchParams: (newFilters: Record<string, string>) => void;
+    pendingInventoryUpdates: Record<string, number>;
+    setPendingInventoryUpdates: React.Dispatch<
+        React.SetStateAction<Record<string, number>>
+    >;
 }
 
 interface Row {
@@ -49,6 +54,8 @@ const InventoryCatalog: React.FC<AVCatProps> = ({
     page,
     results,
     updateSearchParams,
+    pendingInventoryUpdates,
+    setPendingInventoryUpdates,
 }) => {
     const { products, numberOfResults, loading, error } = useAppSelector(
         (state: RootState) => state.avCatalog
@@ -83,41 +90,11 @@ const InventoryCatalog: React.FC<AVCatProps> = ({
         setOrderBy(property);
     };
 
-    const handleSelectAllClick = (
-        event: React.ChangeEvent<HTMLInputElement>
-    ) => {
-        if (event.target.checked) {
-            const newSelected = rows.map((n) => n.id);
-            setSelected(newSelected);
-            return;
-        }
-        setSelected([]);
-    };
-
     useEffect(() => {
         const apiOrder = order === "asc" ? "ascend" : "descend";
         const sortOption = `${orderBy}-${apiOrder}`;
         updateSearchParams({ sort: sortOption });
     }, [order, orderBy]);
-
-    const handleClick = (event: React.MouseEvent<unknown>, id: string) => {
-        const selectedIndex = selected.indexOf(id);
-        let newSelected: readonly string[] = [];
-
-        if (selectedIndex === -1) {
-            newSelected = newSelected.concat(selected, id);
-        } else if (selectedIndex === 0) {
-            newSelected = newSelected.concat(selected.slice(1));
-        } else if (selectedIndex === selected.length - 1) {
-            newSelected = newSelected.concat(selected.slice(0, -1));
-        } else if (selectedIndex > 0) {
-            newSelected = newSelected.concat(
-                selected.slice(0, selectedIndex),
-                selected.slice(selectedIndex + 1)
-            );
-        }
-        setSelected(newSelected);
-    };
 
     const handleChangePage = (event: unknown, newPage: number) => {
         updateSearchParams({ page: String(newPage + 1) });
@@ -139,7 +116,7 @@ const InventoryCatalog: React.FC<AVCatProps> = ({
             <Paper sx={{ width: "100%", mb: 2 }}>
                 <TableContainer>
                     <Table
-                        sx={{ minWidth: 750 }}
+                        sx={{ minWidth: 750, paddingLeft: "20px" }}
                         aria-labelledby="tableTitle"
                         size={"medium"}
                     >
@@ -152,32 +129,30 @@ const InventoryCatalog: React.FC<AVCatProps> = ({
                         />
                         <TableBody>
                             {rows.map((row, index) => {
-                                const labelId = `enhanced-table-checkbox-${index}`;
-
+                                const stockAmount: number =
+                                    pendingInventoryUpdates[row.productNo] ??
+                                    row.stock;
                                 return (
-                                    <TableRow
-                                        hover
-                                        onClick={(event) =>
-                                            handleClick(event, row.id)
-                                        }
-                                        role="checkbox"
-                                        tabIndex={-1}
-                                        key={row.id}
-                                        sx={{ cursor: "pointer" }}
-                                    >
-                                        <TableCell
-                                            component="th"
-                                            id={labelId}
-                                            scope="row"
-                                            padding="none"
-                                        >
+                                    <TableRow hover tabIndex={-1} key={row.id}>
+                                        <TableCell component="th" scope="row">
                                             {row.name}
                                         </TableCell>
                                         <TableCell align="left">
                                             {row.productNo}
                                         </TableCell>
                                         <TableCell align="right">
-                                            {row.stock}
+                                            <div className="stock-input">
+                                                <StockField
+                                                    value={String(stockAmount)}
+                                                    productNo={row.productNo}
+                                                    setPendingInventoryUpdates={
+                                                        setPendingInventoryUpdates
+                                                    }
+                                                    pendingInventoryUpdates={
+                                                        pendingInventoryUpdates
+                                                    }
+                                                />
+                                            </div>
                                         </TableCell>
                                         <TableCell align="right">
                                             {row.reserved}

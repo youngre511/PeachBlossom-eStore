@@ -22,8 +22,8 @@ import {
     FormikHelpers,
     useFormikContext,
 } from "formik";
-import { FormField } from "../Fields/FormField";
-import { SelectField } from "../Fields/SelectField";
+import { FormField } from "../../../common/components/Fields/FormField";
+import { SelectField } from "../../../common/components/Fields/SelectField";
 import axios, { AxiosError } from "axios";
 import "./add-product.css";
 import PeachButton from "../../../common/components/PeachButton";

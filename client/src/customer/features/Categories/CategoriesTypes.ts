@@ -1,7 +1,5 @@
-export interface ApiResponse<T> {
-    message: string;
-    payload: T;
-}
+import { ApiResponse } from "../../../common/types/commonTypes";
+
 export type FetchCategoriesResponse = ApiResponse<Category[]>;
 export interface Category {
     name: string;

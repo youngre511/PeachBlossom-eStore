@@ -1,5 +1,5 @@
 import React from "react";
-import { AVProduct } from "../../features/avCatalogTypes";
+import { AVProduct } from "../../features/AVCatalog/avCatalogTypes";
 import {
     TableCell,
     TableHead,
@@ -99,9 +99,6 @@ const InventoryCatalogHead: React.FC<EnhancedTableProps> = (props) => {
                             <TableCell
                                 key={headCell.id}
                                 align={"left"}
-                                padding={
-                                    headCell.disablePadding ? "none" : "normal"
-                                }
                                 sortDirection={
                                     orderBy === headCell.id ? order : false
                                 }

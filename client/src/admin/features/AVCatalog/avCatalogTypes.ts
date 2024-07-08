@@ -87,8 +87,11 @@ export interface AVCatalogState {
     error: string | null;
 }
 
-export interface AVFetchProductsResponse {
-    filters: AVFilters;
+export interface AVUpdateInventoryResponse {
     products: AVProduct[];
     numberOfResults: number;
+}
+
+export interface AVFetchProductsResponse extends AVUpdateInventoryResponse {
+    filters: AVFilters;
 }

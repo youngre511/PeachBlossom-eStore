@@ -1,7 +1,7 @@
 import React from "react";
 import { useEffect } from "react";
-import { useAppSelector } from "../hooks/reduxHooks";
-import { RootState } from "../store/store";
+import { useAppSelector } from "../../hooks/reduxHooks";
+import { RootState } from "../../store/store";
 import {
     styled,
     Paper,

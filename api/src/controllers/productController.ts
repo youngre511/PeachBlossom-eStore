@@ -174,7 +174,6 @@ export const getAdminProducts = async (
     res: Response
 ) => {
     try {
-        console.log("req.query", req.query);
         const results = await productService.getAdminProducts(req.query);
 
         res.json({
