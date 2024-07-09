@@ -1,5 +1,5 @@
 import React from "react";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import AVProductCatalog from "../../features/AVCatalog/AVProductCatalog";
 import { AVFilters } from "../../features/AVCatalog/avCatalogTypes";
@@ -9,9 +9,16 @@ import { RootState } from "../../store/store.js";
 import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
 import PeachButton from "../../../common/components/PeachButton";
 import AddCircleOutlineSharpIcon from "@mui/icons-material/AddCircleOutlineSharp";
-import { SvgIcon } from "@mui/material";
+import {
+    Select,
+    SvgIcon,
+    InputLabel,
+    MenuItem,
+    SelectChangeEvent,
+} from "@mui/material";
 import "./product-management.css";
 import SearchField from "../../../common/components/Fields/SearchField";
+import { AVCategory } from "../../features/AVMenuData/avMenuDataTypes";
 
 const inputStyle = {
     "& .MuiInputBase-root.MuiOutlinedInput-root": {
@@ -23,6 +30,8 @@ interface Props {}
 const ProductManagement: React.FC<Props> = () => {
     const avMenuData = useAppSelector((state: RootState) => state.avMenuData);
     const avCatalog = useAppSelector((state: RootState) => state.avCatalog);
+    const [categorySelection, setCategorySelection] =
+        useState<AVCategory | null>(null);
     const dispatch = useAppDispatch();
     const [searchParams, setSearchParams] = useSearchParams();
     const search = searchParams.get("search");
@@ -114,16 +123,105 @@ const ProductManagement: React.FC<Props> = () => {
             if (value) {
                 searchParams.set(key, value as string);
             } else {
+                console.log("deleting");
                 searchParams.delete(key);
             }
         });
         setSearchParams(searchParams);
     };
 
+    const handleCategorySelect = (event: SelectChangeEvent<string>): void => {
+        const value = event.target.value === "All" ? null : event.target.value;
+        setCategorySelection(
+            avMenuData.categories.filter(
+                (category) => category.name === value
+            )[0]
+        );
+        console.log("value", event.target.value, value);
+        if (value) {
+            updateSearchParams({ category: value });
+        } else {
+            searchParams.delete("category");
+            searchParams.delete("subCategory");
+            setSearchParams(searchParams);
+        }
+    };
+
+    const handleSubcategorySelect = (
+        event: SelectChangeEvent<string>
+    ): void => {
+        const value =
+            event.target.value === "All" ? "null" : event.target.value;
+        if (value) {
+            updateSearchParams({ subCategory: value });
+        } else {
+            searchParams.delete("subCategory");
+            setSearchParams(searchParams);
+        }
+    };
+
     return (
         <div className="product-management">
             <h1>Product Management</h1>
             <div className="add-and-search">
+                <div className="category-select" style={{ width: "200px" }}>
+                    <InputLabel id={`category-label`}>Category</InputLabel>
+                    <Select
+                        fullWidth
+                        labelId={"category-label"}
+                        value={category || "All"}
+                        variant="outlined"
+                        id="category"
+                        label="Category"
+                        onChange={handleCategorySelect}
+                    >
+                        <MenuItem value={"All"}>All</MenuItem>
+                        {avMenuData.categories.map(
+                            (category: AVCategory, index) => (
+                                <MenuItem
+                                    value={category.name}
+                                    key={`category-${index}`}
+                                >
+                                    {category.name}
+                                </MenuItem>
+                            )
+                        )}
+                    </Select>
+                </div>
+                <div className="subcategory-select">
+                    <InputLabel id={`subcategory-label`}>
+                        Subcategory
+                    </InputLabel>
+                    <Select
+                        fullWidth
+                        labelId={"subcategory-label"}
+                        value={subCategory || "All"}
+                        variant="outlined"
+                        id="category"
+                        disabled={
+                            categorySelection &&
+                            categorySelection.subCategories.length > 0
+                                ? false
+                                : true
+                        }
+                        label="Subcategory"
+                        onChange={handleSubcategorySelect}
+                    >
+                        <MenuItem value={"All"}>All</MenuItem>
+                        {categorySelection &&
+                            categorySelection?.subCategories.length > 0 &&
+                            categorySelection.subCategories.map(
+                                (subCategory: string, index) => (
+                                    <MenuItem
+                                        value={subCategory}
+                                        key={`subcategory-${index}`}
+                                    >
+                                        {subCategory}
+                                    </MenuItem>
+                                )
+                            )}
+                    </Select>
+                </div>
                 <PeachButton
                     text={`Add New Product`}
                     onClick={() => navigate("/products/add")}

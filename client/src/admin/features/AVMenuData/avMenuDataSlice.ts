@@ -45,7 +45,7 @@ export const avFetchSearchOptions = createAsyncThunk<
         const response = await axios.get<AVSearchOptionFetchResponse>(
             `${process.env.REACT_APP_API_URL}product/search-options`
         );
-        const options = response.data.payload.map((option) => option.value);
+        const options = response.data.payload;
         return options;
     } catch (error: any) {
         return rejectWithValue(

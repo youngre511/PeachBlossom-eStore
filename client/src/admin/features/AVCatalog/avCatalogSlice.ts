@@ -86,8 +86,6 @@ export const avFetchProducts = createAsyncThunk<
                     params: params,
                 }
             );
-            console.log("response", response);
-            console.log(response.data.payload.productRecords);
             return {
                 filters: filters,
                 products: response.data.payload.productRecords,

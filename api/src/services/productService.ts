@@ -161,31 +161,11 @@ export const extractSqlProductData = (productData: JoinReqSQLProduct) => {
 };
 
 export const getSearchOptions = async () => {
-    const namesAndNumbers = await Product.find({}).select(
-        "name productNo -_id"
-    );
-    const results: Array<{
-        display: string;
-        value: string;
-        item: number;
-        url: string;
-    }> = [];
-    let i = 1;
-    namesAndNumbers.forEach((product) => {
-        results.push({
-            display: product.name,
-            value: product.name,
-            item: i,
-            url: `/shop/product/${product.productNo}`,
-        });
-        i++;
-        results.push({
-            display: product.name,
-            value: product.productNo,
-            item: i,
-            url: `/shop/product/${product.productNo}`,
-        });
-        i++;
+    const products = await Product.find({}).select("name -_id");
+    const results: string[] = [];
+
+    products.forEach((product) => {
+        results.push(product.name);
     });
     return results;
 };

@@ -1,7 +1,7 @@
 import { ApiResponse } from "../../../common/types/commonTypes";
 
 export interface AVCategory {
-    categoryName: string;
+    name: string;
     subCategories: string[];
 }
 
@@ -12,12 +12,6 @@ export interface AVMenuDataState {
     error: string | null;
 }
 
-export interface SearchOptionObject {
-    display: string;
-    value: string;
-    item: number;
-    url: string;
-}
 export type AVCategoryFetchResponse = ApiResponse<AVCategory[]>;
 
-export type AVSearchOptionFetchResponse = ApiResponse<SearchOptionObject[]>;
+export type AVSearchOptionFetchResponse = ApiResponse<string[]>;

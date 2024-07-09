@@ -30,6 +30,10 @@ import PeachButton from "../../../common/components/PeachButton";
 import { Link, useNavigate } from "react-router-dom";
 import ImageUploader from "../ImageUploader/ImageUploader";
 import { ImageListType } from "react-images-uploading";
+import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
+import { RootState } from "../../store/store";
+import { avFetchCategories } from "../../features/AVMenuData/avMenuDataSlice";
+import { AVCategory } from "../../features/AVMenuData/avMenuDataTypes";
 
 ///////////////////
 ///////TYPES///////
@@ -150,7 +154,7 @@ interface DynamicCategoryProps {
     options: string[];
     required: boolean;
     sx?: ComponentProps<typeof TextField>["sx"];
-    categories: Category[];
+    categories: AVCategory[];
     setSubCategories: React.Dispatch<
         React.SetStateAction<string[] | "disabled">
     >;
@@ -207,12 +211,15 @@ const DynamicCategory: React.FC<DynamicCategoryProps> = ({
 ////////////////////////////
 
 const AddProduct: React.FC = () => {
-    const [categories, setCategories] = useState<Category[]>([]);
+    const categories = useAppSelector(
+        (state: RootState) => state.avMenuData.categories
+    );
     const [subCategories, setSubCategories] = useState<string[] | "disabled">(
         "disabled"
     );
     const [images, setImages] = useState<ImageListType>([]);
     const navigate = useNavigate();
+    const dispatch = useAppDispatch();
 
     ///////FORMIK PARAMETERS///////
 
@@ -297,24 +304,7 @@ const AddProduct: React.FC = () => {
     //////////////////////////////
 
     useEffect(() => {
-        console.log("running getCategories");
-        const getCategories = async () => {
-            try {
-                const response = await axios.get<FetchCategoriesResponse>(
-                    `${process.env.REACT_APP_API_URL}category`
-                );
-                setCategories(response.data.payload);
-            } catch (error: any) {
-                if (error instanceof AxiosError) {
-                    console.error("Error getting categories", error);
-                } else {
-                    console.error(
-                        "An unknown error has ocurred while getting categories"
-                    );
-                }
-            }
-        };
-        getCategories();
+        if (!categories) dispatch(avFetchCategories());
     }, []);
 
     const categoryOptions = useMemo(
