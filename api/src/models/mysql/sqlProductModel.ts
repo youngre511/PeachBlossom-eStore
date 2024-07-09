@@ -93,6 +93,12 @@ export class sqlProduct extends Model {
     })
     declare updatedAt: Date;
 
+    @Column({
+        type: DataType.STRING(10),
+        allowNull: false,
+    })
+    status!: string;
+
     @BelongsToMany(() => sqlPromotion, () => sqlProductPromotion)
     productPromotions!: sqlProductPromotion[];
 

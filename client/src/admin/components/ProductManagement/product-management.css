@@ -1,8 +1,26 @@
-.add-and-search {
+.header-and-add {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.search-and-filters {
     margin: 10px 0;
     display: flex;
-    justify-content: flex-end;
-    align-items: center;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.pm-filters {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+}
+
+.category-select,
+.subcategory-select,
+.view-select {
+    margin-right: 10px;
+    width: 200px;
 }
 
 .search-bar {

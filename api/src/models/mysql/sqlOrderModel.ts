@@ -29,7 +29,7 @@ export class sqlOrder extends Model {
         type: DataType.BIGINT,
         allowNull: true,
     })
-    customer_id!: string;
+    customer_id!: number;
 
     @Unique
     @Column({

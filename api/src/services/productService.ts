@@ -1,14 +1,20 @@
 import Product, { ProductItem } from "../models/mongo/productModel.js";
-import Category, { SubCategoryItem } from "../models/mongo/categoryModel.js";
+import Category, {
+    CategoryItem,
+    SubCategoryItem,
+} from "../models/mongo/categoryModel.js";
 import Tag, { TagItem } from "../models/mongo/tagModel.js";
 import { sqlCategory } from "../models/mysql/sqlCategoryModel.js";
 import { sqlProduct } from "../models/mysql/sqlProductModel.js";
 import { sqlInventory } from "../models/mysql/sqlInventoryModel.js";
 import generateProductNo from "../utils/generateProductNo.js";
 import sequelize from "../models/mysql/index.js";
-import uploadFile from "./s3Service.js";
+import { uploadFile, deleteFile } from "./s3Service.js";
 import mongoose, { ClientSession, Types, Schema } from "mongoose";
-import { CreateProduct } from "../controllers/productController.js";
+import {
+    CreateProduct,
+    UpdateProduct,
+} from "../controllers/productController.js";
 import { sqlSubCategory } from "../models/mysql/sqlSubCategoryModel.js";
 import { BooleString } from "../../types/api_resp.js";
 import { Op } from "sequelize";
@@ -77,6 +83,7 @@ export interface AdminFilterObj {
     tags?: string;
     page: string;
     sort: string;
+    view: string;
     itemsPerPage: string;
 }
 
@@ -93,6 +100,7 @@ interface AdminCatalogResponse {
     stock: number;
     reserved: number;
     available: number;
+    status: string;
 }
 
 interface CatalogResponse {
@@ -214,6 +222,7 @@ export const getProducts = async (filters: FilterObject) => {
 
     //Begin Query Chain
     let query = Product.find();
+    query = query.where({ status: "active" });
 
     // Narrow by user-input search params
     if (filters.search) {
@@ -368,6 +377,10 @@ export const getAdminProducts = async (filters: AdminFilterObj) => {
         ];
     }
 
+    if (filters.view === "discontinued" || filters.view === "active") {
+        whereClause[Op.and] = { status: filters.view };
+    }
+
     const validSortMethods = [
         "price-ascend",
         "price-descend",
@@ -447,6 +460,7 @@ export const getAdminProducts = async (filters: AdminFilterObj) => {
                 stock: product.Inventory.stock,
                 reserved: product.Inventory.reserved,
                 available: product.Inventory.available,
+                status: product.status,
             };
             return catObj;
         }
@@ -458,17 +472,48 @@ export const getAdminProducts = async (filters: AdminFilterObj) => {
 ////// GET ONE PRODUCT //////
 
 export const getOneProduct = async (productNo: string) => {
-    let result: ProductItem | null = await Product.findOne({
-        productNo: productNo,
-    });
-    if (!result) {
-        throw new Error("Product not found");
+    try {
+        const result: ProductItem | null = await Product.findOne({
+            productNo: productNo,
+        });
+
+        if (!result) {
+            throw new Error("Product not found");
+        }
+
+        const category: CategoryItem | null = await Category.findOne({
+            _id: result.category,
+        });
+
+        if (!category) {
+            throw new Error("Product category not found");
+        }
+
+        const subcategory: SubCategoryItem | null =
+            category.subCategories.filter(
+                (subcategory) => subcategory._id === result.subCategory
+            )[0];
+
+        const productData = {
+            name: result.name,
+            productNo: result.productNo,
+            category: category.name,
+            subcategory: subcategory ? subcategory.name : null,
+            description: result.description,
+            attributes: result.attributes,
+            price: result.price,
+            images: result.images,
+            tags: result.tags || null,
+        };
+        return productData;
+    } catch (error) {
+        if (error instanceof Error) {
+            throw new Error("Error fetching product: " + error.message);
+        } else {
+            throw new Error("An unknown error occurred while fetching product");
+        }
     }
-
-    return result;
 };
-
-////// UPLOAD PRODUCT IMAGE //////
 
 ////// CREATE NEW PRODUCT //////
 
@@ -648,11 +693,181 @@ export const createProduct = async (
     }
 };
 
-//update basic product details (name, description, images)
+export const updateProductDetails = async (productData: UpdateProduct) => {
+    const session: ClientSession = await mongoose.startSession();
+    session.startTransaction();
+    const sqlTransaction = await sequelize.transaction();
 
-//update product stock
+    try {
+        const {
+            name,
+            productNo,
+            category,
+            subCategory = null,
+            description,
+            attributes,
+            price,
+            existingImageUrls,
+            images = [],
+            tags = null,
+        } = productData;
 
-//update product price
+        // Upload images to S3 and get URLs
+        let newImageUrls: string[] | null = null;
+
+        if (images.length > 0) {
+            newImageUrls = await Promise.all(
+                images.map(async (image) => {
+                    const { fileContent, fileName, mimeType } = image;
+                    const uploadResult = await uploadFile(
+                        fileContent,
+                        fileName,
+                        mimeType
+                    );
+                    return uploadResult; // URL of the uploaded image
+                })
+            );
+        }
+
+        const imageUrls = newImageUrls
+            ? existingImageUrls.concat(newImageUrls)
+            : existingImageUrls;
+
+        // Delete unused images from S3
+        const targetProduct = await Product.findOne({
+            productNo: productNo,
+        });
+
+        if (!targetProduct) {
+            throw new Error("Product not found in mongo database");
+        }
+
+        const imagesToDelete = targetProduct.images.filter(
+            (imageUrl) => !existingImageUrls.includes(imageUrl)
+        );
+
+        if (imagesToDelete.length > 0) {
+            imagesToDelete.forEach(async (imageUrl) => {
+                const splitUrl = imageUrl.split("/");
+                const fileName = splitUrl[splitUrl.length - 1];
+                await deleteFile(fileName);
+            });
+        }
+
+        /////////////////////////////////////////////////
+        //Construct update parameters for Mongo and SQL//
+        /////////////////////////////////////////////////
+
+        const updateFields: any = {};
+        const sqlUpdateFields: any = {};
+
+        //name
+        if (name) {
+            updateFields.name = name;
+            sqlUpdateFields.productName = name;
+        }
+
+        //category
+        if (category) {
+            const foundCategory = await Category.findOne({ name: category });
+            if (!foundCategory) {
+                throw new Error("Category not found in Mongo.");
+            }
+            updateFields.category = foundCategory._id;
+
+            const foundSqlCategory = await sqlCategory.findOne({
+                where: { categoryName: category },
+            });
+            if (!foundSqlCategory) {
+                throw new Error("Category not found in SQL");
+            }
+            sqlUpdateFields.category_id = foundSqlCategory.category_id;
+
+            // subcategories
+            if (subCategory) {
+                const foundSubCategory = foundCategory.subCategories.filter(
+                    (subcategory) => subcategory.name === subCategory
+                )[0];
+                if (!foundSubCategory) {
+                    throw new Error("Subcategory not found in Mongo");
+                }
+                updateFields.subCategory = foundSubCategory._id;
+
+                const foundSqlSubCategory = await sqlSubCategory.findOne({
+                    where: {
+                        subCategoryName: subCategory,
+                        category_id: foundSqlCategory.category_id,
+                    },
+                });
+                if (!foundSqlSubCategory) {
+                    throw new Error("Subcategory not found in SQL");
+                }
+                sqlUpdateFields.subCategory_id =
+                    foundSqlSubCategory.subCategory_id;
+            }
+        }
+
+        //price
+        if (price) {
+            updateFields.price = price;
+            sqlUpdateFields.price = price;
+        }
+
+        //description
+        if (description) {
+            updateFields.description = description;
+            sqlUpdateFields.description = description.substring(0, 79) + "...";
+        }
+
+        //attributes (mongo only)
+        if (attributes) {
+            updateFields.attributes = attributes;
+        }
+
+        //images
+        updateFields.images = imageUrls;
+        const thumbnailUrl = imageUrls[0] ? imageUrls[0] : null;
+        sqlUpdateFields.thumbnailUrl = thumbnailUrl;
+
+        //tags
+        if (tags) {
+            updateFields.tags = tags;
+        }
+
+        //UPDATE MONGO
+        await Product.findByIdAndUpdate(
+            targetProduct._id,
+            { $set: updateFields },
+            { new: true, session: session }
+        ).exec();
+
+        //UPDATE SQL
+        await sqlProduct.update(sqlUpdateFields, {
+            where: { productNo: productNo },
+            transaction: sqlTransaction,
+        });
+
+        await session.commitTransaction();
+        await sqlTransaction.commit();
+
+        return {
+            success: true,
+            message: `Product successfully updated`,
+        };
+    } catch (error) {
+        await session.abortTransaction();
+        await sqlTransaction.rollback();
+        if (error instanceof Error) {
+            throw new Error("Error updating product details: " + error.message);
+        } else {
+            throw new Error(
+                "An unknown error occurred while updating product details"
+            );
+        }
+    } finally {
+        session.endSession();
+    }
+};
 
 //delete single product
 //also delete from sql in all locations

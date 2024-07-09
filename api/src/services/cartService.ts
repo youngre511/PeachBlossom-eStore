@@ -28,6 +28,7 @@ export interface JoinReqProduct extends Model {
     thumbnailUrl?: string;
     createdAt: Date;
     updatedAt: Date;
+    status: string;
     Inventory: Inventory;
 }
 

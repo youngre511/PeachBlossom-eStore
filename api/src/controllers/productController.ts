@@ -32,10 +32,10 @@ export interface CreateProduct {
     tags?: Array<string>;
 }
 
-interface MulterFile {
-    buffer: Buffer;
-    originalname: string;
-    mimetype: string;
+export interface UpdateProduct
+    extends Partial<Omit<CreateProduct, "prefix" | "stock">> {
+    existingImageUrls: string[];
+    productNo: string;
 }
 
 interface SearchOptions extends Response {
@@ -98,6 +98,7 @@ interface AdminProductGetRequest extends Request {
         page: string;
         sort: string;
         itemsPerPage: string;
+        view: string;
         search?: string;
     };
 }
@@ -115,33 +116,7 @@ interface PromoParamsRequest extends Request {
 }
 
 interface UpdateProductDetailsRequest extends Request {
-    params: {
-        productNo: string;
-    };
-    body: Partial<{
-        name: string;
-        category: Array<string>;
-        description: string;
-        images: Array<string>;
-    }>;
-}
-
-interface UpdatePriceRequest extends Request {
-    params: {
-        productNo: string;
-    };
-    body: {
-        price: number;
-    };
-}
-
-interface UpdateStockRequest extends Request {
-    params: {
-        productNo: string;
-    };
-    body: {
-        stock: number;
-    };
+    body: UpdateProduct;
 }
 
 ////////////////////////
@@ -378,95 +353,9 @@ export const updateProductDetails = async (
     res: Response
 ) => {
     try {
-        const updateData: any = { ...req.body };
-        const { productNo } = req.params;
+        const result = await productService.updateProductDetails(req.body);
 
-        if (updateData.category) {
-            let category = updateData.category;
-            //find categories by name
-            const categories = await Category.find({ name: { $in: category } });
-            //extract object ids
-            const categoryIds = categories.map((cat: CategoryItem) => cat._id);
-            //replace array of category names from request with array of category ids
-            updateData.category = categoryIds;
-        }
-
-        const updatedProduct = await Product.findOneAndUpdate(
-            { productNo },
-            updateData,
-            { new: true }
-        ).exec();
-
-        if (!updatedProduct) {
-            res.status(404).json({ message: "Product not found" });
-            return;
-        }
-
-        res.status(200).json(updatedProduct);
-    } catch (error) {
-        let errorObj = {
-            message: "update product details failure",
-            payload: error,
-        };
-
-        console.log(errorObj);
-
-        res.json(errorObj);
-    }
-};
-
-export const updateProductPrice = async (
-    req: UpdatePriceRequest,
-    res: Response
-) => {
-    try {
-        const updateData = req.body;
-        const { productNo } = req.params;
-
-        const updatedProduct = await Product.findOneAndUpdate(
-            { productNo },
-            updateData,
-            { new: true }
-        ).exec();
-
-        if (!updatedProduct) {
-            res.status(404).json({ message: "Product not found" });
-            return;
-        }
-
-        res.status(200).json(updatedProduct);
-    } catch (error) {
-        let errorObj = {
-            message: "update product details failure",
-            payload: error,
-        };
-
-        console.log(errorObj);
-
-        res.json(errorObj);
-    }
-};
-
-export const updateProductStock = async (
-    req: UpdateStockRequest,
-    res: Response
-) => {
-    try {
-        const updateData = req.body;
-        const { productNo } = req.params;
-
-        const updatedProduct = await Product.findOneAndUpdate(
-            { productNo },
-            updateData,
-            { new: true }
-        ).exec();
-
-        if (!updatedProduct) {
-            res.status(404).json({ message: "Product not found" });
-            return;
-        }
-
-        res.status(200).json(updatedProduct);
+        res.json(result);
     } catch (error) {
         let errorObj = {
             message: "update product details failure",

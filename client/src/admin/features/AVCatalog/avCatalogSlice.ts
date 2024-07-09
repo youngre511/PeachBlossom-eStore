@@ -20,6 +20,7 @@ const initialState: AVCatalogState = {
         tags: null,
         sort: "name-ascend",
         page: "1",
+        view: "active",
         itemsPerPage: "24",
     },
     loading: false,

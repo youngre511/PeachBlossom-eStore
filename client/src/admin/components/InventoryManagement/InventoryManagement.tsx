@@ -68,6 +68,7 @@ const InventoryManagement: React.FC<Props> = () => {
             sort,
             page,
             itemsPerPage,
+            view: "active",
         };
         //FetchLogic
         const currentFilters = Object.values(memoParams).map((value) =>

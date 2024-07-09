@@ -1,4 +1,4 @@
-import { Date, Document, Schema, model } from "mongoose";
+import { Date, Document, Schema, model, Types } from "mongoose";
 
 export interface Promotion {
     promoId: string;
@@ -15,12 +15,15 @@ export interface ProductItem extends Document {
     _id: Schema.Types.ObjectId;
     productNo: string;
     name: string;
-    category: Array<typeof Schema.Types.ObjectId>;
+    category: Schema.Types.ObjectId;
+    subCategory: Types.ObjectId;
     description: string;
     attributes: Attributes;
     price: number;
     promotions: Array<Promotion>;
     stock: number;
+    tags: string[];
+    status: string;
     images: Array<string>;
     createdAt?: Date;
     updatedAt?: Date;
@@ -68,32 +71,35 @@ export interface Attributes {
     };
 }
 
-const AttributesSchema: Schema = new Schema({
-    color: {
-        type: String,
-        required: true,
-    },
-    material: [
-        {
+const AttributesSchema: Schema = new Schema(
+    {
+        color: {
             type: String,
+            required: true,
         },
-    ],
-    weight: {
-        type: Number,
-        required: true,
+        material: [
+            {
+                type: String,
+            },
+        ],
+        weight: {
+            type: Number,
+            required: true,
+        },
+        dimensions: {
+            width: {
+                type: Number,
+            },
+            height: {
+                type: Number,
+            },
+            depth: {
+                type: Number,
+            },
+        },
     },
-    dimensions: {
-        width: {
-            type: Number,
-        },
-        height: {
-            type: Number,
-        },
-        depth: {
-            type: Number,
-        },
-    },
-});
+    { _id: false }
+);
 
 const PromotionSchema: Schema = new Schema(
     {
@@ -151,7 +157,7 @@ const ProductSchema: Schema = new Schema(
             ref: "Category",
         },
         subCategory: {
-            type: Schema.Types.ObjectId,
+            type: Types.ObjectId,
             ref: "Category.subCategories",
         },
         tags: [
@@ -181,6 +187,10 @@ const ProductSchema: Schema = new Schema(
                 type: String,
             },
         ],
+        status: {
+            type: String,
+            default: "active",
+        },
     },
     { timestamps: true }
 );

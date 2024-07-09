@@ -45,6 +45,7 @@ export interface AVProduct {
     stock: number;
     reserved: number;
     available: number;
+    status: string;
 }
 
 export interface AVFullProduct {
@@ -76,6 +77,7 @@ export interface AVFilters {
     tags: string[] | null;
     sort: string;
     page: string;
+    view: string;
     itemsPerPage: string;
 }
 

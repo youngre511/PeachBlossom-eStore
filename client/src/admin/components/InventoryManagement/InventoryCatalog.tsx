@@ -108,17 +108,18 @@ const InventoryCatalog: React.FC<AVCatProps> = ({
     };
 
     // Avoid a layout jump when reaching the last page with empty rows.
-    const emptyRows =
-        page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
+    const emptyRows = page > 0 ? Math.max(0, (1 + page) * 4 - rows.length) : 0;
 
     return (
         <Box sx={{ width: "100%" }}>
             <Paper sx={{ width: "100%", mb: 2 }}>
-                <TableContainer>
+                <TableContainer sx={{ maxHeight: 500 }}>
                     <Table
                         sx={{ minWidth: 750, paddingLeft: "20px" }}
                         aria-labelledby="tableTitle"
                         size={"medium"}
+                        stickyHeader
+                        aria-label="sticky table"
                     >
                         <AVCatalogHead
                             numSelected={selected.length}

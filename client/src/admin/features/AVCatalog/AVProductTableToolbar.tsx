@@ -1,6 +1,8 @@
 import React from "react";
 import { alpha, Toolbar, Typography, IconButton, Tooltip } from "@mui/material";
-import DeleteOutlineSharpIcon from "@mui/icons-material/DeleteOutlineSharp";
+import DeleteSharpIcon from "@mui/icons-material/DeleteSharp";
+import ArchiveSharpIcon from "@mui/icons-material/ArchiveSharp";
+import UnarchiveSharpIcon from "@mui/icons-material/UnarchiveSharp";
 
 export interface AVProductTableToolbarProps {
     numSelected: number;
@@ -43,11 +45,23 @@ const AVProductTableToolbar: React.FC<AVProductTableToolbarProps> = (props) => {
                 </Typography>
             )}
             {numSelected > 0 && (
-                <Tooltip title="Delete">
-                    <IconButton>
-                        <DeleteOutlineSharpIcon />
-                    </IconButton>
-                </Tooltip>
+                <React.Fragment>
+                    <Tooltip title="Reactivate">
+                        <IconButton>
+                            <UnarchiveSharpIcon />
+                        </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Discontinue">
+                        <IconButton>
+                            <ArchiveSharpIcon />
+                        </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Permanently Delete">
+                        <IconButton>
+                            <DeleteSharpIcon />
+                        </IconButton>
+                    </Tooltip>
+                </React.Fragment>
             )}
         </Toolbar>
     );

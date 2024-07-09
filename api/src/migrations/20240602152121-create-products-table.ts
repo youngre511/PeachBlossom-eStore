@@ -59,6 +59,11 @@ export default {
                 allowNull: false,
                 defaultValue: DataTypes.NOW,
             },
+            status: {
+                type: DataTypes.STRING(10),
+                allowNull: false,
+                defaultValue: "active",
+            },
         });
 
         await queryInterface.addIndex("Products", ["productNo"], {

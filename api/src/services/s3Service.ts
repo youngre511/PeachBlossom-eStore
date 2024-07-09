@@ -1,7 +1,7 @@
 import {
     S3Client,
     PutObjectCommand,
-    ObjectCannedACL,
+    DeleteObjectCommand,
 } from "@aws-sdk/client-s3";
 import dotenv from "dotenv";
 dotenv.config();
@@ -23,7 +23,7 @@ const s3 = new S3Client({
     region: process.env.AWS_REGION,
 });
 
-const uploadFile = async (
+export const uploadFile = async (
     fileContent: Buffer,
     fileName: string,
     mimeType: string
@@ -36,9 +36,27 @@ const uploadFile = async (
     };
 
     const command = new PutObjectCommand(params);
-    await s3.send(command);
 
-    return `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileName}`;
+    try {
+        await s3.send(command);
+        return `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileName}`;
+    } catch (error) {
+        console.error("Failed to upload file:", error);
+        throw new Error("Upload operation failed");
+    }
 };
 
-export default uploadFile;
+export const deleteFile = async (fileName: string): Promise<void> => {
+    const params = {
+        Bucket: process.env.S3_BUCKET_NAME as string,
+        Key: fileName,
+    };
+    const command = new DeleteObjectCommand(params);
+    try {
+        const response = await s3.send(command);
+        console.log("Delete response:", response);
+    } catch (error) {
+        console.error("Error deleting file:", error);
+        throw error;
+    }
+};

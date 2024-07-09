@@ -25,6 +25,7 @@ import AddAPhotoSharpIcon from "@mui/icons-material/AddAPhotoSharp";
 import AVCatalogHead from "./AVCatalogHead";
 import AVProductTableToolbar from "./AVProductTableToolbar";
 import { AVProduct } from "./avCatalogTypes";
+import MoreMenu from "./MoreMenu";
 
 interface AVCatProps {
     page: number;
@@ -43,6 +44,7 @@ interface Row {
     tags: string;
     lastModified: string;
     createdAt: string;
+    status: string;
 }
 
 export type Order = "asc" | "desc";
@@ -73,6 +75,7 @@ const AVProductCatalog: React.FC<AVCatProps> = ({
             tags: product.tags ? product.tags.join(",") : "",
             lastModified: product.lastModified,
             createdAt: product.createdAt,
+            status: product.status,
         };
         return rowData;
     });
@@ -126,6 +129,14 @@ const AVProductCatalog: React.FC<AVCatProps> = ({
         updateSearchParams({ page: String(newPage + 1) });
     };
 
+    const handleProductDiscontinue = (products: string) => {};
+
+    const handleProductsDelete = (products: string) => {};
+
+    const discontinueSelected = (products: string[]) => {};
+
+    const deleteSelected = (products: string[]) => {};
+
     const handleChangeRowsPerPage = (
         event: React.ChangeEvent<HTMLInputElement>
     ) => {
@@ -136,18 +147,19 @@ const AVProductCatalog: React.FC<AVCatProps> = ({
     const isSelected = (id: string) => selected.indexOf(id) !== -1;
 
     // Avoid a layout jump when reaching the last page with empty rows.
-    const emptyRows =
-        page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
+    const emptyRows = page > 0 ? Math.max(0, (1 + page) * 4 - rows.length) : 0;
 
     return (
         <Box sx={{ width: "100%" }}>
             <Paper sx={{ width: "100%", mb: 2 }}>
                 <AVProductTableToolbar numSelected={selected.length} />
-                <TableContainer>
+                <TableContainer sx={{ maxHeight: 500 }}>
                     <Table
                         sx={{ minWidth: 750 }}
                         aria-labelledby="tableTitle"
                         size={"medium"}
+                        stickyHeader
+                        aria-label="sticky table"
                     >
                         <AVCatalogHead
                             numSelected={selected.length}
@@ -165,19 +177,24 @@ const AVProductCatalog: React.FC<AVCatProps> = ({
                                 return (
                                     <TableRow
                                         hover
-                                        onClick={(event) =>
-                                            handleClick(event, row.id)
-                                        }
-                                        role="checkbox"
                                         aria-checked={isItemSelected}
                                         tabIndex={-1}
                                         key={row.id}
                                         selected={isItemSelected}
-                                        sx={{ cursor: "pointer" }}
+                                        sx={{
+                                            cursor: "pointer",
+                                            backgroundColor:
+                                                row.status === "discontinued"
+                                                    ? "darkgray"
+                                                    : "undefined",
+                                        }}
                                     >
                                         <TableCell padding="checkbox">
                                             <Checkbox
                                                 color="primary"
+                                                onClick={(event) =>
+                                                    handleClick(event, row.id)
+                                                }
                                                 checked={isItemSelected}
                                                 inputProps={{
                                                     "aria-labelledby": labelId,
@@ -194,6 +211,13 @@ const AVProductCatalog: React.FC<AVCatProps> = ({
                                                 src={row.thumbnailUrl}
                                                 alt="{row.name}"
                                                 className="admin-catalog-thumbnail"
+                                                style={{
+                                                    filter:
+                                                        row.status ===
+                                                        "discontinued"
+                                                            ? "grayscale(100%)"
+                                                            : "undefined",
+                                                }}
                                             />
                                         </TableCell>
                                         <TableCell
@@ -201,14 +225,20 @@ const AVProductCatalog: React.FC<AVCatProps> = ({
                                             id={labelId}
                                             scope="row"
                                             padding="none"
+                                            sx={{ minWidth: 138 }}
                                         >
                                             {row.name}
                                         </TableCell>
-                                        <TableCell align="left">
+                                        <TableCell
+                                            align="left"
+                                            sx={{ minWidth: 162 }}
+                                        >
                                             {row.productNo}
                                         </TableCell>
                                         <TableCell align="right">
-                                            {row.price}
+                                            {row.status === "discontinued"
+                                                ? "discontinued"
+                                                : row.price}
                                         </TableCell>
                                         <TableCell align="left">
                                             {row.category}
@@ -219,23 +249,40 @@ const AVProductCatalog: React.FC<AVCatProps> = ({
                                         {/* <TableCell align="left">
                                             {row.tags}
                                         </TableCell> */}
-                                        <TableCell align="left">
+                                        <TableCell
+                                            align="left"
+                                            sx={{ minWidth: 164 }}
+                                        >
                                             {row.lastModified}
                                         </TableCell>
-                                        <TableCell align="left">
+                                        <TableCell
+                                            align="left"
+                                            sx={{ minWidth: 140 }}
+                                        >
                                             {row.createdAt}
                                         </TableCell>
-                                        <TableCell align="left">
-                                            <Tooltip title="Edit">
-                                                <IconButton>
-                                                    <ModeEditSharpIcon />
-                                                </IconButton>
-                                            </Tooltip>
-                                            <Tooltip title="Delete">
-                                                <IconButton>
-                                                    <MoreVertSharpIcon />
-                                                </IconButton>
-                                            </Tooltip>
+                                        <TableCell
+                                            align="left"
+                                            sx={{
+                                                display: "flex",
+                                                justifyContent: "flex-end",
+                                                alignItems: "center",
+                                            }}
+                                        >
+                                            {row.status !== "discontinued" && (
+                                                <Tooltip title="Edit">
+                                                    <IconButton>
+                                                        <ModeEditSharpIcon />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            )}
+                                            <MoreMenu
+                                                productNo={row.productNo}
+                                                discontinued={
+                                                    row.status ===
+                                                    "discontinued"
+                                                }
+                                            />
                                         </TableCell>
                                     </TableRow>
                                 );
