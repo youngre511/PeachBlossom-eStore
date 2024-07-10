@@ -179,6 +179,7 @@ export const getSearchOptions = async () => {
 };
 
 ////// GET SORTED AND FILTERED PRODUCTS //////
+
 export const getProducts = async (filters: FilterObject) => {
     if (!filters.page) {
         filters.page = "1";
@@ -469,7 +470,7 @@ export const getAdminProducts = async (filters: AdminFilterObj) => {
     return { totalCount, productRecords };
 };
 
-////// GET ONE PRODUCT //////
+//////////////////////////////////////////////////////////////////////////
 
 export const getOneProduct = async (productNo: string) => {
     try {
@@ -491,7 +492,8 @@ export const getOneProduct = async (productNo: string) => {
 
         const subcategory: SubCategoryItem | null =
             category.subCategories.filter(
-                (subcategory) => subcategory._id === result.subCategory
+                (subcategory) =>
+                    String(subcategory._id) === String(result.subCategory)
             )[0];
 
         const productData = {
@@ -515,7 +517,7 @@ export const getOneProduct = async (productNo: string) => {
     }
 };
 
-////// CREATE NEW PRODUCT //////
+//////////////////////////////////////////////////////////////////////////
 
 export const createProduct = async (
     productData: CreateProduct
@@ -693,7 +695,11 @@ export const createProduct = async (
     }
 };
 
-export const updateProductDetails = async (productData: UpdateProduct) => {
+//////////////////////////////////////////////////////////////////////////
+
+export const updateProductDetails = async (
+    productData: UpdateProduct
+): Promise<BooleString> => {
     const session: ClientSession = await mongoose.startSession();
     session.startTransaction();
     const sqlTransaction = await sequelize.transaction();
@@ -862,6 +868,63 @@ export const updateProductDetails = async (productData: UpdateProduct) => {
         } else {
             throw new Error(
                 "An unknown error occurred while updating product details"
+            );
+        }
+    } finally {
+        session.endSession();
+    }
+};
+
+export const updateProductStatus = async (
+    productNos: string[],
+    newStatus: "active" | "discontinued"
+): Promise<BooleString> => {
+    const session: ClientSession = await mongoose.startSession();
+    session.startTransaction();
+    const sqlTransaction = await sequelize.transaction();
+
+    try {
+        const mongoResults = await Product.updateMany(
+            { productNo: productNos },
+            { status: newStatus },
+            { session: session }
+        ).exec();
+
+        //UPDATE SQL
+        const [affectedSQLRows] = await sqlProduct.update(
+            { status: newStatus },
+            {
+                where: { productNo: productNos },
+                transaction: sqlTransaction,
+            }
+        );
+
+        if (mongoResults.modifiedCount === 0 || affectedSQLRows === 0) {
+            if (mongoResults.matchedCount === 0) {
+                throw new Error("Products not found");
+            }
+            throw new Error(
+                "Unable to update products, either because all products already had the new status or because of an unknown error"
+            );
+        }
+
+        await session.commitTransaction();
+        await sqlTransaction.commit();
+
+        return {
+            success: true,
+            message: `Product statuses successfully updated`,
+        };
+    } catch (error) {
+        await session.abortTransaction();
+        await sqlTransaction.rollback();
+        if (error instanceof Error) {
+            throw new Error(
+                "Error updating product status(es): " + error.message
+            );
+        } else {
+            throw new Error(
+                "An unknown error occurred while updating product status(es)"
             );
         }
     } finally {

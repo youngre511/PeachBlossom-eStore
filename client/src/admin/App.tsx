@@ -12,6 +12,7 @@ import {
     avFetchCategories,
     avFetchSearchOptions,
 } from "./features/AVMenuData/avMenuDataSlice";
+import AVProductDetails from "./components/AVProductDetails/AVProductDetails";
 
 function AdminApp() {
     const dispatch = useAppDispatch();
@@ -35,6 +36,10 @@ function AdminApp() {
                             element={<InventoryManagement />}
                         />
                         <Route path="/products/add" element={<AddProduct />} />
+                        <Route
+                            path="products/product-details"
+                            element={<AVProductDetails />}
+                        />
                     </Routes>
                 </main>
             </div>

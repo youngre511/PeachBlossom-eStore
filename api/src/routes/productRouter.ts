@@ -8,8 +8,7 @@ import {
     createProduct,
     deleteProduct,
     updateProductDetails,
-    updateProductPrice,
-    updateProductStock,
+    updateProductStatus,
     getAdminProducts,
 } from "../controllers/productController.js";
 import upload from "../middleware/uploadMiddleware.js";
@@ -22,11 +21,9 @@ productRouter.get("/search-options", getSearchOptions);
 
 productRouter.post("/create", upload.array("images", 10), createProduct);
 
-productRouter.put("/update-details/:productNo", updateProductDetails);
+productRouter.put("/update-details", updateProductDetails);
 
-productRouter.put("/update-price/:productNo", updateProductPrice);
-
-productRouter.put("/update-stock/:productNo", updateProductStock);
+productRouter.put("/update-status", updateProductStatus);
 
 productRouter.delete("/delete/:productNo", deleteProduct);
 

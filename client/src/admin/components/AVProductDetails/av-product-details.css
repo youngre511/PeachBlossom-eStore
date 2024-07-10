@@ -1,0 +1,12 @@
+.upper-add-form {
+    display: flex;
+    width: 100%;
+    height: auto;
+    justify-content: space-between;
+    align-items: stretch;
+}
+
+.uploader {
+    position: relative;
+    /* width: 425px; */
+}

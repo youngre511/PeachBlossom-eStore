@@ -26,6 +26,7 @@ import AVCatalogHead from "./AVCatalogHead";
 import AVProductTableToolbar from "./AVProductTableToolbar";
 import { AVProduct } from "./avCatalogTypes";
 import MoreMenu from "./MoreMenu";
+import { useNavigate, Link } from "react-router-dom";
 
 interface AVCatProps {
     page: number;
@@ -57,6 +58,7 @@ const AVProductCatalog: React.FC<AVCatProps> = ({
     const { products, numberOfResults, loading, error } = useAppSelector(
         (state: RootState) => state.avCatalog
     );
+    const navigate = useNavigate();
     const [order, setOrder] = React.useState<Order>("asc");
     const [orderBy, setOrderBy] = React.useState<keyof AVProduct>("name");
     const [selected, setSelected] = React.useState<readonly string[]>([]);
@@ -227,7 +229,11 @@ const AVProductCatalog: React.FC<AVCatProps> = ({
                                             padding="none"
                                             sx={{ minWidth: 138 }}
                                         >
-                                            {row.name}
+                                            <Link
+                                                to={`/products/product-details?product=${row.productNo}`}
+                                            >
+                                                {row.name}
+                                            </Link>
                                         </TableCell>
                                         <TableCell
                                             align="left"
@@ -271,7 +277,13 @@ const AVProductCatalog: React.FC<AVCatProps> = ({
                                         >
                                             {row.status !== "discontinued" && (
                                                 <Tooltip title="Edit">
-                                                    <IconButton>
+                                                    <IconButton
+                                                        onClick={() =>
+                                                            navigate(
+                                                                `/products/product-details?product=${row.productNo}&editing=true`
+                                                            )
+                                                        }
+                                                    >
                                                         <ModeEditSharpIcon />
                                                     </IconButton>
                                                 </Tooltip>

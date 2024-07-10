@@ -1,5 +1,4 @@
 import Product from "../models/mongo/productModel.js";
-import Category from "../models/mongo/categoryModel.js";
 import * as productService from "../services/productService.js";
 import * as promotionService from "../services/promotionService.js";
 
@@ -13,7 +12,6 @@ import {
     Attributes,
 } from "../models/mongo/productModel.js";
 import { Request, Response, RequestHandler } from "express";
-import { CategoryItem } from "../models/mongo/categoryModel.js";
 
 export interface CreateProduct {
     name: string;
@@ -36,6 +34,13 @@ export interface UpdateProduct
     extends Partial<Omit<CreateProduct, "prefix" | "stock">> {
     existingImageUrls: string[];
     productNo: string;
+}
+
+interface UpdateProductStatusRequest extends Request {
+    body: {
+        productNos: string[];
+        newStatus: "active" | "discontinued";
+    };
 }
 
 interface SearchOptions extends Response {
@@ -100,12 +105,6 @@ interface AdminProductGetRequest extends Request {
         itemsPerPage: string;
         view: string;
         search?: string;
-    };
-}
-
-interface CategoryParamsRequest extends Request {
-    params: {
-        categoryName: string;
     };
 }
 
@@ -359,6 +358,30 @@ export const updateProductDetails = async (
     } catch (error) {
         let errorObj = {
             message: "update product details failure",
+            payload: error,
+        };
+
+        console.log(errorObj);
+
+        res.json(errorObj);
+    }
+};
+
+export const updateProductStatus = async (
+    req: UpdateProductStatusRequest,
+    res: Response
+) => {
+    try {
+        const { productNos, newStatus } = req.body;
+        const result = await productService.updateProductStatus(
+            productNos,
+            newStatus
+        );
+
+        res.json(result);
+    } catch (error) {
+        let errorObj = {
+            message: "update product status(es) failure",
             payload: error,
         };
 
