@@ -40,7 +40,7 @@ const ProductManagement: React.FC<Props> = () => {
     const page = searchParams.get("page") || "1";
     const tags = searchParams.get("tags")?.split(",") || null;
     const sort = searchParams.get("sort") || "name-ascend";
-    const view = searchParams.get("view") || "Active";
+    const view = searchParams.get("view") || "active";
     const itemsPerPage = searchParams.get("itemsPerPage") || 24;
 
     const navigate = useNavigate();

@@ -49,9 +49,6 @@ export const SelectFieldNonFormik: React.FC<SelectFieldProps> = ({
 }) => {
     return (
         <Box>
-            <InputLabel id={`${name}=label`} required={required}>
-                {label}
-            </InputLabel>
             <Select
                 fullWidth
                 labelId={`${name}-label`}
@@ -93,6 +90,13 @@ export const SelectFieldNonFormik: React.FC<SelectFieldProps> = ({
                         </MenuItem>
                     ))}
             </Select>
+            <InputLabel
+                id={`${name}=label`}
+                required={required}
+                sx={{ transform: "translate(12px, -52px) scale(0.75)" }}
+            >
+                {label}
+            </InputLabel>
         </Box>
     );
 };

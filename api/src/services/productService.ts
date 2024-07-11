@@ -717,8 +717,10 @@ export const updateProductDetails = async (
             images = [],
             tags = null,
         } = productData;
+        console.log("received productNo:", productNo);
 
         // Upload images to S3 and get URLs
+
         let newImageUrls: string[] | null = null;
 
         if (images.length > 0) {
@@ -735,9 +737,15 @@ export const updateProductDetails = async (
             );
         }
 
-        const imageUrls = newImageUrls
-            ? existingImageUrls.concat(newImageUrls)
-            : existingImageUrls;
+        let imageUrls: string[];
+
+        if (existingImageUrls.length > 0 && newImageUrls) {
+            imageUrls = existingImageUrls.concat(newImageUrls);
+        } else if (existingImageUrls.length === 0 && newImageUrls) {
+            imageUrls = newImageUrls;
+        } else {
+            imageUrls = existingImageUrls;
+        }
 
         // Delete unused images from S3
         const targetProduct = await Product.findOne({

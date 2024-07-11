@@ -1,5 +1,6 @@
 import { Button, LinearProgress } from "@mui/material";
 import React from "react";
+import BlankPopup from "./BlankPopup";
 
 interface Props {
     status: "loading" | "success" | "failure";
@@ -46,42 +47,14 @@ const StatusPopup: React.FC<Props> = ({
     }
 
     return (
-        <div
-            className="status-popup-container"
-            style={{
-                position: "fixed",
-                top: 0,
-                left: 0,
-                width: "100vw",
-                height: "100dvh",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                zIndex: 30,
-            }}
-        >
-            <div
-                className="status-popup"
-                style={{
-                    width: "350px",
-                    height: "200px",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    border: "5px solid #ec7f52",
-                    backgroundColor: "var(--peach-blossom)",
-                    borderRadius: "10px",
-                }}
-            >
-                <span className="status-msg" style={{ marginBottom: "30px" }}>
-                    {statusMessage}
-                </span>
-                <div className="status-popup-active-component">
-                    {activeComponent}
-                </div>
+        <BlankPopup className="status-popup">
+            <span className="status-msg" style={{ marginBottom: "30px" }}>
+                {statusMessage}
+            </span>
+            <div className="status-popup-active-component">
+                {activeComponent}
             </div>
-        </div>
+        </BlankPopup>
     );
 };
 export default StatusPopup;

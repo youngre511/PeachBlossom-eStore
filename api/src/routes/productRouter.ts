@@ -21,7 +21,11 @@ productRouter.get("/search-options", getSearchOptions);
 
 productRouter.post("/create", upload.array("images", 10), createProduct);
 
-productRouter.put("/update-details", updateProductDetails);
+productRouter.put(
+    "/update-details",
+    upload.array("images", 10),
+    updateProductDetails
+);
 
 productRouter.put("/update-status", updateProductStatus);
 

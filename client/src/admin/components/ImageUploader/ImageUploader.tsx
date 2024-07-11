@@ -11,8 +11,11 @@ import DeleteOutlineSharpIcon from "@mui/icons-material/DeleteOutlineSharp";
 interface Props {
     setImages: Dispatch<SetStateAction<ImageListType>>;
     images: ImageListType;
+    setImageUrls?: Dispatch<SetStateAction<string[]>>;
+    imageUrls?: string[];
+    managedEditMode?: boolean;
+    productEditMode?: boolean;
 }
-
 const responsive = {
     desktop: {
         breakpoint: { max: 6000, min: 1024 },
@@ -31,7 +34,14 @@ const responsive = {
     },
 };
 
-const ImageUploader: React.FC<Props> = ({ setImages, images }) => {
+const ImageUploader: React.FC<Props> = ({
+    setImages,
+    images,
+    setImageUrls,
+    imageUrls,
+    managedEditMode = false,
+    productEditMode,
+}) => {
     const [addMode, setAddMode] = useState<boolean>(true);
     const [editMode, setEditMode] = useState<boolean>(false);
 
@@ -45,13 +55,31 @@ const ImageUploader: React.FC<Props> = ({ setImages, images }) => {
     };
 
     useEffect(() => {
-        if (images.length > 0) {
+        if (images.length > 0 || (imageUrls && imageUrls.length > 0)) {
             setAddMode(false);
         } else {
             setAddMode(true);
             setEditMode(false);
         }
-    }, [images]);
+    }, [images, imageUrls]);
+
+    useEffect(() => {
+        if ((imageUrls && imageUrls.length > 0) || productEditMode === false)
+            setAddMode(false);
+    }, []);
+
+    const onImageUrlRemove = (index: number) => {
+        if (imageUrls && setImageUrls) {
+            const newImageUrls = [...imageUrls];
+            newImageUrls.splice(index, 1);
+            setImageUrls(newImageUrls);
+        }
+    };
+    const onImageUrlRemoveAll = () => {
+        if (setImageUrls) {
+            setImageUrls([]);
+        }
+    };
 
     return (
         <ImageUploading
@@ -70,75 +98,149 @@ const ImageUploader: React.FC<Props> = ({ setImages, images }) => {
                 dragProps,
             }) => (
                 <div className="image-uploader">
-                    {imageList.length > 0 && (
+                    {(imageList.length > 0 ||
+                        (imageUrls && imageUrls.length > 0)) && (
                         <React.Fragment>
                             <div className="images-preview">
-                                {imageList.length === 1 ? (
-                                    <img
-                                        src={imageList[0]["dataURL"]}
-                                        className="thumbnail"
-                                        alt="new product thumbnail 1"
-                                    />
-                                ) : (
-                                    <Carousel
-                                        swipeable={true}
-                                        draggable={false}
-                                        showDots={true}
-                                        responsive={responsive}
-                                        ssr={true} // means to render carousel on server-side.
-                                        infinite={true}
-                                        keyBoardControl={true}
-                                        customTransition="transform 300ms ease-in-out"
-                                        transitionDuration={500}
-                                        containerClass="carousel-container"
-                                        removeArrowOnDeviceType={[
-                                            "tablet",
-                                            "mobile",
-                                        ]}
-                                        dotListClass="custom-dot-list-style"
-                                        itemClass="carousel-item-padding-40-px"
-                                    >
-                                        {imageList.map((image, index) => (
-                                            <div key={`image-${index}`}>
-                                                <img
-                                                    src={image["dataURL"]}
-                                                    className="thumbnail"
-                                                    id={String(index)}
-                                                    alt={`new product thumbnail ${
-                                                        index + 1
-                                                    }`}
-                                                />
-                                                {editMode && (
-                                                    <div className="delete-button-container">
-                                                        <Tooltip title="Delete">
-                                                            <IconButton
-                                                                className="delete-button"
-                                                                sx={{
-                                                                    width: "100px",
-                                                                    height: "auto",
-                                                                }}
-                                                                onClick={() =>
-                                                                    onImageRemove(
-                                                                        index
-                                                                    )
-                                                                }
+                                {/* If there is only one item in the image list and none in the imageUrls or imageUrls doesn't exist  */}
+                                {imageList.length === 1 &&
+                                    (!imageUrls || imageUrls.length === 0) && (
+                                        <img
+                                            src={imageList[0]["dataURL"]}
+                                            className="thumbnail"
+                                            alt="new product thumbnail 1"
+                                        />
+                                    )}
+                                {imageList.length === 0 &&
+                                    imageUrls &&
+                                    imageUrls.length === 1 && (
+                                        <img
+                                            src={imageUrls[0]}
+                                            className="thumbnail"
+                                            alt="product thumbnail 1"
+                                        />
+                                    )}
+                                {/* If there is more than one image total */}
+                                {imageList.length > 1 ||
+                                    (imageUrls &&
+                                        imageUrls.length + imageList.length >
+                                            1 && (
+                                            <Carousel
+                                                swipeable={true}
+                                                draggable={false}
+                                                showDots={true}
+                                                responsive={responsive}
+                                                ssr={true} // means to render carousel on server-side.
+                                                infinite={true}
+                                                keyBoardControl={true}
+                                                customTransition="transform 300ms ease-in-out"
+                                                transitionDuration={500}
+                                                containerClass="carousel-container"
+                                                removeArrowOnDeviceType={[
+                                                    "tablet",
+                                                    "mobile",
+                                                ]}
+                                                dotListClass="custom-dot-list-style"
+                                                itemClass="carousel-item-padding-40-px"
+                                            >
+                                                {imageUrls &&
+                                                    imageUrls.map(
+                                                        (imageUrl, index) => (
+                                                            <div
+                                                                key={`imageUrl-${index}`}
                                                             >
-                                                                <DeleteOutlineSharpIcon
-                                                                    sx={{
-                                                                        width: "100px",
-                                                                        height: "auto",
-                                                                        color: "white",
-                                                                        opacity: 0.8,
-                                                                    }}
+                                                                <img
+                                                                    src={
+                                                                        imageUrl
+                                                                    }
+                                                                    className="thumbnail"
+                                                                    id={`existing-${index}`}
+                                                                    alt={`product thumbnail ${
+                                                                        index +
+                                                                        1
+                                                                    }`}
                                                                 />
-                                                            </IconButton>
-                                                        </Tooltip>
-                                                    </div>
+                                                                {editMode && (
+                                                                    <div className="delete-button-container">
+                                                                        <Tooltip title="Delete">
+                                                                            <IconButton
+                                                                                className="delete-button"
+                                                                                sx={{
+                                                                                    width: "100px",
+                                                                                    height: "auto",
+                                                                                }}
+                                                                                onClick={() =>
+                                                                                    onImageUrlRemove(
+                                                                                        index
+                                                                                    )
+                                                                                }
+                                                                            >
+                                                                                <DeleteOutlineSharpIcon
+                                                                                    sx={{
+                                                                                        width: "100px",
+                                                                                        height: "auto",
+                                                                                        color: "white",
+                                                                                        opacity: 0.8,
+                                                                                    }}
+                                                                                />
+                                                                            </IconButton>
+                                                                        </Tooltip>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        )
+                                                    )}
+                                                {imageList.map(
+                                                    (image, index) => (
+                                                        <div
+                                                            key={`image-${index}`}
+                                                        >
+                                                            <img
+                                                                src={
+                                                                    image[
+                                                                        "dataURL"
+                                                                    ]
+                                                                }
+                                                                className="thumbnail"
+                                                                id={String(
+                                                                    index
+                                                                )}
+                                                                alt={`new product thumbnail ${
+                                                                    index + 1
+                                                                }`}
+                                                            />
+                                                            {editMode && (
+                                                                <div className="delete-button-container">
+                                                                    <Tooltip title="Delete">
+                                                                        <IconButton
+                                                                            className="delete-button"
+                                                                            sx={{
+                                                                                width: "100px",
+                                                                                height: "auto",
+                                                                            }}
+                                                                            onClick={() =>
+                                                                                onImageRemove(
+                                                                                    index
+                                                                                )
+                                                                            }
+                                                                        >
+                                                                            <DeleteOutlineSharpIcon
+                                                                                sx={{
+                                                                                    width: "100px",
+                                                                                    height: "auto",
+                                                                                    color: "white",
+                                                                                    opacity: 0.8,
+                                                                                }}
+                                                                            />
+                                                                        </IconButton>
+                                                                    </Tooltip>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    )
                                                 )}
-                                            </div>
+                                            </Carousel>
                                         ))}
-                                    </Carousel>
-                                )}
                                 {editMode && images.length === 1 && (
                                     <div className="delete-button-container">
                                         <Tooltip title="Delete">
@@ -170,12 +272,22 @@ const ImageUploader: React.FC<Props> = ({ setImages, images }) => {
                                     <Button
                                         variant="contained"
                                         onClick={() => setAddMode(true)}
+                                        disabled={
+                                            managedEditMode
+                                                ? !productEditMode
+                                                : false
+                                        }
                                     >
                                         ADD IMAGES
                                     </Button>
                                     <Button
                                         variant="contained"
                                         onClick={() => setEditMode(true)}
+                                        disabled={
+                                            managedEditMode
+                                                ? !productEditMode
+                                                : false
+                                        }
                                     >
                                         EDIT IMAGES
                                     </Button>
@@ -184,7 +296,10 @@ const ImageUploader: React.FC<Props> = ({ setImages, images }) => {
                                 <div className="edit-buttons">
                                     <Button
                                         variant="contained"
-                                        onClick={onImageRemoveAll}
+                                        onClick={() => {
+                                            onImageRemoveAll();
+                                            onImageUrlRemoveAll();
+                                        }}
                                     >
                                         DELETE ALL IMAGES
                                     </Button>
@@ -217,7 +332,8 @@ const ImageUploader: React.FC<Props> = ({ setImages, images }) => {
                         >
                             <div className="cancel-button">
                                 <div></div>
-                                {images.length > 0 && (
+                                {(images.length > 0 ||
+                                    (imageUrls && imageUrls.length > 0)) && (
                                     <CloseButton
                                         onClick={() => setAddMode(false)}
                                     />

@@ -64,7 +64,7 @@ interface CreateProductRequest extends Request {
         stock?: number;
         tags?: Array<string>;
     };
-    files?:
+    images?:
         | Express.Multer.File[]
         | { [fieldname: string]: Express.Multer.File[] };
 }
@@ -115,7 +115,20 @@ interface PromoParamsRequest extends Request {
 }
 
 interface UpdateProductDetailsRequest extends Request {
-    body: UpdateProduct;
+    body: {
+        name?: string;
+        productNo: string;
+        category?: string;
+        subCategory?: string;
+        description?: string;
+        attributes?: string;
+        price?: number;
+        existingImageUrls: string;
+        tags?: Array<string>;
+    };
+    images?:
+        | Express.Multer.File[]
+        | { [fieldname: string]: Express.Multer.File[] };
 }
 
 ////////////////////////
@@ -351,8 +364,69 @@ export const updateProductDetails = async (
     req: UpdateProductDetailsRequest,
     res: Response
 ) => {
+    console.log("request", req);
+    console.log("req.body", req.body);
     try {
-        const result = await productService.updateProductDetails(req.body);
+        const {
+            name,
+            productNo,
+            category,
+            subCategory,
+            description,
+            attributes,
+            price,
+            existingImageUrls,
+            tags,
+        } = req.body;
+
+        let images: Array<{
+            fileContent: Buffer;
+            fileName: string;
+            mimeType: string;
+        }> = [];
+        if (req.files) {
+            if (Array.isArray(req.files)) {
+                images = req.files.map((file: Express.Multer.File) => ({
+                    fileContent: file.buffer,
+                    fileName: file.originalname,
+                    mimeType: file.mimetype,
+                }));
+            } else {
+                for (const key in req.files) {
+                    images = images.concat(
+                        req.files[key].map((file: Express.Multer.File) => ({
+                            fileContent: file.buffer,
+                            fileName: file.originalname,
+                            mimeType: file.mimetype,
+                        }))
+                    );
+                }
+            }
+        }
+
+        const existingImageUrlsArray = existingImageUrls.split(", ");
+
+        const attributesObj =
+            typeof attributes === "string"
+                ? JSON.parse(attributes)
+                : attributes;
+
+        const updatedProductData = {
+            name,
+            productNo,
+            category,
+            subCategory,
+            description,
+            attributes: attributesObj,
+            price,
+            images,
+            existingImageUrls: existingImageUrlsArray,
+            tags,
+        };
+
+        const result = await productService.updateProductDetails(
+            updatedProductData
+        );
 
         res.json(result);
     } catch (error) {

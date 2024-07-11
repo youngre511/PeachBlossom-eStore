@@ -1,9 +1,9 @@
 main {
-    width: calc(100vw - 240px);
-    height: 100%;
+    width: 100vw;
+    /* height: 100%; */
     position: absolute;
-    left: 240px;
-    top: 0;
+    left: 0;
+    top: 56px;
     padding: 20px;
     overflow: scroll;
 }
@@ -13,4 +13,13 @@ h2,
 h3,
 h4 {
     font-family: var(--Playfair);
+}
+
+@media (min-width: 600px) {
+    main {
+        width: calc(100vw - 240px);
+        height: 100%;
+        left: 240px;
+        top: 0;
+    }
 }

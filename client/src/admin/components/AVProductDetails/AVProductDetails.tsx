@@ -27,24 +27,12 @@ import { RootState } from "../../store/store";
 import { avFetchCategories } from "../../features/AVMenuData/avMenuDataSlice";
 import { AVCategory } from "../../features/AVMenuData/avMenuDataTypes";
 import { SelectFieldNonFormik } from "../../../common/components/Fields/SelectFieldNonFormik";
+import BlankPopup from "../../../common/components/BlankPopup";
+import StatusPopup from "../../../common/components/StatusPopup";
 
 ///////////////////
 ///////TYPES///////
 ///////////////////
-type Submission = {
-    name: string;
-    prefix: string;
-    price: number;
-    category: string;
-    subcategory: string;
-    color: string;
-    material: string[];
-    width: string;
-    height: string;
-    depth: string;
-    weight: string;
-    description: string;
-};
 
 export interface ApiResponse<T> {
     message: string;
@@ -160,6 +148,16 @@ export const inputStyle = {
 export const readOnlyStyle = {
     "& .MuiInputBase-root.MuiInput-root": {
         marginTop: 0,
+        padding: 0,
+    },
+    "& .MuiInputAdornment-root": {
+        paddingRight: "12px",
+    },
+    "& .MuiInputAdornment-root.MuiInputAdornment-positionStart": {
+        marginTop: "16px",
+        marginRight: "-4px",
+        paddingRight: 0,
+        paddingLeft: "12px",
     },
     "& .MuiInputLabel-root": {
         transform: "translate(12px, 7px) scale(0.75)",
@@ -208,6 +206,7 @@ const AVProductDetails: React.FC = () => {
         "disabled"
     );
     const [images, setImages] = useState<ImageListType>([]);
+    const [imageUrls, setImageUrls] = useState<string[]>([]);
     const navigate = useNavigate();
     const dispatch = useAppDispatch();
     const [searchParams, setSearchParams] = useSearchParams();
@@ -229,55 +228,96 @@ const AVProductDetails: React.FC = () => {
     const [materials, setMaterials] = useState<string[]>([]);
     const [description, setDescription] = useState<string>("");
     const [loading, setLoading] = useState<boolean>(true);
+    const [isSaving, setIsSaving] = useState<boolean>(false);
+    const [isConfirming, setIsConfirming] = useState<boolean>(false);
+    const [status, setStatus] = useState<"loading" | "success" | "failure">(
+        "loading"
+    );
+    const [error, setError] = useState<null | string>(null);
+    const [mustFetchData, setMustFetchData] = useState<boolean>(true);
 
-    console.log("just before use effect");
+    const resetProductValues = () => {
+        if (currentDetails) {
+            setProductName(currentDetails.name);
+            setPrice(String(currentDetails.price.toFixed(2)));
+            setCategory(currentDetails.category);
+            setSubcategory(currentDetails.subcategory || "");
+            setWeight(String(currentDetails.attributes.weight));
+            setColor(currentDetails.attributes.color);
+            setMaterials(currentDetails.attributes.material);
+            setDescription(currentDetails.description);
+            setHeight(
+                String(currentDetails.attributes.dimensions.height.toFixed(2))
+            );
+            setWidth(
+                String(currentDetails.attributes.dimensions.width.toFixed(2))
+            );
+            setDepth(
+                String(currentDetails.attributes.dimensions.depth.toFixed(2))
+            );
+            setImageUrls(currentDetails.images);
+        }
+    };
+
+    // useEffect(() => {
+    //     setMustFetchData(true);
+    // }, []);
+
     useEffect(() => {
-        console.log("using effect");
-        const getProductDetails = async () => {
-            try {
-                const response = await axios.get(
-                    `${process.env.REACT_APP_API_URL}product/${productNo}`
-                );
-                const productDetails: OneProduct = response.data.payload;
-                setCurrentDetails(productDetails);
-                setProductName(productDetails.name);
-                setPrice(String(productDetails.price.toFixed(2)));
-                setCategory(productDetails.category);
-                setSubcategory(productDetails.subcategory || "");
-                setWeight(String(productDetails.attributes.weight));
-                setColor(productDetails.attributes.color);
-                setMaterials(productDetails.attributes.material);
-                setDescription(productDetails.description);
-                setHeight(
-                    String(
-                        productDetails.attributes.dimensions.height.toFixed(2)
-                    )
-                );
-                setWidth(
-                    String(
-                        productDetails.attributes.dimensions.width.toFixed(2)
-                    )
-                );
-                setDepth(
-                    String(
-                        productDetails.attributes.dimensions.depth.toFixed(2)
-                    )
-                );
-                setLoading(false);
-                console.log("got product details:", productDetails);
-            } catch (error) {
-                if (error instanceof AxiosError) {
-                    console.error("Error fetching product details", error);
-                } else {
-                    console.error(
-                        "An unknown error has ocurred while fetching product details"
+        if (mustFetchData) {
+            const getProductDetails = async () => {
+                try {
+                    const response = await axios.get(
+                        `${process.env.REACT_APP_API_URL}product/${productNo}`
                     );
+                    const productDetails: OneProduct = response.data.payload;
+                    setCurrentDetails(productDetails);
+                    setProductName(productDetails.name);
+                    setPrice(String(productDetails.price.toFixed(2)));
+                    setCategory(productDetails.category);
+                    setSubcategory(productDetails.subcategory || "");
+                    setWeight(String(productDetails.attributes.weight));
+                    setColor(productDetails.attributes.color);
+                    setMaterials(productDetails.attributes.material);
+                    setDescription(productDetails.description);
+                    setHeight(
+                        String(
+                            productDetails.attributes.dimensions.height.toFixed(
+                                2
+                            )
+                        )
+                    );
+                    setWidth(
+                        String(
+                            productDetails.attributes.dimensions.width.toFixed(
+                                2
+                            )
+                        )
+                    );
+                    setDepth(
+                        String(
+                            productDetails.attributes.dimensions.depth.toFixed(
+                                2
+                            )
+                        )
+                    );
+                    setImageUrls(productDetails.images);
+                    setLoading(false);
+                } catch (error) {
+                    if (error instanceof AxiosError) {
+                        console.error("Error fetching product details", error);
+                    } else {
+                        console.error(
+                            "An unknown error has ocurred while fetching product details"
+                        );
+                    }
                 }
-            }
-        };
+            };
 
-        getProductDetails();
-    }, []);
+            getProductDetails();
+            setMustFetchData(false);
+        }
+    }, [mustFetchData]);
 
     const handleDecimalInput = (
         event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -317,59 +357,110 @@ const AVProductDetails: React.FC = () => {
         }
     }, [category, categories]);
 
-    // const handleSubmit = async (
-    //     values: Submission,
-    //     actions: FormikHelpers<Submission>
-    // ) => {
-    //     actions.setSubmitting(true);
-    //     console.log("starting submit process");
-    //     const formData = new FormData();
-    //     formData.append("name", values.name);
-    //     formData.append("category", values.category);
-    //     if (values.subcategory) {
-    //         formData.append("subCategory", values.subcategory);
-    //     }
-    //     formData.append("prefix", values.prefix.toLowerCase());
-    //     formData.append("description", values.description);
-    //     formData.append(
-    //         "attributes",
-    //         JSON.stringify({
-    //             color: values.color,
-    //             material: values.material,
-    //             weight: values.weight,
-    //             dimensions: {
-    //                 width: values.width,
-    //                 height: values.height,
-    //                 depth: values.depth,
-    //             },
-    //         })
-    //     );
-    //     formData.append("price", values.price.toString());
-    //     images.forEach((image, index) => {
-    //         const newFileName = `${values.name
-    //             .replace(/\s+/g, "_")
-    //             .toLowerCase()}_${index + 1}`;
-    //         formData.append("images", image.file as File, newFileName);
-    //     });
+    const handleSave = async () => {
+        setIsConfirming(false);
+        setIsSaving(true);
+        console.log("starting submit process");
+        type updateSubmission = {
+            name: string;
+            price: number;
+            category: string;
+            subcategory: string;
+            color: string;
+            material: string[];
+            attributes: string;
+            description: string;
+            existingImageUrls: string[];
+            images: ImageListType;
+        };
+        if (currentDetails) {
+            const formData = new FormData();
 
-    //     try {
-    //         const response = await axios.post(
-    //             `${process.env.REACT_APP_API_URL}product/create`,
-    //             formData,
-    //             {
-    //                 headers: {
-    //                     "Content-Type": "multipart/form-data",
-    //                 },
-    //             }
-    //         );
-    //         console.log("Response:", response.data);
-    //     } catch (error) {
-    //         console.error("Error uploading files:", error);
-    //     } finally {
-    //         actions.setSubmitting(false);
-    //         navigate("/products/manage");
-    //     }
-    // };
+            if (productName !== currentDetails.name) {
+                formData.append("name", productName);
+            }
+            if (price !== String(currentDetails.price)) {
+                formData.append("price", price);
+            }
+            if (category !== currentDetails.category) {
+                formData.append("category", category);
+            }
+            if (subcategory !== currentDetails.subcategory) {
+                formData.append("subcategory", subcategory);
+            }
+            if (description !== currentDetails.description) {
+                formData.append("description", description);
+            }
+
+            if (images) {
+                images.forEach((image, index) => {
+                    const newFileName = `${productName
+                        .replace(/\s+/g, "_")
+                        .toLowerCase()}_${index + 1}`;
+                    formData.append("images", image.file as File, newFileName);
+                });
+            }
+            if (
+                color !== currentDetails.attributes.color ||
+                materials !== currentDetails.attributes.material ||
+                +weight !== currentDetails.attributes.weight ||
+                +height !== currentDetails.attributes.dimensions.height ||
+                +width !== currentDetails.attributes.dimensions.width ||
+                +depth !== currentDetails.attributes.dimensions.depth
+            ) {
+                formData.append(
+                    "attributes",
+                    JSON.stringify({
+                        color: color,
+                        material: materials,
+                        weight: +weight,
+                        dimensions: {
+                            width: +width,
+                            height: +height,
+                            depth: +depth,
+                        },
+                    })
+                );
+            }
+
+            const isFormDataEmpty = Array.from(formData.entries()).length === 0;
+
+            if (!isFormDataEmpty) {
+                formData.append("productNo", currentDetails.productNo);
+                if (imageUrls.length !== currentDetails.images.length) {
+                    formData.append("existingImageUrls", imageUrls.join(", "));
+                } else {
+                    formData.append(
+                        "existingImageUrls",
+                        currentDetails.images.join(", ")
+                    );
+                }
+
+                try {
+                    const response = await axios.put(
+                        `${process.env.REACT_APP_API_URL}product/update-details`,
+                        formData,
+                        {
+                            headers: {
+                                "Content-Type": "multipart/form-data",
+                            },
+                        }
+                    );
+                    console.log("Response:", response.data);
+                    setStatus("success");
+                    searchParams.delete("editing");
+                    setSearchParams(searchParams);
+                    setMustFetchData(true);
+                } catch (error) {
+                    if (error instanceof AxiosError) {
+                        setError(error.message);
+                    }
+                    setStatus("failure");
+                    console.error("Error uploading files:", error);
+                }
+            }
+        }
+    };
 
     //////////////////////////////
 
@@ -384,8 +475,8 @@ const AVProductDetails: React.FC = () => {
 
     return (
         <Container>
-            <h1>Product Details</h1>
-            <Grid container spacing={3} mt={3} sx={{ width: "100%" }}>
+            <h1 style={{ marginBottom: "30px" }}>Product Details</h1>
+            <Grid container spacing={3} sx={{ width: "100%" }}>
                 <Grid
                     item
                     xs={12}
@@ -405,7 +496,14 @@ const AVProductDetails: React.FC = () => {
                         },
                     }}
                 >
-                    <ImageUploader setImages={setImages} images={images} />
+                    <ImageUploader
+                        setImages={setImages}
+                        images={images}
+                        setImageUrls={setImageUrls}
+                        imageUrls={imageUrls}
+                        managedEditMode={true}
+                        productEditMode={editMode}
+                    />
                 </Grid>
                 <Grid
                     container
@@ -413,7 +511,7 @@ const AVProductDetails: React.FC = () => {
                     xs={12}
                     lg={7}
                     rowSpacing={3}
-                    sx={{ alignItems: "space-between", height: "auto" }}
+                    // sx={{ alignItems: "space-between", height: "auto" }}
                 >
                     <TextField
                         fullWidth
@@ -502,7 +600,7 @@ const AVProductDetails: React.FC = () => {
                                 label="Category"
                                 name="category"
                                 multiple={false}
-                                required={false}
+                                required={editMode ? true : false}
                                 readOnly={editMode ? false : true}
                                 options={categoryOptions}
                                 sx={editMode ? inputStyle : readOnlyStyle}
@@ -571,10 +669,22 @@ const AVProductDetails: React.FC = () => {
                     container
                     item
                     xs={12}
-                    columnSpacing={{ xs: 3, md: 6 }}
+                    // columnSpacing={{ xs: 3, md: 6 }}
                     rowSpacing={3}
+                    // sx={{
+                    //     columnGap: {
+                    //         xs: 3,
+                    //         md: 6,
+                    //     },
+                    //     rowGap: 3,
+                    // }}
                 >
-                    <Grid item xs={6} md={3}>
+                    <Grid
+                        item
+                        xs={6}
+                        md={3}
+                        // sx={{ paddingLeft: { xs: "24px", md: "48px" } }}
+                    >
                         <TextField
                             fullWidth
                             variant={editMode ? "filled" : "standard"}
@@ -604,7 +714,12 @@ const AVProductDetails: React.FC = () => {
                             onBlur={(e) => handleDecimalBlur(e, setHeight)}
                         />
                     </Grid>
-                    <Grid item xs={6} md={3}>
+                    <Grid
+                        item
+                        xs={6}
+                        md={3}
+                        sx={{ paddingLeft: { xs: "24px", md: "48px" } }}
+                    >
                         <TextField
                             fullWidth
                             variant={editMode ? "filled" : "standard"}
@@ -634,7 +749,12 @@ const AVProductDetails: React.FC = () => {
                             onBlur={(e) => handleDecimalBlur(e, setWidth)}
                         />
                     </Grid>
-                    <Grid item xs={6} md={3}>
+                    <Grid
+                        item
+                        xs={6}
+                        md={3}
+                        sx={{ paddingLeft: { md: "48px" } }}
+                    >
                         <TextField
                             fullWidth
                             variant={editMode ? "filled" : "standard"}
@@ -664,7 +784,12 @@ const AVProductDetails: React.FC = () => {
                             onBlur={(e) => handleDecimalBlur(e, setDepth)}
                         />
                     </Grid>
-                    <Grid item xs={6} md={3}>
+                    <Grid
+                        item
+                        xs={6}
+                        md={3}
+                        sx={{ paddingLeft: { xs: "24px", md: "48px" } }}
+                    >
                         <TextField
                             fullWidth
                             variant={editMode ? "filled" : "standard"}
@@ -724,6 +849,7 @@ const AVProductDetails: React.FC = () => {
                         justifyContent: "space-between",
                         alignItems: "center",
                         width: "100%",
+                        flexDirection: { xs: "column-reverse", md: "row" },
                     }}
                 >
                     <Button
@@ -734,15 +860,28 @@ const AVProductDetails: React.FC = () => {
                         &lt; Back to product management
                     </Button>
                     {editMode ? (
-                        <Button
-                            variant="contained"
-                            onClick={() => {
-                                searchParams.delete("editing");
-                                setSearchParams(searchParams);
-                            }}
+                        <Box
+                            className="edit-mode-buttons"
+                            sx={{ mb: { xs: 2, md: 0 } }}
                         >
-                            Cancel
-                        </Button>
+                            <Button
+                                variant="contained"
+                                onClick={() => setIsConfirming(true)}
+                            >
+                                Save Changes
+                            </Button>
+                            <Button
+                                sx={{ marginLeft: "20px" }}
+                                variant="contained"
+                                onClick={() => {
+                                    searchParams.delete("editing");
+                                    setSearchParams(searchParams);
+                                    resetProductValues();
+                                }}
+                            >
+                                Cancel
+                            </Button>
+                        </Box>
                     ) : (
                         <Button
                             variant="contained"
@@ -756,6 +895,48 @@ const AVProductDetails: React.FC = () => {
                     )}
                 </Grid>
             </Grid>
+            {isConfirming && (
+                <BlankPopup className="save-confirmation">
+                    <span style={{ marginBottom: "20px" }}>
+                        Save changes made to product
+                        {currentDetails ? " " + currentDetails.productNo : ""}?
+                    </span>
+                    <div className="save-confirmation-buttons">
+                        <Button
+                            variant="contained"
+                            onClick={() => handleSave()}
+                            sx={{ color: "white" }}
+                        >
+                            Yes, Save
+                        </Button>
+                        <Button
+                            variant="contained"
+                            onClick={() => {
+                                setIsConfirming(false);
+                                searchParams.set("editing", "true");
+                                setSearchParams(searchParams);
+                            }}
+                            sx={{ marginLeft: "20px", color: "white" }}
+                        >
+                            Wait!
+                        </Button>
+                    </div>
+                </BlankPopup>
+            )}
+            {isSaving && (
+                <StatusPopup
+                    status={status}
+                    loadingMessage="Saving updated product data..."
+                    successMessage="Product details successfully updated"
+                    failureMessage={`Failed to save updates ${
+                        error ? ": " + error : ""
+                    }`}
+                    actionFunction={() => {
+                        setIsSaving(false);
+                        setError(null);
+                    }}
+                />
+            )}
         </Container>
     );
 };
