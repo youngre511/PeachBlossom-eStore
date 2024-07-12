@@ -719,6 +719,28 @@ export const updateProductDetails = async (
         } = productData;
         console.log("received productNo:", productNo);
 
+        // Delete unused images from S3
+        const targetProduct = await Product.findOne({
+            productNo: productNo,
+        });
+
+        if (!targetProduct) {
+            throw new Error("Product not found in mongo database");
+        }
+
+        const imagesToDelete = targetProduct.images.filter(
+            (imageUrl) => !existingImageUrls.includes(imageUrl)
+        );
+
+        if (imagesToDelete.length > 0) {
+            imagesToDelete.forEach(async (imageUrl) => {
+                const splitUrl = imageUrl.split("/");
+                const fileName = splitUrl[splitUrl.length - 1];
+                console.log("DELETING", fileName);
+                await deleteFile(fileName);
+            });
+        }
+
         // Upload images to S3 and get URLs
 
         let newImageUrls: string[] | null = null;
@@ -739,34 +761,24 @@ export const updateProductDetails = async (
 
         let imageUrls: string[];
 
-        if (existingImageUrls.length > 0 && newImageUrls) {
+        if (
+            existingImageUrls.length > 0 &&
+            existingImageUrls[0] &&
+            newImageUrls
+        ) {
             imageUrls = existingImageUrls.concat(newImageUrls);
-        } else if (existingImageUrls.length === 0 && newImageUrls) {
+        } else if (
+            (existingImageUrls.length === 0 || !existingImageUrls[0]) &&
+            newImageUrls
+        ) {
             imageUrls = newImageUrls;
-        } else {
+        } else if (existingImageUrls.length > 0 && existingImageUrls[0]) {
             imageUrls = existingImageUrls;
+        } else {
+            imageUrls = [];
         }
 
-        // Delete unused images from S3
-        const targetProduct = await Product.findOne({
-            productNo: productNo,
-        });
-
-        if (!targetProduct) {
-            throw new Error("Product not found in mongo database");
-        }
-
-        const imagesToDelete = targetProduct.images.filter(
-            (imageUrl) => !existingImageUrls.includes(imageUrl)
-        );
-
-        if (imagesToDelete.length > 0) {
-            imagesToDelete.forEach(async (imageUrl) => {
-                const splitUrl = imageUrl.split("/");
-                const fileName = splitUrl[splitUrl.length - 1];
-                await deleteFile(fileName);
-            });
-        }
+        console.log("imageUrls:", imageUrls);
 
         /////////////////////////////////////////////////
         //Construct update parameters for Mongo and SQL//

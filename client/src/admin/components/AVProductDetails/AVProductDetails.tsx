@@ -10,11 +10,9 @@ import {
     Grid,
     Container,
     InputAdornment,
-    Paper,
     TextField,
     Box,
     Button,
-    Typography,
 } from "@mui/material";
 
 import axios, { AxiosError } from "axios";
@@ -236,32 +234,9 @@ const AVProductDetails: React.FC = () => {
     const [error, setError] = useState<null | string>(null);
     const [mustFetchData, setMustFetchData] = useState<boolean>(true);
 
-    const resetProductValues = () => {
-        if (currentDetails) {
-            setProductName(currentDetails.name);
-            setPrice(String(currentDetails.price.toFixed(2)));
-            setCategory(currentDetails.category);
-            setSubcategory(currentDetails.subcategory || "");
-            setWeight(String(currentDetails.attributes.weight));
-            setColor(currentDetails.attributes.color);
-            setMaterials(currentDetails.attributes.material);
-            setDescription(currentDetails.description);
-            setHeight(
-                String(currentDetails.attributes.dimensions.height.toFixed(2))
-            );
-            setWidth(
-                String(currentDetails.attributes.dimensions.width.toFixed(2))
-            );
-            setDepth(
-                String(currentDetails.attributes.dimensions.depth.toFixed(2))
-            );
-            setImageUrls(currentDetails.images);
-        }
-    };
-
-    // useEffect(() => {
-    //     setMustFetchData(true);
-    // }, []);
+    useEffect(() => {
+        console.log("imageUrls:", imageUrls + ", images:", images);
+    }, [imageUrls, images]);
 
     useEffect(() => {
         if (mustFetchData) {
@@ -301,7 +276,12 @@ const AVProductDetails: React.FC = () => {
                             )
                         )
                     );
+                    console.log(
+                        "productDetails.images:",
+                        productDetails.images
+                    );
                     setImageUrls(productDetails.images);
+                    console.log("initialImageUrls:", imageUrls);
                     setLoading(false);
                 } catch (error) {
                     if (error instanceof AxiosError) {
@@ -358,6 +338,7 @@ const AVProductDetails: React.FC = () => {
     }, [category, categories]);
 
     const handleSave = async () => {
+        console.log("saving...");
         setIsConfirming(false);
         setIsSaving(true);
         console.log("starting submit process");
@@ -373,6 +354,8 @@ const AVProductDetails: React.FC = () => {
             existingImageUrls: string[];
             images: ImageListType;
         };
+        console.log("saving1");
+        console.log("currentDetails:", currentDetails);
         if (currentDetails) {
             const formData = new FormData();
 
@@ -391,15 +374,24 @@ const AVProductDetails: React.FC = () => {
             if (description !== currentDetails.description) {
                 formData.append("description", description);
             }
-
+            console.log("saving2");
             if (images) {
                 images.forEach((image, index) => {
-                    const newFileName = `${productName
+                    let newFileName = `${productName
                         .replace(/\s+/g, "_")
                         .toLowerCase()}_${index + 1}`;
+                    let i = 1;
+                    while (
+                        currentDetails.images.includes(
+                            `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${newFileName}`
+                        )
+                    ) {
+                        newFileName = `${newFileName}a${i}`;
+                    }
                     formData.append("images", image.file as File, newFileName);
                 });
             }
+            console.log("saving3");
             if (
                 color !== currentDetails.attributes.color ||
                 materials !== currentDetails.attributes.material ||
@@ -423,9 +415,13 @@ const AVProductDetails: React.FC = () => {
                 );
             }
 
-            const isFormDataEmpty = Array.from(formData.entries()).length === 0;
-
-            if (!isFormDataEmpty) {
+            const areThereChanges =
+                Array.from(formData.entries()).length !== 0 ||
+                imageUrls.length !== currentDetails.images.length ||
+                images.length !== 0;
+            console.log("saving4");
+            if (areThereChanges) {
+                console.log("saving 4.5");
                 formData.append("productNo", currentDetails.productNo);
                 if (imageUrls.length !== currentDetails.images.length) {
                     formData.append("existingImageUrls", imageUrls.join(", "));
@@ -435,6 +431,8 @@ const AVProductDetails: React.FC = () => {
                         currentDetails.images.join(", ")
                     );
                 }
+                console.log("sending images:", imageUrls);
+                console.log("saving5");
 
                 try {
                     const response = await axios.put(
@@ -451,6 +449,7 @@ const AVProductDetails: React.FC = () => {
                     searchParams.delete("editing");
                     setSearchParams(searchParams);
                     setMustFetchData(true);
+                    setImages([]);
                 } catch (error) {
                     if (error instanceof AxiosError) {
                         setError(error.message);
@@ -458,6 +457,9 @@ const AVProductDetails: React.FC = () => {
                     setStatus("failure");
                     console.error("Error uploading files:", error);
                 }
+            } else {
+                console.log("no changes");
+                setIsSaving(false);
             }
         }
     };
@@ -876,7 +878,7 @@ const AVProductDetails: React.FC = () => {
                                 onClick={() => {
                                     searchParams.delete("editing");
                                     setSearchParams(searchParams);
-                                    resetProductValues();
+                                    setMustFetchData(true);
                                 }}
                             >
                                 Cancel
