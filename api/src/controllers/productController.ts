@@ -150,9 +150,9 @@ export const getProducts = async (req: ProductGetRequest, res: Response) => {
             payload: error,
         };
 
-        console.log(errorObj);
+        console.error(errorObj);
 
-        res.json(errorObj);
+        res.status(500).json(errorObj);
     }
 };
 
@@ -173,9 +173,9 @@ export const getAdminProducts = async (
             payload: error,
         };
 
-        console.log(errorObj);
+        console.error(errorObj);
 
-        res.json(errorObj);
+        res.status(500).json(errorObj);
     }
 };
 
@@ -197,9 +197,9 @@ export const getOneProduct = async (
             payload: error,
         };
 
-        console.log(errorObj);
+        console.error(errorObj);
 
-        res.json(errorObj);
+        res.status(500).json(errorObj);
     }
 };
 
@@ -220,9 +220,9 @@ export const getSearchOptions: RequestHandler = async (
             payload: error,
         };
 
-        console.log(errorObj);
+        console.error(errorObj);
 
-        res.json(errorObj);
+        res.status(500).json(errorObj);
     }
 };
 
@@ -244,9 +244,9 @@ export const getProductsInPromotion = async (
             payload: error,
         };
 
-        console.log(errorObj);
+        console.error(errorObj);
 
-        res.json(errorObj);
+        res.status(500).json(errorObj);
     }
 };
 
@@ -323,9 +323,9 @@ export const createProduct = async (
             payload: error,
         };
 
-        console.log(errorObj);
+        console.error(errorObj);
 
-        res.json(errorObj);
+        res.status(500).json(errorObj);
     }
 };
 
@@ -350,9 +350,9 @@ export const deleteProduct = async (
             payload: error,
         };
 
-        console.log(errorObj);
+        console.error(errorObj);
 
-        res.json(errorObj);
+        res.status(500).json(errorObj);
     }
 };
 
@@ -428,16 +428,16 @@ export const updateProductDetails = async (
             updatedProductData
         );
 
-        res.json(result);
+        res.status(200).json(result);
     } catch (error) {
         let errorObj = {
             message: "update product details failure",
             payload: error,
         };
 
-        console.log(errorObj);
+        console.error(errorObj);
 
-        res.json(errorObj);
+        res.status(500).json(errorObj);
     }
 };
 
@@ -459,8 +459,8 @@ export const updateProductStatus = async (
             payload: error,
         };
 
-        console.log(errorObj);
+        console.error(errorObj);
 
-        res.json(errorObj);
+        res.status(500).json(errorObj);
     }
 };

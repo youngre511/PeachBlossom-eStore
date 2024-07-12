@@ -7,6 +7,7 @@ import {
     AutoIncrement,
     ForeignKey,
     Index,
+    BelongsTo,
 } from "sequelize-typescript";
 import { sqlProduct } from "./sqlProductModel.js";
 import { sqlOrder } from "./sqlOrderModel.js";
@@ -31,6 +32,13 @@ export class sqlOrderItem extends Model {
     @ForeignKey(() => sqlProduct)
     @Column(DataType.STRING(20))
     productNo!: string;
+
+    @BelongsTo(() => sqlProduct, {
+        foreignKey: "productNo",
+        targetKey: "productNo",
+        as: "Product",
+    })
+    product!: sqlProduct;
 
     @Column({
         type: DataType.INTEGER,

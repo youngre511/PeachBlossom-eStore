@@ -18,6 +18,7 @@ import { sqlPromotion } from "./sqlPromotionModel.js";
 import { sqlCartItem } from "./sqlCartItemModel.js";
 import { sqlInventory } from "./sqlInventoryModel.js";
 import { sqlSubCategory } from "./sqlSubCategoryModel.js";
+import { sqlOrderItem } from "./sqlOrderItemModel.js";
 
 @Table({
     tableName: "Products",
@@ -104,6 +105,9 @@ export class sqlProduct extends Model {
 
     @HasMany(() => sqlCartItem, { as: "CartItem", foreignKey: "productNo" })
     cartItem!: sqlCartItem;
+
+    @HasMany(() => sqlOrderItem, { as: "OrderItem", foreignKey: "productNo" })
+    orderItem!: sqlOrderItem;
 
     @HasOne(() => sqlInventory, { as: "Inventory", foreignKey: "product_id" })
     inventory!: sqlInventory;

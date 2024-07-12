@@ -46,7 +46,7 @@ export class sqlCartItem extends Model {
     })
     product!: sqlProduct;
 
-    @Column(DataType.STRING(50))
+    @Column(DataType.STRING)
     thumbnailUrl?: string;
 
     @ForeignKey(() => sqlPromotion)

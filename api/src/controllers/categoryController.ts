@@ -54,9 +54,9 @@ export const getAllCategories = async (req: Request, res: Response) => {
             payload: error,
         };
 
-        console.log(errorObj);
+        console.error(errorObj);
 
-        res.json(errorObj);
+        res.status(500).json(errorObj);
     }
 };
 
@@ -77,9 +77,9 @@ export const getCategoryByName = async (
             payload: error,
         };
 
-        console.log(errorObj);
+        console.error(errorObj);
 
-        res.json(errorObj);
+        res.status(500).json(errorObj);
     }
 };
 
@@ -104,9 +104,9 @@ export const createCategory = async (
             payload: error,
         };
 
-        console.log(errorObj);
+        console.error(errorObj);
 
-        res.json(errorObj);
+        res.status(500).json(errorObj);
     }
 };
 
@@ -133,9 +133,9 @@ export const createSubCategory = async (
             payload: error,
         };
 
-        console.log(errorObj);
+        console.error(errorObj);
 
-        res.json(errorObj);
+        res.status(500).json(errorObj);
     }
 };
 
@@ -158,9 +158,9 @@ export const updateCategoryName = async (
             payload: error,
         };
 
-        console.log(errorObj);
+        console.error(errorObj);
 
-        res.json(errorObj);
+        res.status(500).json(errorObj);
     }
 };
 
@@ -179,8 +179,8 @@ export const deleteCategory = async (
             payload: error,
         };
 
-        console.log(errorObj);
+        console.error(errorObj);
 
-        res.json(errorObj);
+        res.status(500).json(errorObj);
     }
 };

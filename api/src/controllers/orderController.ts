@@ -38,6 +38,40 @@ interface PlaceOrderResponse extends Response {
     orderNo: string;
 }
 
+interface GetOneOrderRequest extends Request {
+    params: {
+        orderNo: string;
+    };
+    query: {
+        email?: string;
+    };
+}
+
+export interface GetOrdersFilters {
+    sort: string;
+    orderStatus?: string[];
+    search?: string;
+    state?: string | string[];
+    earliestOrderDate?: string;
+    latestOrderDate?: string;
+    page: string;
+    itemsPerPage: string;
+}
+
+interface GetOrdersRequest extends Request {
+    query: {
+        sort: string;
+        orderStatus?: string[];
+        search?: string;
+        state?: string | string[];
+        earliestOrderDate?: string;
+        latestOrderDate?: string;
+        page: string;
+        itemsPerPage: string;
+    };
+}
+
+//// Order Functions
 export const placeOrder: RequestHandler = async (
     req: PlaceOrderRequest,
     res: Response
@@ -53,8 +87,46 @@ export const placeOrder: RequestHandler = async (
             payload: error,
         };
 
-        console.log(errorObj);
+        console.error(errorObj);
 
-        res.json(errorObj);
+        res.status(500).json(errorObj);
+    }
+};
+
+export const getOneOrder = async (req: GetOneOrderRequest, res: Response) => {
+    try {
+        const { orderNo } = req.params;
+        const { email } = req.query;
+        const result = await orderService.getOneOrder(orderNo, email);
+
+        // (res as PlaceOrderResponse).json(result);
+        res.json(result);
+    } catch (error) {
+        let errorObj = {
+            message: "get one order failure",
+            payload: error,
+        };
+
+        console.error(errorObj);
+
+        res.status(500).json(errorObj);
+    }
+};
+
+export const getOrders = async (req: GetOrdersRequest, res: Response) => {
+    try {
+        const result = await orderService.getOrders(req.query);
+
+        // (res as PlaceOrderResponse).json(result);
+        res.json(result);
+    } catch (error) {
+        let errorObj = {
+            message: "get orders failure",
+            payload: error,
+        };
+
+        console.error(errorObj);
+
+        res.status(500).json(errorObj);
     }
 };

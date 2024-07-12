@@ -118,7 +118,9 @@ const Nav: React.FC<Props> = () => {
                     </defs>
                 </svg>
                 <ul className="right-menu">
-                    <li className="nav-text">Orders</li>
+                    <li className="nav-text">
+                        <Link to="/order-status">Orders</Link>
+                    </li>
                     <li className="nav-text">Support</li>
                     <li>
                         <div

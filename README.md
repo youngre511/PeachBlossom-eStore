@@ -25,15 +25,19 @@
             -   Tags
             -   Sessions
     -   CRUD Functionality for all of the above
-    -   Infrastructure in place for promotions
+    -   Infrastructure in place for promotions [COMPLETE]
 
 ### Phase 2: Basic Admin UI
 
--   Dashboard
 -   Product Management
-    -   Product CRUD interface
--   Inventory Management
--   Marketing and Promotions Management
+    -   Add Products [COMPLETE]
+    -   View Products with Sort and Filter [COMPLETE]
+    -   Update Products [COMPLETE]
+    -   Discontinue Products
+    -   Delete Products
+-   Categories
+    -   Manage Categories and SubCategories
+-   Inventory Management [COMPLETE]
 -   Order Management
 -   Customer Management
 -   Admin User Accounts
@@ -47,7 +51,9 @@
 
 ### Phase 4: Admin Analytics
 
--   Sales Trends
+-   Dashboard
+    -   Sales Trends
+-   Marketing and Promotions Management
 
 ### Phase 5: Customer Activity Logging
 

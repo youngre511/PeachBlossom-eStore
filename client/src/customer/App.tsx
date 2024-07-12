@@ -44,7 +44,7 @@ const CustomerApp: React.FC = () => {
                         <Route path="/about" element={<About />} />
                         <Route path="/login" element={<Login />} />
                         <Route path="/signup" element={<Signup />} />
-                        <Route path="/orders" element={<OrderStatus />} />
+                        <Route path="/order-status" element={<OrderStatus />} />
                         <Route path="/shoppingcart" element={<Cart />} />
                         <Route path="/checkout" element={<Checkout />} />
                         <Route

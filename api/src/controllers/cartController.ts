@@ -88,9 +88,9 @@ export const getCartById: RequestHandler<CartIdRequestParams> = async (
             payload: error,
         };
 
-        console.log(errorObj);
+        console.error(errorObj);
 
-        res.json(errorObj);
+        res.status(500).json(errorObj);
     }
 };
 
@@ -117,9 +117,9 @@ export const addToCart: RequestHandler = async (
             payload: error,
         };
 
-        console.log(errorObj);
+        console.error(errorObj);
 
-        res.json(errorObj);
+        res.status(500).json(errorObj);
     }
 };
 
@@ -145,9 +145,9 @@ export const updateItemQuantity: RequestHandler = async (
             payload: error,
         };
 
-        console.log(errorObj);
+        console.error(errorObj);
 
-        res.json(errorObj);
+        res.status(500).json(errorObj);
     }
 };
 
@@ -169,9 +169,9 @@ export const deleteFromCart: RequestHandler = async (
             payload: error,
         };
 
-        console.log(errorObj);
+        console.error(errorObj);
 
-        res.json(errorObj);
+        res.status(500).json(errorObj);
     }
 };
 
@@ -193,8 +193,8 @@ export const mergeCarts: RequestHandler = async (
             payload: error,
         };
 
-        console.log(errorObj);
+        console.error(errorObj);
 
-        res.json(errorObj);
+        res.status(500).json(errorObj);
     }
 };

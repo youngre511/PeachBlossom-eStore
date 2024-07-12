@@ -27,7 +27,7 @@ export default {
                 onDelete: "CASCADE",
             },
             thumbnailUrl: {
-                type: DataTypes.STRING(50),
+                type: DataTypes.STRING,
                 allowNull: true,
             },
             promotionId: {

@@ -30,9 +30,9 @@ export const holdStock = async (req: CartIdRequest, res: Response) => {
             payload: error,
         };
 
-        console.log(errorObj);
+        console.error(errorObj);
 
-        res.json(errorObj);
+        res.status(500).json(errorObj);
     }
 };
 
@@ -51,9 +51,9 @@ export const releaseStock = async (req: CartIdRequest, res: Response) => {
             payload: error,
         };
 
-        console.log(errorObj);
+        console.error(errorObj);
 
-        res.json(errorObj);
+        res.status(500).json(errorObj);
     }
 };
 
@@ -78,8 +78,8 @@ export const updateStockLevels = async (
             payload: error,
         };
 
-        console.log(errorObj);
+        console.error(errorObj);
 
-        res.json(errorObj);
+        res.status(500).json(errorObj);
     }
 };
