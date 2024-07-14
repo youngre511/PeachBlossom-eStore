@@ -1,0 +1,25 @@
+.order-status-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+
+.order-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.shipping-billing-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.order-item-list {
+    width: 90vw;
+    margin: 0 5vw;
+}
+
+.order-status-thumbnail {
+    width: 40px;
+    height: auto;
+}

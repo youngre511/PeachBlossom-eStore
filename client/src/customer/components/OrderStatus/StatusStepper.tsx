@@ -54,12 +54,12 @@ export const StatusStepper: React.FC<Props> = ({ orderStatus }) => {
     ];
 
     return (
-        <Box sx={{ maxWidth: 400 }}>
-            <Stepper activeStep={activeStep} orientation="vertical">
+        <Box sx={{ maxWidth: 800 }}>
+            <Stepper activeStep={activeStep}>
                 {steps.map((step, index) => (
                     <Step key={step.label}>
                         <StepLabel>{step.label}</StepLabel>
-                        <StepContent>{step.description}</StepContent>
+                        {/* <StepContent>{step.description}</StepContent> */}
                     </Step>
                 ))}
             </Stepper>
