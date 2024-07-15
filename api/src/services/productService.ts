@@ -292,9 +292,9 @@ export const getProducts = async (filters: FilterObject) => {
     if (validSortMethods.includes(filters.sort)) {
         const sortParams = filters.sort.split("-");
         const sortOrder = sortParams[1] === "ascend" ? 1 : -1;
-        query = query.sort({ [sortParams[1]]: sortOrder });
+        query = query.sort({ [sortParams[0]]: sortOrder });
     }
-
+    console.log("sort", query.getOptions().sort);
     //Get number of total results
     const totalCount = await Product.countDocuments(query.getQuery());
 
@@ -356,7 +356,7 @@ export const getProducts = async (filters: FilterObject) => {
         };
         return catObj;
     });
-
+    console.log("productRecords:", productRecords);
     return { totalCount, productRecords };
 };
 

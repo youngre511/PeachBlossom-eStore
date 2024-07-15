@@ -8,9 +8,9 @@
     -   Search
     -   Filtering [COMPLETE]
     -   Customer Service Links
-    -   Cart
+    -   Cart [COMPLETE]
     -   Checkout [COMPLETE]
-    -   Order Status
+    -   Order Status [COMPLETE]
     -   Order Confirmation [COMPLETE]
 -   Basic Back-End
     -   Databases
@@ -22,8 +22,6 @@
         -   MongoDB
             -   Products
             -   Categories
-            -   Tags
-            -   Sessions
     -   CRUD Functionality for all of the above
     -   Infrastructure in place for promotions [COMPLETE]
 
@@ -34,25 +32,25 @@
     -   View Products with Sort and Filter [COMPLETE]
     -   Update Products [COMPLETE]
     -   Discontinue Products
-    -   Delete Products
+    -   Delete Products (Back-End Only for Data Integrity)
 -   Categories
     -   Manage Categories and SubCategories
 -   Inventory Management [COMPLETE]
 -   Order Management
--   Customer Management
--   Admin User Accounts
--   Admin User Management
+-   Dashboard
+    -   Basic Sales Trends
 
-### Phase 3: Customer Accounts
+### Phase 3: Accounts
 
 -   LogIn/LogOut
 -   Account Management
 -   User Preferences
+-   Admin User Accounts
+-   Admin User Management
 
 ### Phase 4: Admin Analytics
 
--   Dashboard
-    -   Sales Trends
+-   Customer Management
 -   Marketing and Promotions Management
 
 ### Phase 5: Customer Activity Logging

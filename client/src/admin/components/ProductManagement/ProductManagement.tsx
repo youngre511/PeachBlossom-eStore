@@ -42,6 +42,7 @@ const ProductManagement: React.FC<Props> = () => {
     const sort = searchParams.get("sort") || "name-ascend";
     const view = searchParams.get("view") || "active";
     const itemsPerPage = searchParams.get("itemsPerPage") || 24;
+    const [menuDataLoading, setMenuDataLoading] = useState<boolean>(true);
 
     const navigate = useNavigate();
 
@@ -59,28 +60,18 @@ const ProductManagement: React.FC<Props> = () => {
     }, [search, category, subCategory, tags, sort, page, view, itemsPerPage]);
 
     useEffect(() => {
-        const params = {
-            search,
-            category,
-            subCategory,
-            tags,
-            sort,
-            page,
-            view,
-            itemsPerPage,
-        };
-        //FetchLogic
-        const currentFilters = Object.values(memoParams).map((value) =>
-            value ? value.toString() : ""
-        );
-        const existingFilters = Object.values({
-            ...avCatalog.filters,
-        }).map((value) => (value ? value.toString() : ""));
-        const filtersChanged = !arraysEqual(currentFilters, existingFilters);
-        if (filtersChanged) {
-            dispatch(avFetchProducts(params as AVFilters));
+        if (avMenuData.categories) {
+            if (category && !categorySelection) {
+                console.log("running setCategory");
+                console.log("avMenuData", avMenuData.categories);
+                setCategorySelection(
+                    avMenuData.categories.filter(
+                        (cat) => cat.name === category
+                    )[0]
+                );
+            }
         }
-    }, [search, category, subCategory, page, tags, sort, view, itemsPerPage]);
+    }, [avMenuData]);
 
     useEffect(() => {
         const initialParams: Record<string, string> = {};
@@ -110,19 +101,33 @@ const ProductManagement: React.FC<Props> = () => {
                 });
                 return newParams;
             });
+        } else {
+            const params = {
+                search,
+                category,
+                subCategory,
+                tags,
+                sort,
+                page,
+                view,
+                itemsPerPage,
+            };
+            //FetchLogic
+            const currentFilters = Object.values(memoParams).map((value) =>
+                value ? value.toString() : ""
+            );
+            const existingFilters = Object.values({
+                ...avCatalog.filters,
+            }).map((value) => (value ? value.toString() : ""));
+            const filtersChanged = !arraysEqual(
+                currentFilters,
+                existingFilters
+            );
+            if (filtersChanged) {
+                dispatch(avFetchProducts(params as AVFilters));
+            }
         }
-        const params = {
-            search,
-            category,
-            subCategory,
-            tags,
-            sort,
-            page,
-            view,
-            itemsPerPage,
-        };
-        dispatch(avFetchProducts(params as AVFilters));
-    }, [searchParams, setSearchParams]);
+    }, [search, category, subCategory, page, tags, sort, view, itemsPerPage]);
 
     const updateSearchParams = (newFilters: Record<string, string>): void => {
         Object.keys(newFilters).forEach((key) => {
@@ -149,7 +154,7 @@ const ProductManagement: React.FC<Props> = () => {
             updateSearchParams({ category: value });
         } else {
             searchParams.delete("category");
-            searchParams.delete("subCategory");
+            searchParams.delete("sub_category");
             setSearchParams(searchParams);
         }
     };
@@ -157,12 +162,13 @@ const ProductManagement: React.FC<Props> = () => {
     const handleSubcategorySelect = (
         event: SelectChangeEvent<string>
     ): void => {
+        console.log("event target value:", event.target.value);
         const value =
             event.target.value === "All" ? "null" : event.target.value;
         if (value) {
-            updateSearchParams({ subCategory: value });
+            updateSearchParams({ sub_category: value });
         } else {
-            searchParams.delete("subCategory");
+            searchParams.delete("sub_category");
             setSearchParams(searchParams);
         }
     };
@@ -215,7 +221,11 @@ const ProductManagement: React.FC<Props> = () => {
                         <Select
                             fullWidth
                             labelId={"category-label"}
-                            value={category || "All"}
+                            value={
+                                avMenuData.categories.length > 0
+                                    ? category || "All"
+                                    : "All"
+                            }
                             variant="outlined"
                             id="category"
                             label="Category"
@@ -241,7 +251,9 @@ const ProductManagement: React.FC<Props> = () => {
                         <Select
                             fullWidth
                             labelId={"subcategory-label"}
-                            value={subCategory || "All"}
+                            value={
+                                categorySelection ? subCategory || "all" : "all"
+                            }
                             variant="outlined"
                             id="category"
                             disabled={
@@ -253,16 +265,16 @@ const ProductManagement: React.FC<Props> = () => {
                             label="Subcategory"
                             onChange={handleSubcategorySelect}
                         >
-                            <MenuItem value={"All"}>All</MenuItem>
+                            <MenuItem value={"all"}>All</MenuItem>
                             {categorySelection &&
                                 categorySelection?.subCategories.length > 0 &&
                                 categorySelection.subCategories.map(
-                                    (subCategory: string, index) => (
+                                    (subCat: string, index) => (
                                         <MenuItem
-                                            value={subCategory}
+                                            value={subCat}
                                             key={`subcategory-${index}`}
                                         >
-                                            {subCategory}
+                                            {subCat}
                                         </MenuItem>
                                     )
                                 )}

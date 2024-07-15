@@ -27,7 +27,7 @@ const initialState: CatalogState = {
         maxDepth: null,
         tags: null,
         material: null,
-        sortMethod: "name-ascend",
+        sort: "name-ascend",
         page: "1",
     },
     loading: false,
@@ -49,8 +49,8 @@ export const fetchProducts = createAsyncThunk<
         const existingFilters = state.catalog.filters;
         let filterUnchanged = true;
 
-        if (!filters.sortMethod) {
-            filters.sortMethod = "name-ascend";
+        if (!filters.sort) {
+            filters.sort = "name-ascend";
         }
         if (!filters.page) {
             filters.page = "1";

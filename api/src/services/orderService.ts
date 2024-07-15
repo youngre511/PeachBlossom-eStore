@@ -159,8 +159,6 @@ export const getOrders = async (filters: GetOrdersFilters) => {
     if (filters.state) {
         if (Array.isArray(filters.state)) {
             andConditions.push({ stateAbbr: { [Op.in]: filters.state } });
-        } else {
-            andConditions.push({ stateAbbr: filters.state });
         }
     }
 
@@ -211,7 +209,7 @@ export const getOrders = async (filters: GetOrdersFilters) => {
         orderArray.push(["orderDate", "ASC"]);
     }
 
-    const orders = (await sqlOrder.findAndCountAll({
+    const ordersData = (await sqlOrder.findAndCountAll({
         where: whereClause,
         order: orderArray,
         limit: +filters.itemsPerPage,
@@ -220,18 +218,20 @@ export const getOrders = async (filters: GetOrdersFilters) => {
         nest: true,
     })) as unknown as JoinReqFilteredOrders;
 
-    const totalCount = orders.count;
+    const totalCount = ordersData.count;
 
-    if (totalCount > 0 && !orders) {
+    if (totalCount > 0 && !ordersData) {
         throw new Error("An unknown error occurred when retrieving orders");
     }
 
-    let parsedOrders = [];
-    if (totalCount > 0 && orders) {
-        parsedOrders = orders.rows.map((order) => extractOrderData(order));
+    let orders = [];
+    if (totalCount > 0 && ordersData) {
+        orders = ordersData.rows.map((orderData) =>
+            extractOrderData(orderData)
+        );
     }
 
-    return { totalCount, parsedOrders };
+    return { totalCount, orders };
 };
 
 export const getOneOrder = async (

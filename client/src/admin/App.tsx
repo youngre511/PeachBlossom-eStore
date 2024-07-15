@@ -13,6 +13,7 @@ import {
     avFetchSearchOptions,
 } from "./features/AVMenuData/avMenuDataSlice";
 import AVProductDetails from "./components/AVProductDetails/AVProductDetails";
+import OrderManagement from "./components/OrderManagement/OrderManagement";
 
 function AdminApp() {
     const dispatch = useAppDispatch();
@@ -39,6 +40,10 @@ function AdminApp() {
                         <Route
                             path="products/product-details"
                             element={<AVProductDetails />}
+                        />
+                        <Route
+                            path="/orders/manage"
+                            element={<OrderManagement />}
                         />
                     </Routes>
                 </main>

@@ -69,7 +69,7 @@ export interface Filters {
     maxDepth: string | null;
     tags: string[] | null;
     material: string[] | null;
-    sortMethod: string;
+    sort: string;
     page: string;
 }
 

@@ -45,8 +45,6 @@ const InventoryManagement: React.FC<Props> = () => {
     const sort = searchParams.get("sort") || "name-ascend";
     const itemsPerPage = searchParams.get("itemsPerPage") || 24;
 
-    const navigate = useNavigate();
-
     const memoParams = useMemo(() => {
         return {
             search,
@@ -60,26 +58,54 @@ const InventoryManagement: React.FC<Props> = () => {
     }, [search, category, subCategory, tags, sort, page, itemsPerPage]);
 
     useEffect(() => {
-        const params = {
-            search,
-            category,
-            subCategory,
-            tags,
-            sort,
-            page,
-            itemsPerPage,
-            view: "active",
-        };
-        //FetchLogic
-        const currentFilters = Object.values(memoParams).map((value) =>
-            value ? value.toString() : ""
-        );
-        const existingFilters = Object.values({
-            ...avCatalog.filters,
-        }).map((value) => (value ? value.toString() : ""));
-        const filtersChanged = !arraysEqual(currentFilters, existingFilters);
-        if (filtersChanged) {
-            dispatch(avFetchProducts(params as AVFilters));
+        const initialParams: Record<string, string> = {};
+
+        if (!searchParams.get("sort")) {
+            initialParams.sort = "name-ascend";
+        }
+        if (!searchParams.get("page")) {
+            initialParams.page = "1";
+        }
+
+        if (!searchParams.get("itemsPerPage")) {
+            initialParams.itemsPerPage = "24";
+        }
+
+        if (Object.keys(initialParams).length > 0) {
+            setSearchParams((prevParams) => {
+                const newParams = new URLSearchParams(prevParams);
+                Object.keys(initialParams).forEach((key) => {
+                    if (!newParams.get(key)) {
+                        newParams.set(key, initialParams[key]);
+                    }
+                });
+                return newParams;
+            });
+        } else {
+            const params = {
+                search,
+                category,
+                subCategory,
+                tags,
+                sort,
+                page,
+                itemsPerPage,
+                view: "active",
+            };
+            //FetchLogic
+            const currentFilters = Object.values(memoParams).map((value) =>
+                value ? value.toString() : ""
+            );
+            const existingFilters = Object.values({
+                ...avCatalog.filters,
+            }).map((value) => (value ? value.toString() : ""));
+            const filtersChanged = !arraysEqual(
+                currentFilters,
+                existingFilters
+            );
+            if (filtersChanged) {
+                dispatch(avFetchProducts(params as AVFilters));
+            }
         }
     }, [search, category, subCategory, page, tags, sort, itemsPerPage]);
 

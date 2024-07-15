@@ -36,6 +36,7 @@ export const avFetchProducts = createAsyncThunk<
 >(
     "avCatalog/avFetchProducts",
     async (filters: AVFilters, { getState, rejectWithValue }) => {
+        console.log("running");
         const state = getState() as RootState;
         const existingFilters = state.avCatalog.filters;
         let filterUnchanged = true;
@@ -67,7 +68,6 @@ export const avFetchProducts = createAsyncThunk<
             }
         } else {
             filterUnchanged = false;
-            console.log("didn't change");
         }
 
         if (filterUnchanged) {
@@ -79,7 +79,6 @@ export const avFetchProducts = createAsyncThunk<
         }
 
         const params = { ...filters };
-        console.log("params", params);
         try {
             const response = await axios.get(
                 `${process.env.REACT_APP_API_URL}product/admin`,

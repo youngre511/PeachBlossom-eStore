@@ -35,7 +35,7 @@ const Shop = () => {
     const minDepth = searchParams.get("min_Depth");
     const maxDepth = searchParams.get("max_Depth");
     const tags = searchParams.get("tags")?.split(",") || null;
-    const sortMethod = searchParams.get("sort") || "name-ascend";
+    const sort = searchParams.get("sort") || "name-ascend";
     const material = searchParams.get("material")?.split(",") || null;
 
     const memoParams = useMemo(() => {
@@ -54,7 +54,7 @@ const Shop = () => {
             maxDepth,
             tags,
             material,
-            sortMethod,
+            sort,
             page,
             itemsPerPage,
         };
@@ -73,7 +73,7 @@ const Shop = () => {
         maxDepth,
         tags,
         material,
-        sortMethod,
+        sort,
         page,
         itemsPerPage,
     ]);
@@ -114,7 +114,7 @@ const Shop = () => {
                 maxDepth,
                 tags,
                 material,
-                sortMethod,
+                sort,
                 page,
             };
             //FetchLogic
@@ -148,10 +148,53 @@ const Shop = () => {
         minHeight,
         maxHeight,
         tags,
-        sortMethod,
+        sort,
         material,
         itemsPerPage,
     ]);
+
+    useEffect(() => {
+        const initialParams: Record<string, string> = {};
+
+        if (!searchParams.get("sort")) {
+            initialParams.sort = "name-ascend";
+        }
+        if (!searchParams.get("page")) {
+            initialParams.page = "1";
+        }
+
+        if (Object.keys(initialParams).length > 0) {
+            setSearchParams((prevParams) => {
+                const newParams = new URLSearchParams(prevParams);
+                Object.keys(initialParams).forEach((key) => {
+                    if (!newParams.get(key)) {
+                        newParams.set(key, initialParams[key]);
+                    }
+                });
+                return newParams;
+            });
+        }
+        const params = {
+            search,
+            category,
+            subCategory,
+            color,
+            minPrice,
+            maxPrice,
+            minWidth,
+            maxWidth,
+            minHeight,
+            maxHeight,
+            minDepth,
+            maxDepth,
+            tags,
+            material,
+            sort,
+            page,
+        };
+        console.log(params);
+        dispatch(fetchProducts(params as Filters));
+    }, [searchParams, setSearchParams]);
 
     const handleItemsPerPageChange = (newItemsPerPage: 24 | 48 | 96) => {
         dispatch(setItemsPerPage(newItemsPerPage));
@@ -219,7 +262,7 @@ const Shop = () => {
                     )}
                     <div className="sort-and-ipp">
                         <SortMethodSelector
-                            sortMethod={sortMethod}
+                            sortMethod={sort}
                             updateSearchParams={updateSearchParams}
                         />
                         <div className="per-page-selector">

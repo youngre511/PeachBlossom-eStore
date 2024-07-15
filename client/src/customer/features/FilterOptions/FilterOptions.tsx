@@ -100,7 +100,7 @@ const FilterOptions: React.FC<Props> = ({
         maxDepth: null,
         tags: null,
         material: [],
-        sortMethod: "name-ascend",
+        sort: "name-ascend",
         page: "1",
     });
 

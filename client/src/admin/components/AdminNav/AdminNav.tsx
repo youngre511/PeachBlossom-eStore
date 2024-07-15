@@ -179,7 +179,7 @@ const AdminNav: React.FC<Props> = (props: Props) => {
                     </ListItemButton>
                 </ListItem>
                 <ListItem disablePadding>
-                    <ListItemButton>
+                    <ListItemButton onClick={() => navigate("/orders/manage")}>
                         <ListItemIcon>
                             <OrdersIcon className="menu-svg" />
                         </ListItemIcon>
