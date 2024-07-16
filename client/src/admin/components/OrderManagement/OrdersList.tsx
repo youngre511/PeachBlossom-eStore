@@ -17,6 +17,7 @@ import {
     Tooltip,
     IconButton,
 } from "@mui/material";
+import dayjs from "dayjs";
 
 import MoreVertSharpIcon from "@mui/icons-material/MoreVertSharp";
 import ImageSharpIcon from "@mui/icons-material/ImageSharp";
@@ -24,6 +25,7 @@ import ModeEditSharpIcon from "@mui/icons-material/ModeEditSharp";
 import AddAPhotoSharpIcon from "@mui/icons-material/AddAPhotoSharp";
 import OrdersListHead from "./OrdersListHead";
 import { AVOrder } from "./OrderManagement";
+import { useNavigate } from "react-router-dom";
 
 interface AVCatProps {
     page: number;
@@ -53,12 +55,13 @@ const OrdersList: React.FC<AVCatProps> = ({
     const [order, setOrder] = React.useState<Order>("desc");
     const [orderBy, setOrderBy] = React.useState<keyof AVOrder>("orderDate");
     const [rowsPerPage, setRowsPerPage] = React.useState(24);
+    const navigate = useNavigate();
 
     const rows = results.map((order) => {
         const rowData: Row = {
             orderNo: order.orderNo,
             orderDate: order.orderDate.toLocaleString(),
-            total: `$${order.totalAmount.toFixed(2)}`,
+            total: `$${Number(order.totalAmount).toFixed(2)}`,
             //If shipping address has a second part, replace the spaced-pipe connector with a comma, otherwise, use only the first part.
             shippingAddress: order.shippingAddress.split(" | ")[1]
                 ? order.shippingAddress.replace(" |", ",")
@@ -123,11 +126,22 @@ const OrdersList: React.FC<AVCatProps> = ({
                                         tabIndex={-1}
                                         key={row.orderNo}
                                     >
-                                        <TableCell component="th" scope="row">
+                                        <TableCell
+                                            component="th"
+                                            scope="row"
+                                            sx={{ cursor: "pointer" }}
+                                            onClick={() =>
+                                                navigate(
+                                                    `/orders/order-details?order=${row.orderNo}`
+                                                )
+                                            }
+                                        >
                                             {row.orderNo}
                                         </TableCell>
                                         <TableCell align="left">
-                                            {row.orderDate}
+                                            {dayjs(row.orderDate).format(
+                                                "YYYY-MM-DD HH:mm:ss"
+                                            )}
                                         </TableCell>
                                         <TableCell align="right">
                                             {row.total}

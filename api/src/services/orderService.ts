@@ -45,23 +45,20 @@ interface JoinReqFilteredOrders extends Model {
 const extractOrderData = (
     orderData: JoinReqOrderDetails | JoinReqOrderSummary
 ) => {
-    console.log("orderData", orderData);
     const parsedOrder = orderData.get();
     if (parsedOrder.OrderItem) {
         const parsedOrderItems = parsedOrder.OrderItem.map(
             (item: JoinReqOrderItem) => {
-                console.log("item", item);
                 const parsedItem = item.get();
                 if (parsedItem.Product) {
                     parsedItem.Product = parsedItem.Product.get();
                 }
-                console.log("parsedItem", parsedItem);
+
                 return parsedItem;
             }
         );
         parsedOrder.OrderItem = parsedOrderItems;
     }
-    console.log("extractOrder parsedOrder", parsedOrder);
     return parsedOrder;
 };
 
@@ -153,6 +150,7 @@ export const getOrders = async (filters: GetOrdersFilters) => {
     const andConditions = [];
 
     if (filters.orderStatus) {
+        console.log("orderStatus", filters.orderStatus);
         andConditions.push({ orderStatus: { [Op.in]: filters.orderStatus } });
     }
 
@@ -162,13 +160,13 @@ export const getOrders = async (filters: GetOrdersFilters) => {
         }
     }
 
-    if (filters.earliestOrderDate || filters.latestOrderDate) {
+    if (filters.startDate || filters.endDate) {
         const dateConditions: { [key: symbol]: Date } = {};
-        if (filters.earliestOrderDate) {
-            dateConditions[Op.gte] = new Date(filters.earliestOrderDate);
+        if (filters.startDate) {
+            dateConditions[Op.gte] = new Date(filters.startDate);
         }
-        if (filters.latestOrderDate) {
-            dateConditions[Op.lte] = new Date(filters.latestOrderDate);
+        if (filters.endDate) {
+            dateConditions[Op.lte] = new Date(filters.endDate);
         }
         andConditions.push({ orderDate: dateConditions });
     }
@@ -180,33 +178,28 @@ export const getOrders = async (filters: GetOrdersFilters) => {
     const validSortMethods = [
         "orderDate-ascend",
         "orderDate-descend",
-        "total-ascend",
-        "total-descend",
-        "state-ascend",
-        "state-descend",
+        "totalAmount-ascend",
+        "totalAmount-descend",
+        "stateAbbr-ascend",
+        "stateAbbr-descend",
         "orderNo-ascend",
         "orderNo-descend",
     ];
 
     let sortBy: string;
     let sortOrder: string;
+
     if (validSortMethods.includes(filters.sort)) {
         const splitSort = filters.sort.split("-");
         sortOrder = splitSort[1].split("en")[0].toUpperCase();
-        // Substitute updatedAt for lastModified and productName for name
-        sortBy =
-            splitSort[0] === "state"
-                ? "stateAbbr"
-                : splitSort[0] === "total"
-                ? "totalAmount"
-                : splitSort[0];
+        sortBy = splitSort[0];
     } else {
-        (sortOrder = "ASC"), (sortBy = "name");
+        (sortOrder = "DESC"), (sortBy = "orderDate");
     }
 
     const orderArray: Order = [[sortBy, sortOrder]];
     if (sortBy !== "orderDate") {
-        orderArray.push(["orderDate", "ASC"]);
+        orderArray.push(["orderDate", "DESC"]);
     }
 
     const ordersData = (await sqlOrder.findAndCountAll({
@@ -238,6 +231,7 @@ export const getOneOrder = async (
     orderNo: string,
     email: string | undefined
 ) => {
+    console.log("ORDER NO:", orderNo);
     const sqlTransaction = await sequelize.transaction();
     try {
         const orderData = (await sqlOrder.findOne({

@@ -52,8 +52,8 @@ export interface GetOrdersFilters {
     orderStatus?: string[];
     search?: string;
     state?: string[];
-    earliestOrderDate?: string;
-    latestOrderDate?: string;
+    startDate?: string;
+    endDate?: string;
     page: string;
     itemsPerPage: string;
 }
@@ -64,8 +64,8 @@ interface GetOrdersRequest extends Request {
         orderStatus?: string[];
         search?: string;
         state?: string[];
-        earliestOrderDate?: string;
-        latestOrderDate?: string;
+        startDate?: string;
+        endDate?: string;
         page: string;
         itemsPerPage: string;
     };

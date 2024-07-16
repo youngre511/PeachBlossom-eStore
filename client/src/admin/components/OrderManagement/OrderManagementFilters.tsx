@@ -9,9 +9,12 @@ import {
     InputLabel,
     MenuItem,
     SelectChangeEvent,
+    styled,
+    IconButton,
 } from "@mui/material";
 import SearchField from "../../../common/components/Fields/SearchField";
 import { SelectFieldNonFormik } from "../../../common/components/Fields/SelectFieldNonFormik";
+import { EditCalendarSharp } from "@mui/icons-material";
 
 const inputStyle = {
     "& .MuiInputBase-root.MuiOutlinedInput-root": {
@@ -116,14 +119,31 @@ const OrderManagementFilters: React.FC<Props> = ({ updateSearchParams }) => {
         } else {
             st = "";
         }
+        const startDate = dateMin ? dateMin.format("YYYY-MM-DD") : "";
+        const endDate = dateMax ? dateMax.format("YYYY-MM-DD") : "";
         const updateParams: Record<string, string> = {
-            earliestOrderDate: String(dateMin),
-            latestOrderDate: String(dateMax),
-            orderStatus: orderStatus.length > 0 ? orderStatus.join(",") : "",
+            startDate: startDate,
+            endDate: endDate,
+            orderStatus:
+                orderStatus.length > 0
+                    ? orderStatus.join(",").toLowerCase()
+                    : "",
             state: st,
         };
+        console.log(updateParams);
         updateSearchParams(updateParams);
     }, [dateMin, dateMax, orderStatus, region, state]);
+
+    // useEffect(() => {
+    //     if (cleared) {
+    //       const timeout = setTimeout(() => {
+    //         setCleared(false);
+    //       }, 1500);
+
+    //       return () => clearTimeout(timeout);
+    //     }
+    //     return () => {};
+    //   }, [cleared]);
 
     return (
         <div className="search-and-filters">
@@ -195,6 +215,14 @@ const OrderManagementFilters: React.FC<Props> = ({ updateSearchParams }) => {
                             disableFuture={true}
                             minDate={dayjs("2024-06-01")}
                             maxDate={dateMax ? dateMax : dayjs()}
+                            slotProps={{
+                                actionBar: {
+                                    actions: dateMax
+                                        ? ["clear", "accept"]
+                                        : ["cancel", "accept"],
+                                },
+                                field: { clearable: true },
+                            }}
                         />
                     </LocalizationProvider>
                 </div>
@@ -207,6 +235,14 @@ const OrderManagementFilters: React.FC<Props> = ({ updateSearchParams }) => {
                             disableFuture={true}
                             minDate={dateMin ? dateMin : dayjs("2024-06-01")}
                             maxDate={dayjs()}
+                            slotProps={{
+                                actionBar: {
+                                    actions: dateMax
+                                        ? ["clear", "accept"]
+                                        : ["cancel", "accept"],
+                                },
+                                field: { clearable: true },
+                            }}
                         />
                     </LocalizationProvider>
                 </div>

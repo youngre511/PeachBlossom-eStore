@@ -5,28 +5,27 @@ import OrdersList from "./OrdersList";
 import axios, { AxiosError } from "axios";
 import "./order-management.css";
 import OrderManagementFilters from "./OrderManagementFilters";
-import { ApiResponse } from "../AddProduct/AddProduct";
 
 export interface AVOrderFilters {
     sort: string;
     orderStatus?: string[];
     search?: string;
     state?: string[];
-    earliestOrderDate?: string;
-    latestOrderDate?: string;
+    startDate?: string;
+    endDate?: string;
     page: string;
     itemsPerPage: string;
 }
 
 export interface AVOrder {
-    order_id: number;
+    order_id: string;
     customer_id: number | null;
     orderNo: string;
     orderDate: Date;
-    subTotal: number;
-    shipping: number;
-    tax: number;
-    totalAmount: number;
+    subTotal: string;
+    shipping: string;
+    tax: string;
+    totalAmount: string;
     shippingAddress: string;
     stateAbbr: string;
     zipCode: string;
@@ -43,25 +42,30 @@ interface Props {}
 const OrderManagement: React.FC<Props> = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const search = searchParams.get("search");
-    const orderStatus = searchParams.get("status");
+    const orderStatus = searchParams.get("orderStatus");
     const state = searchParams.get("state");
-    const dateMin = searchParams.get("dateMin");
-    const dateMax = searchParams.get("dateMax");
+    const startDate = searchParams.get("startDate");
+    const endDate = searchParams.get("endDate");
     const page = searchParams.get("page") || "1";
-    const sort = searchParams.get("sort") || "name-ascend";
+    const sort = searchParams.get("sort") || "orderDate-descend";
     const itemsPerPage = searchParams.get("itemsPerPage") || 24;
     const [results, setResults] = useState<AVOrder[]>([]);
     const [numberOfResults, setNumberOfResults] = useState<number>(0);
 
     const fetchOrders = async (filters: AVOrderFilters) => {
         try {
-            const response: ApiResponse<AVOrderResponse> = await axios.get(
+            const response = await axios.get(
                 `${process.env.REACT_APP_API_URL}order`,
                 {
                     params: filters,
                 }
             );
-            console.log(response);
+            if (!response.data) {
+                throw new Error("No data returned from server");
+            }
+            const results: AVOrderResponse = response.data;
+            setNumberOfResults(results.totalCount);
+            setResults(results.orders);
         } catch (error) {
             if (error instanceof AxiosError) {
                 console.error(error.message);
@@ -98,38 +102,44 @@ const OrderManagement: React.FC<Props> = () => {
                 return newParams;
             });
         } else {
-            const params = {
-                search,
-                orderStatus,
-                state,
-                sort,
-                page,
-                dateMin,
-                dateMax,
-                itemsPerPage,
+            //Construct filters obj
+            const params: AVOrderFilters = {
+                page: page,
+                itemsPerPage: String(itemsPerPage),
+                sort: sort,
             };
+
+            if (state) params["state"] = state.split(",");
+            if (search) params["search"] = search;
+            if (orderStatus) params["orderStatus"] = orderStatus.split(",");
+            if (startDate) params["startDate"] = startDate;
+            if (endDate) params["endDate"] = endDate;
+            console.log("params:", params);
             //FetchLogic
-            // const currentFilters = Object.values(memoParams).map((value) =>
-            //     value ? value.toString() : ""
-            // );
-            // const existingFilters = Object.values({
-            //     ...avCatalog.filters,
-            // }).map((value) => (value ? value.toString() : ""));
-            // const filtersChanged = !arraysEqual(
-            //     currentFilters,
-            //     existingFilters
-            // );
-            // if (filtersChanged) {
-            //     dispatch(avFetchProducts(params as AVFilters));
-            // }
+            fetchOrders(params);
         }
+
+        //FetchLogic
+        // const currentFilters = Object.values(memoParams).map((value) =>
+        //     value ? value.toString() : ""
+        // );
+        // const existingFilters = Object.values({
+        //     ...avCatalog.filters,
+        // }).map((value) => (value ? value.toString() : ""));
+        // const filtersChanged = !arraysEqual(
+        //     currentFilters,
+        //     existingFilters
+        // );
+        // if (filtersChanged) {
+        //     dispatch(avFetchProducts(params as AVFilters));
+        // }
     }, [
         search,
         orderStatus,
         state,
         page,
-        dateMin,
-        dateMax,
+        startDate,
+        endDate,
         sort,
         itemsPerPage,
     ]);
