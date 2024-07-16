@@ -37,7 +37,7 @@ export class sqlProduct extends Model {
     productNo!: string;
 
     @Column({
-        type: DataType.STRING,
+        type: DataType.STRING(100),
         allowNull: false,
     })
     productName!: string;
@@ -50,6 +50,7 @@ export class sqlProduct extends Model {
 
     @Column({
         type: DataType.TEXT("tiny"),
+        allowNull: false,
     })
     description!: string;
 

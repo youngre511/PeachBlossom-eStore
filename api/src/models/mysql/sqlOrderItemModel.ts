@@ -26,11 +26,17 @@ export class sqlOrderItem extends Model {
 
     @Index
     @ForeignKey(() => sqlOrder)
-    @Column(DataType.BIGINT)
+    @Column({
+        type: DataType.BIGINT,
+        allowNull: false,
+    })
     order_id!: number;
 
     @ForeignKey(() => sqlProduct)
-    @Column(DataType.STRING(20))
+    @Column({
+        type: DataType.STRING(20),
+        allowNull: false,
+    })
     productNo!: string;
 
     @BelongsTo(() => sqlProduct, {
@@ -63,6 +69,7 @@ export class sqlOrderItem extends Model {
             "on hold",
             "exception"
         ),
+        allowNull: false,
     })
     fulfillmentStatus!: string;
 }

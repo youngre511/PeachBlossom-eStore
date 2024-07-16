@@ -25,7 +25,10 @@ export class sqlCartItem extends Model {
 
     @Index
     @ForeignKey(() => sqlCart)
-    @Column(DataType.BIGINT)
+    @Column({
+        type: DataType.BIGINT,
+        allowNull: false,
+    })
     cart_id!: number;
 
     @BelongsTo(() => sqlCart, {
@@ -36,7 +39,10 @@ export class sqlCartItem extends Model {
     cart!: sqlCart;
 
     @ForeignKey(() => sqlProduct)
-    @Column(DataType.STRING(20))
+    @Column({
+        type: DataType.STRING(20),
+        allowNull: false,
+    })
     productNo!: string;
 
     @BelongsTo(() => sqlProduct, {
@@ -63,12 +69,21 @@ export class sqlCartItem extends Model {
     })
     promotion?: sqlPromotion;
 
-    @Column(DataType.INTEGER)
+    @Column({
+        type: DataType.INTEGER,
+        allowNull: false,
+    })
     quantity!: number;
 
-    @Column(DataType.DECIMAL(10, 2))
+    @Column({
+        type: DataType.DECIMAL(10, 2),
+        allowNull: false,
+    })
     finalPrice!: number;
 
-    @Column(DataType.BOOLEAN)
+    @Column({
+        type: DataType.BOOLEAN,
+        allowNull: true,
+    })
     reserved!: boolean;
 }

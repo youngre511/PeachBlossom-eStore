@@ -25,7 +25,10 @@ export class sqlInventory extends Model {
 
     @Unique
     @ForeignKey(() => sqlProduct)
-    @Column(DataType.BIGINT)
+    @Column({
+        type: DataType.BIGINT,
+        allowNull: false,
+    })
     product_id!: number;
 
     @Column({

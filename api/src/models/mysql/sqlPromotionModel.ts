@@ -24,25 +24,28 @@ export class sqlPromotion extends Model {
 
     @Unique
     @Column({
-        type: DataType.STRING,
+        type: DataType.STRING(255),
         allowNull: false,
     })
     promotionId!: string;
 
     @Index
     @Column({
-        type: DataType.STRING,
+        type: DataType.STRING(20),
         allowNull: true,
     })
     promotionCode?: string;
 
     @Column({
-        type: DataType.STRING,
+        type: DataType.STRING(255),
         allowNull: false,
     })
     promotionName!: string;
 
-    @Column(DataType.TEXT)
+    @Column({
+        type: DataType.TEXT,
+        allowNull: true,
+    })
     promotionDescription!: string;
 
     @Column({
@@ -72,7 +75,7 @@ export class sqlPromotion extends Model {
     @Column({
         type: DataType.BOOLEAN,
         allowNull: false,
-        defaultValue: true,
+        defaultValue: 1,
     })
     active!: boolean;
 

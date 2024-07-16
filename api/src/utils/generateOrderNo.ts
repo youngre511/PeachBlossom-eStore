@@ -15,6 +15,5 @@ export const generateOrderNo = async (): Promise<string> => {
             isUnique = true;
         }
     } while (!isUnique);
-    console.log("orderNo", orderNo);
     return orderNo;
 };

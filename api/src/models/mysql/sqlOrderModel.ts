@@ -41,6 +41,7 @@ export class sqlOrder extends Model {
     @Default(DataType.NOW)
     @Column({
         type: DataType.DATE,
+        allowNull: false,
     })
     orderDate!: Date;
 
@@ -107,6 +108,7 @@ export class sqlOrder extends Model {
             "delivered",
             "back ordered"
         ),
+        allowNull: false,
     })
     orderStatus!: string;
 
