@@ -98,6 +98,13 @@ export const getOneOrder = async (req: GetOneOrderRequest, res: Response) => {
         const { orderNo } = req.params;
         const { email } = req.query;
         const result = await orderService.getOneOrder(orderNo, email);
+        res.setHeader(
+            "Cache-Control",
+            "no-store, no-cache, must-revalidate, proxy-revalidate"
+        );
+        res.setHeader("Pragma", "no-cache");
+        res.setHeader("Expires", "0");
+        res.setHeader("Surrogate-Control", "no-store");
 
         // (res as PlaceOrderResponse).json(result);
         res.json(result);

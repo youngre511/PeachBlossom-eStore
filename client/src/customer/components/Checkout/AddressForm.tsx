@@ -153,6 +153,8 @@ const AddressForm: React.FC<AddressFormProps> = ({
                     value={shippingDetails.phoneNumber}
                     onChange={handleTelInputChange}
                     required
+                    defaultCountry="US"
+                    forceCallingCode
                 />
             </FormGrid>
             {/* <FormGrid item xs={12}>

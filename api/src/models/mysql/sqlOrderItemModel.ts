@@ -67,6 +67,7 @@ export class sqlOrderItem extends Model {
             "fulfilled",
             "back ordered",
             "on hold",
+            "cancelled",
             "exception"
         ),
         allowNull: false,

@@ -25,6 +25,7 @@ import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import updateLocale from "dayjs/plugin/updateLocale";
 import { MuiTelInput } from "mui-tel-input";
+import AVOrderItemList from "./AVOrderItemList";
 dayjs.extend(customParseFormat);
 dayjs.extend(updateLocale);
 dayjs.updateLocale("en", {
@@ -48,7 +49,7 @@ dayjs.updateLocale("en", {
 ///////TYPES///////
 ///////////////////
 
-interface AVOrderItem {
+export interface AVOrderItem {
     order_item_id: number;
     order_id: number;
     productNo: string;
@@ -193,7 +194,7 @@ const AVOrderDetails: React.FC = () => {
     const [status, setStatus] = useState<"loading" | "success" | "failure">(
         "loading"
     );
-
+    const [emailHelperText, setEmailHelperText] = useState<string>("");
     const [error, setError] = useState<null | string>(null);
     const [mustFetchData, setMustFetchData] = useState<boolean>(true);
     const taxRate = 0.06;
@@ -242,21 +243,21 @@ const AVOrderDetails: React.FC = () => {
         }
     }, [mustFetchData]);
 
-    const handleDecimalInput = (
+    const handleShippingInput = (
         event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
         setAction: React.Dispatch<SetStateAction<string>>
     ) => {
-        const regex = new RegExp("^d*.?d{0,2}$");
-        const { value } = event.currentTarget;
+        const regex = new RegExp("^\\d*\\.?\\d{0,2}$");
+        const { value } = event.target;
         if (regex.test(value) || value === "") {
-            event.currentTarget.value = value;
+            event.target.value = value;
             setAction(value);
         } else {
-            event.currentTarget.value = value.slice(0, -1);
+            event.target.value = value.slice(0, -1);
         }
     };
 
-    const handleDecimalBlur = (
+    const handleShippingBlur = (
         event: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>,
         setAction: React.Dispatch<SetStateAction<string>>
     ) => {
@@ -264,7 +265,31 @@ const AVOrderDetails: React.FC = () => {
         const newValue =
             Number(value) > 0 ? String(Number(value).toFixed(2)) : "";
         setAction(newValue);
+        setTax(String(((+subTotal + +shipping) * 0.06).toFixed(2)));
+        setTotal(String((+subTotal + +tax + +shipping).toFixed(2)));
         event.currentTarget.value = newValue;
+    };
+
+    const handleEmailBlur = (
+        event: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>
+    ) => {
+        const { value } = event.target;
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+        if (emailRegex.test(value)) {
+            console.log("valid");
+            setEmailHelperText("");
+        } else {
+            console.log("invalid");
+            setEmailHelperText("Please enter a valid email address");
+        }
+    };
+
+    const handleSetSubtotal = (newSubtotal: number) => {
+        setSubTotal(newSubtotal.toFixed(2));
+        const newTax = ((newSubtotal + +shipping) * 0.06).toFixed(2);
+        setTax(newTax);
+        setTotal((newSubtotal + +shipping + +newTax).toFixed(2));
     };
 
     // useEffect(() => {
@@ -404,26 +429,130 @@ const AVOrderDetails: React.FC = () => {
         <React.Fragment>
             {!loading && currentDetails && (
                 <Container>
-                    <div className="number-date">
-                        <h1 style={{ marginBottom: "30px" }}>
-                            Order {orderNo?.toLowerCase()}
-                        </h1>
-                        <div className="date">
-                            <h2>OrderDate</h2>
-                            <span>
-                                {dayjs(currentDetails.orderDate).format(
-                                    "DD MMMM, YYYY"
-                                )}
-                            </span>
-                            <span>
-                                {dayjs(currentDetails.orderDate).format(
-                                    "HH:mm:ss"
-                                )}
-                            </span>
-                        </div>
-                    </div>
-                    <Grid container spacing={3} sx={{ width: "100%" }}>
-                        <Grid container item xs={12} lg={6} rowSpacing={3}>
+                    <Grid container spacing={3} mt={3} sx={{ width: "100%" }}>
+                        <Grid
+                            container
+                            sx={{
+                                flexDirection: {
+                                    xs: "column-reverse",
+                                    md: "row",
+                                },
+                                justifyContent: "space-between",
+                            }}
+                        >
+                            <Grid item xs={12} md={6} sx={{ paddingLeft: 3 }}>
+                                <h1
+                                    style={{
+                                        marginBottom: "15px",
+                                        marginTop: 0,
+                                    }}
+                                >
+                                    Order {orderNo?.toLowerCase()}
+                                </h1>
+                                <div className="date">
+                                    <span style={{ fontWeight: 700 }}>
+                                        Order Date
+                                    </span>
+                                    <span>
+                                        {dayjs(currentDetails.orderDate).format(
+                                            "DD MMMM, YYYY"
+                                        )}
+                                    </span>
+                                    <span>
+                                        {dayjs(currentDetails.orderDate).format(
+                                            "HH:mm:ss"
+                                        )}
+                                    </span>
+                                </div>
+                            </Grid>
+                            <Grid
+                                item
+                                container
+                                xs={12}
+                                md={6}
+                                spacing={1}
+                                sx={{
+                                    justifyContent: "flex-end",
+                                    alignItems: "flex-start",
+                                }}
+                            >
+                                <Grid
+                                    item
+                                    container
+                                    xs={12}
+                                    sx={{
+                                        justifyContent: {
+                                            xs: "space-between",
+                                            md: "flex-end",
+                                        },
+                                    }}
+                                >
+                                    <Button
+                                        variant="outlined"
+                                        href="/products/manage"
+                                        sx={{
+                                            color: "black",
+                                            marginBottom: "20px",
+                                        }}
+                                    >
+                                        &lt; Back
+                                    </Button>
+
+                                    {editMode ? (
+                                        <div>
+                                            <Button
+                                                variant="contained"
+                                                onClick={() =>
+                                                    setIsConfirming(true)
+                                                }
+                                                sx={{
+                                                    marginLeft: "20px",
+                                                    marginBottom: "20px",
+                                                }}
+                                            >
+                                                Save
+                                            </Button>
+                                            <Button
+                                                sx={{
+                                                    marginLeft: "20px",
+                                                    marginBottom: "20px",
+                                                }}
+                                                variant="contained"
+                                                onClick={() => {
+                                                    searchParams.delete(
+                                                        "editing"
+                                                    );
+                                                    setSearchParams(
+                                                        searchParams
+                                                    );
+                                                    setMustFetchData(true);
+                                                }}
+                                            >
+                                                Cancel
+                                            </Button>
+                                        </div>
+                                    ) : (
+                                        <Button
+                                            variant="contained"
+                                            onClick={() => {
+                                                searchParams.set(
+                                                    "editing",
+                                                    "true"
+                                                );
+                                                setSearchParams(searchParams);
+                                            }}
+                                            sx={{
+                                                marginLeft: "20px",
+                                                marginBottom: "20px",
+                                            }}
+                                        >
+                                            Edit
+                                        </Button>
+                                    )}
+                                </Grid>
+                            </Grid>
+                        </Grid>
+                        <Grid container item xs={12} lg={8} rowSpacing={3}>
                             <Grid item xs={12}>
                                 <TextField
                                     fullWidth
@@ -450,7 +579,7 @@ const AVOrderDetails: React.FC = () => {
                                     variant={editMode ? "filled" : "standard"}
                                     id="shipping2"
                                     label="Shipping Address 2"
-                                    required={editMode ? true : false}
+                                    required={false}
                                     inputProps={{
                                         sx: editMode
                                             ? { backgroundColor: "white" }
@@ -473,12 +602,12 @@ const AVOrderDetails: React.FC = () => {
                                         }
                                         id="city"
                                         label="City"
-                                        required={false}
+                                        required={editMode}
                                         inputProps={{
                                             sx: editMode
                                                 ? { backgroundColor: "white" }
                                                 : undefined,
-                                            readOnly: true,
+                                            readOnly: editMode ? false : true,
                                         }}
                                         sx={
                                             editMode
@@ -496,9 +625,9 @@ const AVOrderDetails: React.FC = () => {
                                         }
                                         id="state"
                                         label="State"
-                                        required={editMode ? true : false}
+                                        required={editMode}
                                         inputProps={{
-                                            pattern: "^[a-ZA-Z]{2}$",
+                                            pattern: "^[A-Za-z]{2}$",
                                             sx: editMode
                                                 ? {
                                                       backgroundColor:
@@ -527,8 +656,8 @@ const AVOrderDetails: React.FC = () => {
                                             editMode ? "filled" : "standard"
                                         }
                                         id="zipcode"
-                                        label="zipCode"
-                                        required={editMode ? true : false}
+                                        label="Zip Code"
+                                        required={editMode}
                                         inputProps={{
                                             pattern: "^[0-9]{5}$",
                                             sx: editMode
@@ -566,26 +695,38 @@ const AVOrderDetails: React.FC = () => {
                                         }
                                         id="email"
                                         label="email"
-                                        required={editMode ? true : false}
+                                        required={editMode}
                                         inputProps={{
-                                            pattern:
-                                                "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$",
                                             sx: editMode
                                                 ? {
                                                       backgroundColor:
-                                                          "white !important",
+                                                          emailHelperText
+                                                              ? "#f58e90"
+                                                              : "white !important",
                                                   }
                                                 : undefined,
                                             readOnly: editMode ? false : true,
                                         }}
                                         sx={
                                             editMode
-                                                ? inputStyle
+                                                ? {
+                                                      ...inputStyle,
+                                                      "& .MuiFormHelperText-root":
+                                                          {
+                                                              color: "red",
+                                                          },
+                                                  }
                                                 : readOnlyStyle
                                         }
                                         value={email}
                                         onChange={(e) =>
                                             setEmail(e.target.value)
+                                        }
+                                        onBlur={(e) => handleEmailBlur(e)}
+                                        helperText={
+                                            emailHelperText
+                                                ? emailHelperText
+                                                : ""
                                         }
                                     />
                                 </Grid>
@@ -594,25 +735,45 @@ const AVOrderDetails: React.FC = () => {
                                         id="phone"
                                         name="phoneNumber"
                                         autoComplete="tel"
+                                        fullWidth
                                         value={phone}
                                         onChange={handleTelInputChange}
-                                        required
+                                        required={editMode}
+                                        defaultCountry="US"
+                                        forceCallingCode
+                                        inputProps={{
+                                            readOnly: editMode ? false : true,
+                                            sx: editMode
+                                                ? {
+                                                      backgroundColor:
+                                                          "white !important",
+                                                  }
+                                                : undefined,
+                                        }}
+                                        variant={
+                                            editMode ? "filled" : "standard"
+                                        }
+                                        sx={
+                                            editMode
+                                                ? inputStyle
+                                                : readOnlyStyle
+                                        }
                                     />
                                 </Grid>
                             </Grid>
                         </Grid>
-                        <Grid spacing={3} item xs={12} lg={6} container>
+                        <Grid item xs={0} lg={1}></Grid>
+                        <Grid spacing={3} item xs={12} lg={3} container>
                             <Grid
                                 item
-                                xs={6}
-                                md={3}
+                                xs={12}
                                 // sx={{ paddingLeft: { xs: "24px", md: "48px" } }}
                             >
                                 <TextField
                                     fullWidth
                                     variant={editMode ? "filled" : "standard"}
-                                    id="price"
-                                    label="Price"
+                                    id="subtotal"
+                                    label="Subtotal"
                                     required={false}
                                     InputProps={{
                                         startAdornment: (
@@ -636,18 +797,13 @@ const AVOrderDetails: React.FC = () => {
                                     value={subTotal}
                                 />
                             </Grid>
-                            <Grid
-                                item
-                                xs={6}
-                                md={3}
-                                // sx={{ paddingLeft: { xs: "24px", md: "48px" } }}
-                            >
+                            <Grid item xs={12}>
                                 <TextField
                                     fullWidth
                                     variant={editMode ? "filled" : "standard"}
                                     id="shippingCost"
                                     label="Shipping"
-                                    required={editMode ? true : false}
+                                    required={editMode}
                                     InputProps={{
                                         startAdornment: (
                                             <InputAdornment position="start">
@@ -667,21 +823,18 @@ const AVOrderDetails: React.FC = () => {
                                         readOnly: editMode ? false : true,
                                     }}
                                     sx={editMode ? inputStyle : readOnlyStyle}
-                                    value={shipping}
+                                    value={
+                                        subTotal !== "0.00" ? shipping : "0.00"
+                                    }
                                     onChange={(e) =>
-                                        handleDecimalInput(e, setShipping)
+                                        handleShippingInput(e, setShipping)
                                     }
                                     onBlur={(e) =>
-                                        handleDecimalBlur(e, setShipping)
+                                        handleShippingBlur(e, setShipping)
                                     }
                                 />
                             </Grid>
-                            <Grid
-                                item
-                                xs={6}
-                                md={3}
-                                // sx={{ paddingLeft: { xs: "24px", md: "48px" } }}
-                            >
+                            <Grid item xs={12}>
                                 <TextField
                                     fullWidth
                                     variant={editMode ? "filled" : "standard"}
@@ -707,20 +860,15 @@ const AVOrderDetails: React.FC = () => {
                                         readOnly: true,
                                     }}
                                     sx={editMode ? inputStyle : readOnlyStyle}
-                                    value={tax}
+                                    value={subTotal !== "0.00" ? tax : "0.00"}
                                 />
                             </Grid>
-                            <Grid
-                                item
-                                xs={6}
-                                md={3}
-                                // sx={{ paddingLeft: { xs: "24px", md: "48px" } }}
-                            >
+                            <Grid item xs={12}>
                                 <TextField
                                     fullWidth
                                     variant={editMode ? "filled" : "standard"}
-                                    id="price"
-                                    label="Price"
+                                    id="total"
+                                    label="Total"
                                     required={false}
                                     InputProps={{
                                         startAdornment: (
@@ -741,11 +889,21 @@ const AVOrderDetails: React.FC = () => {
                                         readOnly: true,
                                     }}
                                     sx={editMode ? inputStyle : readOnlyStyle}
-                                    value={total}
+                                    value={subTotal !== "0.00" ? total : "0.00"}
                                 />
                             </Grid>
                         </Grid>
+                        <Grid item xs={12}>
+                            <AVOrderItemList
+                                orderItems={items}
+                                setOrderItems={setItems}
+                                handleSetSubtotal={handleSetSubtotal}
+                                subTotal={+subTotal}
+                                editMode={editMode}
+                            />
+                        </Grid>
                     </Grid>
+
                     {isConfirming && (
                         <BlankPopup className="save-confirmation">
                             <span style={{ marginBottom: "20px" }}>

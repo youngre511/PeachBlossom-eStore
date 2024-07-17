@@ -42,6 +42,7 @@ export default {
                     "fulfilled",
                     "back ordered",
                     "on hold",
+                    "cancelled",
                     "exception"
                 ),
                 allowNull: false,
