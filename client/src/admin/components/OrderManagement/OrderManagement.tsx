@@ -119,21 +119,6 @@ const OrderManagement: React.FC<Props> = () => {
             //FetchLogic
             fetchOrders(params);
         }
-
-        //FetchLogic
-        // const currentFilters = Object.values(memoParams).map((value) =>
-        //     value ? value.toString() : ""
-        // );
-        // const existingFilters = Object.values({
-        //     ...avCatalog.filters,
-        // }).map((value) => (value ? value.toString() : ""));
-        // const filtersChanged = !arraysEqual(
-        //     currentFilters,
-        //     existingFilters
-        // );
-        // if (filtersChanged) {
-        //     dispatch(avFetchProducts(params as AVFilters));
-        // }
     }, [
         search,
         orderStatus,

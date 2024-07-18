@@ -667,26 +667,8 @@ const AVProductDetails: React.FC = () => {
                         </Grid>
                     </Grid>
                 </Grid>
-                <Grid
-                    container
-                    item
-                    xs={12}
-                    // columnSpacing={{ xs: 3, md: 6 }}
-                    rowSpacing={3}
-                    // sx={{
-                    //     columnGap: {
-                    //         xs: 3,
-                    //         md: 6,
-                    //     },
-                    //     rowGap: 3,
-                    // }}
-                >
-                    <Grid
-                        item
-                        xs={6}
-                        md={3}
-                        // sx={{ paddingLeft: { xs: "24px", md: "48px" } }}
-                    >
+                <Grid container item xs={12} rowSpacing={3}>
+                    <Grid item xs={6} md={3}>
                         <TextField
                             fullWidth
                             variant={editMode ? "filled" : "standard"}

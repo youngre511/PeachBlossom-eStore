@@ -26,6 +26,7 @@ import customParseFormat from "dayjs/plugin/customParseFormat";
 import updateLocale from "dayjs/plugin/updateLocale";
 import { MuiTelInput } from "mui-tel-input";
 import AVOrderItemList from "./AVOrderItemList";
+import { SelectFieldNonFormik } from "../../../common/components/Fields/SelectFieldNonFormik";
 dayjs.extend(customParseFormat);
 dayjs.extend(updateLocale);
 dayjs.updateLocale("en", {
@@ -199,6 +200,14 @@ const AVOrderDetails: React.FC = () => {
     const [error, setError] = useState<null | string>(null);
     const [mustFetchData, setMustFetchData] = useState<boolean>(true);
     const taxRate = 0.06;
+    const orderStatusOptions = [
+        "in process",
+        "ready to ship",
+        "shipped",
+        "delivered",
+        "cancelled",
+        "back ordered",
+    ];
 
     useEffect(() => {
         console.log("currentDetails changed");
@@ -299,180 +308,200 @@ const AVOrderDetails: React.FC = () => {
         setTotal((newSubtotal + +shipping + +newTax).toFixed(2));
     };
 
-    const handleSave = useCallback(
-        async (event: React.MouseEvent<HTMLElement>) => {
-            if (event) {
-                event.preventDefault();
-            }
-            console.log("I'm being called");
-            setIsConfirming(false);
-            setIsSaving(true);
-            let thereAreChanges: boolean = false;
-            type UpdateSubmission = {
-                orderNo: string;
-                subTotal: number;
-                shipping: number;
-                tax: number;
-                totalAmount: number;
-                shippingAddress: string;
-                stateAbbr: string;
-                city: string;
-                zipCode: string;
-                phoneNumber: string;
-                email: string;
-                orderStatus: string;
-                items: Array<{
-                    order_item_id: number;
-                    quantity: number;
-                    fulfillmentStatus: string;
-                }>;
-            };
-            console.log("saving1");
+    const handleSave = useCallback(async () => {
+        setIsConfirming(false);
+        setIsSaving(true);
+        let thereAreChanges: boolean = false;
+        type UpdateSubmission = {
+            orderNo: string;
+            subTotal: number;
+            shipping: number;
+            tax: number;
+            totalAmount: number;
+            shippingAddress: string;
+            stateAbbr: string;
+            city: string;
+            zipCode: string;
+            phoneNumber: string;
+            email: string;
+            orderStatus: string;
+            items: Array<{
+                order_item_id: number;
+                quantity: number;
+                fulfillmentStatus: string;
+            }>;
+        };
+        console.log("saving1");
 
-            const updateInfo: Record<
-                string,
-                | string
-                | number
-                | Array<{
-                      order_item_id: number;
-                      quantity: number;
-                      fulfillmentStatus: string;
-                  }>
-            > = {
-                orderNo: orderNo as string,
-            };
-            const orderParams: Array<keyof AVOrderDetails> = [
-                "subTotal",
-                "shipping",
-                "tax",
-                "city",
-                "zipCode",
-                "email",
-                "orderStatus",
-            ];
+        const updateInfo: Record<
+            string,
+            | string
+            | number
+            | Array<{
+                  order_item_id: number;
+                  quantity: number;
+                  fulfillmentStatus: string;
+              }>
+        > = {
+            orderNo: orderNo as string,
+        };
+        const orderParams: Array<keyof AVOrderDetails> = [
+            "subTotal",
+            "shipping",
+            "tax",
+            "city",
+            "zipCode",
+            "email",
+        ];
+
+        if (currentDetails) {
+            console.log("save");
+
+            const itemUpdates: Array<{
+                order_item_id: number;
+                quantity: number;
+                fulfillmentStatus: string;
+            }> = [];
+            let isOrderCancelled: boolean = true;
+            let isOrderShipped: boolean = true;
+            let isOrderBackOrdered: boolean = true;
+            let isOrderReadyToShip: boolean = true;
+            for (const item of items) {
+                const originalItem = currentDetails.OrderItem.filter(
+                    (orig) => orig.order_item_id === item.order_item_id
+                )[0];
+
+                if (
+                    item.quantity !== originalItem.quantity ||
+                    item.fulfillmentStatus !== originalItem.fulfillmentStatus
+                ) {
+                    thereAreChanges = true;
+                    if (item.fulfillmentStatus !== "cancelled")
+                        isOrderCancelled = false;
+                    if (item.fulfillmentStatus !== "shipped")
+                        isOrderShipped = false;
+                    if (item.fulfillmentStatus !== "back ordered")
+                        isOrderBackOrdered = false;
+                    if (item.fulfillmentStatus !== "fulfilled")
+                        isOrderReadyToShip = false;
+                    const itemToAdd = {
+                        order_item_id: item.order_item_id,
+                        quantity: item.quantity,
+                        fulfillmentStatus: item.fulfillmentStatus,
+                    };
+                    itemUpdates.push(itemToAdd);
+                }
+            }
+            let newOrderStatus = orderStatus;
+            if (isOrderCancelled) {
+                newOrderStatus = "cancelled";
+                setOrderStatus("cancelled");
+            }
+            if (isOrderShipped) {
+                newOrderStatus = "shipped";
+                setOrderStatus("shipped");
+            }
+            if (isOrderBackOrdered) {
+                newOrderStatus = "back ordered";
+                setOrderStatus("back ordered");
+            }
+            if (isOrderReadyToShip) {
+                newOrderStatus = "ready to ship";
+                setOrderStatus("ready to ship");
+            }
+
+            updateInfo["items"] = itemUpdates;
 
             for (const key of orderParams) {
-                console.log("presave");
-                if (currentDetails) {
-                    if (eval(key) && eval(key) !== currentDetails[key]) {
-                        thereAreChanges = true;
-                        if (["subTotal", "tax", "shipping"].includes(key)) {
-                            updateInfo[key] = +eval(key);
-                        } else {
-                            updateInfo[key] = eval(key);
-                        }
+                if (eval(key) && eval(key) !== currentDetails[key]) {
+                    thereAreChanges = true;
+                    if (["subTotal", "tax", "shipping"].includes(key)) {
+                        updateInfo[key] = +eval(key);
                     } else {
-                        updateInfo[key] = currentDetails[key] as string;
+                        updateInfo[key] = eval(key);
                     }
+                } else {
+                    updateInfo[key] = currentDetails[key] as string;
                 }
             }
-            if (currentDetails) {
-                console.log("save");
-                if (total && total !== currentDetails.totalAmount) {
-                    updateInfo["totalAmount"] = +total;
-                    thereAreChanges = true;
-                } else {
-                    updateInfo["totalAmount"] = +currentDetails.totalAmount;
-                }
 
-                if (state && state !== currentDetails.stateAbbr) {
-                    updateInfo["stateAbbr"] = state;
-                    thereAreChanges = true;
-                } else {
-                    updateInfo["stateAbbr"] = currentDetails.stateAbbr;
-                }
-
-                if (phone && phone !== currentDetails.phoneNumber) {
-                    updateInfo["phoneNumber"] = phone;
-                    thereAreChanges = true;
-                } else {
-                    updateInfo["phoneNumber"] = currentDetails.phoneNumber;
-                }
-
-                const newShippingAddress = `${shippingAddress1} | ${shippingAddress2}`;
-                if (
-                    newShippingAddress !== " | " &&
-                    newShippingAddress !== currentDetails.shippingAddress
-                ) {
-                    updateInfo["shippingAddress"] = newShippingAddress;
-                    thereAreChanges = true;
-                } else {
-                    updateInfo["shippingAddress"] =
-                        currentDetails.shippingAddress;
-                }
-
-                const itemUpdates: Array<{
-                    order_item_id: number;
-                    quantity: number;
-                    fulfillmentStatus: string;
-                }> = [];
-                console.log("save2");
-                for (const item of items) {
-                    console.log(
-                        "currentDetails.OrderItem",
-                        currentDetails.OrderItem
-                    );
-                    const originalItem = currentDetails.OrderItem.filter(
-                        (orig) => orig.order_item_id === item.order_item_id
-                    )[0];
-                    console.log("item:", item);
-                    console.log("orig:", originalItem);
-                    if (
-                        item.quantity !== originalItem.quantity ||
-                        item.fulfillmentStatus !==
-                            originalItem.fulfillmentStatus
-                    ) {
-                        thereAreChanges = true;
-                        const itemToAdd = {
-                            order_item_id: item.order_item_id,
-                            quantity: item.quantity,
-                            fulfillmentStatus: item.fulfillmentStatus,
-                        };
-                        itemUpdates.push(itemToAdd);
-                    }
-                }
-
-                updateInfo["items"] = itemUpdates;
-            }
-            if (thereAreChanges) {
-                console.log("saving 3");
-
-                try {
-                    console.log("making api call");
-                    const response = await axios.put(
-                        `${process.env.REACT_APP_API_URL}order/update`,
-                        updateInfo
-                    );
-                    console.log("Response:", response.data);
-                    setStatus("success");
-                    searchParams.delete("editing");
-                    setSearchParams(searchParams);
-                    setMustFetchData(true);
-                } catch (error) {
-                    if (error instanceof AxiosError) {
-                        setError(error.message);
-                    }
-                    setStatus("failure");
-                    console.error("Error uploading files:", error);
-                }
+            if (
+                newOrderStatus &&
+                newOrderStatus !== currentDetails.orderStatus
+            ) {
+                updateInfo["orderStatus"] = newOrderStatus;
             } else {
-                console.log("no changes");
-                setIsSaving(false);
+                updateInfo["orderStatus"] = currentDetails.orderStatus;
             }
-        },
-        [
-            orderNo,
-            currentDetails,
-            total,
-            state,
-            phone,
-            shippingAddress1,
-            shippingAddress2,
-            items,
-            searchParams,
-            setSearchParams,
-        ]
-    );
+
+            if (total && total !== currentDetails.totalAmount) {
+                updateInfo["totalAmount"] = +total;
+                thereAreChanges = true;
+            } else {
+                updateInfo["totalAmount"] = +currentDetails.totalAmount;
+            }
+
+            if (state && state !== currentDetails.stateAbbr) {
+                updateInfo["stateAbbr"] = state;
+                thereAreChanges = true;
+            } else {
+                updateInfo["stateAbbr"] = currentDetails.stateAbbr;
+            }
+
+            if (phone && phone !== currentDetails.phoneNumber) {
+                updateInfo["phoneNumber"] = phone;
+                thereAreChanges = true;
+            } else {
+                updateInfo["phoneNumber"] = currentDetails.phoneNumber;
+            }
+
+            const newShippingAddress = `${shippingAddress1} | ${shippingAddress2}`;
+            if (
+                newShippingAddress !== " | " &&
+                newShippingAddress !== currentDetails.shippingAddress
+            ) {
+                updateInfo["shippingAddress"] = newShippingAddress;
+                thereAreChanges = true;
+            } else {
+                updateInfo["shippingAddress"] = currentDetails.shippingAddress;
+            }
+        }
+        if (thereAreChanges) {
+            console.log("saving 3");
+
+            try {
+                const response = await axios.put(
+                    `${process.env.REACT_APP_API_URL}order/update`,
+                    updateInfo
+                );
+
+                setStatus("success");
+                searchParams.delete("editing");
+                setSearchParams(searchParams);
+                setMustFetchData(true);
+            } catch (error) {
+                if (error instanceof AxiosError) {
+                    setError(error.message);
+                }
+                setStatus("failure");
+                console.error("Error uploading files:", error);
+            }
+        } else {
+            console.log("no changes");
+            setIsSaving(false);
+        }
+    }, [
+        orderNo,
+        currentDetails,
+        total,
+        state,
+        phone,
+        shippingAddress1,
+        shippingAddress2,
+        items,
+        searchParams,
+        setSearchParams,
+    ]);
 
     const handleTelInputChange = (value: string, info: any) => {
         setPhone(value);
@@ -486,37 +515,30 @@ const AVOrderDetails: React.FC = () => {
                         <Grid
                             container
                             sx={{
-                                flexDirection: {
-                                    xs: "column-reverse",
-                                    md: "row",
-                                },
                                 justifyContent: "space-between",
                             }}
+                            xs={12}
                         >
-                            <Grid item xs={12} md={6} sx={{ paddingLeft: 3 }}>
+                            <Grid
+                                item
+                                xs={12}
+                                md={6}
+                                sx={{
+                                    paddingLeft: 3,
+                                    order: {
+                                        xs: 2,
+                                        md: 1,
+                                    },
+                                }}
+                            >
                                 <h1
                                     style={{
                                         marginBottom: "15px",
                                         marginTop: 0,
                                     }}
                                 >
-                                    Order {orderNo?.toLowerCase()}
+                                    Order #{orderNo?.toLowerCase()}
                                 </h1>
-                                <div className="date">
-                                    <span style={{ fontWeight: 700 }}>
-                                        Order Date
-                                    </span>
-                                    <span>
-                                        {dayjs(currentDetails.orderDate).format(
-                                            "DD MMMM, YYYY"
-                                        )}
-                                    </span>
-                                    <span>
-                                        {dayjs(currentDetails.orderDate).format(
-                                            "HH:mm:ss"
-                                        )}
-                                    </span>
-                                </div>
                             </Grid>
                             <Grid
                                 item
@@ -527,6 +549,14 @@ const AVOrderDetails: React.FC = () => {
                                 sx={{
                                     justifyContent: "flex-end",
                                     alignItems: "flex-start",
+                                    order: {
+                                        xs: 1,
+                                        md: 2,
+                                    },
+                                    paddingLeft: {
+                                        xs: 3,
+                                        md: 0,
+                                    },
                                 }}
                             >
                                 <Grid
@@ -602,6 +632,76 @@ const AVOrderDetails: React.FC = () => {
                                             Edit
                                         </Button>
                                     )}
+                                </Grid>
+                            </Grid>
+                            <Grid
+                                container
+                                item
+                                xs={12}
+                                sx={{
+                                    paddingLeft: 3,
+                                    justifyContent: "space-between",
+                                    order: 3,
+                                }}
+                            >
+                                <Grid item xs={6}>
+                                    <div className="date">
+                                        <span style={{ fontWeight: 700 }}>
+                                            Order Date
+                                        </span>
+                                        <span>
+                                            {dayjs(
+                                                currentDetails.orderDate
+                                            ).format("DD MMMM, YYYY")}
+                                        </span>
+                                        <span>
+                                            {dayjs(
+                                                currentDetails.orderDate
+                                            ).format("HH:mm:ss")}
+                                        </span>
+                                    </div>
+                                </Grid>
+                                <Grid item xs={6}>
+                                    <div
+                                        style={{
+                                            display: "flex",
+                                            justifyContent: "flex-end",
+                                            alignItems: "flex-end",
+                                        }}
+                                    >
+                                        <div></div>
+                                        <div
+                                            style={{
+                                                maxWidth: "300px",
+                                                width: "100%",
+                                            }}
+                                        >
+                                            <SelectFieldNonFormik
+                                                label="Order Status"
+                                                name="orderStatus"
+                                                readOnly={
+                                                    editMode ? false : true
+                                                }
+                                                multiple={false}
+                                                required={
+                                                    editMode ? true : false
+                                                }
+                                                options={orderStatusOptions}
+                                                sx={
+                                                    editMode
+                                                        ? inputStyle
+                                                        : readOnlyStyle
+                                                }
+                                                setAction={setOrderStatus}
+                                                value={orderStatus}
+                                                variant={
+                                                    editMode
+                                                        ? "filled"
+                                                        : "standard"
+                                                }
+                                            />
+                                        </div>
+                                    </div>
                                 </Grid>
                             </Grid>
                         </Grid>

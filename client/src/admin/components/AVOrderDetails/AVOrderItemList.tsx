@@ -87,7 +87,7 @@ const AVOrderItemList: React.FC<AVCatProps> = ({
         setSelected([]);
     };
 
-    const handleCancelSelected = () => {
+    const handleChangeSelectedStatus = (newStatus: string) => {
         const newOrderItems = [...orderItems];
         let subtotalAdjustment: number = 0;
         let rowsCancelled: number = 0;
@@ -98,17 +98,22 @@ const AVOrderItemList: React.FC<AVCatProps> = ({
             if (foundIndex !== -1) {
                 const item = newOrderItems[foundIndex];
                 const oldStatus = item.fulfillmentStatus;
-                item.fulfillmentStatus = "cancelled";
-                if (oldStatus !== "cancelled") {
-                    subtotalAdjustment += item.quantity * item.priceWhenOrdered;
+                item.fulfillmentStatus = newStatus;
+                if (newStatus === "cancelled") {
+                    if (oldStatus !== "cancelled") {
+                        subtotalAdjustment +=
+                            item.quantity * item.priceWhenOrdered;
+                    }
+                    rowsCancelled++;
                 }
                 newOrderItems[foundIndex] = item;
                 setOrderItems(newOrderItems);
-                rowsCancelled++;
             }
         });
-        handleSetSubtotal(subTotal - subtotalAdjustment);
-        setCancelledRowNumber(rowsCancelled);
+        if (newStatus === "cancelled") {
+            handleSetSubtotal(subTotal - subtotalAdjustment);
+            setCancelledRowNumber(rowsCancelled);
+        }
     };
 
     const handleClick = (event: React.MouseEvent<unknown>, id: string) => {
@@ -182,7 +187,7 @@ const AVOrderItemList: React.FC<AVCatProps> = ({
             <Paper sx={{ width: "100%", mb: 2 }}>
                 <AVOrderItemListToolbar
                     numSelected={selected.length}
-                    handleCancelSelected={handleCancelSelected}
+                    handleChangeSelectedStatus={handleChangeSelectedStatus}
                 />
                 <TableContainer sx={{ maxHeight: 500 }}>
                     <Table
