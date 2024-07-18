@@ -179,6 +179,7 @@ const AVOrderDetails: React.FC = () => {
     const [shippingAddress1, setShippingAddress1] = useState<string>("");
     const [shippingAddress2, setShippingAddress2] = useState<string>("");
     const [state, setState] = useState<string>("");
+    const [city, setCity] = useState<string>("");
     const [orderStatus, setOrderStatus] = useState<string>("");
     const [zipCode, setZipCode] = useState<string>("");
     const [email, setEmail] = useState<string>("");
@@ -200,6 +201,9 @@ const AVOrderDetails: React.FC = () => {
     const taxRate = 0.06;
 
     useEffect(() => {
+        console.log("currentDetails changed");
+    }, [currentDetails]);
+    useEffect(() => {
         if (mustFetchData) {
             const getOrderDetails = async () => {
                 try {
@@ -207,8 +211,10 @@ const AVOrderDetails: React.FC = () => {
                         `${process.env.REACT_APP_API_URL}order/${orderNo}`
                     );
                     const orderDetails: AVOrderDetails = response.data;
-                    console.log("orderDetails", orderDetails);
-                    setCurrentDetails(orderDetails);
+                    const deepCopiedOrderDetails = JSON.parse(
+                        JSON.stringify(orderDetails)
+                    );
+                    setCurrentDetails(deepCopiedOrderDetails);
                     setState(orderDetails.stateAbbr);
                     const splitAddress =
                         orderDetails.shippingAddress.split(" | ");
@@ -220,11 +226,12 @@ const AVOrderDetails: React.FC = () => {
                     setEmail(orderDetails.email);
                     setZipCode(orderDetails.zipCode);
                     setPhone(orderDetails.phoneNumber);
-                    setItems(orderDetails.OrderItem);
+                    setItems([...orderDetails.OrderItem]);
                     setShipping(orderDetails.shipping);
                     setTotal(orderDetails.totalAmount);
                     setSubTotal(orderDetails.subTotal);
                     setTax(orderDetails.tax);
+                    setCity(orderDetails.city);
 
                     setLoading(false);
                 } catch (error) {
@@ -241,7 +248,7 @@ const AVOrderDetails: React.FC = () => {
             getOrderDetails();
             setMustFetchData(false);
         }
-    }, [mustFetchData]);
+    }, [mustFetchData, orderNo]);
 
     const handleShippingInput = (
         event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -292,134 +299,180 @@ const AVOrderDetails: React.FC = () => {
         setTotal((newSubtotal + +shipping + +newTax).toFixed(2));
     };
 
-    // useEffect(() => {
-    //     if (category) {
-    //         const selectedCategory = categories.find(
-    //             (cat) => cat.name === category
-    //         );
-    //         if (selectedCategory && selectedCategory.subCategories.length > 0) {
-    //             setSubCategories(selectedCategory.subCategories);
-    //         } else {
-    //             setSubCategories("disabled");
-    //         }
-    //     }
-    // }, [category, categories]);
-    const handleSave = () => {};
-    // const handleSave = async () => {
-    //     console.log("saving...");
-    //     setIsConfirming(false);
-    //     setIsSaving(true);
-    //     console.log("starting submit process");
-    //     type updateSubmission = {
-    //         name: string;
-    //         price: number;
-    //         category: string;
-    //         subcategory: string;
-    //         color: string;
-    //         material: string[];
-    //         attributes: string;
-    //         description: string;
-    //         existingImageUrls: string[];
-    //         images: ImageListType;
-    //     };
-    //     console.log("saving1");
-    //     console.log("currentDetails:", currentDetails);
-    //     if (currentDetails) {
-    //         const formData = new FormData();
+    const handleSave = useCallback(
+        async (event: React.MouseEvent<HTMLElement>) => {
+            if (event) {
+                event.preventDefault();
+            }
+            console.log("I'm being called");
+            setIsConfirming(false);
+            setIsSaving(true);
+            let thereAreChanges: boolean = false;
+            type UpdateSubmission = {
+                orderNo: string;
+                subTotal: number;
+                shipping: number;
+                tax: number;
+                totalAmount: number;
+                shippingAddress: string;
+                stateAbbr: string;
+                city: string;
+                zipCode: string;
+                phoneNumber: string;
+                email: string;
+                orderStatus: string;
+                items: Array<{
+                    order_item_id: number;
+                    quantity: number;
+                    fulfillmentStatus: string;
+                }>;
+            };
+            console.log("saving1");
 
-    //         if (productName !== currentDetails.name) {
-    //             formData.append("name", productName);
-    //         }
-    //         if (price !== String(currentDetails.price)) {
-    //             formData.append("price", price);
-    //         }
-    //         if (category !== currentDetails.category) {
-    //             formData.append("category", category);
-    //         }
-    //         if (subcategory !== currentDetails.subcategory) {
-    //             formData.append("subcategory", subcategory);
-    //         }
-    //         if (description !== currentDetails.description) {
-    //             formData.append("description", description);
-    //         }
-    //         console.log("saving2");
-    //         if (images) {
-    //             images.forEach((image, index) => {
-    //                 let newFileName = `${productName
-    //                     .replace(/\s+/g, "_")
-    //                     .toLowerCase()}_${index + 1}`;
-    //                 let i = 1;
-    //                 while (
-    //                     currentDetails.images.includes(
-    //                         `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${newFileName}`
-    //                     )
-    //                 ) {
-    //                     newFileName = `${newFileName}a${i}`;
-    //                 }
-    //                 formData.append("images", image.file as File, newFileName);
-    //             });
-    //         }
-    //         console.log("saving3");
-    //         if (
-    //             color !== currentDetails.attributes.color ||
-    //             materials !== currentDetails.attributes.material ||
-    //             +weight !== currentDetails.attributes.weight ||
-    //             +height !== currentDetails.attributes.dimensions.height ||
-    //             +width !== currentDetails.attributes.dimensions.width ||
-    //             +depth !== currentDetails.attributes.dimensions.depth
-    //         ) {
-    //             formData.append(
-    //                 "attributes",
-    //                 JSON.stringify({
-    //                     color: color,
-    //                     material: materials,
-    //                     weight: +weight,
-    //                     dimensions: {
-    //                         width: +width,
-    //                         height: +height,
-    //                         depth: +depth,
-    //                     },
-    //                 })
-    //             );
-    //         }
+            const updateInfo: Record<
+                string,
+                | string
+                | number
+                | Array<{
+                      order_item_id: number;
+                      quantity: number;
+                      fulfillmentStatus: string;
+                  }>
+            > = {
+                orderNo: orderNo as string,
+            };
+            const orderParams: Array<keyof AVOrderDetails> = [
+                "subTotal",
+                "shipping",
+                "tax",
+                "city",
+                "zipCode",
+                "email",
+                "orderStatus",
+            ];
 
-    //         const areThereChanges =
-    //             Array.from(formData.entries()).length !== 0 ||
-    //             console.log("saving4");
-    //         if (areThereChanges) {
-    //             console.log("saving 4.5");
-    //             formData.append("productNo", currentDetails.productNo);
+            for (const key of orderParams) {
+                console.log("presave");
+                if (currentDetails) {
+                    if (eval(key) && eval(key) !== currentDetails[key]) {
+                        thereAreChanges = true;
+                        if (["subTotal", "tax", "shipping"].includes(key)) {
+                            updateInfo[key] = +eval(key);
+                        } else {
+                            updateInfo[key] = eval(key);
+                        }
+                    } else {
+                        updateInfo[key] = currentDetails[key] as string;
+                    }
+                }
+            }
+            if (currentDetails) {
+                console.log("save");
+                if (total && total !== currentDetails.totalAmount) {
+                    updateInfo["totalAmount"] = +total;
+                    thereAreChanges = true;
+                } else {
+                    updateInfo["totalAmount"] = +currentDetails.totalAmount;
+                }
 
-    //             console.log("saving5");
+                if (state && state !== currentDetails.stateAbbr) {
+                    updateInfo["stateAbbr"] = state;
+                    thereAreChanges = true;
+                } else {
+                    updateInfo["stateAbbr"] = currentDetails.stateAbbr;
+                }
 
-    //             try {
-    //                 const response = await axios.put(
-    //                     `${process.env.REACT_APP_API_URL}order/update`,
-    //                     formData,
-    //                     {
-    //                         headers: {
-    //                             "Content-Type": "multipart/form-data",
-    //                         },
-    //                     }
-    //                 );
-    //                 console.log("Response:", response.data);
-    //                 setStatus("success");
-    //                 searchParams.delete("editing");
-    //                 setSearchParams(searchParams);
-    //                 setMustFetchData(true);
-    //             } catch (error) {
-    //                 if (error instanceof AxiosError) {
-    //                     setError(error.message);
-    //                 }
-    //                 setStatus("failure");
-    //                 console.error("Error uploading files:", error);
-    //             }
-    //         } else {
-    //             console.log("no changes");
-    //             setIsSaving(false);
-    //         }
-    //     }
-    // };
+                if (phone && phone !== currentDetails.phoneNumber) {
+                    updateInfo["phoneNumber"] = phone;
+                    thereAreChanges = true;
+                } else {
+                    updateInfo["phoneNumber"] = currentDetails.phoneNumber;
+                }
+
+                const newShippingAddress = `${shippingAddress1} | ${shippingAddress2}`;
+                if (
+                    newShippingAddress !== " | " &&
+                    newShippingAddress !== currentDetails.shippingAddress
+                ) {
+                    updateInfo["shippingAddress"] = newShippingAddress;
+                    thereAreChanges = true;
+                } else {
+                    updateInfo["shippingAddress"] =
+                        currentDetails.shippingAddress;
+                }
+
+                const itemUpdates: Array<{
+                    order_item_id: number;
+                    quantity: number;
+                    fulfillmentStatus: string;
+                }> = [];
+                console.log("save2");
+                for (const item of items) {
+                    console.log(
+                        "currentDetails.OrderItem",
+                        currentDetails.OrderItem
+                    );
+                    const originalItem = currentDetails.OrderItem.filter(
+                        (orig) => orig.order_item_id === item.order_item_id
+                    )[0];
+                    console.log("item:", item);
+                    console.log("orig:", originalItem);
+                    if (
+                        item.quantity !== originalItem.quantity ||
+                        item.fulfillmentStatus !==
+                            originalItem.fulfillmentStatus
+                    ) {
+                        thereAreChanges = true;
+                        const itemToAdd = {
+                            order_item_id: item.order_item_id,
+                            quantity: item.quantity,
+                            fulfillmentStatus: item.fulfillmentStatus,
+                        };
+                        itemUpdates.push(itemToAdd);
+                    }
+                }
+
+                updateInfo["items"] = itemUpdates;
+            }
+            if (thereAreChanges) {
+                console.log("saving 3");
+
+                try {
+                    console.log("making api call");
+                    const response = await axios.put(
+                        `${process.env.REACT_APP_API_URL}order/update`,
+                        updateInfo
+                    );
+                    console.log("Response:", response.data);
+                    setStatus("success");
+                    searchParams.delete("editing");
+                    setSearchParams(searchParams);
+                    setMustFetchData(true);
+                } catch (error) {
+                    if (error instanceof AxiosError) {
+                        setError(error.message);
+                    }
+                    setStatus("failure");
+                    console.error("Error uploading files:", error);
+                }
+            } else {
+                console.log("no changes");
+                setIsSaving(false);
+            }
+        },
+        [
+            orderNo,
+            currentDetails,
+            total,
+            state,
+            phone,
+            shippingAddress1,
+            shippingAddress2,
+            items,
+            searchParams,
+            setSearchParams,
+        ]
+    );
 
     const handleTelInputChange = (value: string, info: any) => {
         setPhone(value);
@@ -614,7 +667,7 @@ const AVOrderDetails: React.FC = () => {
                                                 ? inputStyle
                                                 : readOnlyStyle
                                         }
-                                        value={"Indianapolis"}
+                                        value={city}
                                     />
                                 </Grid>
                                 <Grid item sm={3}>
@@ -916,7 +969,7 @@ const AVOrderDetails: React.FC = () => {
                             <div className="save-confirmation-buttons">
                                 <Button
                                     variant="contained"
-                                    onClick={() => handleSave()}
+                                    onClick={handleSave}
                                     sx={{ color: "white" }}
                                 >
                                     Yes, Save

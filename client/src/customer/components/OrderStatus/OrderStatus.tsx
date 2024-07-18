@@ -45,6 +45,7 @@ interface OrderDetails {
     orderDate: Date;
     subTotal: number;
     shipping: number;
+    city: string;
     tax: number;
     totalAmount: number;
     shippingAddress: string;
@@ -234,7 +235,9 @@ const OrderStatus: React.FC<Props> = ({ orderNumber }) => {
                             {splitShippingAddress[1] !== "" && (
                                 <span>{splitShippingAddress[1]}</span>
                             )}
-                            <span>City, {orderDetails.stateAbbr}</span>
+                            <span>
+                                {orderDetails.city}, {orderDetails.stateAbbr}
+                            </span>
                             <span>{orderDetails.zipCode}</span>
                         </div>
                     </div>

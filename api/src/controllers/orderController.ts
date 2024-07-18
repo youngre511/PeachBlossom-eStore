@@ -71,6 +71,32 @@ interface GetOrdersRequest extends Request {
     };
 }
 
+export interface UpdateItem {
+    order_item_id: number;
+    quantity: number;
+    fulfillmentStatus: string;
+}
+
+export interface UpdateOrder {
+    orderNo: string;
+    subTotal: number;
+    shipping: number;
+    tax: number;
+    totalAmount: number;
+    shippingAddress: string;
+    stateAbbr: string;
+    city: string;
+    zipCode: string;
+    phoneNumber: string;
+    email: string;
+    orderStatus: string;
+    items: UpdateItem[];
+}
+
+interface UpdateOrderRequest extends Request {
+    body: UpdateOrder;
+}
+
 //// Order Functions
 export const placeOrder: RequestHandler = async (
     req: PlaceOrderRequest,
@@ -123,12 +149,27 @@ export const getOneOrder = async (req: GetOneOrderRequest, res: Response) => {
 export const getOrders = async (req: GetOrdersRequest, res: Response) => {
     try {
         const result = await orderService.getOrders(req.query);
-
-        // (res as PlaceOrderResponse).json(result);
         res.json(result);
     } catch (error) {
         let errorObj = {
             message: "get orders failure",
+            payload: error,
+        };
+
+        console.error(errorObj);
+
+        res.status(500).json(errorObj);
+    }
+};
+
+export const updateOrder = async (req: UpdateOrderRequest, res: Response) => {
+    try {
+        const result = await orderService.updateOrder(req.body);
+
+        res.json(result);
+    } catch (error) {
+        let errorObj = {
+            message: "update order failure",
             payload: error,
         };
 

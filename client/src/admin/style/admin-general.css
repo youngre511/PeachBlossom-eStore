@@ -15,6 +15,11 @@ h4 {
     font-family: var(--Playfair);
 }
 
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
 @media (min-width: 600px) {
     main {
         width: calc(100vw - 240px);

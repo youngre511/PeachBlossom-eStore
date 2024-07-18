@@ -76,6 +76,12 @@ export class sqlOrder extends Model {
     shippingAddress!: string;
 
     @Column({
+        type: DataType.STRING(60),
+        allowNull: false,
+    })
+    city!: string;
+
+    @Column({
         type: DataType.CHAR(2),
         allowNull: false,
     })

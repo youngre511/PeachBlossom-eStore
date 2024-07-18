@@ -104,7 +104,7 @@ const InventoryManagement: React.FC<Props> = () => {
                 existingFilters
             );
             if (filtersChanged) {
-                dispatch(avFetchProducts(params as AVFilters));
+                dispatch(avFetchProducts({ filters: params as AVFilters }));
             }
         }
     }, [search, category, subCategory, page, tags, sort, itemsPerPage]);
@@ -144,7 +144,7 @@ const InventoryManagement: React.FC<Props> = () => {
             itemsPerPage,
         };
         console.log("Params:", params);
-        dispatch(avFetchProducts(params as AVFilters));
+        dispatch(avFetchProducts({ filters: params as AVFilters }));
     }, [searchParams, setSearchParams]);
 
     const updateSearchParams = (newFilters: Record<string, string>): void => {

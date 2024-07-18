@@ -24,6 +24,7 @@ export interface AVOrder {
     orderDate: Date;
     subTotal: string;
     shipping: string;
+    city: string;
     tax: string;
     totalAmount: string;
     shippingAddress: string;

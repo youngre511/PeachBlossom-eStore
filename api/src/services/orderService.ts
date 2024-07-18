@@ -1,4 +1,9 @@
-import { GetOrdersFilters, OrderData } from "../controllers/orderController.js";
+import {
+    GetOrdersFilters,
+    OrderData,
+    UpdateItem,
+    UpdateOrder,
+} from "../controllers/orderController.js";
 import sequelize from "../models/mysql/index.js";
 import { sqlOrder } from "../models/mysql/sqlOrderModel.js";
 import { sqlOrderItem } from "../models/mysql/sqlOrderItemModel.js";
@@ -77,6 +82,7 @@ export const placeOrder = async (orderData: OrderData) => {
             shippingAddress: `${shipping.shippingAddress} | ${shipping.shippingAddress2}`,
             zipCode: shipping.zipCode,
             stateAbbr: shipping.state,
+            city: shipping.city,
             phoneNumber: shipping.phoneNumber,
             subTotal: orderDetails.subTotal,
             shipping: orderDetails.shipping,
@@ -231,7 +237,6 @@ export const getOneOrder = async (
     orderNo: string,
     email: string | undefined
 ) => {
-    console.log("ORDER NO:", orderNo);
     const sqlTransaction = await sequelize.transaction();
     try {
         const orderData = (await sqlOrder.findOne({
@@ -266,10 +271,56 @@ export const getOneOrder = async (
     } catch (error) {
         await sqlTransaction.rollback();
         if (error instanceof Error) {
-            // Rollback the transaction in case of any errors
             throw new Error("Error placing order: " + error.message);
         } else {
-            // Rollback the transaction in case of any non-Error errors
+            throw new Error("An unknown error occurred while placing order");
+        }
+    }
+};
+
+export const updateOrder = async (updateInfo: UpdateOrder) => {
+    const sqlTransaction = await sequelize.transaction();
+    try {
+        const items: UpdateItem[] = updateInfo.items;
+        await sqlOrder.update(
+            {
+                subTotal: updateInfo.subTotal,
+                shipping: updateInfo.shipping,
+                tax: updateInfo.tax,
+                totalAmount: updateInfo.totalAmount,
+                shippingAddress: updateInfo.shippingAddress,
+                stateAbbr: updateInfo.stateAbbr,
+                zipCode: updateInfo.zipCode,
+                phoneNumber: updateInfo.phoneNumber,
+                email: updateInfo.email,
+                orderStatus: updateInfo.orderStatus,
+                city: updateInfo.city,
+            },
+            {
+                where: { orderNo: updateInfo.orderNo },
+                transaction: sqlTransaction,
+            }
+        );
+        await Promise.all(
+            items.map(async (item) => {
+                await sqlOrderItem.update(
+                    {
+                        quantity: item.quantity,
+                        fulfillmentStatus: item.fulfillmentStatus,
+                    },
+                    {
+                        where: { order_item_id: item.order_item_id },
+                        transaction: sqlTransaction,
+                    }
+                );
+            })
+        );
+        await sqlTransaction.commit();
+    } catch (error) {
+        await sqlTransaction.rollback();
+        if (error instanceof Error) {
+            throw new Error("Error placing order: " + error.message);
+        } else {
             throw new Error("An unknown error occurred while placing order");
         }
     }

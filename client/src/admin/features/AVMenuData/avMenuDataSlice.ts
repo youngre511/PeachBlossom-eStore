@@ -41,7 +41,6 @@ export const avFetchSearchOptions = createAsyncThunk<
     { state: RootState }
 >("avMenuData/avFetchSearchOptions", async (_, { rejectWithValue }) => {
     try {
-        console.log("fetching search options");
         const response = await axios.get<AVSearchOptionFetchResponse>(
             `${process.env.REACT_APP_API_URL}product/search-options`
         );

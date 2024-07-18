@@ -1,6 +1,6 @@
 import React from "react";
 import { useEffect } from "react";
-import { useAppSelector } from "../../hooks/reduxHooks";
+import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
 import { RootState } from "../../store/store";
 import {
     styled,
@@ -32,6 +32,10 @@ interface AVCatProps {
     page: number;
     results: number;
     updateSearchParams: (newFilters: Record<string, string>) => void;
+    handleProductActivate: (productNo: string) => void;
+    handleProductDiscontinue: (productNo: string) => void;
+    discontinueSelected: (productNos: string[]) => void;
+    activateSelected: (productNos: string[]) => void;
 }
 
 interface Row {
@@ -54,6 +58,10 @@ const AVProductCatalog: React.FC<AVCatProps> = ({
     page,
     results,
     updateSearchParams,
+    handleProductActivate,
+    handleProductDiscontinue,
+    discontinueSelected,
+    activateSelected,
 }) => {
     const { products, numberOfResults, loading, error } = useAppSelector(
         (state: RootState) => state.avCatalog
@@ -62,7 +70,6 @@ const AVProductCatalog: React.FC<AVCatProps> = ({
     const [order, setOrder] = React.useState<Order>("asc");
     const [orderBy, setOrderBy] = React.useState<keyof AVProduct>("name");
     const [selected, setSelected] = React.useState<readonly string[]>([]);
-    // const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(24);
 
     const rows = products.map((product) => {
@@ -131,14 +138,6 @@ const AVProductCatalog: React.FC<AVCatProps> = ({
         updateSearchParams({ page: String(newPage + 1) });
     };
 
-    const handleProductDiscontinue = (products: string) => {};
-
-    const handleProductsDelete = (products: string) => {};
-
-    const discontinueSelected = (products: string[]) => {};
-
-    const deleteSelected = (products: string[]) => {};
-
     const handleChangeRowsPerPage = (
         event: React.ChangeEvent<HTMLInputElement>
     ) => {
@@ -154,7 +153,12 @@ const AVProductCatalog: React.FC<AVCatProps> = ({
     return (
         <Box sx={{ width: "100%" }}>
             <Paper sx={{ width: "100%", mb: 2 }}>
-                <AVProductTableToolbar numSelected={selected.length} />
+                <AVProductTableToolbar
+                    numSelected={selected.length}
+                    selected={selected}
+                    discontinueSelected={discontinueSelected}
+                    activateSelected={activateSelected}
+                />
                 <TableContainer sx={{ maxHeight: 500 }}>
                     <Table
                         sx={{ minWidth: 750 }}
@@ -211,15 +215,13 @@ const AVProductCatalog: React.FC<AVCatProps> = ({
                                         >
                                             <img
                                                 src={row.thumbnailUrl}
-                                                alt="{row.name}"
-                                                className="admin-catalog-thumbnail"
-                                                style={{
-                                                    filter:
-                                                        row.status ===
-                                                        "discontinued"
-                                                            ? "grayscale(100%)"
-                                                            : "undefined",
-                                                }}
+                                                alt={row.name}
+                                                className={
+                                                    row.status ===
+                                                    "discontinued"
+                                                        ? "admin-catalog-thumbnail grayscale-thumbnail"
+                                                        : "admin-catalog-thumbnail"
+                                                }
                                             />
                                         </TableCell>
                                         <TableCell
@@ -293,6 +295,12 @@ const AVProductCatalog: React.FC<AVCatProps> = ({
                                                 discontinued={
                                                     row.status ===
                                                     "discontinued"
+                                                }
+                                                handleProductActivate={
+                                                    handleProductActivate
+                                                }
+                                                handleProductDiscontinue={
+                                                    handleProductDiscontinue
                                                 }
                                             />
                                         </TableCell>

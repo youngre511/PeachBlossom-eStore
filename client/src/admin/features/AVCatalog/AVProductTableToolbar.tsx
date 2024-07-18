@@ -6,10 +6,14 @@ import UnarchiveSharpIcon from "@mui/icons-material/UnarchiveSharp";
 
 export interface AVProductTableToolbarProps {
     numSelected: number;
+    selected: readonly string[];
+    discontinueSelected: (productNos: string[]) => void;
+    activateSelected: (productNos: string[]) => void;
 }
 
 const AVProductTableToolbar: React.FC<AVProductTableToolbarProps> = (props) => {
-    const { numSelected } = props;
+    const { numSelected, selected, discontinueSelected, activateSelected } =
+        props;
 
     return (
         <Toolbar
@@ -47,18 +51,18 @@ const AVProductTableToolbar: React.FC<AVProductTableToolbarProps> = (props) => {
             {numSelected > 0 && (
                 <React.Fragment>
                     <Tooltip title="Reactivate">
-                        <IconButton>
+                        <IconButton
+                            onClick={() => activateSelected([...selected])}
+                        >
                             <UnarchiveSharpIcon />
                         </IconButton>
                     </Tooltip>
-                    <Tooltip title="Discontinue">
+                    <Tooltip
+                        title="Discontinue"
+                        onClick={() => discontinueSelected([...selected])}
+                    >
                         <IconButton>
                             <ArchiveSharpIcon />
-                        </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Permanently Delete">
-                        <IconButton>
-                            <DeleteSharpIcon />
                         </IconButton>
                     </Tooltip>
                 </React.Fragment>

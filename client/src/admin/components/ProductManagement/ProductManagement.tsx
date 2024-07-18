@@ -3,7 +3,10 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import AVProductCatalog from "../../features/AVCatalog/AVProductCatalog";
 import { AVFilters } from "../../features/AVCatalog/avCatalogTypes";
-import { avFetchProducts } from "../../features/AVCatalog/avCatalogSlice";
+import {
+    avFetchProducts,
+    updateProductStatus,
+} from "../../features/AVCatalog/avCatalogSlice";
 import { arraysEqual } from "../../../common/utils/arraysEqual";
 import { RootState } from "../../store/store.js";
 import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
@@ -42,9 +45,31 @@ const ProductManagement: React.FC<Props> = () => {
     const sort = searchParams.get("sort") || "name-ascend";
     const view = searchParams.get("view") || "active";
     const itemsPerPage = searchParams.get("itemsPerPage") || 24;
-    const [menuDataLoading, setMenuDataLoading] = useState<boolean>(true);
+    const [justLoaded, setJustLoaded] = useState<boolean>(true);
+    const [loading, setLoading] = useState<boolean>(true);
 
     const navigate = useNavigate();
+
+    useEffect(() => {
+        setLoading(avCatalog.loading);
+    }, [avCatalog.loading]);
+
+    useEffect(() => {
+        if (!loading) {
+            fetchData(true);
+        }
+    }, [loading]);
+
+    useEffect(() => {
+        if (justLoaded) {
+            fetchData();
+            setJustLoaded(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        fetchData(true);
+    }, [search, category, subCategory, page, tags, sort, view, itemsPerPage]);
 
     const memoParams = useMemo(() => {
         return {
@@ -73,7 +98,7 @@ const ProductManagement: React.FC<Props> = () => {
         }
     }, [avMenuData]);
 
-    useEffect(() => {
+    const fetchData = async (force = false) => {
         const initialParams: Record<string, string> = {};
 
         if (!searchParams.get("sort")) {
@@ -123,11 +148,16 @@ const ProductManagement: React.FC<Props> = () => {
                 currentFilters,
                 existingFilters
             );
-            if (filtersChanged) {
-                dispatch(avFetchProducts(params as AVFilters));
+            if (filtersChanged || force) {
+                dispatch(
+                    avFetchProducts({
+                        filters: params as AVFilters,
+                        force: force,
+                    })
+                );
             }
         }
-    }, [search, category, subCategory, page, tags, sort, view, itemsPerPage]);
+    };
 
     const updateSearchParams = (newFilters: Record<string, string>): void => {
         Object.keys(newFilters).forEach((key) => {
@@ -182,6 +212,42 @@ const ProductManagement: React.FC<Props> = () => {
             searchParams.delete("subCategory");
             setSearchParams(searchParams);
         }
+    };
+
+    const handleProductDiscontinue = (productNo: string) => {
+        dispatch(
+            updateProductStatus({
+                productNos: [productNo],
+                newStatus: "discontinued",
+            })
+        );
+    };
+
+    const handleProductActivate = (productNo: string) => {
+        dispatch(
+            updateProductStatus({
+                productNos: [productNo],
+                newStatus: "active",
+            })
+        );
+    };
+
+    const discontinueSelected = (productNos: string[]) => {
+        dispatch(
+            updateProductStatus({
+                productNos: productNos,
+                newStatus: "discontinued",
+            })
+        );
+    };
+
+    const activateSelected = (productNos: string[]) => {
+        dispatch(
+            updateProductStatus({
+                productNos: productNos,
+                newStatus: "active",
+            })
+        );
     };
 
     return (
@@ -295,6 +361,10 @@ const ProductManagement: React.FC<Props> = () => {
                 page={+page}
                 results={avCatalog.numberOfResults}
                 updateSearchParams={updateSearchParams}
+                handleProductActivate={handleProductActivate}
+                handleProductDiscontinue={handleProductDiscontinue}
+                discontinueSelected={discontinueSelected}
+                activateSelected={activateSelected}
             />
         </div>
     );

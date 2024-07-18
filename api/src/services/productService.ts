@@ -902,7 +902,7 @@ export const updateProductStatus = async (
     const session: ClientSession = await mongoose.startSession();
     session.startTransaction();
     const sqlTransaction = await sequelize.transaction();
-
+    console.log("newStatus:", newStatus);
     try {
         const mongoResults = await Product.updateMany(
             { productNo: productNos },

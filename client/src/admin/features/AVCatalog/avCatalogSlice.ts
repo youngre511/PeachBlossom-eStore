@@ -31,12 +31,11 @@ const initialState: AVCatalogState = {
 
 export const avFetchProducts = createAsyncThunk<
     AVFetchProductsResponse,
-    AVFilters,
+    { filters: AVFilters; force?: boolean },
     { state: RootState }
 >(
     "avCatalog/avFetchProducts",
-    async (filters: AVFilters, { getState, rejectWithValue }) => {
-        console.log("running");
+    async ({ filters, force = false }, { getState, rejectWithValue }) => {
         const state = getState() as RootState;
         const existingFilters = state.avCatalog.filters;
         let filterUnchanged = true;
@@ -70,7 +69,7 @@ export const avFetchProducts = createAsyncThunk<
             filterUnchanged = false;
         }
 
-        if (filterUnchanged) {
+        if (filterUnchanged && !force) {
             return {
                 filters,
                 products: state.avCatalog.products,
@@ -132,6 +131,35 @@ export const updateInventory = createAsyncThunk<
     }
 );
 
+export const updateProductStatus = createAsyncThunk<
+    { success: boolean; productNos: string[]; newStatus: string },
+    { productNos: string[]; newStatus: string },
+    { state: RootState }
+>(
+    "avCatalog/updateProductStatus",
+    async (
+        updateData: { productNos: string[]; newStatus: string },
+        { getState, rejectWithValue }
+    ) => {
+        const state = getState() as RootState;
+        const filters = state.avCatalog.filters;
+        try {
+            const response = await axios.put(
+                `${process.env.REACT_APP_API_URL}product/update-status`,
+                updateData
+            );
+            return {
+                success: response.data.success,
+                ...updateData,
+            };
+        } catch (error: any) {
+            return rejectWithValue(
+                error.response?.data || "Error fetching products"
+            );
+        }
+    }
+);
+
 //Slice//
 const catalogSlice = createSlice({
     name: "avCatalog",
@@ -172,6 +200,30 @@ const catalogSlice = createSlice({
                 state.loading = false;
             })
             .addCase(updateInventory.rejected, (state, action) => {
+                state.loading = false;
+                state.error =
+                    action.error.message || "Failed to update inventory";
+            })
+            .addCase(updateProductStatus.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(updateProductStatus.fulfilled, (state, action) => {
+                console.log("success:", action.payload.success);
+                state.products = state.products.map((product) => {
+                    if (action.payload.productNos.includes(product.productNo)) {
+                        const newProduct = {
+                            ...product,
+                            status: action.payload.newStatus,
+                        };
+                        return newProduct;
+                    } else {
+                        return product;
+                    }
+                });
+                state.loading = false;
+            })
+            .addCase(updateProductStatus.rejected, (state, action) => {
                 state.loading = false;
                 state.error =
                     action.error.message || "Failed to update inventory";

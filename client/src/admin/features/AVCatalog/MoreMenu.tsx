@@ -6,8 +6,15 @@ import MoreVertSharpIcon from "@mui/icons-material/MoreVertSharp";
 interface Props {
     productNo: string;
     discontinued: boolean;
+    handleProductActivate: (productNo: string) => void;
+    handleProductDiscontinue: (productNo: string) => void;
 }
-const MoreMenu: React.FC<Props> = ({ productNo, discontinued }) => {
+const MoreMenu: React.FC<Props> = ({
+    productNo,
+    discontinued,
+    handleProductActivate,
+    handleProductDiscontinue,
+}) => {
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -40,12 +47,24 @@ const MoreMenu: React.FC<Props> = ({ productNo, discontinued }) => {
                 }}
             >
                 {!discontinued ? (
-                    <MenuItem onClick={handleClose}>Discontinue</MenuItem>
+                    <MenuItem
+                        onClick={() => {
+                            handleProductDiscontinue(productNo);
+                            handleClose();
+                        }}
+                    >
+                        Discontinue
+                    </MenuItem>
                 ) : (
-                    <MenuItem onClick={handleClose}>Reactivate</MenuItem>
+                    <MenuItem
+                        onClick={() => {
+                            handleProductActivate(productNo);
+                            handleClose();
+                        }}
+                    >
+                        Reactivate
+                    </MenuItem>
                 )}
-
-                <MenuItem onClick={handleClose}>Permanently Delete</MenuItem>
             </Menu>
         </div>
     );

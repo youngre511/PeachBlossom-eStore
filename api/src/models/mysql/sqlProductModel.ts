@@ -96,7 +96,7 @@ export class sqlProduct extends Model {
     declare updatedAt: Date;
 
     @Column({
-        type: DataType.STRING(10),
+        type: DataType.ENUM("active", "discontinued"),
         allowNull: false,
     })
     status!: string;
