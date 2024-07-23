@@ -47,7 +47,11 @@ const CartItem: React.FC<Props> = ({ item }: Props) => {
         <div className="cart-item">
             <div className="thumbnail-remove">
                 <Link to={item.productUrl}>
-                    <img src={item.thumbnailUrl} alt={item.name} />
+                    <img
+                        src={item.thumbnailUrl}
+                        alt={item.name}
+                        className="cart-thumbnail"
+                    />
                 </Link>
                 {cartView && (
                     <p
@@ -60,10 +64,12 @@ const CartItem: React.FC<Props> = ({ item }: Props) => {
                 )}
             </div>
             <div className="cartItemDetails">
-                <Link to={item.productUrl}>
-                    <h2>{item.name}</h2>
-                </Link>
-                <p className="cart-productNo">#{item.productNo}</p>
+                <div className="cart-name-and-number">
+                    <Link to={item.productUrl}>
+                        <h2 className="cart-item-name">{item.name}</h2>
+                    </Link>
+                    <p className="cart-productNo">#{item.productNo}</p>
+                </div>
                 <div className="price-and-quantity">
                     {!cartView && (
                         <p className="drop-quantity">Qty: {item.quantity}</p>

@@ -11,6 +11,8 @@ import { generateOrderNo } from "../utils/generateOrderNo.js";
 import { sqlProduct } from "../models/mysql/sqlProductModel.js";
 import { Model, Op, Order, fn, col, literal } from "sequelize";
 import { JoinReqProduct } from "./cartService.js";
+import { sqlCartItem } from "../models/mysql/sqlCartItemModel.js";
+import { sqlCart } from "../models/mysql/sqlCartModel.js";
 
 interface JoinReqOrderItem extends Model {
     order_item_id: number;
@@ -113,6 +115,17 @@ export const placeOrder = async (orderData: OrderData) => {
                 fulfillmentStatus: "unfulfilled",
             };
             await sqlOrderItem.create(orderItem, {
+                transaction: sqlTransaction,
+            });
+        }
+
+        if (orderData.cartId) {
+            await sqlCartItem.destroy({
+                where: { cart_id: orderData.cartId },
+                transaction: sqlTransaction,
+            });
+            await sqlCart.destroy({
+                where: { cart_id: orderData.cartId },
                 transaction: sqlTransaction,
             });
         }

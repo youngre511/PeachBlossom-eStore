@@ -8,11 +8,11 @@ import {
 } from "@mui/material";
 import { visuallyHidden } from "@mui/utils";
 import { Order } from "./OrdersList";
-import { AVOrder } from "./OrderManagement";
+import { IAVOrder } from "../../features/AVOrders/avOrdersTypes";
 
 interface HeadCell {
     disablePadding: boolean;
-    id: keyof AVOrder | "actions";
+    id: keyof IAVOrder | "actions";
     label: string;
     sortable: boolean;
 }
@@ -65,7 +65,7 @@ export const headCells: readonly HeadCell[] = [
 export interface EnhancedTableProps {
     onRequestSort: (
         event: React.MouseEvent<unknown>,
-        property: keyof AVOrder
+        property: keyof IAVOrder
     ) => void;
     order: Order;
     orderBy: string;
@@ -75,7 +75,7 @@ const OrdersListHead: React.FC<EnhancedTableProps> = (props) => {
     const { order, orderBy, onRequestSort } = props;
 
     const handleSort =
-        (property: keyof AVOrder) => (event: React.MouseEvent<unknown>) => {
+        (property: keyof IAVOrder) => (event: React.MouseEvent<unknown>) => {
             onRequestSort(event, property);
         };
 
@@ -98,7 +98,7 @@ const OrdersListHead: React.FC<EnhancedTableProps> = (props) => {
                                         orderBy === headCell.id ? order : "desc"
                                     }
                                     onClick={handleSort(
-                                        headCell.id as keyof AVOrder
+                                        headCell.id as keyof IAVOrder
                                     )}
                                 >
                                     {headCell.label}

@@ -14,23 +14,61 @@ import { sqlSubCategory } from "../models/mysql/sqlSubCategoryModel.js";
 import sequelize from "../models/mysql/index.js";
 
 export const getAllCategories = async (): Promise<
-    Array<{ name: string; subCategories: string[] }>
+    Array<{
+        categoryName: string;
+        productCount: number;
+        Subcategory: Array<{ subCategoryName: string; productCount: number }>;
+    }>
 > => {
-    const categories: Array<CategoryItem> = await Category.find({});
-    if (!categories) {
+    const categoriesAndCounts = await sqlCategory.findAll({
+        attributes: [
+            "categoryName",
+            [
+                sequelize.literal(`(
+                SELECT COUNT(*)
+                FROM Products AS Product
+                WHERE
+                    Product.category_id = sqlCategory.category_id
+                )`),
+                "productCount",
+            ],
+        ],
+        include: [
+            {
+                model: sqlSubCategory,
+                as: "SubCategory",
+                attributes: [
+                    "subCategoryName",
+                    [
+                        sequelize.literal(`(
+                        SELECT COUNT(*)
+                        FROM Products AS Product
+                        WHERE
+                          Product.subCategory_id = SubCategory.subCategory_id
+                      )`),
+                        "productCount",
+                    ],
+                ],
+            },
+        ],
+    });
+
+    if (!categoriesAndCounts) {
         throw new Error("No categories found");
     }
 
-    const categoryArray: Array<{ name: string; subCategories: string[] }> =
-        categories.map((category) => {
-            const catName = category.name;
-            const subCats = category.subCategories.map(
-                (subCategory) => subCategory.name
+    const parsedCategoriesAndCounts = categoriesAndCounts.map((category) => {
+        const parsedCategory = category.get();
+        if (parsedCategory.SubCategory) {
+            const parsedSubCategories = parsedCategory.SubCategory.map(
+                (subCategory: any) => subCategory.get()
             );
-            return { name: catName, subCategories: subCats };
-        });
+            parsedCategory.SubCategory = parsedSubCategories;
+        }
+        return parsedCategory;
+    });
 
-    return categoryArray;
+    return parsedCategoriesAndCounts;
 };
 
 export const getCategoryByName = async (
@@ -53,6 +91,7 @@ export const createCategory = async (
 ): Promise<BooleString> => {
     const session: ClientSession = await mongoose.startSession();
     session.startTransaction();
+    const sqlTransaction = await sequelize.transaction();
 
     try {
         await Category.create(
@@ -65,12 +104,17 @@ export const createCategory = async (
         );
 
         //SQL create category
-        await sqlCategory.create({ categoryName: categoryName });
+        await sqlCategory.create(
+            { categoryName: categoryName },
+            { transaction: sqlTransaction }
+        );
 
         await session.commitTransaction();
+        await sqlTransaction.commit();
         return { success: true, message: "Category successfully created" };
     } catch (error) {
         await session.abortTransaction();
+        await sqlTransaction.rollback();
         if (error instanceof Error) {
             throw new Error("Error creating category: " + error.message);
         } else {
@@ -91,6 +135,7 @@ export const createSubCategory = async (
 ): Promise<BooleString> => {
     const session: ClientSession = await mongoose.startSession();
     session.startTransaction();
+    const sqlTransaction = await sequelize.transaction();
 
     try {
         // Get category subcategory belongs to
@@ -119,13 +164,15 @@ export const createSubCategory = async (
 
         await sqlSubCategory.create({
             subCategoryName: subCategoryName,
-            category_id: sqlCatRec.category_id,
+            category_id: sqlCatRec.dataValues.category_id,
         });
 
         await session.commitTransaction();
+        await sqlTransaction.commit();
         return { success: true, message: "subcategory successfully created" };
     } catch (error) {
         await session.abortTransaction();
+        await sqlTransaction.rollback();
         if (error instanceof Error) {
             throw new Error("Error creating category: " + error.message);
         } else {
@@ -143,7 +190,7 @@ export const createSubCategory = async (
 export const updateCategoryName = async (
     oldName: string,
     newName: string
-): Promise<CategoryItem> => {
+): Promise<BooleString> => {
     const targetCategory = await Category.findOne({ name: oldName });
 
     if (!targetCategory) {
@@ -155,7 +202,7 @@ export const updateCategoryName = async (
     const sqlTransaction = await sequelize.transaction();
 
     try {
-        // ternaries avoid inputting undefined values
+        // avoid inputting undefined values
         let updatedData = {
             name: newName ? newName : targetCategory.name,
         };
@@ -180,7 +227,11 @@ export const updateCategoryName = async (
         await foundSqlCat.save();
 
         await session.commitTransaction();
-        return updatedCategory;
+        await sqlTransaction.commit();
+        return {
+            success: true,
+            message: `The name of the category ${oldName} has been changed to ${newName}`,
+        };
     } catch (error) {
         await session.abortTransaction();
         await sqlTransaction.rollback();
@@ -196,7 +247,61 @@ export const updateCategoryName = async (
     }
 };
 
-//delete category (must delete category from all products as well)
+// update category name
+
+export const updateSubcategoryName = async (
+    oldName: string,
+    newName: string
+): Promise<BooleString> => {
+    const session: ClientSession = await mongoose.startSession();
+    session.startTransaction();
+    const sqlTransaction = await sequelize.transaction();
+
+    try {
+        await Category.findOneAndUpdate(
+            { "subCategories.name": oldName },
+            { $set: { "subCategories.$[elem].name": newName } },
+            { arrayFilters: [{ "elem.name": oldName }], session }
+        );
+
+        //SQL Update Function
+        const foundSqlSubcat = await sqlSubCategory.findOne({
+            where: { subCategoryName: oldName },
+            transaction: sqlTransaction,
+        });
+
+        if (!foundSqlSubcat) {
+            throw new Error("Old subcategory name not found in sql database");
+        }
+        await sqlSubCategory.update(
+            { subCategoryName: newName },
+            {
+                where: { subCategoryName: oldName },
+                transaction: sqlTransaction,
+            }
+        );
+
+        await session.commitTransaction();
+        await sqlTransaction.commit();
+        return {
+            success: true,
+            message: `The name of the subcategory ${oldName} has been changed to ${newName}`,
+        };
+    } catch (error) {
+        await session.abortTransaction();
+        await sqlTransaction.rollback();
+        if (error instanceof Error) {
+            throw new Error("Error updating subcategory: " + error.message);
+        } else {
+            throw new Error(
+                "An unknown error occurred while updating subcategory"
+            );
+        }
+    } finally {
+        session.endSession();
+    }
+};
+//delete category only if it contains no products
 
 export const deleteCategory = async (
     categoryName: string
@@ -224,28 +329,111 @@ export const deleteCategory = async (
     }
 
     const session: ClientSession = await mongoose.startSession();
-    session.startTransaction();
+    const sqlTransaction = await sequelize.transaction();
 
     try {
-        await Product.updateMany(
-            { category: categoryId },
-            { $pull: { category: categoryId } }
-        ).session(session);
+        session.startTransaction();
+        // Delete from Mongo
+        await Category.deleteOne({ name: categoryName }, { session });
 
-        await Category.deleteOne({ name: categoryName }).session(session);
+        // Delete from SQL
+        const foundSqlCat = await sqlCategory.findOne({
+            where: { categoryName: categoryName },
+        });
+        if (!foundSqlCat) {
+            throw new Error("Category not found");
+        }
 
-        // Delete from SQL HERE
+        await sqlSubCategory.destroy({
+            where: { category_id: foundSqlCat.dataValues.category_id },
+        });
+
+        await sqlCategory.destroy({
+            where: { categoryName: categoryName },
+            transaction: sqlTransaction,
+        });
 
         await session.commitTransaction();
+        await sqlTransaction.commit();
         return { success: true };
     } catch (error) {
         await session.abortTransaction();
-
+        await sqlTransaction.rollback();
         if (error instanceof Error) {
             throw new Error("Error deleting category :" + error.message);
         } else {
             throw new Error(
                 "An unknown error occurred while deleting category"
+            );
+        }
+    } finally {
+        session.endSession();
+    }
+};
+
+export const deleteSubcategory = async (
+    subcategoryName: string
+): Promise<{ success: boolean }> => {
+    const targetCategory: CategoryItem | null = await Category.findOne(
+        {
+            subCategories: { $elemMatch: { name: subcategoryName } },
+        },
+        {
+            // return only matched subcategory
+            "subCategories.$": 1,
+        }
+    ).exec();
+    if (
+        !targetCategory ||
+        !targetCategory.subCategories ||
+        targetCategory.subCategories.length === 0
+    ) {
+        throw new Error("Category not found");
+    }
+
+    console.log("targetCategory:", targetCategory);
+    const subCategoryId = targetCategory.subCategories[0]._id.toString();
+
+    console.log(subCategoryId);
+
+    const session: ClientSession = await mongoose.startSession();
+    const sqlTransaction = await sequelize.transaction();
+
+    try {
+        session.startTransaction();
+
+        await Product.updateMany(
+            { subCategory: subCategoryId },
+            { $pull: { subCategory: subCategoryId } },
+            { session }
+        );
+        // Delete from Mongo
+        console.log("Deleting from mongo");
+        const result = await Category.updateOne(
+            { _id: targetCategory._id },
+            { $pull: { subCategories: { name: subcategoryName } } },
+            { session }
+        );
+
+        console.log("result:", result);
+        // Delete from SQL
+
+        await sqlSubCategory.destroy({
+            where: { subCategoryName: subcategoryName },
+            transaction: sqlTransaction,
+        });
+
+        await session.commitTransaction();
+        await sqlTransaction.commit();
+        return { success: true };
+    } catch (error) {
+        await session.abortTransaction();
+        await sqlTransaction.rollback();
+        if (error instanceof Error) {
+            throw new Error("Error deleting subcategory :" + error.message);
+        } else {
+            throw new Error(
+                "An unknown error occurred while deleting subcategory"
             );
         }
     } finally {

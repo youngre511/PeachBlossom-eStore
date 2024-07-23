@@ -180,10 +180,14 @@ const DynamicCategory: React.FC<DynamicCategoryProps> = ({
     useEffect(() => {
         if (values.category) {
             const selectedCategory = categories.find(
-                (category) => category.name === values.category
+                (category) => category.categoryName === values.category
             );
-            if (selectedCategory && selectedCategory.subCategories.length > 0) {
-                memoizedSetSubCategories(selectedCategory.subCategories);
+            if (selectedCategory && selectedCategory.SubCategory.length > 0) {
+                memoizedSetSubCategories(
+                    selectedCategory.SubCategory.map(
+                        (subcategory) => subcategory.subCategoryName
+                    )
+                );
             } else {
                 memoizedSetSubCategories("disabled");
             }
@@ -308,7 +312,7 @@ const AddProduct: React.FC = () => {
     }, []);
 
     const categoryOptions = useMemo(
-        () => categories.map((category) => category.name),
+        () => categories.map((category) => category.categoryName),
         [categories]
     );
 

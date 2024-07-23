@@ -27,6 +27,7 @@ export const avFetchCategories = createAsyncThunk<
         const response = await axios.get<AVCategoryFetchResponse>(
             `${process.env.REACT_APP_API_URL}category`
         );
+        console.log(response.data.payload);
         return response.data.payload;
     } catch (error: any) {
         return rejectWithValue(

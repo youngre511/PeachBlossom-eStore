@@ -214,25 +214,29 @@ const FilterOptions: React.FC<Props> = ({
                             <div className="filter-category-cont" key={index}>
                                 <p
                                     className="filter-category"
-                                    onClick={() => addCategory(category.name)}
+                                    onClick={() =>
+                                        addCategory(category.categoryName)
+                                    }
                                 >
-                                    {category.name}
+                                    {category.categoryName}
                                 </p>
-                                {category.subCategories.length > 0 && (
+                                {category.SubCategory.length > 0 && (
                                     <div className="filter-subcategory-cont">
-                                        {category.subCategories.map(
+                                        {category.SubCategory.map(
                                             (subCategory, index) => (
                                                 <p
                                                     className="filter-subcategory"
                                                     key={index}
                                                     onClick={() =>
                                                         addSubCategoryAndCategory(
-                                                            subCategory,
-                                                            category.name
+                                                            subCategory.subCategoryName,
+                                                            category.categoryName
                                                         )
                                                     }
                                                 >
-                                                    {subCategory}
+                                                    {
+                                                        subCategory.subCategoryName
+                                                    }
                                                 </p>
                                             )
                                         )}
@@ -248,24 +252,27 @@ const FilterOptions: React.FC<Props> = ({
                     {categories &&
                         categories.filter(
                             (category) =>
-                                category.name === existingFilters.category
-                        )[0].subCategories.length > 0 && (
+                                category.categoryName ===
+                                existingFilters.category
+                        )[0].SubCategory.length > 0 && (
                             <div className="filter-subcategory-cont">
                                 {categories
                                     .filter(
                                         (category) =>
-                                            category.name ===
+                                            category.categoryName ===
                                             existingFilters.category
                                     )[0]
-                                    .subCategories.map((subCategory, index) => (
+                                    .SubCategory.map((subCategory, index) => (
                                         <p
                                             className="filter-subcategory"
                                             key={index}
                                             onClick={() =>
-                                                addSubCategory(subCategory)
+                                                addSubCategory(
+                                                    subCategory.subCategoryName
+                                                )
                                             }
                                         >
-                                            {subCategory}
+                                            {subCategory.subCategoryName}
                                         </p>
                                     ))}
                             </div>

@@ -15,6 +15,7 @@ import {
 import AVProductDetails from "./components/AVProductDetails/AVProductDetails";
 import OrderManagement from "./components/OrderManagement/OrderManagement";
 import AVOrderDetails from "./components/AVOrderDetails/AVOrderDetails";
+import CategoryManagement from "./components/CategoryManagement/CategoryManagement";
 
 function AdminApp() {
     const dispatch = useAppDispatch();
@@ -49,6 +50,10 @@ function AdminApp() {
                         <Route
                             path="orders/order-details"
                             element={<AVOrderDetails />}
+                        />
+                        <Route
+                            path="categories"
+                            element={<CategoryManagement />}
                         />
                     </Routes>
                 </main>

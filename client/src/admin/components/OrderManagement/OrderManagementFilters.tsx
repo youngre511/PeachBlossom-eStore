@@ -17,7 +17,37 @@ import { SelectFieldNonFormik } from "../../../common/components/Fields/SelectFi
 import { EditCalendarSharp } from "@mui/icons-material";
 
 const inputStyle = {
-    "& .MuiInputBase-root.MuiOutlinedInput-root": {
+    // backgroundColor: "white",
+    "&.MuiFilledInput-root": {
+        backgroundColor: "white",
+        "&.Mui-disabled": {
+            backgroundColor: "peach.light",
+        },
+    },
+    "&.MuiFilledInput-input": {
+        backgroundColor: "white",
+    },
+    "&.MuiInputBase-root": {
+        backgroundColor: "white",
+        "&.MuiFilledInput-root": {
+            backgroundColor: "white",
+            "&.Mui-disabled": {
+                backgroundColor: "peach.light",
+            },
+        },
+    },
+    "& .MuiInputBase-input.MuiFilledInput-input:focus": {
+        backgroundColor: "white",
+    },
+    "& .MuiInputBase-root.MuiFilledInput-root.MuiFilledInput-underline.MuiInputBase-adornedStart":
+        {
+            backgroundColor: "white",
+        },
+    "& .MuiInputBase-root.MuiFilledInput-root.MuiFilledInput-underline.MuiInputBase-adornedEnd":
+        {
+            backgroundColor: "white",
+        },
+    "& .MuiInputBase-root.MuiFilledInput-root": {
         backgroundColor: "white",
     },
 };
@@ -154,7 +184,7 @@ const OrderManagementFilters: React.FC<Props> = ({ updateSearchParams }) => {
                         name={"orderStatus"}
                         value={orderStatus}
                         multiple={true}
-                        variant="outlined"
+                        variant="filled"
                         options={[
                             "In Process",
                             "Cancelled",
@@ -166,13 +196,13 @@ const OrderManagementFilters: React.FC<Props> = ({ updateSearchParams }) => {
                         setMultipleAction={setOrderStatus}
                         readOnly={false}
                         required={false}
-                        sx={{ inputStyle }}
+                        sx={inputStyle}
                     />
                 </div>
                 <div className="region-select" style={{ width: "200px" }}>
                     <SelectFieldNonFormik
                         value={region}
-                        variant="outlined"
+                        variant="filled"
                         label="Region"
                         name="region"
                         multiple={false}
@@ -187,12 +217,13 @@ const OrderManagementFilters: React.FC<Props> = ({ updateSearchParams }) => {
                             "Southwest",
                             "West",
                         ]}
+                        sx={inputStyle}
                     />
                 </div>
                 <div className="state-select">
                     <SelectFieldNonFormik
                         value={state}
-                        variant="outlined"
+                        variant="filled"
                         label="State"
                         name="state"
                         options={
@@ -204,6 +235,7 @@ const OrderManagementFilters: React.FC<Props> = ({ updateSearchParams }) => {
                         required={false}
                         multiple={true}
                         readOnly={false}
+                        sx={inputStyle}
                     />
                 </div>
                 <div className="start-date-select">
@@ -223,6 +255,7 @@ const OrderManagementFilters: React.FC<Props> = ({ updateSearchParams }) => {
                                 },
                                 field: { clearable: true },
                             }}
+                            sx={{ backgroundColor: "white" }}
                         />
                     </LocalizationProvider>
                 </div>
@@ -243,6 +276,7 @@ const OrderManagementFilters: React.FC<Props> = ({ updateSearchParams }) => {
                                 },
                                 field: { clearable: true },
                             }}
+                            sx={{ backgroundColor: "white" }}
                         />
                     </LocalizationProvider>
                 </div>
@@ -252,7 +286,7 @@ const OrderManagementFilters: React.FC<Props> = ({ updateSearchParams }) => {
                 <SearchField
                     updateSearchParams={updateSearchParams}
                     sx={inputStyle}
-                    inputSx={{ backgroundColor: "white" }}
+                    // inputSx={{ backgroundColor: "white" }}
                     options={[]}
                 />
             </div>

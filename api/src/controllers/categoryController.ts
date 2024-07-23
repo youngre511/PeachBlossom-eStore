@@ -18,6 +18,12 @@ interface CategoryParamsNameRequest extends Request {
     };
 }
 
+interface SubcategoryDeleteRequest extends Request {
+    body: {
+        subcategoryName: string;
+    };
+}
+
 interface CategoryCreateRequest extends Request {
     body: {
         name: string;
@@ -41,8 +47,11 @@ interface CategoryUpdateRequest extends Request {
 
 export const getAllCategories = async (req: Request, res: Response) => {
     try {
-        const results: Array<{ name: string; subCategories: string[] }> =
-            await categoryService.getAllCategories();
+        const results: Array<{
+            categoryName: string;
+            productCount: number;
+            Subcategory: { subCategoryName: string; productCount: number }[];
+        }> = await categoryService.getAllCategories();
 
         res.json({
             message: "success",
@@ -145,13 +154,34 @@ export const updateCategoryName = async (
 ) => {
     try {
         const { oldName, newName } = req.body;
-        const updatedCategory: CategoryItem =
-            await categoryService.updateCategoryName(oldName, newName);
+        const result: BooleString = await categoryService.updateCategoryName(
+            oldName,
+            newName
+        );
+        res.json(result);
+    } catch (error) {
+        let errorObj = {
+            message: "update category name failure",
+            payload: error,
+        };
 
-        res.json({
-            message: "success",
-            payload: updatedCategory,
-        });
+        console.error(errorObj);
+
+        res.status(500).json(errorObj);
+    }
+};
+
+export const updateSubcategoryName = async (
+    req: CategoryUpdateRequest,
+    res: Response
+) => {
+    try {
+        const { oldName, newName } = req.body;
+        const result: BooleString = await categoryService.updateSubcategoryName(
+            oldName,
+            newName
+        );
+        res.json(result);
     } catch (error) {
         let errorObj = {
             message: "update category name failure",
@@ -171,6 +201,27 @@ export const deleteCategory = async (
     const { name } = req.params;
     try {
         const result = await categoryService.deleteCategory(name);
+
+        res.status(200).json(result);
+    } catch (error) {
+        let errorObj = {
+            message: "delete Subcategory failure",
+            payload: error,
+        };
+
+        console.error(errorObj);
+
+        res.status(500).json(errorObj);
+    }
+};
+
+export const deleteSubcategory = async (
+    req: SubcategoryDeleteRequest,
+    res: Response
+) => {
+    const { subcategoryName } = req.body;
+    try {
+        const result = await categoryService.deleteSubcategory(subcategoryName);
 
         res.status(200).json(result);
     } catch (error) {

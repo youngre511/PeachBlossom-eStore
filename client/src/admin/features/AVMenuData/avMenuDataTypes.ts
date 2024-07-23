@@ -1,8 +1,9 @@
 import { ApiResponse } from "../../../common/types/commonTypes";
 
 export interface AVCategory {
-    name: string;
-    subCategories: string[];
+    categoryName: string;
+    productCount: number;
+    SubCategory: { subCategoryName: string; productCount: number }[];
 }
 
 export interface AVMenuDataState {

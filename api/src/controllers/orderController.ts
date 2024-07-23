@@ -12,6 +12,7 @@ interface ShippingDetails {
     city: string;
 }
 export interface OrderData {
+    cartId: number | null;
     customerId?: number;
     shipping: ShippingDetails;
     email: string;

@@ -55,7 +55,6 @@ export const SelectFieldNonFormik: React.FC<SelectFieldProps> = ({
                 variant={variant}
                 multiple={multiple}
                 id={name}
-                // disableUnderline={variant === "standard" ? true : false}
                 placeholder={options === "disabled" ? "N/A" : undefined}
                 label={label}
                 disabled={options === "disabled"}

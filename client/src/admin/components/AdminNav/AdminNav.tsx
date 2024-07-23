@@ -160,7 +160,10 @@ const AdminNav: React.FC<Props> = (props: Props) => {
                                     </ListItemButton>
                                 </ListItem>
                                 <ListItem disablePadding>
-                                    <ListItemButton sx={{ paddingLeft: 2 }}>
+                                    <ListItemButton
+                                        sx={{ paddingLeft: 2 }}
+                                        onClick={() => navigate("/categories")}
+                                    >
                                         <ListItemText
                                             secondary={"Product Categories"}
                                         />

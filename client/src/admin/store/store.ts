@@ -1,11 +1,13 @@
 import { configureStore } from "@reduxjs/toolkit";
 import avCatalogReducer from "../features/AVCatalog/avCatalogSlice";
 import avMenuDataReducer from "../features/AVMenuData/avMenuDataSlice";
+import avOrderReducer from "../features/AVOrders/avOrdersSlice";
 
 export const adminStore = configureStore({
     reducer: {
         avCatalog: avCatalogReducer,
         avMenuData: avMenuDataReducer,
+        avOrder: avOrderReducer,
     },
 });
 

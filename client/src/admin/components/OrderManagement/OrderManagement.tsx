@@ -5,38 +5,17 @@ import OrdersList from "./OrdersList";
 import axios, { AxiosError } from "axios";
 import "./order-management.css";
 import OrderManagementFilters from "./OrderManagementFilters";
+import {
+    IAVOrderFilters,
+    IAVOrder,
+} from "../../features/AVOrders/avOrdersTypes";
+import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
+import { avFetchOrders } from "../../features/AVOrders/avOrdersSlice";
+import { RootState } from "../../store/store";
 
-export interface AVOrderFilters {
-    sort: string;
-    orderStatus?: string[];
-    search?: string;
-    state?: string[];
-    startDate?: string;
-    endDate?: string;
-    page: string;
-    itemsPerPage: string;
-}
-
-export interface AVOrder {
-    order_id: string;
-    customer_id: number | null;
-    orderNo: string;
-    orderDate: Date;
-    subTotal: string;
-    shipping: string;
-    city: string;
-    tax: string;
-    totalAmount: string;
-    shippingAddress: string;
-    stateAbbr: string;
-    zipCode: string;
-    phoneNumber: string;
-    email: string;
-    orderStatus: string;
-}
 interface AVOrderResponse {
     totalCount: number;
-    orders: AVOrder[];
+    orders: IAVOrder[];
 }
 
 interface Props {}
@@ -50,33 +29,10 @@ const OrderManagement: React.FC<Props> = () => {
     const page = searchParams.get("page") || "1";
     const sort = searchParams.get("sort") || "orderDate-descend";
     const itemsPerPage = searchParams.get("itemsPerPage") || 24;
-    const [results, setResults] = useState<AVOrder[]>([]);
-    const [numberOfResults, setNumberOfResults] = useState<number>(0);
-
-    const fetchOrders = async (filters: AVOrderFilters) => {
-        try {
-            const response = await axios.get(
-                `${process.env.REACT_APP_API_URL}order`,
-                {
-                    params: filters,
-                }
-            );
-            if (!response.data) {
-                throw new Error("No data returned from server");
-            }
-            const results: AVOrderResponse = response.data;
-            setNumberOfResults(results.totalCount);
-            setResults(results.orders);
-        } catch (error) {
-            if (error instanceof AxiosError) {
-                console.error(error.message);
-            } else {
-                console.error(
-                    "An unknown error occurred while fetching order data"
-                );
-            }
-        }
-    };
+    const avOrder = useAppSelector((state: RootState) => state.avOrder);
+    const numberOfResults = avOrder.numberOfResults;
+    const results = avOrder.orderList;
+    const dispatch = useAppDispatch();
 
     useEffect(() => {
         const initialParams: Record<string, string> = {};
@@ -104,7 +60,7 @@ const OrderManagement: React.FC<Props> = () => {
             });
         } else {
             //Construct filters obj
-            const params: AVOrderFilters = {
+            const params: IAVOrderFilters = {
                 page: page,
                 itemsPerPage: String(itemsPerPage),
                 sort: sort,
@@ -115,9 +71,8 @@ const OrderManagement: React.FC<Props> = () => {
             if (orderStatus) params["orderStatus"] = orderStatus.split(",");
             if (startDate) params["startDate"] = startDate;
             if (endDate) params["endDate"] = endDate;
-            console.log("params:", params);
-            //FetchLogic
-            fetchOrders(params);
+
+            dispatch(avFetchOrders({ filters: params }));
         }
     }, [
         search,

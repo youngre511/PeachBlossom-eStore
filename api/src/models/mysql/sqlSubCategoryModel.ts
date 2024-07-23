@@ -38,9 +38,9 @@ export class sqlSubCategory extends Model {
     })
     category_id!: number;
 
-    @BelongsTo(() => sqlCategory)
+    @BelongsTo(() => sqlCategory, { as: "Category", foreignKey: "category_id" })
     category!: sqlCategory[];
 
-    @HasMany(() => sqlProduct)
+    @HasMany(() => sqlProduct, { as: "Product" })
     products!: sqlProduct[];
 }

@@ -24,12 +24,12 @@ import ImageSharpIcon from "@mui/icons-material/ImageSharp";
 import ModeEditSharpIcon from "@mui/icons-material/ModeEditSharp";
 import AddAPhotoSharpIcon from "@mui/icons-material/AddAPhotoSharp";
 import OrdersListHead from "./OrdersListHead";
-import { AVOrder } from "./OrderManagement";
+import { IAVOrder } from "../../features/AVOrders/avOrdersTypes";
 import { useNavigate } from "react-router-dom";
 
 interface AVCatProps {
     page: number;
-    results: AVOrder[];
+    results: IAVOrder[];
     numberOfResults: number;
     updateSearchParams: (newFilters: Record<string, string>) => void;
 }
@@ -53,7 +53,7 @@ const OrdersList: React.FC<AVCatProps> = ({
     updateSearchParams,
 }) => {
     const [order, setOrder] = React.useState<Order>("desc");
-    const [orderBy, setOrderBy] = React.useState<keyof AVOrder>("orderDate");
+    const [orderBy, setOrderBy] = React.useState<keyof IAVOrder>("orderDate");
     const [rowsPerPage, setRowsPerPage] = React.useState(24);
     const navigate = useNavigate();
 
@@ -75,7 +75,7 @@ const OrdersList: React.FC<AVCatProps> = ({
 
     const handleRequestSort = (
         event: React.MouseEvent<unknown>,
-        property: keyof AVOrder
+        property: keyof IAVOrder
     ) => {
         const isAsc = orderBy === property && order === "asc";
         setOrder(isAsc ? "desc" : "asc");

@@ -6,7 +6,9 @@ import {
     createCategory,
     createSubCategory,
     updateCategoryName,
+    updateSubcategoryName,
     deleteCategory,
+    deleteSubcategory,
 } from "../controllers/categoryController.js";
 
 categoryRouter.get("/", getAllCategories);
@@ -17,7 +19,11 @@ categoryRouter.post("/create", createCategory);
 
 categoryRouter.put("/update", updateCategoryName);
 
+categoryRouter.put("/subcategory/update", updateSubcategoryName);
+
 categoryRouter.delete("/delete/:name", deleteCategory);
+
+categoryRouter.delete("/subcategory/delete", deleteSubcategory);
 
 categoryRouter.post("/:categoryName/create-sub", createSubCategory);
 

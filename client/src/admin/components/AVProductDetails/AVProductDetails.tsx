@@ -327,10 +327,14 @@ const AVProductDetails: React.FC = () => {
     useEffect(() => {
         if (category) {
             const selectedCategory = categories.find(
-                (cat) => cat.name === category
+                (cat) => cat.categoryName === category
             );
-            if (selectedCategory && selectedCategory.subCategories.length > 0) {
-                setSubCategories(selectedCategory.subCategories);
+            if (selectedCategory && selectedCategory.SubCategory.length > 0) {
+                setSubCategories(
+                    selectedCategory.SubCategory.map(
+                        (subcategory) => subcategory.subCategoryName
+                    )
+                );
             } else {
                 setSubCategories("disabled");
             }
@@ -471,7 +475,7 @@ const AVProductDetails: React.FC = () => {
     }, []);
 
     const categoryOptions = useMemo(
-        () => categories.map((category) => category.name),
+        () => categories.map((category) => category.categoryName),
         [categories]
     );
 

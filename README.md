@@ -17,11 +17,11 @@
         -   SQL
             -   Orders [COMPLETE]
             -   Basic Product Info [COMPLETE]
-            -   Shipments
+            -
             -   Inventory
         -   MongoDB
-            -   Products
-            -   Categories
+            -   Products [COMPLETE]
+            -   Categories [COMPLETE]
     -   CRUD Functionality for all of the above
     -   Infrastructure in place for promotions [COMPLETE]
 
@@ -31,12 +31,12 @@
     -   Add Products [COMPLETE]
     -   View Products with Sort and Filter [COMPLETE]
     -   Update Products [COMPLETE]
-    -   Discontinue Products
+    -   Discontinue Products [COMPLETE]
     -   Delete Products (Back-End Only for Data Integrity)
 -   Categories
     -   Manage Categories and SubCategories
 -   Inventory Management [COMPLETE]
--   Order Management
+-   Order Management [COMPLETE]
 -   Dashboard
     -   Basic Sales Trends
 

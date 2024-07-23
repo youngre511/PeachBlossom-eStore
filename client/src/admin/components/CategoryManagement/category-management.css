@@ -1,0 +1,24 @@
+.category-manage-content {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    max-width: 800px;
+}
+.catMan-list {
+    background-color: white;
+    width: 300px;
+    overflow: scroll;
+    height: 60vh;
+}
+
+.catMan-listItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    cursor: pointer;
+}
+
+.selected-category {
+    background-color: var(--peach-blush);
+}

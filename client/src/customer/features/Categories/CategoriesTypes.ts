@@ -2,8 +2,9 @@ import { ApiResponse } from "../../../common/types/commonTypes";
 
 export type FetchCategoriesResponse = ApiResponse<Category[]>;
 export interface Category {
-    name: string;
-    subCategories: string[];
+    categoryName: string;
+    productCount: number;
+    SubCategory: { subCategoryName: string; productCount: number }[];
 }
 
 export interface CategoryState {

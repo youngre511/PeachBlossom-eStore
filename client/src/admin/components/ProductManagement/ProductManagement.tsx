@@ -91,7 +91,7 @@ const ProductManagement: React.FC<Props> = () => {
                 console.log("avMenuData", avMenuData.categories);
                 setCategorySelection(
                     avMenuData.categories.filter(
-                        (cat) => cat.name === category
+                        (cat) => cat.categoryName === category
                     )[0]
                 );
             }
@@ -176,7 +176,7 @@ const ProductManagement: React.FC<Props> = () => {
         const value = event.target.value === "All" ? null : event.target.value;
         setCategorySelection(
             avMenuData.categories.filter(
-                (category) => category.name === value
+                (category) => category.categoryName === value
             )[0]
         );
         console.log("value", event.target.value, value);
@@ -301,10 +301,10 @@ const ProductManagement: React.FC<Props> = () => {
                             {avMenuData.categories.map(
                                 (category: AVCategory, index) => (
                                     <MenuItem
-                                        value={category.name}
+                                        value={category.categoryName}
                                         key={`category-${index}`}
                                     >
-                                        {category.name}
+                                        {category.categoryName}
                                     </MenuItem>
                                 )
                             )}
@@ -324,7 +324,7 @@ const ProductManagement: React.FC<Props> = () => {
                             id="category"
                             disabled={
                                 categorySelection &&
-                                categorySelection.subCategories.length > 0
+                                categorySelection.SubCategory.length > 0
                                     ? false
                                     : true
                             }
@@ -333,14 +333,14 @@ const ProductManagement: React.FC<Props> = () => {
                         >
                             <MenuItem value={"all"}>All</MenuItem>
                             {categorySelection &&
-                                categorySelection?.subCategories.length > 0 &&
-                                categorySelection.subCategories.map(
-                                    (subCat: string, index) => (
+                                categorySelection?.SubCategory.length > 0 &&
+                                categorySelection.SubCategory.map(
+                                    (subCat, index) => (
                                         <MenuItem
-                                            value={subCat}
+                                            value={subCat.subCategoryName}
                                             key={`subcategory-${index}`}
                                         >
-                                            {subCat}
+                                            {subCat.subCategoryName}
                                         </MenuItem>
                                     )
                                 )}

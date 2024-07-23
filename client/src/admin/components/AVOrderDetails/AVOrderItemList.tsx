@@ -21,14 +21,14 @@ import {
 
 import AVOrderItemListHead from "./AVOrderItemListHead";
 import AVOrderItemListToolbar from "./AVOrderItemListToolbar";
-import { AVOrderItem } from "./AVOrderDetails";
 import { useNavigate, Link } from "react-router-dom";
 import AVOrderItemQuantity from "./AVOrderItemQuantity";
 import AVOrderItemStatus from "./AVOrderItemStatus";
+import { IAVOrderItem } from "../../features/AVOrders/avOrdersTypes";
 
 interface AVCatProps {
-    orderItems: AVOrderItem[];
-    setOrderItems: React.Dispatch<SetStateAction<AVOrderItem[]>>;
+    orderItems: IAVOrderItem[];
+    setOrderItems: React.Dispatch<SetStateAction<IAVOrderItem[]>>;
     handleSetSubtotal: (newSubtotal: number) => void;
     subTotal: number;
     editMode: boolean;

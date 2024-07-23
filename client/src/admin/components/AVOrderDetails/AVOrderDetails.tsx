@@ -20,13 +20,19 @@ import "./av-order-details.css";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import BlankPopup from "../../../common/components/BlankPopup";
 import StatusPopup from "../../../common/components/StatusPopup";
-import { AVOrder } from "../OrderManagement/OrderManagement";
+import {
+    IAVOrderItem,
+    IAVOrderDetails,
+} from "../../features/AVOrders/avOrdersTypes";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import updateLocale from "dayjs/plugin/updateLocale";
 import { MuiTelInput } from "mui-tel-input";
 import AVOrderItemList from "./AVOrderItemList";
 import { SelectFieldNonFormik } from "../../../common/components/Fields/SelectFieldNonFormik";
+import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
+import { RootState } from "../../store/store";
+import { avFetchOrderDetails } from "../../features/AVOrders/avOrdersSlice";
 dayjs.extend(customParseFormat);
 dayjs.extend(updateLocale);
 dayjs.updateLocale("en", {
@@ -45,35 +51,6 @@ dayjs.updateLocale("en", {
         "December",
     ],
 });
-
-///////////////////
-///////TYPES///////
-///////////////////
-
-export interface AVOrderItem {
-    order_item_id: number;
-    order_id: number;
-    productNo: string;
-    Product: {
-        id: number;
-        productNo: string;
-        productName: string;
-        price: number;
-        description: string;
-        category_id: number;
-        subCategory_id?: number;
-        thumbnailUrl?: string;
-        createdAt: Date;
-        updatedAt: Date;
-        status: string;
-    };
-    quantity: number;
-    priceWhenOrdered: number;
-    fulfillmentStatus: string;
-}
-interface AVOrderDetails extends AVOrder {
-    OrderItem: AVOrderItem[];
-}
 
 /////////////////////////
 ///////FIELD STYLE///////
@@ -173,10 +150,12 @@ const AVOrderDetails: React.FC = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const orderNo = searchParams.get("order");
     const editMode = searchParams.get("editing") === "true" ? true : false;
-
-    const [currentDetails, setCurrentDetails] = useState<AVOrderDetails | null>(
-        null
+    const avOrderDetails = useAppSelector(
+        (state: RootState) => state.avOrder.orderDetails
     );
+    const dispatch = useAppDispatch();
+    const [currentDetails, setCurrentDetails] =
+        useState<IAVOrderDetails | null>(null);
     const [shippingAddress1, setShippingAddress1] = useState<string>("");
     const [shippingAddress2, setShippingAddress2] = useState<string>("");
     const [state, setState] = useState<string>("");
@@ -189,7 +168,7 @@ const AVOrderDetails: React.FC = () => {
     const [shipping, setShipping] = useState<string>("");
     const [tax, setTax] = useState<string>("");
     const [total, setTotal] = useState<string>("");
-    const [items, setItems] = useState<AVOrderItem[]>([]);
+    const [items, setItems] = useState<IAVOrderItem[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const [isSaving, setIsSaving] = useState<boolean>(false);
     const [isConfirming, setIsConfirming] = useState<boolean>(false);
@@ -210,54 +189,42 @@ const AVOrderDetails: React.FC = () => {
     ];
 
     useEffect(() => {
-        console.log("currentDetails changed");
-    }, [currentDetails]);
-    useEffect(() => {
-        if (mustFetchData) {
-            const getOrderDetails = async () => {
-                try {
-                    const response = await axios.get(
-                        `${process.env.REACT_APP_API_URL}order/${orderNo}`
-                    );
-                    const orderDetails: AVOrderDetails = response.data;
-                    const deepCopiedOrderDetails = JSON.parse(
-                        JSON.stringify(orderDetails)
-                    );
-                    setCurrentDetails(deepCopiedOrderDetails);
-                    setState(orderDetails.stateAbbr);
-                    const splitAddress =
-                        orderDetails.shippingAddress.split(" | ");
-                    setShippingAddress1(splitAddress[0]);
-                    if (splitAddress[1]) {
-                        setShippingAddress2(splitAddress[1]);
-                    }
-                    setOrderStatus(orderDetails.orderStatus);
-                    setEmail(orderDetails.email);
-                    setZipCode(orderDetails.zipCode);
-                    setPhone(orderDetails.phoneNumber);
-                    setItems([...orderDetails.OrderItem]);
-                    setShipping(orderDetails.shipping);
-                    setTotal(orderDetails.totalAmount);
-                    setSubTotal(orderDetails.subTotal);
-                    setTax(orderDetails.tax);
-                    setCity(orderDetails.city);
-
-                    setLoading(false);
-                } catch (error) {
-                    if (error instanceof AxiosError) {
-                        console.error("Error fetching order details", error);
-                    } else {
-                        console.error(
-                            "An unknown error has ocurred while fetching order details"
-                        );
-                    }
-                }
-            };
-
-            getOrderDetails();
-            setMustFetchData(false);
+        if (orderNo) {
+            dispatch(avFetchOrderDetails(orderNo));
         }
-    }, [mustFetchData, orderNo]);
+    }, [orderNo]);
+
+    useEffect(() => {
+        if (avOrderDetails) {
+            const orderDetails: IAVOrderDetails = avOrderDetails.details;
+            const deepCopiedOrderDetails = JSON.parse(
+                JSON.stringify(orderDetails)
+            );
+            const doubleDeepCopiedOrderDetails = JSON.parse(
+                JSON.stringify(deepCopiedOrderDetails)
+            );
+            setCurrentDetails(deepCopiedOrderDetails);
+            setState(doubleDeepCopiedOrderDetails.stateAbbr);
+            const splitAddress =
+                doubleDeepCopiedOrderDetails.shippingAddress.split(" | ");
+            setShippingAddress1(splitAddress[0]);
+            if (splitAddress[1]) {
+                setShippingAddress2(splitAddress[1]);
+            }
+            setOrderStatus(doubleDeepCopiedOrderDetails.orderStatus);
+            setEmail(doubleDeepCopiedOrderDetails.email);
+            setZipCode(doubleDeepCopiedOrderDetails.zipCode);
+            setPhone(doubleDeepCopiedOrderDetails.phoneNumber);
+            setItems([...doubleDeepCopiedOrderDetails.OrderItem]);
+            setShipping(doubleDeepCopiedOrderDetails.shipping);
+            setTotal(doubleDeepCopiedOrderDetails.totalAmount);
+            setSubTotal(doubleDeepCopiedOrderDetails.subTotal);
+            setTax(doubleDeepCopiedOrderDetails.tax);
+            setCity(doubleDeepCopiedOrderDetails.city);
+
+            setLoading(false);
+        }
+    }, [avOrderDetails]);
 
     const handleShippingInput = (
         event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -345,7 +312,7 @@ const AVOrderDetails: React.FC = () => {
         > = {
             orderNo: orderNo as string,
         };
-        const orderParams: Array<keyof AVOrderDetails> = [
+        const orderParams: Array<keyof IAVOrderDetails> = [
             "subTotal",
             "shipping",
             "tax",
@@ -478,7 +445,7 @@ const AVOrderDetails: React.FC = () => {
                 setStatus("success");
                 searchParams.delete("editing");
                 setSearchParams(searchParams);
-                setMustFetchData(true);
+                dispatch(avFetchOrderDetails(orderNo as string));
             } catch (error) {
                 if (error instanceof AxiosError) {
                     setError(error.message);
@@ -514,6 +481,7 @@ const AVOrderDetails: React.FC = () => {
                     <Grid container spacing={3} mt={3} sx={{ width: "100%" }}>
                         <Grid
                             container
+                            item
                             sx={{
                                 justifyContent: "space-between",
                             }}

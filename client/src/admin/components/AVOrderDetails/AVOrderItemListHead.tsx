@@ -8,8 +8,6 @@ import {
     TableSortLabel,
     Icon,
 } from "@mui/material";
-import { visuallyHidden } from "@mui/utils";
-import { AVOrderItem } from "./AVOrderDetails";
 
 interface HeadCell {
     disablePadding: boolean;

@@ -21,6 +21,8 @@ import { Op } from "sequelize";
 import { JoinReqProduct } from "./cartService.js";
 import { Model } from "sequelize-typescript";
 import { Order } from "sequelize";
+import { sqlCartItem } from "../models/mysql/sqlCartItemModel.js";
+import { sqlOrderItem } from "../models/mysql/sqlOrderItemModel.js";
 
 ////// TYPES AND INTERFACES //////
 export type Color =
@@ -902,7 +904,7 @@ export const updateProductStatus = async (
     const session: ClientSession = await mongoose.startSession();
     session.startTransaction();
     const sqlTransaction = await sequelize.transaction();
-    console.log("newStatus:", newStatus);
+
     try {
         const mongoResults = await Product.updateMany(
             { productNo: productNos },
@@ -914,10 +916,17 @@ export const updateProductStatus = async (
         const [affectedSQLRows] = await sqlProduct.update(
             { status: newStatus },
             {
-                where: { productNo: productNos },
+                where: { productNo: { [Op.in]: productNos } },
                 transaction: sqlTransaction,
             }
         );
+
+        if (newStatus === "discontinued") {
+            await sqlCartItem.destroy({
+                where: { productNo: { [Op.in]: productNos } },
+                transaction: sqlTransaction,
+            });
+        }
 
         if (mongoResults.modifiedCount === 0 || affectedSQLRows === 0) {
             if (mongoResults.matchedCount === 0) {
@@ -952,5 +961,86 @@ export const updateProductStatus = async (
     }
 };
 
-//delete single product
-//also delete from sql in all locations
+//delete single product ONLY if no order items reference product sqlProduct record
+
+export const deleteProduct = async (
+    productNo: string
+): Promise<BooleString> => {
+    const session: ClientSession = await mongoose.startSession();
+    session.startTransaction();
+    const sqlTransaction = await sequelize.transaction();
+    try {
+        // First check whether any order items exist for product and prevent deletion if so
+        const orderItems = await sqlOrderItem.findAll({
+            where: { productNo: productNo },
+        });
+        if (orderItems.length > 0) {
+            throw new Error(
+                "Unable to delete products referenced by existing order item records"
+            );
+        }
+        // Store image urls
+        const mongoRecord: ProductItem | null = await Product.findOne({
+            productNo: productNo,
+        });
+        if (!mongoRecord) {
+            throw new Error("Mongo record not found");
+        }
+
+        const imagesToDelete = [...mongoRecord.images];
+
+        //Delete Mongo Record
+        await Product.deleteOne({ productNo: productNo }, { session: session });
+
+        //Delete SQL Records
+        const sqlProdRec = await sqlProduct.findOne({
+            where: { productNo: productNo },
+        });
+        if (!sqlProdRec) {
+            throw new Error("SQL record not found");
+        }
+        const product_id = sqlProdRec.id;
+
+        await sqlInventory.destroy({
+            where: { product_id: product_id },
+            transaction: sqlTransaction,
+        });
+        await sqlProduct.destroy({
+            where: { productNo: productNo },
+            transaction: sqlTransaction,
+        });
+        await sqlCartItem.destroy({
+            where: { productNo: productNo },
+            transaction: sqlTransaction,
+        });
+
+        //Delete Images
+        if (imagesToDelete.length > 0) {
+            imagesToDelete.forEach(async (imageUrl) => {
+                const splitUrl = imageUrl.split("/");
+                const fileName = splitUrl[splitUrl.length - 1];
+                console.log("DELETING", fileName);
+                await deleteFile(fileName);
+            });
+        }
+
+        await session.commitTransaction();
+        await sqlTransaction.commit();
+
+        return { success: true, message: "product successfully deleted" };
+    } catch (error) {
+        await session.abortTransaction();
+        await sqlTransaction.rollback();
+        if (error instanceof Error) {
+            throw new Error(
+                "Error updating product status(es): " + error.message
+            );
+        } else {
+            throw new Error(
+                "An unknown error occurred while updating product status(es)"
+            );
+        }
+    } finally {
+        session.endSession();
+    }
+};

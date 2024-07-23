@@ -338,12 +338,11 @@ export const deleteProduct = async (
     res: Response
 ) => {
     try {
-        await Product.deleteOne({ productNo: req.params.productNo });
+        const response = await productService.deleteProduct(
+            req.params.productNo
+        );
 
-        res.json({
-            message: "success",
-            payload: req.params.productNo,
-        });
+        res.json(response);
     } catch (error) {
         let errorObj = {
             message: "delete product failure",

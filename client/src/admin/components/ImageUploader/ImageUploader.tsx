@@ -45,14 +45,13 @@ const ImageUploader: React.FC<Props> = ({
 }) => {
     const [addMode, setAddMode] = useState<boolean>(true);
     const [editMode, setEditMode] = useState<boolean>(false);
-    console.log("imageUrls:", imageUrls);
 
     const onChange = (
         imageList: ImageListType,
         addUpdateIndex: number[] | undefined
     ) => {
         // data for submit
-        console.log(imageList, addUpdateIndex);
+
         setImages(imageList);
     };
 

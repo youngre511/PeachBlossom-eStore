@@ -38,23 +38,25 @@ const ShopNav: React.FC<Props> = ({ setShopMenuVisible }) => {
                             return (
                                 <li key={index}>
                                     <Link
-                                        to={`/shop?category=${category.name}`}
+                                        to={`/shop?category=${category.categoryName}`}
                                     >
-                                        {category.name}
+                                        {category.categoryName}
                                     </Link>
-                                    {category.subCategories.length > 0 && (
+                                    {category.SubCategory.length > 0 && (
                                         <ul className="shopnav-subcategory-list">
-                                            {category.subCategories.map(
+                                            {category.SubCategory.map(
                                                 (subCategory, index) => (
                                                     <li key={index}>
                                                         <Link
                                                             to={`/shop?category=${
-                                                                category.name
+                                                                category.categoryName
                                                             }&sub_category=${encodeURI(
-                                                                subCategory
+                                                                subCategory.subCategoryName
                                                             )}`}
                                                         >
-                                                            {subCategory}
+                                                            {
+                                                                subCategory.subCategoryName
+                                                            }
                                                         </Link>
                                                     </li>
                                                 )

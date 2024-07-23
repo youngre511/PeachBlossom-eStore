@@ -49,6 +49,7 @@ export interface ShippingDetails {
 }
 
 interface OrderData {
+    cartId: number | null;
     customerId?: number;
     shipping: ShippingDetails;
     email: string;
@@ -99,6 +100,7 @@ const Checkout: React.FC = () => {
     const subTotal = currentCart.subTotal;
     const [orderTotal, setOrderTotal] = useState(subTotal);
     const navigate = useNavigate();
+    const [orderPlaced, setOrderPlaced] = useState<boolean>(false);
 
     // Hold stock till checkout is complete or user navigates away from page.
     useEffect(() => {
@@ -126,18 +128,20 @@ const Checkout: React.FC = () => {
 
         // Function to release stock when component dismounts
         const releaseStock = async () => {
-            try {
-                await axios.put(
-                    `${process.env.REACT_APP_API_URL}inventory/releaseStock`,
-                    { cartId: currentCartId }
-                );
-            } catch (error) {
-                if (error instanceof AxiosError) {
-                    console.error("Error releasing stock", error);
-                } else {
-                    console.error(
-                        "An unknown error has ocurred while releasing hold on stock"
+            if (!orderPlaced) {
+                try {
+                    await axios.put(
+                        `${process.env.REACT_APP_API_URL}inventory/releaseStock`,
+                        { cartId: currentCartId }
                     );
+                } catch (error) {
+                    if (error instanceof AxiosError) {
+                        console.error("Error releasing stock", error);
+                    } else {
+                        console.error(
+                            "An unknown error has ocurred while releasing hold on stock"
+                        );
+                    }
                 }
             }
         };
@@ -214,6 +218,7 @@ const Checkout: React.FC = () => {
 
     const handlePlaceOrder = async () => {
         const orderData: OrderData = {
+            cartId: cart.cartId,
             shipping: shippingDetails,
             email: email,
             orderDetails: {
@@ -240,6 +245,7 @@ const Checkout: React.FC = () => {
                 orderData
             );
             if (response.data.orderNo) {
+                setOrderPlaced(true);
                 dispatch(clearCart());
                 return response.data.orderNo;
             } else {
