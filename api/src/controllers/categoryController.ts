@@ -18,8 +18,8 @@ interface CategoryParamsNameRequest extends Request {
     };
 }
 
-interface SubcategoryDeleteRequest extends Request {
-    body: {
+interface SubcategoryParamsNameRequest extends Request {
+    params: {
         subcategoryName: string;
     };
 }
@@ -205,7 +205,7 @@ export const deleteCategory = async (
         res.status(200).json(result);
     } catch (error) {
         let errorObj = {
-            message: "delete Subcategory failure",
+            message: "delete category failure",
             payload: error,
         };
 
@@ -216,10 +216,10 @@ export const deleteCategory = async (
 };
 
 export const deleteSubcategory = async (
-    req: SubcategoryDeleteRequest,
+    req: SubcategoryParamsNameRequest,
     res: Response
 ) => {
-    const { subcategoryName } = req.body;
+    const { subcategoryName } = req.params;
     try {
         const result = await categoryService.deleteSubcategory(subcategoryName);
 

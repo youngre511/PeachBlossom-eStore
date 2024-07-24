@@ -55,17 +55,11 @@ const ProductManagement: React.FC<Props> = () => {
     }, [avCatalog.loading]);
 
     useEffect(() => {
-        if (!loading) {
+        if (!loading && justLoaded) {
             fetchData(true);
-        }
-    }, [loading]);
-
-    useEffect(() => {
-        if (justLoaded) {
-            fetchData();
             setJustLoaded(false);
         }
-    }, []);
+    }, [loading, justLoaded]);
 
     useEffect(() => {
         fetchData(true);
@@ -87,8 +81,6 @@ const ProductManagement: React.FC<Props> = () => {
     useEffect(() => {
         if (avMenuData.categories) {
             if (category && !categorySelection) {
-                console.log("running setCategory");
-                console.log("avMenuData", avMenuData.categories);
                 setCategorySelection(
                     avMenuData.categories.filter(
                         (cat) => cat.categoryName === category
@@ -99,33 +91,25 @@ const ProductManagement: React.FC<Props> = () => {
     }, [avMenuData]);
 
     const fetchData = async (force = false) => {
-        const initialParams: Record<string, string> = {};
+        const changesNeeded: Record<string, string> = {};
 
-        if (!searchParams.get("sort")) {
-            initialParams.sort = "name-ascend";
+        if (!searchParams.has("sort")) {
+            changesNeeded.sort = "name-ascend";
         }
-        if (!searchParams.get("page")) {
-            initialParams.page = "1";
-        }
-
-        if (!searchParams.get("view")) {
-            initialParams.view = "active";
+        if (!searchParams.has("page")) {
+            changesNeeded.page = "1";
         }
 
-        if (!searchParams.get("itemsPerPage")) {
-            initialParams.itemsPerPage = "24";
+        if (!searchParams.has("view")) {
+            changesNeeded.view = "active";
         }
 
-        if (Object.keys(initialParams).length > 0) {
-            setSearchParams((prevParams) => {
-                const newParams = new URLSearchParams(prevParams);
-                Object.keys(initialParams).forEach((key) => {
-                    if (!newParams.get(key)) {
-                        newParams.set(key, initialParams[key]);
-                    }
-                });
-                return newParams;
-            });
+        if (!searchParams.has("itemsPerPage")) {
+            changesNeeded.itemsPerPage = "24";
+        }
+
+        if (Object.keys(changesNeeded).length > 0) {
+            updateSearchParams(changesNeeded);
         } else {
             const params = {
                 search,
@@ -160,58 +144,42 @@ const ProductManagement: React.FC<Props> = () => {
     };
 
     const updateSearchParams = (newFilters: Record<string, string>): void => {
+        const newParams = new URLSearchParams(searchParams);
+        let changed = false;
         Object.keys(newFilters).forEach((key) => {
             const value = newFilters[key];
             if (value) {
-                searchParams.set(key, value as string);
-            } else {
-                console.log("deleting");
-                searchParams.delete(key);
+                if (newParams.get(key) !== value) {
+                    newParams.set(key, value as string);
+                    changed = true;
+                }
+            } else if (newParams.has(key)) {
+                newParams.delete(key);
+                changed = true;
             }
         });
-        setSearchParams(searchParams);
+        if (changed) setSearchParams(newParams);
     };
 
     const handleCategorySelect = (event: SelectChangeEvent<string>): void => {
-        const value = event.target.value === "All" ? null : event.target.value;
+        const value = event.target.value === "all" ? null : event.target.value;
         setCategorySelection(
             avMenuData.categories.filter(
                 (category) => category.categoryName === value
             )[0]
         );
-        console.log("value", event.target.value, value);
         if (value) {
             updateSearchParams({ category: value });
         } else {
-            searchParams.delete("category");
-            searchParams.delete("sub_category");
-            setSearchParams(searchParams);
+            updateSearchParams({ category: "", sub_category: "" });
         }
     };
 
     const handleSubcategorySelect = (
         event: SelectChangeEvent<string>
     ): void => {
-        console.log("event target value:", event.target.value);
-        const value =
-            event.target.value === "All" ? "null" : event.target.value;
-        if (value) {
-            updateSearchParams({ sub_category: value });
-        } else {
-            searchParams.delete("sub_category");
-            setSearchParams(searchParams);
-        }
-    };
-
-    const handleViewSelect = (event: SelectChangeEvent<string>): void => {
-        const value =
-            event.target.value === "All" ? "null" : event.target.value;
-        if (value) {
-            updateSearchParams({ subCategory: value });
-        } else {
-            searchParams.delete("subCategory");
-            setSearchParams(searchParams);
-        }
+        const value = event.target.value === "all" ? "" : event.target.value;
+        updateSearchParams({ sub_category: value });
     };
 
     const handleProductDiscontinue = (productNo: string) => {
@@ -289,15 +257,15 @@ const ProductManagement: React.FC<Props> = () => {
                             labelId={"category-label"}
                             value={
                                 avMenuData.categories.length > 0
-                                    ? category || "All"
-                                    : "All"
+                                    ? category || "all"
+                                    : "all"
                             }
                             variant="outlined"
                             id="category"
                             label="Category"
                             onChange={handleCategorySelect}
                         >
-                            <MenuItem value={"All"}>All</MenuItem>
+                            <MenuItem value={"all"}>All</MenuItem>
                             {avMenuData.categories.map(
                                 (category: AVCategory, index) => (
                                     <MenuItem

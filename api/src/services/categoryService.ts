@@ -223,8 +223,10 @@ export const updateCategoryName = async (
             throw new Error("Old category name not found in sql database");
         }
 
-        foundSqlCat.categoryName = newName;
-        await foundSqlCat.save();
+        await sqlCategory.update(
+            { categoryName: newName },
+            { where: { categoryName: oldName }, transaction: sqlTransaction }
+        );
 
         await session.commitTransaction();
         await sqlTransaction.commit();
@@ -415,7 +417,6 @@ export const deleteSubcategory = async (
             { session }
         );
 
-        console.log("result:", result);
         // Delete from SQL
 
         await sqlSubCategory.destroy({

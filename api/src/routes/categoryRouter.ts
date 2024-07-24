@@ -23,7 +23,10 @@ categoryRouter.put("/subcategory/update", updateSubcategoryName);
 
 categoryRouter.delete("/delete/:name", deleteCategory);
 
-categoryRouter.delete("/subcategory/delete", deleteSubcategory);
+categoryRouter.delete(
+    "/subcategory/delete/:subcategoryName",
+    deleteSubcategory
+);
 
 categoryRouter.post("/:categoryName/create-sub", createSubCategory);
 

@@ -5,7 +5,11 @@ import { RootState } from "../../store/store";
 import { avFetchCategories } from "../../features/AVMenuData/avMenuDataSlice";
 import { AVCategory } from "../../features/AVMenuData/avMenuDataTypes";
 import "./category-management.css";
-import { Button, Tooltip } from "@mui/material";
+import { Button, TextField, Tooltip } from "@mui/material";
+import { Link } from "react-router-dom";
+import BlankPopup from "../../../common/components/BlankPopup";
+import StatusPopup from "../../../common/components/StatusPopup";
+import axios, { AxiosError } from "axios";
 
 interface Props {}
 const CategoryManagement: React.FC<Props> = () => {
@@ -30,8 +34,58 @@ const CategoryManagement: React.FC<Props> = () => {
     const [deleteTooltip, setDeleteTooltip] = useState<string>("");
     const [addSubcategoryTooltip, setAddSubcategoryTooltip] =
         useState<string>("");
+
+    // States to manage action popups
+    const [popupMessage, setPopupMessage] = useState<string | null>(null);
+    const [popupType, setPopupType] = useState<
+        | "addCat"
+        | "addSubcat"
+        | "editCat"
+        | "editSubcat"
+        | "deleteCat"
+        | "deleteSubcat"
+        | null
+    >(null);
+    const [popupVisible, setPopupVisible] = useState<boolean>(false);
+    const [popupInputValue, setPopupInputValue] = useState<string>("");
+
+    // States to manage status popups
+    const [isSaving, setIsSaving] = useState<boolean>(false);
+    const [status, setStatus] = useState<"loading" | "success" | "failure">(
+        "loading"
+    );
+    const [error, setError] = useState<null | string>(null);
+
     const dispatch = useAppDispatch();
 
+    // On run and anytime categories (from the avMenuData slice) changes, run fetch categories if there are no categories stored.
+    // If there are categories stored and there is a selected category, update the selected category to match the category in the slice or (if the category no longer exists) delete the selectedCategory value and all children subcategories.
+    useEffect(() => {
+        if (!categories) {
+            dispatch(avFetchCategories());
+        } else if (selectedCategory) {
+            const category = categories.filter(
+                (category) =>
+                    category.categoryName === selectedCategory.categoryName
+            )[0];
+            if (!category) {
+                setSelectedCategory(null);
+                setSubcategories([]);
+                setSelectedSubcategory(null);
+            } else {
+                setSelectedCategory(category);
+            }
+        }
+    }, [categories]);
+
+    // When a category is selected, update subcategories array to match that of the selected category.
+    useEffect(() => {
+        if (selectedCategory) {
+            setSubcategories(selectedCategory.SubCategory);
+        }
+    }, [selectedCategory]);
+
+    // Set tooltip values based on whether there is a selected category and whether the selected category can be deleted.
     useEffect(() => {
         if (selectedCategory && selectedCategory.productCount === 0) {
             setDeleteTooltip("Delete Category");
@@ -45,17 +99,44 @@ const CategoryManagement: React.FC<Props> = () => {
         }
     }, [selectedCategory]);
 
+    // Popup types to support all edit buttons
     useEffect(() => {
-        if (!categories) {
-            dispatch(avFetchCategories());
+        switch (popupType) {
+            case "addCat":
+                setPopupMessage("Enter new category name:");
+                setPopupVisible(true);
+                break;
+            case "addSubcat":
+                setPopupMessage("Enter new subcategory name:");
+                setPopupVisible(true);
+                break;
+            case "editCat":
+                setPopupMessage("Enter new category name:");
+                setPopupInputValue(selectedCategory?.categoryName || "");
+                setPopupVisible(true);
+                break;
+            case "editSubcat":
+                setPopupMessage("Enter new subcategory name:");
+                setPopupInputValue(selectedSubcategory?.subCategoryName || "");
+                setPopupVisible(true);
+                break;
+            case "deleteCat":
+                setPopupMessage(
+                    `Are you sure you want to delete the category ${selectedCategory?.categoryName}?`
+                );
+                setPopupVisible(true);
+                break;
+            case "deleteSubcat":
+                setPopupMessage(
+                    `Are you sure you want to delete the subcategory ${selectedCategory?.categoryName}? All products currently in this subcategory will no longer have a subcategory, but they will still belong to the parent category.`
+                );
+                setPopupVisible(true);
+                break;
+            default:
+                setPopupMessage(null);
+                setPopupInputValue("");
         }
-    }, [categories]);
-
-    useEffect(() => {
-        if (selectedCategory) {
-            setSubcategories(selectedCategory.SubCategory);
-        }
-    }, [selectedCategory]);
+    }, [popupType]);
 
     const handleCategorySelect = (e: React.MouseEvent<HTMLElement>) => {
         if (e.currentTarget != selectedCategoryElement) {
@@ -80,7 +161,6 @@ const CategoryManagement: React.FC<Props> = () => {
                     subcategory.subCategoryName === e.currentTarget.id
             )[0];
             if (selectedSubcategoryElement) {
-                console.log(selectedSubcategoryElement);
                 selectedSubcategoryElement.classList.remove(
                     "selected-category"
                 );
@@ -93,9 +173,176 @@ const CategoryManagement: React.FC<Props> = () => {
         }
     };
 
+    // Here there be api fetch functions for action buttons
+    const handleAddCategory = async () => {
+        setPopupVisible(false);
+        setStatus("loading");
+        setIsSaving(true);
+        try {
+            await axios.post(
+                `${process.env.REACT_APP_API_URL}category/create`,
+                { name: popupInputValue }
+            );
+            setStatus("success");
+            dispatch(avFetchCategories());
+        } catch (error) {
+            if (error instanceof AxiosError) {
+                setError(error.message);
+            } else {
+                setError("An unknown error occurred");
+            }
+            setStatus("failure");
+        } finally {
+            setPopupType(null);
+        }
+    };
+
+    const handleAddSubcategory = async () => {
+        setPopupVisible(false);
+        setStatus("loading");
+        setIsSaving(true);
+        try {
+            if (!selectedCategory) {
+                throw new Error("An unknown error occurred");
+            }
+            await axios.post(
+                `${process.env.REACT_APP_API_URL}category/${selectedCategory.categoryName}/create-sub`,
+                { subCategoryName: popupInputValue }
+            );
+            setStatus("success");
+            dispatch(avFetchCategories());
+        } catch (error) {
+            if (error instanceof AxiosError) {
+                setError(error.message);
+            } else {
+                setError("An unknown error occurred");
+            }
+            setStatus("failure");
+        } finally {
+            setPopupType(null);
+        }
+    };
+
+    const handleDeleteCategory = async () => {
+        setPopupVisible(false);
+        setStatus("loading");
+        setIsSaving(true);
+        try {
+            if (!selectedCategory) {
+                throw new Error("An unknown error occurred");
+            }
+            await axios.delete(
+                `${process.env.REACT_APP_API_URL}category/delete/${selectedCategory.categoryName}`
+            );
+            setStatus("success");
+            dispatch(avFetchCategories());
+        } catch (error) {
+            if (error instanceof AxiosError) {
+                setError(error.message);
+            } else {
+                setError("An unknown error occurred");
+            }
+            setStatus("failure");
+        } finally {
+            setPopupType(null);
+        }
+    };
+
+    const handleDeleteSubcategory = async () => {
+        setPopupVisible(false);
+        setStatus("loading");
+        setIsSaving(true);
+        try {
+            if (!selectedSubcategory) {
+                throw new Error("An unknown error occurred");
+            }
+            await axios.delete(
+                `${
+                    process.env.REACT_APP_API_URL
+                }category/subcategory/delete/${selectedSubcategory.subCategoryName.replace(
+                    " ",
+                    "%20"
+                )}`
+            );
+            setStatus("success");
+            dispatch(avFetchCategories());
+        } catch (error) {
+            if (error instanceof AxiosError) {
+                setError(error.message);
+            } else {
+                setError("An unknown error occurred");
+            }
+            setStatus("failure");
+        } finally {
+            setPopupType(null);
+        }
+    };
+
+    const handleEditCategory = async () => {
+        setPopupVisible(false);
+        setStatus("loading");
+        setIsSaving(true);
+        try {
+            if (!selectedCategory) {
+                throw new Error("An unknown error occurred");
+            }
+            await axios.put(`${process.env.REACT_APP_API_URL}category/update`, {
+                oldName: selectedCategory.categoryName,
+                newName: popupInputValue,
+            });
+            setStatus("success");
+            dispatch(avFetchCategories());
+        } catch (error) {
+            if (error instanceof AxiosError) {
+                setError(error.message);
+            } else {
+                setError("An unknown error occurred");
+            }
+            setStatus("failure");
+        } finally {
+            setPopupType(null);
+        }
+    };
+
+    const handleEditSubcategory = async () => {
+        setPopupVisible(false);
+        setStatus("loading");
+        setIsSaving(true);
+        try {
+            if (!selectedSubcategory) {
+                throw new Error("An unknown error occurred");
+            }
+            await axios.put(
+                `${process.env.REACT_APP_API_URL}category/subcategory/update`,
+                {
+                    oldName: selectedSubcategory.subCategoryName,
+                    newName: popupInputValue,
+                }
+            );
+            setStatus("success");
+            dispatch(avFetchCategories());
+        } catch (error) {
+            if (error instanceof AxiosError) {
+                setError(error.message);
+            } else {
+                setError("An unknown error occurred");
+            }
+            setStatus("failure");
+        } finally {
+            setPopupType(null);
+        }
+    };
+
+    const handlePopupCancel = () => {
+        setPopupVisible(false);
+        setPopupInputValue("");
+        setPopupType(null);
+    };
+
     return (
         <div>
             <h1>Category Management</h1>
+            <Button onClick={() => console.log(categories)}>log</Button>
             <div className="category-manage-content">
                 <div className="catMan-categories">
                     <div className="catMan-category-list catMan-list">
@@ -110,17 +357,26 @@ const CategoryManagement: React.FC<Props> = () => {
                                     <span className="catMan-category-name">
                                         {category.categoryName}
                                     </span>
-                                    <span className="catMan-category-count">
+                                    <Link
+                                        to={`/products/manage?category=${category.categoryName}&sort=name-ascend&page=1&view=active&itemsPerPage=24`}
+                                        className="catMan-category-count"
+                                    >
                                         {category.productCount}
-                                    </span>
+                                    </Link>
                                 </div>
                             ))}
                     </div>
                     <div className="catMan-buttons">
-                        <Button variant="contained">Add Category</Button>
+                        <Button
+                            variant="contained"
+                            onClick={() => setPopupType("addCat")}
+                        >
+                            Add Category
+                        </Button>
                         <Button
                             variant="contained"
                             disabled={!selectedCategory}
+                            onClick={() => setPopupType("editCat")}
                         >
                             Edit Category Name
                         </Button>
@@ -132,6 +388,7 @@ const CategoryManagement: React.FC<Props> = () => {
                                         !selectedCategory ||
                                         selectedCategory.productCount > 0
                                     }
+                                    onClick={() => setPopupType("deleteCat")}
                                 >
                                     Delete
                                 </Button>
@@ -153,9 +410,17 @@ const CategoryManagement: React.FC<Props> = () => {
                                     <span className="catMan-category-name">
                                         {subcategory.subCategoryName}
                                     </span>
-                                    <span className="catMan-category-count">
+                                    <Link
+                                        to={`/products/manage?category=${
+                                            selectedCategory?.categoryName
+                                        }&sub_category=${subcategory.subCategoryName.replace(
+                                            " ",
+                                            "+"
+                                        )}&sort=name-ascend&page=1&view=active&itemsPerPage=24`}
+                                        className="catMan-category-count"
+                                    >
                                         {subcategory.productCount}
-                                    </span>
+                                    </Link>
                                 </div>
                             ))}
                     </div>
@@ -164,6 +429,7 @@ const CategoryManagement: React.FC<Props> = () => {
                             <Button
                                 variant="contained"
                                 disabled={!selectedCategory}
+                                onClick={() => setPopupType("addSubcat")}
                             >
                                 Add Subcategory
                             </Button>
@@ -171,6 +437,7 @@ const CategoryManagement: React.FC<Props> = () => {
                         <Button
                             variant="contained"
                             disabled={!selectedSubcategory}
+                            onClick={() => setPopupType("editSubcat")}
                         >
                             Edit Subcategory Name
                         </Button>
@@ -179,6 +446,7 @@ const CategoryManagement: React.FC<Props> = () => {
                                 <Button
                                     variant="contained"
                                     disabled={!selectedSubcategory}
+                                    onClick={() => setPopupType("deleteSubcat")}
                                 >
                                     Delete
                                 </Button>
@@ -187,6 +455,101 @@ const CategoryManagement: React.FC<Props> = () => {
                     </div>
                 </div>
             </div>
+            {popupVisible && popupType && (
+                <BlankPopup className={`${popupType}-popup`}>
+                    {/* Conditional rendering of blank popup contents based on set popup type */}
+                    <span>{popupMessage}</span>
+                    {popupType !== "deleteCat" &&
+                        popupType !== "deleteSubcat" && (
+                            <TextField
+                                variant="outlined"
+                                value={popupInputValue}
+                                onChange={(e) =>
+                                    setPopupInputValue(e.target.value)
+                                }
+                            />
+                        )}
+                    <div className="popup-button-group">
+                        {popupType == "addCat" && (
+                            <Button
+                                variant="contained"
+                                onClick={handleAddCategory}
+                                disabled={!popupInputValue}
+                            >
+                                Add
+                            </Button>
+                        )}
+                        {popupType == "addSubcat" && (
+                            <Button
+                                variant="contained"
+                                onClick={handleAddSubcategory}
+                                disabled={!popupInputValue}
+                            >
+                                Add
+                            </Button>
+                        )}
+                        {popupType == "editCat" && selectedCategory && (
+                            <Button
+                                variant="contained"
+                                onClick={handleEditCategory}
+                                disabled={
+                                    !popupInputValue ||
+                                    popupInputValue ===
+                                        selectedCategory.categoryName
+                                }
+                            >
+                                Save
+                            </Button>
+                        )}
+                        {popupType == "editSubcat" && selectedSubcategory && (
+                            <Button
+                                variant="contained"
+                                disabled={
+                                    !popupInputValue ||
+                                    popupInputValue ===
+                                        selectedSubcategory.subCategoryName
+                                }
+                                onClick={handleEditSubcategory}
+                            >
+                                Save
+                            </Button>
+                        )}
+                        {popupType == "deleteCat" && (
+                            <Button
+                                variant="contained"
+                                onClick={handleDeleteCategory}
+                            >
+                                Yes
+                            </Button>
+                        )}
+                        {popupType == "deleteSubcat" && (
+                            <Button
+                                variant="contained"
+                                onClick={handleDeleteSubcategory}
+                            >
+                                Yes
+                            </Button>
+                        )}
+                        <Button variant="contained" onClick={handlePopupCancel}>
+                            Cancel
+                        </Button>
+                    </div>
+                </BlankPopup>
+            )}
+            {isSaving && (
+                <StatusPopup
+                    status={status}
+                    loadingMessage="Saving changes..."
+                    successMessage="Changes Saved"
+                    failureMessage={`Failed to save changes ${
+                        error ? ": " + error : ""
+                    }`}
+                    actionFunction={() => {
+                        setIsSaving(false);
+                        setError(null);
+                    }}
+                />
+            )}
         </div>
     );
 };
