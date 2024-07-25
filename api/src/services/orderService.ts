@@ -13,6 +13,7 @@ import { Model, Op, Order, fn, col, literal } from "sequelize";
 import { JoinReqProduct } from "./cartService.js";
 import { sqlCartItem } from "../models/mysql/sqlCartItemModel.js";
 import { sqlCart } from "../models/mysql/sqlCartModel.js";
+import { sqlAddress } from "../models/mysql/sqlAddressModel.js";
 
 interface JoinReqOrderItem extends Model {
     order_item_id: number;
@@ -23,6 +24,16 @@ interface JoinReqOrderItem extends Model {
     priceWhenOrdered: number;
     fulfillmentStatus: string;
 }
+
+interface AddressDetails {
+    address_id: number;
+    shippingAddress: string;
+    city: string;
+    stateAbbr: string;
+    zipCode: string;
+    phoneNumber: string;
+}
+
 interface OrderDetails {
     order_id: number;
     customerId: number | null;
@@ -32,10 +43,8 @@ interface OrderDetails {
     shipping: number;
     tax: number;
     totalAmount: number;
-    shippingAddress: string;
-    stateAbbr: string;
-    zipCode: string;
-    phoneNumber: string;
+    address_id: number;
+    Address: AddressDetails;
     email: string;
     orderStatus: string;
     OrderItem: JoinReqOrderItem[];
@@ -66,6 +75,14 @@ const extractOrderData = (
         );
         parsedOrder.OrderItem = parsedOrderItems;
     }
+    if (parsedOrder.Address) {
+        const address = parsedOrder.Address.get();
+        parsedOrder.shippingAddress = address.shippingAddress;
+        parsedOrder.city = address.city;
+        parsedOrder.stateAbbr = address.stateAbbr;
+        parsedOrder.zipCode = address.zipCode;
+        parsedOrder.phoneNumber = address.phoneNumber;
+    }
     return parsedOrder;
 };
 
@@ -77,15 +94,39 @@ export const placeOrder = async (orderData: OrderData) => {
         const orderDetails = orderData.orderDetails;
         const orderNo: string = await generateOrderNo();
 
+        const shippingAddressFull = `${shipping.shippingAddress} | ${shipping.shippingAddress2}`;
+
+        // Check to see if address already exists in the address table
+        let address = await sqlAddress.findOne({
+            where: {
+                shippingAddress: shippingAddressFull,
+                city: shipping.city,
+                stateAbbr: shipping.state,
+                zipCode: shipping.zipCode,
+                phoneNumber: shipping.phoneNumber,
+            },
+            transaction: sqlTransaction,
+        });
+
+        // If not, create a new entry in the address table with the provided shipping address and return the data in order to use the newly created address_id when creating the order record.
+        if (!address) {
+            address = await sqlAddress.create(
+                {
+                    shippingAddress: shippingAddressFull,
+                    city: shipping.city,
+                    stateAbbr: shipping.state,
+                    zipCode: shipping.zipCode,
+                    phoneNumber: shipping.phoneNumber,
+                },
+                { transaction: sqlTransaction }
+            );
+        }
+
         const newOrder = {
             customerId: orderData.customerId,
             orderNo: orderNo,
             email: orderData.email,
-            shippingAddress: `${shipping.shippingAddress} | ${shipping.shippingAddress2}`,
-            zipCode: shipping.zipCode,
-            stateAbbr: shipping.state,
-            city: shipping.city,
-            phoneNumber: shipping.phoneNumber,
+            address_id: address.address_id,
             subTotal: orderDetails.subTotal,
             shipping: orderDetails.shipping,
             tax: orderDetails.tax,
@@ -105,7 +146,7 @@ export const placeOrder = async (orderData: OrderData) => {
                 "Error creating order. Unable to fetch created order"
             );
         }
-        console.log("createdOrder orderId:", createdOrder.dataValues.order_id);
+
         for (const item of orderDetails.items) {
             const orderItem = {
                 order_id: createdOrder.dataValues.order_id,
@@ -226,6 +267,12 @@ export const getOrders = async (filters: GetOrdersFilters) => {
         order: orderArray,
         limit: +filters.itemsPerPage,
         offset: offset,
+        include: [
+            {
+                model: sqlAddress,
+                as: "Address",
+            },
+        ],
         subQuery: false,
         nest: true,
     })) as unknown as JoinReqFilteredOrders;
@@ -265,6 +312,10 @@ export const getOneOrder = async (
                         },
                     ],
                 },
+                {
+                    model: sqlAddress,
+                    as: "Address",
+                },
             ],
             transaction: sqlTransaction,
             nest: true,
@@ -295,19 +346,41 @@ export const updateOrder = async (updateInfo: UpdateOrder) => {
     const sqlTransaction = await sequelize.transaction();
     try {
         const items: UpdateItem[] = updateInfo.items;
+
+        let address = await sqlAddress.findOne({
+            where: {
+                shippingAddress: updateInfo.shipping,
+                city: updateInfo.city,
+                stateAbbr: updateInfo.stateAbbr,
+                zipCode: updateInfo.zipCode,
+                phoneNumber: updateInfo.phoneNumber,
+            },
+            transaction: sqlTransaction,
+        });
+
+        // If the address doesn't exist, create a new one
+        if (!address) {
+            address = await sqlAddress.create(
+                {
+                    shippingAddress: updateInfo.shipping,
+                    city: updateInfo.city,
+                    stateAbbr: updateInfo.stateAbbr,
+                    zipCode: updateInfo.zipCode,
+                    phoneNumber: updateInfo.phoneNumber,
+                },
+                { transaction: sqlTransaction }
+            );
+        }
+
         await sqlOrder.update(
             {
                 subTotal: updateInfo.subTotal,
                 shipping: updateInfo.shipping,
                 tax: updateInfo.tax,
                 totalAmount: updateInfo.totalAmount,
-                shippingAddress: updateInfo.shippingAddress,
-                stateAbbr: updateInfo.stateAbbr,
-                zipCode: updateInfo.zipCode,
-                phoneNumber: updateInfo.phoneNumber,
+                address_id: address.address_id,
                 email: updateInfo.email,
                 orderStatus: updateInfo.orderStatus,
-                city: updateInfo.city,
             },
             {
                 where: { orderNo: updateInfo.orderNo },

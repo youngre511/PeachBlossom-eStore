@@ -11,6 +11,10 @@ import { sqlOrderItem } from "./sqlOrderItemModel.js";
 import { sqlProductPromotion } from "./sqlProductPromotionModel.js";
 import { sqlPromotion } from "./sqlPromotionModel.js";
 import { sqlCustomer } from "./sqlCustomerModel.js";
+import { sqlUser } from "./sqlUserModel.js";
+import { sqlAddress } from "./sqlAddressModel.js";
+import { sqlAdmin } from "./sqlAdminModel.js";
+import { sqlCustomerAddress } from "./sqlCustomerAddressModel.js";
 
 const env = process.env.NODE_ENV || "development";
 const dbConfig = config[env];
@@ -33,6 +37,10 @@ const sequelize = new Sequelize({
         sqlProductPromotion,
         sqlPromotion,
         sqlSubCategory,
+        sqlUser,
+        sqlAddress,
+        sqlAdmin,
+        sqlCustomerAddress,
     ],
     logging: console.log,
 });

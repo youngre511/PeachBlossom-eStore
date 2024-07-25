@@ -10,9 +10,11 @@ import {
     HasMany,
     Index,
     Unique,
+    BelongsTo,
 } from "sequelize-typescript";
 import { sqlCustomer } from "./sqlCustomerModel.js";
 import { sqlOrderItem } from "./sqlOrderItemModel.js";
+import { sqlAddress } from "./sqlAddressModel.js";
 
 @Table({
     tableName: "Orders",
@@ -69,35 +71,15 @@ export class sqlOrder extends Model {
     })
     totalAmount!: number;
 
+    @ForeignKey(() => sqlAddress)
     @Column({
-        type: DataType.STRING(255),
+        type: DataType.BIGINT,
         allowNull: false,
     })
-    shippingAddress!: string;
+    address_id!: number;
 
-    @Column({
-        type: DataType.STRING(60),
-        allowNull: false,
-    })
-    city!: string;
-
-    @Column({
-        type: DataType.CHAR(2),
-        allowNull: false,
-    })
-    stateAbbr!: string;
-
-    @Column({
-        type: DataType.CHAR(10),
-        allowNull: false,
-    })
-    zipCode!: string;
-
-    @Column({
-        type: DataType.STRING(15),
-        allowNull: false,
-    })
-    phoneNumber!: string;
+    @BelongsTo(() => sqlAddress, { as: "Address" })
+    address!: sqlAddress;
 
     @Column({
         type: DataType.STRING(254),
