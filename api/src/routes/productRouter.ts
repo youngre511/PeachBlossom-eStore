@@ -12,24 +12,49 @@ import {
     getAdminProducts,
 } from "../controllers/productController.js";
 import upload from "../middleware/uploadMiddleware.js";
+import { authMiddleware } from "../middleware/authMiddlware.js";
+import { authorizeRoles } from "../middleware/authorize.js";
 
 productRouter.get("/", getProducts);
 
-productRouter.get("/admin", getAdminProducts);
+productRouter.get(
+    "/admin",
+    authMiddleware,
+    authorizeRoles(["admin"]),
+    getAdminProducts
+);
 
 productRouter.get("/search-options", getSearchOptions);
 
-productRouter.post("/create", upload.array("images", 10), createProduct);
+productRouter.post(
+    "/create",
+    authMiddleware,
+    authorizeRoles(["admin"], ["full, limited"]),
+    upload.array("images", 10),
+    createProduct
+);
 
 productRouter.put(
     "/update-details",
+    authMiddleware,
+    authorizeRoles(["admin"], ["full, limited"]),
     upload.array("images", 10),
     updateProductDetails
 );
 
-productRouter.put("/update-status", updateProductStatus);
+productRouter.put(
+    "/update-status",
+    authMiddleware,
+    authorizeRoles(["admin"], ["full, limited"]),
+    updateProductStatus
+);
 
-productRouter.delete("/delete/:productNo", deleteProduct);
+productRouter.delete(
+    "/delete/:productNo",
+    authMiddleware,
+    authorizeRoles(["admin"], ["full"]),
+    deleteProduct
+);
 
 productRouter.get("/:productNo", getOneProduct);
 

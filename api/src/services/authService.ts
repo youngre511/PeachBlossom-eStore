@@ -18,27 +18,30 @@ export const createUser = async (
     username: string,
     password: string,
     role: "customer" | "admin",
-    accessLevel: string | null,
+    accessLevel: "full" | "limited" | "view only" | null,
     email: string | null
 ) => {
     const sqlTransaction = await sequelize.transaction();
-    if (role === "customer" && !email) {
-        throw new Error("Email required");
-    }
-
-    if (role === "admin" && !accessLevel) {
-        throw new Error("Must specify admin access level");
-    }
 
     try {
-        let user = await sqlUser.findOne({
-            where: { email: email },
-            transaction: sqlTransaction,
-        });
-        if (user) {
-            throw new Error(
-                "This email is already associated with an account."
-            );
+        if (role === "customer" && !email) {
+            throw new Error("Email required");
+        }
+
+        if (role === "admin" && !accessLevel) {
+            throw new Error("Must specify admin access level");
+        }
+
+        if (role === "customer") {
+            let customerUser = await sqlCustomer.findOne({
+                where: { email: email },
+                transaction: sqlTransaction,
+            });
+            if (customerUser) {
+                throw new Error(
+                    "This email is already associated with an account."
+                );
+            }
         }
 
         let foundUsername = await sqlUser.findOne({
@@ -53,6 +56,7 @@ export const createUser = async (
 
         const createdUser: IUser = await sqlUser.create(
             {
+                username: username,
                 password: hashedPassword,
                 role: role,
             },
@@ -69,33 +73,43 @@ export const createUser = async (
         let admin = null;
 
         if (role === "customer") {
-            customer = await sqlCustomer.create({
-                user_id: userData.user_id,
-                email: email,
-            });
+            customer = await sqlCustomer.create(
+                {
+                    user_id: userData.user_id,
+                    email: email,
+                },
+                { transaction: sqlTransaction }
+            );
             if (!customer) {
                 throw new Error("Something went wrong while creating customer");
             }
         } else if (role === "admin") {
-            admin = await sqlAdmin.create({
-                user_id: userData.user_id,
-                accessLevel: accessLevel,
-            });
+            admin = await sqlAdmin.create(
+                {
+                    user_id: userData.user_id,
+                    accessLevel: accessLevel,
+                },
+                { transaction: sqlTransaction }
+            );
             if (!admin) {
                 throw new Error("Something went wrong while creating admin");
             }
         }
+
+        await sqlTransaction.commit();
 
         const tokenPayload = {
             user_id: userData.user_id,
             role: userData.role,
             customer_id: customer?.customer_id,
             admin_id: admin?.admin_id,
+            accessLevel: admin?.accessLevel,
         };
         const token = generateToken(tokenPayload);
 
         return token;
     } catch (error) {
+        await sqlTransaction.rollback();
         if (error instanceof Error) {
             throw new Error("Error creating new user: " + error.message);
         } else {
@@ -134,6 +148,7 @@ export const login = async (username: string, password: string) => {
             role: user.role,
             customer_id: customer?.customer_id,
             admin_id: admin?.admin_id,
+            accessLevel: admin?.accessLevel,
         };
         const token = generateToken(tokenPayload);
         return token;

@@ -15,8 +15,16 @@ export const authMiddleware = (
 
     try {
         const decoded = verifyToken(token);
-        req.user = decoded;
-        next();
+        if (
+            typeof decoded === "object" &&
+            "user_id" in decoded &&
+            "role" in decoded
+        ) {
+            req.user = decoded;
+            next();
+        } else {
+            throw new Error("Invalid token structure");
+        }
     } catch (err) {
         res.status(401).json({ message: "Invalid token." });
     }

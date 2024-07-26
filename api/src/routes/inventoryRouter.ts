@@ -5,11 +5,18 @@ import {
     releaseStock,
     updateStockLevels,
 } from "../controllers/inventoryController.js";
+import { authMiddleware } from "../middleware/authMiddlware.js";
+import { authorizeRoles } from "../middleware/authorize.js";
 
 inventoryRouter.put("/holdStock", holdStock);
 
 inventoryRouter.put("/releaseStock", releaseStock);
 
-inventoryRouter.put("/updateStockLevels", updateStockLevels);
+inventoryRouter.put(
+    "/updateStockLevels",
+    authMiddleware,
+    authorizeRoles(["admin"], ["full, limited"]),
+    updateStockLevels
+);
 
 export default inventoryRouter;

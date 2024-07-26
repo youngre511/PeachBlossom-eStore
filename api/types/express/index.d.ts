@@ -5,6 +5,7 @@ declare namespace Express {
             role: "customer" | "admin";
             customer_id?: number;
             admin_id?: number;
+            accessLevel?: "full" | "limited" | "view only";
         };
     }
 }

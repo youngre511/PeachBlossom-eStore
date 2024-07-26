@@ -19,26 +19,26 @@ export class sqlUser extends Model {
     @PrimaryKey
     @AutoIncrement
     @Column(DataType.BIGINT)
-    user_id!: number;
+    declare user_id: number;
 
     @Column({
         type: DataType.STRING(20),
         allowNull: false,
         unique: true,
     })
-    username!: string;
+    declare username: string;
 
     @Column({
-        type: DataType.STRING(90),
+        type: DataType.STRING(255),
         allowNull: false,
     })
-    password!: string;
+    declare password: string;
 
     @Column({
         type: DataType.ENUM("customer", "admin"),
         allowNull: false,
     })
-    role!: "customer" | "admin";
+    declare role: "customer" | "admin";
 
     @HasOne(() => sqlCustomer)
     customer?: sqlCustomer;

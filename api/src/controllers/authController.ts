@@ -6,7 +6,7 @@ interface CreateAccountRequest extends Request {
         username: string;
         password: string;
         role: "customer" | "admin";
-        accessLevel?: string;
+        accessLevel?: "full" | "limited";
         email?: string;
     };
 }

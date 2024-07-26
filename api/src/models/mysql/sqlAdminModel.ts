@@ -18,17 +18,17 @@ export class sqlAdmin extends Model {
     @PrimaryKey
     @AutoIncrement
     @Column(DataType.BIGINT)
-    admin_id!: number;
+    declare admin_id: number;
 
     @ForeignKey(() => sqlUser)
     @Column(DataType.BIGINT)
-    user_id!: number;
+    declare user_id: number;
 
     @Column({
         type: DataType.ENUM("full", "limited"),
         allowNull: false,
     })
-    accessLevel!: "full" | "limited";
+    declare accessLevel: "full" | "limited";
 
     @BelongsTo(() => sqlUser, { as: "AdminUser" })
     user!: sqlUser;

@@ -14,6 +14,7 @@ import promotionRouter from "./routes/promotionRouter.js";
 import cartRouter from "./routes/cartRouter.js";
 import inventoryRouter from "./routes/inventoryRouter.js";
 import orderRouter from "./routes/orderRouter.js";
+import authRouter from "./routes/authRoutes.js";
 
 // Read incoming requests properly
 app.use(express.urlencoded({ extended: false }));
@@ -51,6 +52,8 @@ app.use("/cart", cartRouter);
 app.use("/inventory", inventoryRouter);
 
 app.use("/order", orderRouter);
+
+app.use("/auth", authRouter);
 
 const PORT = process.env.PORT;
 
