@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { ReactComponent as DashboardIcon } from "../../../assets/img/dashboard.svg";
 import { ReactComponent as CustomerIcon } from "../../../assets/img/customers.svg";
@@ -25,6 +25,8 @@ import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIconSharp from "@mui/icons-material/ExpandMoreSharp";
 import "./admin-nav.css";
+import { AuthContext } from "../../../common/contexts/authContext";
+import { Button } from "@mui/material";
 
 export const drawerWidth = 240;
 
@@ -32,11 +34,13 @@ export interface Props {}
 
 const AdminNav: React.FC<Props> = (props: Props) => {
     const [mobileOpen, setMobileOpen] = React.useState(false);
+    const authContext = useContext(AuthContext);
     const [isClosing, setIsClosing] = React.useState(false);
     const [expanded, setExpanded] = React.useState<string | false>(
         "dashboard-menu"
     );
     const navigate = useNavigate();
+    const user = authContext?.user;
 
     const handleDrawerClose = () => {
         setIsClosing(true);
@@ -60,201 +64,230 @@ const AdminNav: React.FC<Props> = (props: Props) => {
         };
 
     const drawer = (
-        <div>
-            <Toolbar />
-            <Divider />
-            <List>
-                <ListItem disablePadding>
-                    <Accordion
-                        expanded={expanded === "dashboard-menu"}
-                        onChange={handleExpand("dashboard-menu")}
-                        disableGutters={true}
-                        square={true}
-                        sx={{
-                            width: "100%",
-                            boxShadow: "none",
-                            bgcolor: "peach.extraDark",
-                            color: "white",
-                        }}
-                    >
-                        <AccordionSummary
-                            expandIcon={<ExpandMoreIconSharp />}
-                            id="dashboard-menu"
-                        >
-                            <ListItemIcon>
-                                <DashboardIcon className="menu-svg" />
-                            </ListItemIcon>
-                            <ListItemText primary={"Dashboard"} />
-                        </AccordionSummary>
-                        <AccordionDetails
+        <div className="menu-drawer">
+            <div>
+                <Toolbar />
+                <Divider />
+                <List>
+                    <ListItem disablePadding>
+                        <Accordion
+                            expanded={expanded === "dashboard-menu"}
+                            onChange={handleExpand("dashboard-menu")}
+                            disableGutters={true}
+                            square={true}
                             sx={{
-                                padding: 0,
-                                bgcolor: "peach.main",
+                                width: "100%",
+                                boxShadow: "none",
+                                bgcolor: "peach.extraDark",
+                                color: "white",
                             }}
                         >
-                            <List sx={{ padding: 0 }}>
-                                <ListItem disablePadding>
-                                    <ListItemButton sx={{ paddingLeft: 2 }}>
-                                        <ListItemText
-                                            secondary={"Sales Analytics"}
-                                        />
-                                    </ListItemButton>
-                                </ListItem>
-                                <ListItem disablePadding>
-                                    <ListItemButton sx={{ paddingLeft: 2 }}>
-                                        <ListItemText
-                                            secondary={"Revenue by Period"}
-                                        />
-                                    </ListItemButton>
-                                </ListItem>
-                            </List>
-                        </AccordionDetails>
-                    </Accordion>
-                </ListItem>
-                <ListItem disablePadding>
-                    <Accordion
-                        expanded={expanded === "products-menu"}
-                        onChange={handleExpand("products-menu")}
-                        disableGutters={true}
-                        square={true}
-                        sx={{
-                            width: "100%",
-                            boxShadow: "none",
-                            bgcolor: "peach.extraDark",
-                            color: "white",
-                        }}
-                    >
-                        <AccordionSummary
-                            expandIcon={<ExpandMoreIconSharp />}
-                            id="products-menu"
-                        >
-                            <ListItemIcon>
-                                <ProductsIcon className="menu-svg" />
-                            </ListItemIcon>
-                            <ListItemText primary={"Products"} />
-                        </AccordionSummary>
-                        <AccordionDetails
+                            <AccordionSummary
+                                expandIcon={<ExpandMoreIconSharp />}
+                                id="dashboard-menu"
+                            >
+                                <ListItemIcon>
+                                    <DashboardIcon className="menu-svg" />
+                                </ListItemIcon>
+                                <ListItemText primary={"Dashboard"} />
+                            </AccordionSummary>
+                            <AccordionDetails
+                                sx={{
+                                    padding: 0,
+                                    bgcolor: "peach.main",
+                                }}
+                            >
+                                <List sx={{ padding: 0 }}>
+                                    <ListItem disablePadding>
+                                        <ListItemButton sx={{ paddingLeft: 2 }}>
+                                            <ListItemText
+                                                secondary={"Sales Analytics"}
+                                            />
+                                        </ListItemButton>
+                                    </ListItem>
+                                    <ListItem disablePadding>
+                                        <ListItemButton sx={{ paddingLeft: 2 }}>
+                                            <ListItemText
+                                                secondary={"Revenue by Period"}
+                                            />
+                                        </ListItemButton>
+                                    </ListItem>
+                                </List>
+                            </AccordionDetails>
+                        </Accordion>
+                    </ListItem>
+                    <ListItem disablePadding>
+                        <Accordion
+                            expanded={expanded === "products-menu"}
+                            onChange={handleExpand("products-menu")}
+                            disableGutters={true}
+                            square={true}
                             sx={{
-                                padding: 0,
-                                bgcolor: "peach.main",
+                                width: "100%",
+                                boxShadow: "none",
+                                bgcolor: "peach.extraDark",
+                                color: "white",
                             }}
                         >
-                            <List>
-                                <ListItem disablePadding>
-                                    <ListItemButton sx={{ paddingLeft: 2 }}>
-                                        <ListItemText
-                                            secondary={"Top Products"}
-                                        />
-                                    </ListItemButton>
-                                </ListItem>
-                                <ListItem disablePadding>
-                                    <ListItemButton
-                                        sx={{ paddingLeft: 2 }}
-                                        onClick={() =>
-                                            navigate("/products/manage")
-                                        }
-                                    >
-                                        <ListItemText
-                                            secondary={"Product Management"}
-                                        />
-                                    </ListItemButton>
-                                </ListItem>
-                                <ListItem disablePadding>
-                                    <ListItemButton
-                                        sx={{ paddingLeft: 2 }}
-                                        onClick={() => navigate("/categories")}
-                                    >
-                                        <ListItemText
-                                            secondary={"Product Categories"}
-                                        />
-                                    </ListItemButton>
-                                </ListItem>
-                            </List>
-                        </AccordionDetails>
-                    </Accordion>
-                </ListItem>
-                <ListItem disablePadding>
-                    <ListItemButton onClick={() => navigate("/inventory")}>
-                        <ListItemIcon>
-                            <InventoryIcon className="menu-svg" />
-                        </ListItemIcon>
-                        <ListItemText primary={"Inventory"} />
-                    </ListItemButton>
-                </ListItem>
-                <ListItem disablePadding>
-                    <ListItemButton onClick={() => navigate("/orders/manage")}>
-                        <ListItemIcon>
-                            <OrdersIcon className="menu-svg" />
-                        </ListItemIcon>
-                        <ListItemText primary={"Orders"} />
-                    </ListItemButton>
-                </ListItem>
-                <ListItem disablePadding>
-                    <Accordion
-                        expanded={expanded === "customer-menu"}
-                        onChange={handleExpand("customer-menu")}
-                        disableGutters={true}
-                        square={true}
-                        sx={{
-                            width: "100%",
-                            boxShadow: "none",
-                            bgcolor: "peach.extraDark",
-                            color: "white",
-                        }}
-                    >
-                        <AccordionSummary
-                            expandIcon={<ExpandMoreIconSharp />}
-                            id="customer-menu"
-                        >
-                            <ListItemIcon>
-                                <CustomerIcon className="menu-svg" />
-                            </ListItemIcon>
-                            <ListItemText primary={"Customers"} />
-                        </AccordionSummary>
-                        <AccordionDetails
-                            sx={{
-                                padding: 0,
-                                bgcolor: "peach.main",
-                            }}
-                        >
-                            <List>
-                                <ListItem disablePadding>
-                                    <ListItemButton sx={{ paddingLeft: 2 }}>
-                                        <ListItemText
-                                            secondary={"Customers Overview"}
-                                        />
-                                    </ListItemButton>
-                                </ListItem>
-                                <ListItem disablePadding>
-                                    <ListItemButton sx={{ paddingLeft: 2 }}>
-                                        <ListItemText
-                                            secondary={
-                                                "Customer Account Management"
+                            <AccordionSummary
+                                expandIcon={<ExpandMoreIconSharp />}
+                                id="products-menu"
+                            >
+                                <ListItemIcon>
+                                    <ProductsIcon className="menu-svg" />
+                                </ListItemIcon>
+                                <ListItemText primary={"Products"} />
+                            </AccordionSummary>
+                            <AccordionDetails
+                                sx={{
+                                    padding: 0,
+                                    bgcolor: "peach.main",
+                                }}
+                            >
+                                <List>
+                                    <ListItem disablePadding>
+                                        <ListItemButton sx={{ paddingLeft: 2 }}>
+                                            <ListItemText
+                                                secondary={"Top Products"}
+                                            />
+                                        </ListItemButton>
+                                    </ListItem>
+                                    <ListItem disablePadding>
+                                        <ListItemButton
+                                            sx={{ paddingLeft: 2 }}
+                                            onClick={() =>
+                                                navigate("/products/manage")
                                             }
-                                        />
-                                    </ListItemButton>
-                                </ListItem>
-                            </List>
-                        </AccordionDetails>
-                    </Accordion>
-                </ListItem>
-                <ListItem disablePadding>
-                    <ListItemButton>
-                        <ListItemIcon>
-                            <AdminIcon className="menu-svg" />
-                        </ListItemIcon>
-                        <ListItemText primary={"Admin Users"} />
-                    </ListItemButton>
-                </ListItem>
-                <ListItem disablePadding>
-                    <ListItemButton>
-                        <ListItemIcon>
-                            <SettingsIcon className="menu-svg" />
-                        </ListItemIcon>
-                        <ListItemText primary={"Settings"} />
-                    </ListItemButton>
-                </ListItem>
-            </List>
+                                        >
+                                            <ListItemText
+                                                secondary={"Product Management"}
+                                            />
+                                        </ListItemButton>
+                                    </ListItem>
+                                    <ListItem disablePadding>
+                                        <ListItemButton
+                                            sx={{ paddingLeft: 2 }}
+                                            onClick={() =>
+                                                navigate("/categories")
+                                            }
+                                        >
+                                            <ListItemText
+                                                secondary={"Product Categories"}
+                                            />
+                                        </ListItemButton>
+                                    </ListItem>
+                                </List>
+                            </AccordionDetails>
+                        </Accordion>
+                    </ListItem>
+                    <ListItem disablePadding>
+                        <ListItemButton onClick={() => navigate("/inventory")}>
+                            <ListItemIcon>
+                                <InventoryIcon className="menu-svg" />
+                            </ListItemIcon>
+                            <ListItemText primary={"Inventory"} />
+                        </ListItemButton>
+                    </ListItem>
+                    <ListItem disablePadding>
+                        <ListItemButton
+                            onClick={() => navigate("/orders/manage")}
+                        >
+                            <ListItemIcon>
+                                <OrdersIcon className="menu-svg" />
+                            </ListItemIcon>
+                            <ListItemText primary={"Orders"} />
+                        </ListItemButton>
+                    </ListItem>
+                    <ListItem disablePadding>
+                        <Accordion
+                            expanded={expanded === "customer-menu"}
+                            onChange={handleExpand("customer-menu")}
+                            disableGutters={true}
+                            square={true}
+                            sx={{
+                                width: "100%",
+                                boxShadow: "none",
+                                bgcolor: "peach.extraDark",
+                                color: "white",
+                            }}
+                        >
+                            <AccordionSummary
+                                expandIcon={<ExpandMoreIconSharp />}
+                                id="customer-menu"
+                            >
+                                <ListItemIcon>
+                                    <CustomerIcon className="menu-svg" />
+                                </ListItemIcon>
+                                <ListItemText primary={"Customers"} />
+                            </AccordionSummary>
+                            <AccordionDetails
+                                sx={{
+                                    padding: 0,
+                                    bgcolor: "peach.main",
+                                }}
+                            >
+                                <List>
+                                    <ListItem disablePadding>
+                                        <ListItemButton sx={{ paddingLeft: 2 }}>
+                                            <ListItemText
+                                                secondary={"Customers Overview"}
+                                            />
+                                        </ListItemButton>
+                                    </ListItem>
+                                    <ListItem disablePadding>
+                                        <ListItemButton sx={{ paddingLeft: 2 }}>
+                                            <ListItemText
+                                                secondary={
+                                                    "Customer Account Management"
+                                                }
+                                            />
+                                        </ListItemButton>
+                                    </ListItem>
+                                </List>
+                            </AccordionDetails>
+                        </Accordion>
+                    </ListItem>
+                    <ListItem disablePadding>
+                        <ListItemButton>
+                            <ListItemIcon>
+                                <AdminIcon className="menu-svg" />
+                            </ListItemIcon>
+                            <ListItemText primary={"Admin Users"} />
+                        </ListItemButton>
+                    </ListItem>
+                    <ListItem disablePadding>
+                        <ListItemButton>
+                            <ListItemIcon>
+                                <SettingsIcon className="menu-svg" />
+                            </ListItemIcon>
+                            <ListItemText primary={"Settings"} />
+                        </ListItemButton>
+                    </ListItem>
+                </List>
+            </div>
+            <Box className="currentUserDetails" sx={{ paddingLeft: 2 }}>
+                {user && (
+                    <React.Fragment>
+                        <div className="name-and-access">
+                            <div className="username-display">
+                                <span>Username:</span>
+                                <span>{user.username}</span>
+                            </div>
+                            <div className="access-level-display">
+                                <span>Access Level:</span>
+                                <span>{user.accessLevel} access</span>
+                            </div>
+                        </div>
+                        <Button
+                            onClick={authContext.logout}
+                            variant="contained"
+                            sx={{ bgcolor: "peach.main" }}
+                        >
+                            Log Out
+                        </Button>
+                    </React.Fragment>
+                )}
+            </Box>
         </div>
     );
 
@@ -278,8 +311,24 @@ const AdminNav: React.FC<Props> = (props: Props) => {
                     >
                         <MenuIcon />
                     </IconButton>
-                    <Typography variant="h6" noWrap component="div">
-                        Responsive drawer
+                    <Typography
+                        sx={{
+                            fontFamily: "var(--Delafield)",
+                            fontSize: "2.5rem",
+                        }}
+                        variant="h6"
+                        noWrap
+                        component="div"
+                    >
+                        peach blossom{" "}
+                        <span
+                            style={{
+                                fontFamily: "var(--Playfair)",
+                                fontSize: "1.5rem",
+                            }}
+                        >
+                            Admin Panel
+                        </span>
                     </Typography>
                 </Toolbar>
             </AppBar>

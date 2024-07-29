@@ -5,6 +5,7 @@ import React, {
     useCallback,
     useMemo,
     SetStateAction,
+    useContext,
 } from "react";
 import {
     Grid,
@@ -27,6 +28,7 @@ import { AVCategory } from "../../features/AVMenuData/avMenuDataTypes";
 import { SelectFieldNonFormik } from "../../../common/components/Fields/SelectFieldNonFormik";
 import BlankPopup from "../../../common/components/BlankPopup";
 import StatusPopup from "../../../common/components/StatusPopup";
+import { AuthContext } from "../../../common/contexts/authContext";
 
 ///////////////////
 ///////TYPES///////
@@ -233,6 +235,8 @@ const AVProductDetails: React.FC = () => {
     );
     const [error, setError] = useState<null | string>(null);
     const [mustFetchData, setMustFetchData] = useState<boolean>(true);
+    const authContext = useContext(AuthContext);
+    const accessLevel = authContext?.user?.accessLevel;
 
     useEffect(() => {
         console.log("imageUrls:", imageUrls + ", images:", images);
@@ -855,6 +859,7 @@ const AVProductDetails: React.FC = () => {
                             <Button
                                 variant="contained"
                                 onClick={() => setIsConfirming(true)}
+                                disabled={accessLevel === "view only"}
                             >
                                 Save Changes
                             </Button>

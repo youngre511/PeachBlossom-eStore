@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import AVProductCatalog from "../../features/AVCatalog/AVProductCatalog";
@@ -17,6 +17,7 @@ import SearchField from "../../../common/components/Fields/SearchField";
 import InventoryCatalog from "./InventoryCatalog";
 import "./inventory-management.css";
 import StatusPopup from "../../../common/components/StatusPopup";
+import { AuthContext } from "../../../common/contexts/authContext";
 
 const inputStyle = {
     "& .MuiInputBase-root.MuiOutlinedInput-root": {
@@ -44,6 +45,8 @@ const InventoryManagement: React.FC<Props> = () => {
     const tags = searchParams.get("tags")?.split(",") || null;
     const sort = searchParams.get("sort") || "name-ascend";
     const itemsPerPage = searchParams.get("itemsPerPage") || 24;
+    const authContext = useContext(AuthContext);
+    const accessLevel = authContext?.user?.accessLevel;
 
     const memoParams = useMemo(() => {
         return {
@@ -195,7 +198,8 @@ const InventoryManagement: React.FC<Props> = () => {
                         options={avMenuData.searchOptions}
                     />
                 </div>
-                {Object.keys(pendingInventoryUpdates).length > 0 ? (
+                {Object.keys(pendingInventoryUpdates).length > 0 &&
+                accessLevel !== "view only" ? (
                     <Button variant="contained" onClick={handleSaveChanges}>
                         SAVE CHANGES
                     </Button>

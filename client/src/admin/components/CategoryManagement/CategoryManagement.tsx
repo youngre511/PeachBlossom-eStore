@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
 import { RootState } from "../../store/store";
@@ -10,6 +10,7 @@ import { Link } from "react-router-dom";
 import BlankPopup from "../../../common/components/BlankPopup";
 import StatusPopup from "../../../common/components/StatusPopup";
 import axios, { AxiosError } from "axios";
+import { AuthContext } from "../../../common/contexts/authContext";
 
 interface Props {}
 const CategoryManagement: React.FC<Props> = () => {
@@ -34,6 +35,8 @@ const CategoryManagement: React.FC<Props> = () => {
     const [deleteTooltip, setDeleteTooltip] = useState<string>("");
     const [addSubcategoryTooltip, setAddSubcategoryTooltip] =
         useState<string>("");
+    const authContext = useContext(AuthContext);
+    const accessLevel = authContext?.user?.accessLevel;
 
     // States to manage action popups
     const [popupMessage, setPopupMessage] = useState<string | null>(null);
@@ -370,12 +373,15 @@ const CategoryManagement: React.FC<Props> = () => {
                         <Button
                             variant="contained"
                             onClick={() => setPopupType("addCat")}
+                            disabled={accessLevel === "view only"}
                         >
                             Add Category
                         </Button>
                         <Button
                             variant="contained"
-                            disabled={!selectedCategory}
+                            disabled={
+                                !selectedCategory || accessLevel === "view only"
+                            }
                             onClick={() => setPopupType("editCat")}
                         >
                             Edit Category Name
@@ -386,7 +392,8 @@ const CategoryManagement: React.FC<Props> = () => {
                                     variant="contained"
                                     disabled={
                                         !selectedCategory ||
-                                        selectedCategory.productCount > 0
+                                        selectedCategory.productCount > 0 ||
+                                        accessLevel === "view only"
                                     }
                                     onClick={() => setPopupType("deleteCat")}
                                 >
@@ -428,7 +435,10 @@ const CategoryManagement: React.FC<Props> = () => {
                         <Tooltip title={addSubcategoryTooltip}>
                             <Button
                                 variant="contained"
-                                disabled={!selectedCategory}
+                                disabled={
+                                    !selectedCategory ||
+                                    accessLevel === "view only"
+                                }
                                 onClick={() => setPopupType("addSubcat")}
                             >
                                 Add Subcategory
@@ -436,7 +446,10 @@ const CategoryManagement: React.FC<Props> = () => {
                         </Tooltip>
                         <Button
                             variant="contained"
-                            disabled={!selectedSubcategory}
+                            disabled={
+                                !selectedSubcategory ||
+                                accessLevel === "view only"
+                            }
                             onClick={() => setPopupType("editSubcat")}
                         >
                             Edit Subcategory Name
@@ -445,7 +458,10 @@ const CategoryManagement: React.FC<Props> = () => {
                             <span>
                                 <Button
                                     variant="contained"
-                                    disabled={!selectedSubcategory}
+                                    disabled={
+                                        !selectedSubcategory ||
+                                        accessLevel === "view only"
+                                    }
                                     onClick={() => setPopupType("deleteSubcat")}
                                 >
                                     Delete

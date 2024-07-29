@@ -55,13 +55,18 @@ export const login = async (req: LoginRequest, res: Response) => {
 
         res.json({ token });
     } catch (error) {
-        let errorObj = {
-            message: "login failure",
-            payload: error,
-        };
-
-        console.error(errorObj);
-
-        res.status(500).json(errorObj);
+        if (error instanceof Error) {
+            if (error.message === "Invalid username or password.") {
+                res.status(401).json({
+                    message: `Error logging in: ${error.message}`,
+                });
+            } else {
+                res.status(500).json({ message: error.message });
+            }
+        } else {
+            res.status(500).json({
+                message: "An unknown error occurred when logging in.",
+            });
+        }
     }
 };

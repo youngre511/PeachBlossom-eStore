@@ -1,10 +1,9 @@
 import React, {
-    ComponentProps,
     useState,
     useEffect,
     useCallback,
-    useMemo,
     SetStateAction,
+    useContext,
 } from "react";
 import {
     Grid,
@@ -17,7 +16,7 @@ import {
 
 import axios, { AxiosError } from "axios";
 import "./av-order-details.css";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import BlankPopup from "../../../common/components/BlankPopup";
 import StatusPopup from "../../../common/components/StatusPopup";
 import {
@@ -33,6 +32,7 @@ import { SelectFieldNonFormik } from "../../../common/components/Fields/SelectFi
 import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
 import { RootState } from "../../store/store";
 import { avFetchOrderDetails } from "../../features/AVOrders/avOrdersSlice";
+import { AuthContext } from "../../../common/contexts/authContext";
 dayjs.extend(customParseFormat);
 dayjs.extend(updateLocale);
 dayjs.updateLocale("en", {
@@ -177,7 +177,8 @@ const AVOrderDetails: React.FC = () => {
     );
     const [emailHelperText, setEmailHelperText] = useState<string>("");
     const [error, setError] = useState<null | string>(null);
-    const [mustFetchData, setMustFetchData] = useState<boolean>(true);
+    const authContext = useContext(AuthContext);
+    const accessLevel = authContext?.user?.accessLevel;
     const taxRate = 0.06;
     const orderStatusOptions = [
         "in process",
@@ -322,8 +323,6 @@ const AVOrderDetails: React.FC = () => {
         ];
 
         if (currentDetails) {
-            console.log("save");
-
             const itemUpdates: Array<{
                 order_item_id: number;
                 quantity: number;
@@ -576,7 +575,6 @@ const AVOrderDetails: React.FC = () => {
                                                     setSearchParams(
                                                         searchParams
                                                     );
-                                                    setMustFetchData(true);
                                                 }}
                                             >
                                                 Cancel

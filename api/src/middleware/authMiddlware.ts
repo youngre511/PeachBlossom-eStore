@@ -17,7 +17,7 @@ export const authMiddleware = (
         const decoded = verifyToken(token);
         if (
             typeof decoded === "object" &&
-            "user_id" in decoded &&
+            "username" in decoded &&
             "role" in decoded
         ) {
             req.user = decoded;

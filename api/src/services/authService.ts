@@ -100,6 +100,7 @@ export const createUser = async (
 
         const tokenPayload = {
             user_id: userData.user_id,
+            username: userData.username,
             role: userData.role,
             customer_id: customer?.customer_id,
             admin_id: admin?.admin_id,
@@ -145,6 +146,7 @@ export const login = async (username: string, password: string) => {
 
         const tokenPayload = {
             user_id: user.user_id,
+            username: user.username,
             role: user.role,
             customer_id: customer?.customer_id,
             admin_id: admin?.admin_id,
@@ -154,7 +156,7 @@ export const login = async (username: string, password: string) => {
         return token;
     } catch (error) {
         if (error instanceof Error) {
-            throw new Error("Error logging in: " + error.message);
+            throw new Error(error.message);
         } else {
             throw new Error("An unknown error occurred while logging in");
         }

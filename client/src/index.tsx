@@ -9,6 +9,7 @@ import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/es/integration/react";
 import customerStore, { persistor } from "./customer/store/customerStore";
 import adminStore from "./admin/store/store";
+import { AuthProvider } from "./common/contexts/authContext";
 
 const root = ReactDOM.createRoot(
     document.getElementById("root") as HTMLElement
@@ -16,15 +17,19 @@ const root = ReactDOM.createRoot(
 root.render(
     <React.StrictMode>
         {/* <Provider store={customerStore}>
-            <PersistGate loading={null} persistor={persistor}>
-                <BrowserRouter>
-                    <CustomerApp />
-                </BrowserRouter>
-            </PersistGate>
-        </Provider> */}
+                <PersistGate loading={null} persistor={persistor}>
+                    <BrowserRouter>
+                        <AuthProvider>
+                            <CustomerApp />
+                        </AuthProvider>
+                    </BrowserRouter>
+                </PersistGate>
+            </Provider> */}
         <Provider store={adminStore}>
             <BrowserRouter>
-                <AdminApp />
+                <AuthProvider>
+                    <AdminApp />
+                </AuthProvider>
             </BrowserRouter>
         </Provider>
     </React.StrictMode>

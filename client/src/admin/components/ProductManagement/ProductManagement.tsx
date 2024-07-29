@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import AVProductCatalog from "../../features/AVCatalog/AVProductCatalog";
@@ -22,6 +22,7 @@ import {
 import "./product-management.css";
 import SearchField from "../../../common/components/Fields/SearchField";
 import { AVCategory } from "../../features/AVMenuData/avMenuDataTypes";
+import { AuthContext } from "../../../common/contexts/authContext";
 
 const inputStyle = {
     "& .MuiInputBase-root.MuiOutlinedInput-root": {
@@ -47,6 +48,8 @@ const ProductManagement: React.FC<Props> = () => {
     const itemsPerPage = searchParams.get("itemsPerPage") || 24;
     const [justLoaded, setJustLoaded] = useState<boolean>(true);
     const [loading, setLoading] = useState<boolean>(true);
+    const authContext = useContext(AuthContext);
+    const accessLevel = authContext?.user?.accessLevel;
 
     const navigate = useNavigate();
 
@@ -183,39 +186,47 @@ const ProductManagement: React.FC<Props> = () => {
     };
 
     const handleProductDiscontinue = (productNo: string) => {
-        dispatch(
-            updateProductStatus({
-                productNos: [productNo],
-                newStatus: "discontinued",
-            })
-        );
+        if (accessLevel !== "view only") {
+            dispatch(
+                updateProductStatus({
+                    productNos: [productNo],
+                    newStatus: "discontinued",
+                })
+            );
+        }
     };
 
     const handleProductActivate = (productNo: string) => {
-        dispatch(
-            updateProductStatus({
-                productNos: [productNo],
-                newStatus: "active",
-            })
-        );
+        if (accessLevel !== "view only") {
+            dispatch(
+                updateProductStatus({
+                    productNos: [productNo],
+                    newStatus: "active",
+                })
+            );
+        }
     };
 
     const discontinueSelected = (productNos: string[]) => {
-        dispatch(
-            updateProductStatus({
-                productNos: productNos,
-                newStatus: "discontinued",
-            })
-        );
+        if (accessLevel !== "view only") {
+            dispatch(
+                updateProductStatus({
+                    productNos: productNos,
+                    newStatus: "discontinued",
+                })
+            );
+        }
     };
 
     const activateSelected = (productNos: string[]) => {
-        dispatch(
-            updateProductStatus({
-                productNos: productNos,
-                newStatus: "active",
-            })
-        );
+        if (accessLevel !== "view only") {
+            dispatch(
+                updateProductStatus({
+                    productNos: productNos,
+                    newStatus: "active",
+                })
+            );
+        }
     };
 
     return (

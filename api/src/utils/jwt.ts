@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 const secret = process.env.JWT_SECRET as string;
 
 interface UserPayload {
-    user_id: number;
+    username: string;
     role: "customer" | "admin";
     customer_id?: number;
     admin_id?: number;
