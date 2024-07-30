@@ -7,6 +7,7 @@ import {
     AutoIncrement,
     HasOne,
     HasMany,
+    Default,
 } from "sequelize-typescript";
 import { sqlCustomer } from "./sqlCustomerModel.js";
 import { sqlAdmin } from "./sqlAdminModel.js";
@@ -33,6 +34,13 @@ export class sqlUser extends Model {
         allowNull: false,
     })
     declare password: string;
+
+    @Default(true)
+    @Column({
+        type: DataType.BOOLEAN,
+        allowNull: false,
+    })
+    declare defaultPassword: boolean;
 
     @Column({
         type: DataType.ENUM("customer", "admin"),
