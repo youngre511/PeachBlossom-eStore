@@ -5,6 +5,7 @@ import logger from "morgan";
 import connectToMongoDB from "./db/mongodb.js";
 import connectToMySQLDatabase from "./db/mysql.js";
 import dotenv from "dotenv";
+import "reflect-metadata";
 dotenv.config();
 
 // Router Imports
