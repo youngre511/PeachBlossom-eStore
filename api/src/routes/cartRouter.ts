@@ -12,7 +12,7 @@ function dummyFunc() {}
 
 cartRouter.get("/cartId/:cartId", getCartById);
 
-// cartRouter.get("/customerId/:customerId", dummyFunc);
+cartRouter.get("/customerId/:customerId", dummyFunc);
 
 cartRouter.put("/add-to-cart", addToCart);
 
