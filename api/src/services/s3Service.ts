@@ -7,8 +7,8 @@ import dotenv from "dotenv";
 dotenv.config();
 
 if (
-    !process.env.AWS_ACCESS_KEY_ID ||
-    !process.env.AWS_SECRET_ACCESS_KEY ||
+    // !process.env.AWS_ACCESS_KEY_ID ||
+    // !process.env.AWS_SECRET_ACCESS_KEY ||
     !process.env.AWS_REGION ||
     !process.env.S3_BUCKET_NAME
 ) {
@@ -16,10 +16,10 @@ if (
 }
 
 const s3 = new S3Client({
-    credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-    },
+    // credentials: {
+    //     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    //     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    // },
     region: process.env.AWS_REGION,
 });
 
