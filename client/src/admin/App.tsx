@@ -4,7 +4,7 @@ import { ThemeProvider } from "@mui/material/styles";
 import theme from "../common/utils/materialUITheme";
 import AdminNav from "./components/AdminNav/AdminNav";
 import ProductManagement from "./components/ProductManagement/ProductManagement";
-import "./style/admin-general.css";
+// import "./style/admin-general.css";
 import AddProduct from "./components/AddProduct/AddProduct";
 import InventoryManagement from "./components/InventoryManagement/InventoryManagement";
 import { useAppDispatch } from "./hooks/reduxHooks";

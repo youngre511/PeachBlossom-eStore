@@ -11,12 +11,22 @@ import customerStore, { persistor } from "./customer/store/customerStore";
 import adminStore from "./admin/store/store";
 import { AuthProvider } from "./common/contexts/authContext";
 
+const isAdmin = window.location.hostname.startsWith("admin");
+
+if (!isAdmin) {
+    import("./customer/style/general.module.css");
+} else {
+    import("./admin/style/admin-general.module.css");
+}
+
 const root = ReactDOM.createRoot(
     document.getElementById("root") as HTMLElement
 );
+
 root.render(
     <React.StrictMode>
-        {/* <Provider store={customerStore}>
+        {!isAdmin ? (
+            <Provider store={customerStore}>
                 <PersistGate loading={null} persistor={persistor}>
                     <BrowserRouter>
                         <AuthProvider>
@@ -24,14 +34,16 @@ root.render(
                         </AuthProvider>
                     </BrowserRouter>
                 </PersistGate>
-            </Provider> */}
-        <Provider store={adminStore}>
-            <BrowserRouter>
-                <AuthProvider>
-                    <AdminApp />
-                </AuthProvider>
-            </BrowserRouter>
-        </Provider>
+            </Provider>
+        ) : (
+            <Provider store={adminStore}>
+                <BrowserRouter>
+                    <AuthProvider>
+                        <AdminApp />
+                    </AuthProvider>
+                </BrowserRouter>
+            </Provider>
+        )}
     </React.StrictMode>
 );
 

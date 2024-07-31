@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
-import "./style/general.css";
+// import "./style/general.css";
 import { ThemeProvider } from "@mui/material/styles";
 import theme from "../common/utils/materialUITheme";
 import Nav from "./components/Nav/Nav";
