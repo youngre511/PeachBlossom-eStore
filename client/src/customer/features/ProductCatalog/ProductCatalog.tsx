@@ -47,9 +47,21 @@ const ProductCatalog: React.FC<Props> = ({ page, results }) => {
     }, []);
 
     useEffect(() => {
-        setNumInRow(Math.floor((productGridWidth + 20) / 265));
-        console.log(productGridWidth);
-        setSpacing((productGridWidth - 245 * numInRow) / (numInRow - 1));
+        if (productGridWidth) {
+            const calculatedNumInRow = Math.floor(
+                (productGridWidth + 20) / 265
+            );
+            const calculatedSpacing =
+                calculatedNumInRow > 1
+                    ? Math.max(
+                          (productGridWidth - 245 * calculatedNumInRow) /
+                              (calculatedNumInRow - 1)
+                      )
+                    : 20;
+            setNumInRow(calculatedNumInRow);
+            setSpacing(calculatedSpacing);
+        }
+
         // if (productGridWidth >= 512) {
         //     setSpacing((productGridWidth - 245 * numInRow) / (numInRow - 1));
         // } else {
@@ -75,7 +87,7 @@ const ProductCatalog: React.FC<Props> = ({ page, results }) => {
                 className="catalog-item-container"
                 ref={productGrid}
                 style={{
-                    gap: spacing,
+                    gap: spacing || "20px",
                     gridTemplateColumns: `repeat(${numInRow}, 1fr)`,
                 }}
             >

@@ -1,11 +1,4 @@
 export interface SearchOptionsState {
-    searchOptions: SearchOption[];
+    searchOptions: string[];
     error: string | null;
-}
-
-export interface SearchOption {
-    display: string;
-    value: string;
-    id: number;
-    url: string;
 }

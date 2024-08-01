@@ -20,14 +20,13 @@ const AddToCartButton: React.FC<Props> = ({ available, productNo }: Props) => {
     const itemInCart: CartItem[] = cart.items.filter(
         (item) => item.productNo === productNo
     );
-    console.log(itemInCart);
+
     const isInCart: boolean = itemInCart.length > 0;
     let numberInCart: number | null = null;
     if (isInCart) {
         numberInCart = itemInCart[0].quantity;
     }
 
-    console.log(productNo);
     const handleAddToCart = () => {
         dispatch(addItemToCart(productNo));
     };

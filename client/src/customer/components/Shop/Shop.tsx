@@ -80,7 +80,7 @@ const Shop = () => {
 
     useEffect(() => {
         const initialParams: Record<string, string> = {};
-
+        console.log("searchParams:", searchParams);
         if (!searchParams.get("sort")) {
             initialParams.sort = "name-ascend";
         }

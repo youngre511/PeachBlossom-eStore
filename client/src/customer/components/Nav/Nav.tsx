@@ -1,4 +1,4 @@
-import React from "react";
+import React, { ChangeEvent } from "react";
 import "./nav.css";
 import { useEffect, useRef, useState } from "react";
 import { useAppSelector } from "../../hooks/reduxHooks";
@@ -13,12 +13,24 @@ import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import CartDropDown from "../../features/Cart/CartDropDown";
 import { RootState } from "../../store/customerStore";
+import SearchField from "../../../common/components/Fields/SearchField";
+import {
+    Autocomplete,
+    Button,
+    InputAdornment,
+    SvgIcon,
+    TextField,
+} from "@mui/material";
 
 interface Props {}
 const Nav: React.FC<Props> = () => {
     const cart = useAppSelector((state: RootState) => state.cart);
+    const [searchOptions, setSearchOptions] = useState<Array<string>>([]);
+    const searchOptionsSlice = useAppSelector(
+        (state: RootState) => state.searchOptions
+    );
     const cartContents = cart.numberOfItems;
-    console.log("cart:", cart);
+
     const header = useRef<HTMLElement>(null);
 
     const [isShopMenuVisible, setShopMenuVisible] = useState(false);
@@ -27,6 +39,14 @@ const Nav: React.FC<Props> = () => {
     const { contextSafe } = useGSAP({ scope: header });
     const navigate = useNavigate();
     const location = useLocation();
+    const [searchQuery, setSearchQuery] = useState<string>("");
+
+    useEffect(() => {
+        console.log("search options:", searchOptionsSlice);
+        if (searchOptionsSlice.searchOptions) {
+            setSearchOptions(searchOptionsSlice.searchOptions);
+        }
+    }, [searchOptionsSlice]);
 
     useEffect(
         contextSafe(() => {
@@ -80,6 +100,16 @@ const Nav: React.FC<Props> = () => {
         }),
         [isCartDropdownVisible]
     );
+
+    const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const path = `/shop?sort=name-ascend&page=1&search=${searchQuery.replace(
+            " ",
+            "%20"
+        )}`;
+
+        navigate(path);
+    };
 
     return (
         <header ref={header}>
@@ -191,7 +221,55 @@ const Nav: React.FC<Props> = () => {
                     </li>
                 </ul>
                 {/* Floats */}
-                <div className="search-tab"></div>
+                <div className="search-tab">
+                    <div className="search-input">
+                        <form onSubmit={(e) => handleSearch(e)}>
+                            <Autocomplete
+                                freeSolo
+                                id="product-search"
+                                disableClearable
+                                filterOptions={(searchOptions) => {
+                                    const inputValue =
+                                        searchQuery.toLowerCase();
+                                    return searchQuery.length >= 2
+                                        ? searchOptions.filter((option) =>
+                                              option
+                                                  .toLowerCase()
+                                                  .includes(inputValue)
+                                          )
+                                        : [];
+                                }}
+                                options={searchOptions}
+                                renderInput={(params) => (
+                                    <TextField
+                                        {...params}
+                                        label="Search Products"
+                                        variant="filled"
+                                        value={searchQuery}
+                                        onChange={(
+                                            e: ChangeEvent<HTMLInputElement>
+                                        ) => setSearchQuery(e.target.value)}
+                                        fullWidth
+                                        sx={{
+                                            backgroundColor: "white",
+                                        }}
+                                        size="small"
+                                        InputProps={{
+                                            ...params.InputProps,
+                                            type: "search",
+                                        }}
+                                        inputProps={{
+                                            ...params.inputProps,
+                                            inputMode: "search",
+                                            // sx: { backgroundColor: "white" },
+                                        }}
+                                    />
+                                )}
+                            />
+                            <Button type="submit" style={{ display: "none" }} />
+                        </form>
+                    </div>
+                </div>
                 <div className="nav-logo">
                     <div className="border-under"></div>
                     <div className="border-over"></div>

@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../../store/customerStore";
 import axios from "axios";
-import { SearchOption, SearchOptionsState } from "./SearchOptionsTypes";
+import { SearchOptionsState } from "./SearchOptionsTypes";
 
 const initialState: SearchOptionsState = {
     searchOptions: [],
@@ -10,16 +10,16 @@ const initialState: SearchOptionsState = {
 
 interface OptionsResponse {
     message: string;
-    payload: OptionsResponsePayload;
+    payload: Array<string>;
 }
 
 interface OptionsResponsePayload {
     success: boolean;
-    payload: Array<SearchOption>;
+    payload: Array<string>;
 }
 
 export const fetchSearchOptions = createAsyncThunk<
-    Array<SearchOption>,
+    Array<string>,
     void,
     { state: RootState }
 >("searchOptions/fetchSearchOptions", async (_, { rejectWithValue }) => {
@@ -27,7 +27,8 @@ export const fetchSearchOptions = createAsyncThunk<
         const response = await axios.get<OptionsResponse>(
             `${process.env.REACT_APP_API_URL}product/search-options`
         );
-        const options = response.data.payload.payload;
+        const options = response.data.payload;
+
         return options;
     } catch (error: any) {
         return rejectWithValue(
@@ -47,7 +48,7 @@ const searchOptionsSlice = createSlice({
             })
             .addCase(
                 fetchSearchOptions.fulfilled,
-                (state, action: PayloadAction<SearchOption[]>) => {
+                (state, action: PayloadAction<string[]>) => {
                     state.searchOptions = action.payload;
                 }
             )
