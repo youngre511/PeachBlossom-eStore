@@ -5,25 +5,14 @@ phases:
     runtime-versions:
       nodejs: 14
     commands:
-      - echo "Installing dependencies..."
+      - echo Installing dependencies...
       - cd api
-      - npm install  # Installs dependencies within the api directory
-
-  pre_build:
-    commands:
-      - echo "Transpiling TypeScript..."
-      - npm run build  # Ensure this script exists in your package.json to compile TypeScript
-
+      - npm install
   build:
     commands:
-      - echo "Build completed on `date`"
-
-  post_build:
-    commands:
-      - echo "Packaging files..."
-      - zip -r ../api-deployment-package.zip .  # Package everything in the api directory, moving zip to the parent
-
+      - echo Build started on `date`
+      - npx tsc
 artifacts:
   files:
-    - api-deployment-package.zip
-  discard-paths: yes
+    - '**/*'
+  base-directory: 'api'
