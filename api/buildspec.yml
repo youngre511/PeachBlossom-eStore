@@ -6,28 +6,25 @@ phases:
       nodejs: 14
     commands:
       - echo "Installing dependencies..."
-      - cd api  # Assuming this is where package.json and .ebextensions are located
-      - npm install
-  
+      - cd api
+      - npm install  # Installs dependencies within the api directory
 
   pre_build:
     commands:
-      - echo "Preparing build..."
-      - pwd  # Debug: Print current working directory
-      - ls -al  # Debug: List all files in the current directory
+      - echo "Transpiling TypeScript..."
+      - npm run build  # Ensure this script exists in your package.json to compile TypeScript
 
   build:
     commands:
-      - echo "Build started on `date`"
-      - npx tsc  # Compile TypeScript
+      - echo "Build completed on `date`"
 
   post_build:
     commands:
       - echo "Packaging files..."
-      - cd ..  # Step back to include .ebextensions in the zip
-      - zip -r my-application.zip api  # Zip the entire api directory including .ebextensions
+      - cd ..  # Move back to root directory to package everything within api including .ebextensions
+      - zip -r api-deployment-package.zip api
 
 artifacts:
   files:
-    - my-application.zip  # Specify the zip file as the artifact
-  discard-paths: yes  # Since we are providing a path relative to the root
+    - api-deployment-package.zip
+  discard-paths: yes
