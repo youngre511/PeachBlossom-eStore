@@ -183,7 +183,7 @@ const CategoryManagement: React.FC<Props> = () => {
         setIsSaving(true);
         try {
             await axios.post(
-                `${process.env.REACT_APP_API_URL}category/create`,
+                `${process.env.REACT_APP_API_URL}/category/create`,
                 { name: popupInputValue }
             );
             setStatus("success");
@@ -209,7 +209,7 @@ const CategoryManagement: React.FC<Props> = () => {
                 throw new Error("An unknown error occurred");
             }
             await axios.post(
-                `${process.env.REACT_APP_API_URL}category/${selectedCategory.categoryName}/create-sub`,
+                `${process.env.REACT_APP_API_URL}/category/${selectedCategory.categoryName}/create-sub`,
                 { subCategoryName: popupInputValue }
             );
             setStatus("success");
@@ -235,7 +235,7 @@ const CategoryManagement: React.FC<Props> = () => {
                 throw new Error("An unknown error occurred");
             }
             await axios.delete(
-                `${process.env.REACT_APP_API_URL}category/delete/${selectedCategory.categoryName}`
+                `${process.env.REACT_APP_API_URL}/category/delete/${selectedCategory.categoryName}`
             );
             setStatus("success");
             dispatch(avFetchCategories());
@@ -289,10 +289,13 @@ const CategoryManagement: React.FC<Props> = () => {
             if (!selectedCategory) {
                 throw new Error("An unknown error occurred");
             }
-            await axios.put(`${process.env.REACT_APP_API_URL}category/update`, {
-                oldName: selectedCategory.categoryName,
-                newName: popupInputValue,
-            });
+            await axios.put(
+                `${process.env.REACT_APP_API_URL}/category/update`,
+                {
+                    oldName: selectedCategory.categoryName,
+                    newName: popupInputValue,
+                }
+            );
             setStatus("success");
             dispatch(avFetchCategories());
         } catch (error) {
@@ -316,7 +319,7 @@ const CategoryManagement: React.FC<Props> = () => {
                 throw new Error("An unknown error occurred");
             }
             await axios.put(
-                `${process.env.REACT_APP_API_URL}category/subcategory/update`,
+                `${process.env.REACT_APP_API_URL}/category/subcategory/update`,
                 {
                     oldName: selectedSubcategory.subCategoryName,
                     newName: popupInputValue,

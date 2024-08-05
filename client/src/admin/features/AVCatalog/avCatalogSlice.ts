@@ -80,7 +80,7 @@ export const avFetchProducts = createAsyncThunk<
         const params = { ...filters };
         try {
             const response = await axios.get(
-                `${process.env.REACT_APP_API_URL}product/admin`,
+                `${process.env.REACT_APP_API_URL}/product/admin`,
                 {
                     params: params,
                 }
@@ -113,7 +113,7 @@ export const updateInventory = createAsyncThunk<
 
         try {
             const response = await axios.put(
-                `${process.env.REACT_APP_API_URL}inventory/updateStockLevels`,
+                `${process.env.REACT_APP_API_URL}/inventory/updateStockLevels`,
                 {
                     updateData: updateData,
                     filters: filters,
@@ -145,7 +145,7 @@ export const updateProductStatus = createAsyncThunk<
         const filters = state.avCatalog.filters;
         try {
             const response = await axios.put(
-                `${process.env.REACT_APP_API_URL}product/update-status`,
+                `${process.env.REACT_APP_API_URL}/product/update-status`,
                 updateData
             );
             return {

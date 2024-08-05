@@ -437,7 +437,7 @@ const AVOrderDetails: React.FC = () => {
 
             try {
                 const response = await axios.put(
-                    `${process.env.REACT_APP_API_URL}order/update`,
+                    `${process.env.REACT_APP_API_URL}/order/update`,
                     updateInfo
                 );
 

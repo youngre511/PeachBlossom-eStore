@@ -288,7 +288,7 @@ const AddProduct: React.FC = () => {
 
         try {
             const response = await axios.post(
-                `${process.env.REACT_APP_API_URL}product/create`,
+                `${process.env.REACT_APP_API_URL}/product/create`,
                 formData,
                 {
                     headers: {

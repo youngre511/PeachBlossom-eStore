@@ -112,7 +112,7 @@ const Checkout: React.FC = () => {
             }
             try {
                 await axios.put(
-                    `${process.env.REACT_APP_API_URL}inventory/holdStock`,
+                    `${process.env.REACT_APP_API_URL}/inventory/holdStock`,
                     { cartId: currentCartId }
                 );
             } catch (error) {
@@ -131,7 +131,7 @@ const Checkout: React.FC = () => {
             if (!orderPlaced) {
                 try {
                     await axios.put(
-                        `${process.env.REACT_APP_API_URL}inventory/releaseStock`,
+                        `${process.env.REACT_APP_API_URL}/inventory/releaseStock`,
                         { cartId: currentCartId }
                     );
                 } catch (error) {
@@ -241,7 +241,7 @@ const Checkout: React.FC = () => {
 
         try {
             const response = await axios.post(
-                `${process.env.REACT_APP_API_URL}order/create`,
+                `${process.env.REACT_APP_API_URL}/order/create`,
                 orderData
             );
             if (response.data.orderNo) {

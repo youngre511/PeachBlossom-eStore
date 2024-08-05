@@ -20,7 +20,7 @@ export const fetchCategories = createAsyncThunk<
 >("categories/fetchCategories", async (_, { rejectWithValue }) => {
     try {
         const response = await axios.get<FetchCategoriesResponse>(
-            `${process.env.REACT_APP_API_URL}category`
+            `${process.env.REACT_APP_API_URL}/category`
         );
         return response.data.payload;
     } catch (error: any) {

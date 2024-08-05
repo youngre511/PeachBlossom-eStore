@@ -89,7 +89,7 @@ export const avFetchOrders = createAsyncThunk<
         const params = { ...filters };
         try {
             const response = await axios.get(
-                `${process.env.REACT_APP_API_URL}order`,
+                `${process.env.REACT_APP_API_URL}/order`,
                 {
                     params: params,
                 }
@@ -131,7 +131,7 @@ export const avFetchOrderDetails = createAsyncThunk<
 
         try {
             const response = await axios.get(
-                `${process.env.REACT_APP_API_URL}order/${orderNo}`
+                `${process.env.REACT_APP_API_URL}/order/${orderNo}`
             );
             const orderDetails: IAVOrderDetails = response.data;
             return {
@@ -160,7 +160,7 @@ export const avFetchOrderDetails = createAsyncThunk<
 //         const filters = state.avCatalog.filters;
 //         try {
 //             const response = await axios.put(
-//                 `${process.env.REACT_APP_API_URL}product/update-status`,
+//                 `${process.env.REACT_APP_API_URL}/product/update-status`,
 //                 updateData
 //             );
 //             return {

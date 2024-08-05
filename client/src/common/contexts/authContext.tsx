@@ -47,7 +47,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const login = async (username: string, password: string) => {
         try {
             const response = await axios.post(
-                `${process.env.REACT_APP_API_URL}auth/login`,
+                `${process.env.REACT_APP_API_URL}/auth/login`,
                 { username, password }
             );
             const { token } = response.data;

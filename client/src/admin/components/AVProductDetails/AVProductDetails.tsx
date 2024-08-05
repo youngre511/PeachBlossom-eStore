@@ -247,7 +247,7 @@ const AVProductDetails: React.FC = () => {
             const getProductDetails = async () => {
                 try {
                     const response = await axios.get(
-                        `${process.env.REACT_APP_API_URL}product/${productNo}`
+                        `${process.env.REACT_APP_API_URL}/product/${productNo}`
                     );
                     const productDetails: OneProduct = response.data.payload;
                     setCurrentDetails(productDetails);
@@ -444,7 +444,7 @@ const AVProductDetails: React.FC = () => {
 
                 try {
                     const response = await axios.put(
-                        `${process.env.REACT_APP_API_URL}product/update-details`,
+                        `${process.env.REACT_APP_API_URL}/product/update-details`,
                         formData,
                         {
                             headers: {

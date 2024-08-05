@@ -90,7 +90,7 @@ export const fetchProducts = createAsyncThunk<
         const params = { ...filters, itemsPerPage: itemsPerPage.toString() };
         try {
             const response = await axios.get(
-                `${process.env.REACT_APP_API_URL}product`,
+                `${process.env.REACT_APP_API_URL}/product`,
                 {
                     params: params,
                 }
