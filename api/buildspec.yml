@@ -15,4 +15,5 @@ phases:
 artifacts:
   files:
     - '**/*'
+    - '.ebextensions/**/*'
   base-directory: 'api'
