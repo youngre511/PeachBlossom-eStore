@@ -22,7 +22,8 @@ phases:
     commands:
       - echo "Packaging files..."
       - cd ..  # Move back to root directory to package everything within api including .ebextensions
-      - zip -r api-deployment-package.zip api
+      - cp api/Procfile .  # Ensure Procfile is included in the root of the deployment package if needed
+      - zip -r api-deployment-package.zip api api/.ebextensions Procfile  # Ensure .ebextensions is included
 
 artifacts:
   files:
