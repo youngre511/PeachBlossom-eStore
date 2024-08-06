@@ -26,8 +26,8 @@ app.use(logger("dev"));
 
 //Cors settings
 const allowedOrigins: string[] = [
-    "https://www.domain.com",
-    "http://localhost:3000",
+    "https://pb.ryanyoung.codes",
+    "https://admin.pb.ryanyoung.codes",
 ];
 
 const corsOptions: CorsOptions = {
