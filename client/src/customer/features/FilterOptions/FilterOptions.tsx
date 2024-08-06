@@ -112,7 +112,7 @@ const FilterOptions: React.FC<Props> = ({
     });
 
     const accordionSx = {
-        width: "305px",
+        width: "320px",
         "& .MuiAccordionSummary-expandIconWrapper.Mui-expanded": {
             transform: "rotate(90deg)",
         },
@@ -215,7 +215,7 @@ const FilterOptions: React.FC<Props> = ({
                 <Paper
                     square
                     sx={{
-                        width: "305px",
+                        width: "320px",
                         padding: "10px 20px",
                         borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
                     }}
@@ -262,7 +262,15 @@ const FilterOptions: React.FC<Props> = ({
                 </Paper>
             )}
             {existingFilters.category && !existingFilters.subCategory && (
-                <Paper className="subcategory-filters">
+                <Paper
+                    className="subcategory-filters"
+                    square
+                    sx={{
+                        width: "320px",
+                        padding: "10px 20px",
+                        borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
+                    }}
+                >
                     <p className="subcat-label">Subcategories</p>
                     {categories &&
                         categories.filter(
@@ -309,7 +317,7 @@ const FilterOptions: React.FC<Props> = ({
                     <AccordionSummary expandIcon={<ChevronRightIcon />}>
                         Color
                     </AccordionSummary>
-                    <AccordionDetails>
+                    <AccordionDetails sx={{ margin: 1 }}>
                         <div className="color-filters">
                             <FormGroup>
                                 {colors.map((colorPair, index) => (
@@ -373,7 +381,7 @@ const FilterOptions: React.FC<Props> = ({
                     <AccordionSummary expandIcon={<ChevronRightIcon />}>
                         Material
                     </AccordionSummary>
-                    <AccordionDetails>
+                    <AccordionDetails sx={{ margin: 1 }}>
                         <div className="material-filters">
                             <FormGroup>
                                 {materials.map((materialPair, index) => (
@@ -434,7 +442,7 @@ const FilterOptions: React.FC<Props> = ({
                     <AccordionSummary expandIcon={<ChevronRightIcon />}>
                         Price
                     </AccordionSummary>
-                    <AccordionDetails>
+                    <AccordionDetails sx={{ margin: 1 }}>
                         <div className="price-filters">
                             <FormGroup
                                 sx={{
@@ -512,7 +520,7 @@ const FilterOptions: React.FC<Props> = ({
                     <AccordionSummary expandIcon={<ChevronRightIcon />}>
                         Dimensions (in inches)
                     </AccordionSummary>
-                    <AccordionDetails>
+                    <AccordionDetails sx={{ margin: 1 }}>
                         <div className="dimension-filters">
                             {dimensions.map(
                                 (dimension: string, index: number) => {
@@ -601,7 +609,7 @@ const FilterOptions: React.FC<Props> = ({
                         },
                     }}
                 >
-                    <AccordionSummary>
+                    <AccordionSummary sx={{ width: "320px" }}>
                         <div className="filter-submit">
                             <PeachButton text="Filter" onClick={handleSubmit} />
                             <PeachButton
