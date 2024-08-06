@@ -33,8 +33,11 @@ const Nav: React.FC<Props> = () => {
 
     const header = useRef<HTMLElement>(null);
 
-    const [isShopMenuVisible, setShopMenuVisible] = useState(false);
-    const [isCartDropdownVisible, setCartDropdownVisible] = useState(false);
+    const [isShopMenuVisible, setShopMenuVisible] = useState<boolean>(false);
+    const [isCartDropdownVisible, setCartDropdownVisible] =
+        useState<boolean>(false);
+    const [isSearchBarVisible, setIsSearchBarVisible] =
+        useState<boolean>(false);
 
     const { contextSafe } = useGSAP({ scope: header });
     const navigate = useNavigate();
@@ -101,14 +104,38 @@ const Nav: React.FC<Props> = () => {
         [isCartDropdownVisible]
     );
 
+    useEffect(
+        contextSafe(() => {
+            if (isSearchBarVisible) {
+                gsap.timeline()
+                    .set(".search-tab", { display: "block" })
+                    .to(".search-tab", {
+                        duration: 0.4,
+                        right: 0,
+                        ease: "power1.inOut",
+                    });
+            } else {
+                gsap.timeline()
+                    .to(".search-tab", {
+                        right: "-50vw",
+                        ease: "power1.inOut",
+                        duration: 0.4,
+                    })
+                    .set(".search-tab", { display: "none" });
+            }
+        }),
+        [isSearchBarVisible]
+    );
+
     const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const path = `/shop?sort=name-ascend&page=1&search=${searchQuery.replace(
             " ",
             "%20"
         )}`;
-
+        setIsSearchBarVisible(false);
         navigate(path);
+        setSearchQuery("");
     };
 
     return (
@@ -159,6 +186,9 @@ const Nav: React.FC<Props> = () => {
                             aria-label="search"
                             tabIndex={0}
                             role="button"
+                            onClick={() =>
+                                setIsSearchBarVisible(!isSearchBarVisible)
+                            }
                         >
                             <SearchButton />
                         </div>

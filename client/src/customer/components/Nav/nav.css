@@ -179,7 +179,9 @@
     position: absolute;
     top: 64px;
     padding-right: 20px;
-    right: 0;
+    /* right: 0; */
+    right: -50vw;
+    display: none;
     /* left: 150vw; */
 }
 

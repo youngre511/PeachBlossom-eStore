@@ -10,12 +10,19 @@ import {
     Checkbox,
     Button,
     InputAdornment,
+    Accordion,
+    AccordionSummary,
+    AccordionDetails,
+    Card,
+    Paper,
 } from "@mui/material";
 import { Filters } from "../ProductCatalog/CatalogTypes";
 import DecimalField from "../../../common/components/Fields/DecimalField";
 import { Category } from "../Categories/CategoriesTypes";
 import { useTheme, styled } from "@mui/material/styles";
 import PeachButton from "../../../common/components/PeachButton";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 
 const MetallicButton = styled(Button)(({ theme }) => ({
     position: "relative",
@@ -104,6 +111,16 @@ const FilterOptions: React.FC<Props> = ({
         page: "1",
     });
 
+    const accordionSx = {
+        width: "305px",
+        "& .MuiAccordionSummary-expandIconWrapper.Mui-expanded": {
+            transform: "rotate(90deg)",
+        },
+        "& .MuiAccordionSummary-content": {
+            marginLeft: theme.spacing(1),
+        },
+    };
+
     useEffect(() => {
         setLocalFilters(existingFilters);
     }, [existingFilters]);
@@ -140,6 +157,8 @@ const FilterOptions: React.FC<Props> = ({
         setLocalFilters({
             ...localFilters,
             ...resetValues,
+            color: [],
+            material: [],
         });
         updateSearchParams(resetValues);
     };
@@ -170,61 +189,56 @@ const FilterOptions: React.FC<Props> = ({
     };
 
     const colors = [
-        "red",
-        "orange",
-        "yellow",
-        "green",
-        "blue",
-        "purple",
-        "pink",
-        "gold",
-        "silver",
-        "white",
-        "gray",
-        "black",
-        "brown",
-        "cream",
-        "beige",
-        "multicolor",
-        "clear",
+        ["red", "orange"],
+        ["yellow", "green"],
+        ["blue", "purple"],
+        ["pink", "gold"],
+        ["silver", "white"],
+        ["gray", "black"],
+        ["brown", "cream"],
+        ["beige", "multicolor"],
+        ["clear"],
     ];
     const materials = [
-        "glass",
-        "plastic",
-        "ceramic",
-        "metal",
-        "wood",
-        "fabric",
-        "leather",
-        "stone",
-        "rubber",
-        "resin",
-        "natural fiber",
-        "bamboo",
+        ["glass", "plastic"],
+        ["ceramic", "metal"],
+        ["wood", "fabric"],
+        ["leather", "stone"],
+        ["rubber", "resin"],
+        ["natural fiber", "bamboo"],
     ];
-    const dimensions = ["Price", "Width", "Height", "Depth"];
+    const dimensions = ["Width", "Height", "Depth"];
 
     return (
         <div className="filter-options">
             {!existingFilters.category && (
-                <div className="category-filters">
-                    <p className="cat-label">Categories</p>
+                <Paper
+                    square
+                    sx={{
+                        width: "305px",
+                        padding: "10px 20px",
+                        borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
+                    }}
+                    className="category-filters"
+                >
+                    <span className="cat-label">Categories</span>
                     {categories &&
                         categories.map((category, index) => (
                             <div className="filter-category-cont" key={index}>
-                                <p
+                                <div
                                     className="filter-category"
                                     onClick={() =>
                                         addCategory(category.categoryName)
                                     }
+                                    role="button"
                                 >
                                     {category.categoryName}
-                                </p>
+                                </div>
                                 {category.SubCategory.length > 0 && (
                                     <div className="filter-subcategory-cont">
                                         {category.SubCategory.map(
                                             (subCategory, index) => (
-                                                <p
+                                                <div
                                                     className="filter-subcategory"
                                                     key={index}
                                                     onClick={() =>
@@ -233,21 +247,22 @@ const FilterOptions: React.FC<Props> = ({
                                                             category.categoryName
                                                         )
                                                     }
+                                                    role="button"
                                                 >
                                                     {
                                                         subCategory.subCategoryName
                                                     }
-                                                </p>
+                                                </div>
                                             )
                                         )}
                                     </div>
                                 )}
                             </div>
                         ))}
-                </div>
+                </Paper>
             )}
             {existingFilters.category && !existingFilters.subCategory && (
-                <div className="subcategory-filters">
+                <Paper className="subcategory-filters">
                     <p className="subcat-label">Subcategories</p>
                     {categories &&
                         categories.filter(
@@ -263,7 +278,7 @@ const FilterOptions: React.FC<Props> = ({
                                             existingFilters.category
                                     )[0]
                                     .SubCategory.map((subCategory, index) => (
-                                        <p
+                                        <div
                                             className="filter-subcategory"
                                             key={index}
                                             onClick={() =>
@@ -271,64 +286,156 @@ const FilterOptions: React.FC<Props> = ({
                                                     subCategory.subCategoryName
                                                 )
                                             }
+                                            role="button"
                                         >
                                             {subCategory.subCategoryName}
-                                        </p>
+                                        </div>
                                     ))}
                             </div>
                         )}
-                </div>
+                </Paper>
             )}
             <FormControl>
-                <div className="color-filters">
-                    <FormGroup>
-                        {colors.map((color, index) => (
-                            <FormControlLabel
-                                control={
-                                    <Checkbox
-                                        name="color"
-                                        value={color}
-                                        checked={
-                                            localFilters.color?.includes(
-                                                color
-                                            ) || false
-                                        }
-                                        onChange={handleColorChange}
-                                    />
-                                }
-                                label={color}
-                                key={index}
-                            />
-                        ))}
-                    </FormGroup>
-                </div>
-                <div className="material-filters">
-                    <FormGroup>
-                        {materials.map((material, index) => (
-                            <FormControlLabel
-                                control={
-                                    <Checkbox
-                                        name="material"
-                                        value={material}
-                                        checked={
-                                            localFilters.material?.includes(
-                                                material
-                                            ) || false
-                                        }
-                                        onChange={handleMaterialChange}
-                                    />
-                                }
-                                label={material}
-                                key={index}
-                            />
-                        ))}
-                    </FormGroup>
-                </div>
-                <div className="dimension-filters">
-                    {dimensions.map((dimension: string, index: number) => {
-                        const minParam = `min${dimension}` as keyof Filters;
-                        const maxParam = `max${dimension}` as keyof Filters;
-                        return (
+                <Accordion
+                    disableGutters
+                    square
+                    defaultExpanded={
+                        localFilters.color && localFilters.color.length > 0
+                            ? true
+                            : false
+                    }
+                    sx={accordionSx}
+                >
+                    <AccordionSummary expandIcon={<ChevronRightIcon />}>
+                        Color
+                    </AccordionSummary>
+                    <AccordionDetails>
+                        <div className="color-filters">
+                            <FormGroup>
+                                {colors.map((colorPair, index) => (
+                                    <div
+                                        className="checkbox-pair"
+                                        key={`colorPair${index}`}
+                                    >
+                                        <FormControlLabel
+                                            className="color-option"
+                                            control={
+                                                <Checkbox
+                                                    name="color"
+                                                    value={colorPair[0]}
+                                                    checked={
+                                                        localFilters.color?.includes(
+                                                            colorPair[0]
+                                                        ) || false
+                                                    }
+                                                    onChange={handleColorChange}
+                                                />
+                                            }
+                                            label={colorPair[0]}
+                                        />
+                                        {colorPair.length > 1 && (
+                                            <FormControlLabel
+                                                className="color-option"
+                                                control={
+                                                    <Checkbox
+                                                        name="color"
+                                                        value={colorPair[1]}
+                                                        checked={
+                                                            localFilters.color?.includes(
+                                                                colorPair[1]
+                                                            ) || false
+                                                        }
+                                                        onChange={
+                                                            handleColorChange
+                                                        }
+                                                    />
+                                                }
+                                                label={colorPair[1]}
+                                            />
+                                        )}
+                                    </div>
+                                ))}
+                            </FormGroup>
+                        </div>
+                    </AccordionDetails>
+                </Accordion>
+                <Accordion
+                    disableGutters
+                    square
+                    defaultExpanded={
+                        localFilters.material &&
+                        localFilters.material.length > 0
+                            ? true
+                            : false
+                    }
+                    sx={accordionSx}
+                >
+                    <AccordionSummary expandIcon={<ChevronRightIcon />}>
+                        Material
+                    </AccordionSummary>
+                    <AccordionDetails>
+                        <div className="material-filters">
+                            <FormGroup>
+                                {materials.map((materialPair, index) => (
+                                    <div
+                                        className="checkbox-pair"
+                                        key={`materialPair${index}`}
+                                    >
+                                        <FormControlLabel
+                                            className="material-option"
+                                            control={
+                                                <Checkbox
+                                                    name="material"
+                                                    value={materialPair[0]}
+                                                    checked={
+                                                        localFilters.color?.includes(
+                                                            materialPair[0]
+                                                        ) || false
+                                                    }
+                                                    onChange={handleColorChange}
+                                                />
+                                            }
+                                            label={materialPair[0]}
+                                        />
+                                        {materialPair.length > 1 && (
+                                            <FormControlLabel
+                                                className="material-option"
+                                                control={
+                                                    <Checkbox
+                                                        name="material"
+                                                        value={materialPair[1]}
+                                                        checked={
+                                                            localFilters.color?.includes(
+                                                                materialPair[1]
+                                                            ) || false
+                                                        }
+                                                        onChange={
+                                                            handleColorChange
+                                                        }
+                                                    />
+                                                }
+                                                label={materialPair[1]}
+                                            />
+                                        )}
+                                    </div>
+                                ))}
+                            </FormGroup>
+                        </div>
+                    </AccordionDetails>
+                </Accordion>
+                <Accordion
+                    disableGutters
+                    square
+                    defaultExpanded={
+                        !!localFilters.maxPrice || !!localFilters.minPrice
+                    }
+                    sx={accordionSx}
+                >
+                    <AccordionSummary expandIcon={<ChevronRightIcon />}>
+                        Price
+                    </AccordionSummary>
+                    <AccordionDetails>
+                        <div className="price-filters">
                             <FormGroup
                                 sx={{
                                     display: "flex",
@@ -336,14 +443,20 @@ const FilterOptions: React.FC<Props> = ({
                                     justifyContent: "space-between",
                                     alignItems: "center",
                                 }}
-                                key={index}
                             >
-                                <p className="dimension-label">{dimension}</p>
+                                <p className="dimension-label">Price</p>
                                 <div className="min-max-fields">
+                                    <span
+                                        style={{
+                                            marginRight: "-5px",
+                                        }}
+                                    >
+                                        $
+                                    </span>
                                     <DecimalField
                                         label="min"
-                                        param={`min${dimension}`}
-                                        value={localFilters[minParam] || ""}
+                                        param={`minPrice`}
+                                        value={localFilters.minPrice || ""}
                                         setLocalFilters={setLocalFilters}
                                         style={{
                                             width: "80px",
@@ -355,10 +468,18 @@ const FilterOptions: React.FC<Props> = ({
                                         //     </InputAdornment>
                                         // }
                                     />
+                                    <span
+                                        style={{
+                                            marginLeft: "10px",
+                                            marginRight: "-5px",
+                                        }}
+                                    >
+                                        &ndash; $
+                                    </span>
                                     <DecimalField
                                         label="max"
-                                        param={`max${dimension}`}
-                                        value={localFilters[maxParam] || ""}
+                                        param={`maxPrice`}
+                                        value={localFilters.maxPrice || ""}
                                         setLocalFilters={setLocalFilters}
                                         style={{
                                             width: "80px",
@@ -372,17 +493,125 @@ const FilterOptions: React.FC<Props> = ({
                                     />
                                 </div>
                             </FormGroup>
-                        );
-                    })}
-                </div>
-                <div className="filter-submit">
-                    <PeachButton text="Filter" onClick={handleSubmit} />
-                    <PeachButton
-                        text="Reset Filter"
-                        onClick={handleReset}
-                        width="120px"
-                    />
-                </div>
+                        </div>
+                    </AccordionDetails>
+                </Accordion>
+                <Accordion
+                    disableGutters
+                    square
+                    defaultExpanded={
+                        !!localFilters.minWidth ||
+                        !!localFilters.maxWidth ||
+                        !!localFilters.minHeight ||
+                        !!localFilters.maxHeight ||
+                        !!localFilters.minDepth ||
+                        !!localFilters.maxDepth
+                    }
+                    sx={accordionSx}
+                >
+                    <AccordionSummary expandIcon={<ChevronRightIcon />}>
+                        Dimensions (in inches)
+                    </AccordionSummary>
+                    <AccordionDetails>
+                        <div className="dimension-filters">
+                            {dimensions.map(
+                                (dimension: string, index: number) => {
+                                    const minParam =
+                                        `min${dimension}` as keyof Filters;
+                                    const maxParam =
+                                        `max${dimension}` as keyof Filters;
+                                    return (
+                                        <FormGroup
+                                            sx={{
+                                                display: "flex",
+                                                flexDirection: "row",
+                                                justifyContent: "space-between",
+                                                alignItems: "center",
+                                            }}
+                                            key={index}
+                                        >
+                                            <p className="dimension-label">
+                                                {dimension}
+                                            </p>
+                                            <div className="min-max-fields">
+                                                <DecimalField
+                                                    label="min"
+                                                    param={`min${dimension}`}
+                                                    value={
+                                                        localFilters[
+                                                            minParam
+                                                        ] || ""
+                                                    }
+                                                    setLocalFilters={
+                                                        setLocalFilters
+                                                    }
+                                                    style={{
+                                                        width: "80px",
+                                                        marginLeft: "10px",
+                                                    }}
+                                                    // endAdornment={
+                                                    //     <InputAdornment position="end">
+                                                    //         in.
+                                                    //     </InputAdornment>
+                                                    // }
+                                                />
+                                                <span
+                                                    style={{
+                                                        marginLeft: "10px",
+                                                    }}
+                                                >
+                                                    &ndash;
+                                                </span>
+                                                <DecimalField
+                                                    label="max"
+                                                    param={`max${dimension}`}
+                                                    value={
+                                                        localFilters[
+                                                            maxParam
+                                                        ] || ""
+                                                    }
+                                                    setLocalFilters={
+                                                        setLocalFilters
+                                                    }
+                                                    style={{
+                                                        width: "80px",
+                                                        marginLeft: "10px",
+                                                    }}
+                                                    // endAdornment={
+                                                    //     <InputAdornment position="end">
+                                                    //         in.
+                                                    //     </InputAdornment>
+                                                    // }
+                                                />
+                                            </div>
+                                        </FormGroup>
+                                    );
+                                }
+                            )}
+                        </div>
+                    </AccordionDetails>
+                </Accordion>
+                <Accordion
+                    disableGutters
+                    square
+                    sx={{
+                        borderTop: 0,
+                        "&::before": {
+                            backgroundColor: "transparent",
+                        },
+                    }}
+                >
+                    <AccordionSummary>
+                        <div className="filter-submit">
+                            <PeachButton text="Filter" onClick={handleSubmit} />
+                            <PeachButton
+                                text="Reset Filter"
+                                onClick={handleReset}
+                                width="120px"
+                            />
+                        </div>
+                    </AccordionSummary>
+                </Accordion>
             </FormControl>
         </div>
     );

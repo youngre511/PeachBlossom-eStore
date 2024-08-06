@@ -12,6 +12,7 @@ import ProductCatalog from "../../features/ProductCatalog/ProductCatalog";
 import FilterOptions from "../../features/FilterOptions/FilterOptions";
 import SortMethodSelector from "../../features/SortMethodSelector/SortMethodSelector";
 import { Filters } from "../../features/ProductCatalog/CatalogTypes";
+import ItemsPerPageSelector from "./ItemsPerPageSelector";
 
 const Shop = () => {
     const dispatch = useAppDispatch();
@@ -246,11 +247,22 @@ const Shop = () => {
             />
             <div className="product-display">
                 <div className="shop-header">
-                    {!subCategory && (
-                        <h1>{category ? category : "Shop All"}</h1>
+                    {search && (
+                        <h1 className="shop-heading">
+                            {catalog.numberOfResults} search result
+                            {catalog.numberOfResults !== 1 && (
+                                <span>s</span>
+                            )}{" "}
+                            for "{search}"
+                        </h1>
                     )}
-                    {subCategory && (
-                        <h1>
+                    {!subCategory && !search && (
+                        <h1 className="shop-heading">
+                            {category ? category : "Shop All"}
+                        </h1>
+                    )}
+                    {subCategory && !search && (
+                        <h1 className="shop-heading">
                             <span
                                 className="back-to-category"
                                 onClick={removeSubCategory}
@@ -265,7 +277,8 @@ const Shop = () => {
                             sortMethod={sort}
                             updateSearchParams={updateSearchParams}
                         />
-                        <div className="per-page-selector">
+                        <ItemsPerPageSelector />
+                        {/* <div className="per-page-selector">
                             <p>Items per page</p>
                             <button
                                 type="button"
@@ -285,7 +298,7 @@ const Shop = () => {
                             >
                                 96
                             </button>
-                        </div>
+                        </div> */}
                     </div>
                 </div>
                 <ProductCatalog

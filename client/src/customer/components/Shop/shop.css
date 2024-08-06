@@ -2,8 +2,22 @@
     display: flex;
 }
 
+.shop-heading {
+    margin-top: 0;
+}
+
 .filter-options {
     width: 350px;
+}
+
+.filter-subcategory {
+    margin-left: 10px;
+    padding: 5px 0;
+}
+
+.color-option,
+.material-option {
+    width: 130px;
 }
 
 .product-display {
@@ -26,6 +40,7 @@
 .filter-submit {
     display: flex;
     justify-content: space-between;
+    width: 100%;
 }
 
 .sort-and-ipp {
@@ -34,4 +49,8 @@
 
 .per-page-selector {
     margin-left: 20px;
+}
+
+.ipp-selection {
+    width: 100px;
 }
