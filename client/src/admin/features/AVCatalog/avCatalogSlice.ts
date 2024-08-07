@@ -9,6 +9,7 @@ import {
     AVUpdateInventoryResponse,
 } from "./avCatalogTypes";
 import { arraysEqual } from "../../../common/utils/arraysEqual";
+import { useNavigate } from "react-router-dom";
 
 const initialState: AVCatalogState = {
     products: [],
@@ -89,6 +90,7 @@ export const avFetchProducts = createAsyncThunk<
                     },
                 }
             );
+            console.log("response:", response);
             return {
                 filters: filters,
                 products: response.data.payload.productRecords,

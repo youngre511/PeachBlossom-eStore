@@ -17,7 +17,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 }) => {
     const authContext = useContext(AuthContext);
 
-    if (!authContext || !authContext.user) {
+    if (!authContext || !authContext.user || authContext.isTokenExpired()) {
         // If the user is not logged in, redirect to the login page
         return <Navigate to="/login" />;
     }

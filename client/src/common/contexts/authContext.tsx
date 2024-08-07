@@ -16,6 +16,7 @@ interface AuthContextProps {
     user: IUserToken | undefined;
     login: (username: string, password: string) => Promise<void>;
     logout: () => void;
+    isTokenExpired: () => boolean;
     error: string;
 }
 
@@ -37,12 +38,34 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         if (token) {
             try {
                 const decoded = jwtDecode<IUserToken>(token);
-                setUser(decoded);
+                if (decoded.exp * 1000 > Date.now()) {
+                    setUser(decoded);
+                } else {
+                    logout();
+                }
             } catch (e) {
                 console.error("Failed to decode token", e);
             }
         }
     }, []);
+
+    const isTokenExpired = (): boolean => {
+        try {
+            const token = localStorage.getItem("jwtToken");
+            if (!token) {
+                return true;
+            }
+            const decoded = jwtDecode<IUserToken>(token);
+            if (!decoded.exp) {
+                return true;
+            }
+            const expirationTime = decoded.exp * 1000;
+            return Date.now() > expirationTime;
+        } catch (e) {
+            console.error("Failed to decode token", e);
+            return true;
+        }
+    };
 
     const login = async (username: string, password: string) => {
         try {
@@ -81,7 +104,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, logout, error }}>
+        <AuthContext.Provider
+            value={{ user, login, logout, isTokenExpired, error }}
+        >
             {children}
         </AuthContext.Provider>
     );
