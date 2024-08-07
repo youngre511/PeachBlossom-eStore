@@ -87,11 +87,15 @@ export const avFetchOrders = createAsyncThunk<
         }
 
         const params = { ...filters };
+        const token = localStorage.getItem("jwtToken");
         try {
             const response = await axios.get(
                 `${process.env.REACT_APP_API_URL}/order`,
                 {
                     params: params,
+                    headers: {
+                        Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+                    },
                 }
             );
             if (!response.data) {
@@ -128,10 +132,15 @@ export const avFetchOrderDetails = createAsyncThunk<
                 details: state.avOrder.orderDetails.details,
             };
         }
-
+        const token = localStorage.getItem("jwtToken");
         try {
             const response = await axios.get(
-                `${process.env.REACT_APP_API_URL}/order/${orderNo}`
+                `${process.env.REACT_APP_API_URL}/order/${orderNo}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+                    },
+                }
             );
             const orderDetails: IAVOrderDetails = response.data;
             return {
@@ -145,35 +154,6 @@ export const avFetchOrderDetails = createAsyncThunk<
         }
     }
 );
-
-// export const updateProductStatus = createAsyncThunk<
-//     { success: boolean; productNos: string[]; newStatus: string },
-//     { productNos: string[]; newStatus: string },
-//     { state: RootState }
-// >(
-//     "avCatalog/updateProductStatus",
-//     async (
-//         updateData: { productNos: string[]; newStatus: string },
-//         { getState, rejectWithValue }
-//     ) => {
-//         const state = getState() as RootState;
-//         const filters = state.avCatalog.filters;
-//         try {
-//             const response = await axios.put(
-//                 `${process.env.REACT_APP_API_URL}/product/update-status`,
-//                 updateData
-//             );
-//             return {
-//                 success: response.data.success,
-//                 ...updateData,
-//             };
-//         } catch (error: any) {
-//             return rejectWithValue(
-//                 error.response?.data || "Error fetching products"
-//             );
-//         }
-//     }
-// );
 
 //Slice//
 const orderSlice = createSlice({

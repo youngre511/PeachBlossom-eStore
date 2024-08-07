@@ -442,6 +442,7 @@ const AVProductDetails: React.FC = () => {
                 console.log("sending images:", imageUrls);
                 console.log("saving5");
 
+                const token = localStorage.getItem("jwtToken");
                 try {
                     const response = await axios.put(
                         `${process.env.REACT_APP_API_URL}/product/update-details`,
@@ -449,10 +450,11 @@ const AVProductDetails: React.FC = () => {
                         {
                             headers: {
                                 "Content-Type": "multipart/form-data",
+                                Authorization: `Bearer ${token}`, // Include the token in the Authorization header
                             },
                         }
                     );
-                    console.log("Response:", response.data);
+
                     setStatus("success");
                     searchParams.delete("editing");
                     setSearchParams(searchParams);

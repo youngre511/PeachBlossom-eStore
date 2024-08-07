@@ -37,6 +37,7 @@ const CategoryManagement: React.FC<Props> = () => {
         useState<string>("");
     const authContext = useContext(AuthContext);
     const accessLevel = authContext?.user?.accessLevel;
+    const token = localStorage.getItem("jwtToken");
 
     // States to manage action popups
     const [popupMessage, setPopupMessage] = useState<string | null>(null);
@@ -184,7 +185,13 @@ const CategoryManagement: React.FC<Props> = () => {
         try {
             await axios.post(
                 `${process.env.REACT_APP_API_URL}/category/create`,
-                { name: popupInputValue }
+                { name: popupInputValue },
+                {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                        Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+                    },
+                }
             );
             setStatus("success");
             dispatch(avFetchCategories());
@@ -210,7 +217,13 @@ const CategoryManagement: React.FC<Props> = () => {
             }
             await axios.post(
                 `${process.env.REACT_APP_API_URL}/category/${selectedCategory.categoryName}/create-sub`,
-                { subCategoryName: popupInputValue }
+                { subCategoryName: popupInputValue },
+                {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                        Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+                    },
+                }
             );
             setStatus("success");
             dispatch(avFetchCategories());
@@ -235,7 +248,13 @@ const CategoryManagement: React.FC<Props> = () => {
                 throw new Error("An unknown error occurred");
             }
             await axios.delete(
-                `${process.env.REACT_APP_API_URL}/category/delete/${selectedCategory.categoryName}`
+                `${process.env.REACT_APP_API_URL}/category/delete/${selectedCategory.categoryName}`,
+                {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                        Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+                    },
+                }
             );
             setStatus("success");
             dispatch(avFetchCategories());
@@ -265,7 +284,13 @@ const CategoryManagement: React.FC<Props> = () => {
                 }category/subcategory/delete/${selectedSubcategory.subCategoryName.replace(
                     " ",
                     "%20"
-                )}`
+                )}`,
+                {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                        Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+                    },
+                }
             );
             setStatus("success");
             dispatch(avFetchCategories());
@@ -294,6 +319,12 @@ const CategoryManagement: React.FC<Props> = () => {
                 {
                     oldName: selectedCategory.categoryName,
                     newName: popupInputValue,
+                },
+                {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                        Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+                    },
                 }
             );
             setStatus("success");
@@ -323,6 +354,12 @@ const CategoryManagement: React.FC<Props> = () => {
                 {
                     oldName: selectedSubcategory.subCategoryName,
                     newName: popupInputValue,
+                },
+                {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                        Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+                    },
                 }
             );
             setStatus("success");

@@ -28,6 +28,8 @@ app.use(logger("dev"));
 const allowedOrigins: string[] = [
     "https://pb.ryanyoung.codes",
     "https://admin.pb.ryanyoung.codes",
+    "http://localhost:3000",
+    "http://admin.localhost:3000",
 ];
 
 const corsOptions: CorsOptions = {

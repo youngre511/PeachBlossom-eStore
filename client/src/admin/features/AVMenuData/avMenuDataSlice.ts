@@ -53,38 +53,6 @@ export const avFetchSearchOptions = createAsyncThunk<
         );
     }
 });
-// export const updateInventory = createAsyncThunk<
-//     AVUpdateInventoryResponse,
-//     Record<string, number>,
-//     { state: RootState }
-// >(
-//     "avCatalog/updateInventory",
-//     async (
-//         updateData: Record<string, number>,
-//         { getState, rejectWithValue }
-//     ) => {
-//         const state = getState() as RootState;
-//         const filters = state.avCatalog.filters;
-
-//         try {
-//             const response = await axios.put(
-//                 `${process.env.REACT_APP_API_URL}/inventory/updateStockLevels`,
-//                 {
-//                     updateData: updateData,
-//                     filters: filters,
-//                 }
-//             );
-//             return {
-//                 products: response.data.payload.productRecords,
-//                 numberOfResults: response.data.payload.totalCount,
-//             };
-//         } catch (error: any) {
-//             return rejectWithValue(
-//                 error.response?.data || "Error fetching products"
-//             );
-//         }
-//     }
-// );
 
 //Slice//
 const menuDataSlice = createSlice({

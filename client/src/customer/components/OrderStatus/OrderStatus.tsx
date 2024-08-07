@@ -94,6 +94,7 @@ const OrderStatus: React.FC<Props> = ({ orderNumber }) => {
         });
     };
 
+    const token = localStorage.getItem("jwtToken");
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setLoading(true);
@@ -102,6 +103,11 @@ const OrderStatus: React.FC<Props> = ({ orderNumber }) => {
                 `${process.env.REACT_APP_API_URL}/order/${formData.orderNo}`,
                 {
                     params: { email: formData.email },
+
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                        Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+                    },
                 }
             );
             setOrderDetails(response.data);

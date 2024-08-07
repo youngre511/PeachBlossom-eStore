@@ -286,6 +286,7 @@ const AddProduct: React.FC = () => {
             formData.append("images", image.file as File, newFileName);
         });
 
+        const token = localStorage.getItem("jwtToken");
         try {
             const response = await axios.post(
                 `${process.env.REACT_APP_API_URL}/product/create`,
@@ -293,10 +294,10 @@ const AddProduct: React.FC = () => {
                 {
                     headers: {
                         "Content-Type": "multipart/form-data",
+                        Authorization: `Bearer ${token}`,
                     },
                 }
             );
-            console.log("Response:", response.data);
         } catch (error) {
             console.error("Error uploading files:", error);
         } finally {

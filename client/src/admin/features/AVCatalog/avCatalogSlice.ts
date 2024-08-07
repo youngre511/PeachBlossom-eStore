@@ -77,12 +77,16 @@ export const avFetchProducts = createAsyncThunk<
             };
         }
 
+        const token = localStorage.getItem("jwtToken"); // Get the token from local storage
         const params = { ...filters };
         try {
             const response = await axios.get(
                 `${process.env.REACT_APP_API_URL}/product/admin`,
                 {
                     params: params,
+                    headers: {
+                        Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+                    },
                 }
             );
             return {
@@ -110,13 +114,18 @@ export const updateInventory = createAsyncThunk<
     ) => {
         const state = getState() as RootState;
         const filters = state.avCatalog.filters;
-
+        const token = localStorage.getItem("jwtToken"); // Get the token from local storage
         try {
             const response = await axios.put(
                 `${process.env.REACT_APP_API_URL}/inventory/updateStockLevels`,
                 {
                     updateData: updateData,
                     filters: filters,
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+                    },
                 }
             );
             return {
@@ -143,10 +152,16 @@ export const updateProductStatus = createAsyncThunk<
     ) => {
         const state = getState() as RootState;
         const filters = state.avCatalog.filters;
+        const token = localStorage.getItem("jwtToken"); // Get the token from local storage
         try {
             const response = await axios.put(
                 `${process.env.REACT_APP_API_URL}/product/update-status`,
-                updateData
+                updateData,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+                    },
+                }
             );
             return {
                 success: response.data.success,

@@ -280,26 +280,6 @@ const AVOrderDetails: React.FC = () => {
         setIsConfirming(false);
         setIsSaving(true);
         let thereAreChanges: boolean = false;
-        type UpdateSubmission = {
-            orderNo: string;
-            subTotal: number;
-            shipping: number;
-            tax: number;
-            totalAmount: number;
-            shippingAddress: string;
-            stateAbbr: string;
-            city: string;
-            zipCode: string;
-            phoneNumber: string;
-            email: string;
-            orderStatus: string;
-            items: Array<{
-                order_item_id: number;
-                quantity: number;
-                fulfillmentStatus: string;
-            }>;
-        };
-        console.log("saving1");
 
         const updateInfo: Record<
             string,
@@ -433,12 +413,17 @@ const AVOrderDetails: React.FC = () => {
             }
         }
         if (thereAreChanges) {
-            console.log("saving 3");
-
+            const token = localStorage.getItem("jwtToken");
             try {
                 const response = await axios.put(
                     `${process.env.REACT_APP_API_URL}/order/update`,
-                    updateInfo
+                    updateInfo,
+                    {
+                        headers: {
+                            "Content-Type": "multipart/form-data",
+                            Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+                        },
+                    }
                 );
 
                 setStatus("success");
