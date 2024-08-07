@@ -379,7 +379,6 @@ const CategoryManagement: React.FC<Props> = () => {
     return (
         <div>
             <h1>Category Management</h1>
-            <Button onClick={() => console.log(categories)}>log</Button>
             <div className="category-manage-content">
                 <div className="catMan-categories">
                     <div className="catMan-category-list catMan-list">
