@@ -30,7 +30,12 @@ export default function AdminLogin() {
     };
 
     React.useEffect(() => {
-        if (auth && auth.user && auth.user.role === "admin") {
+        if (
+            auth &&
+            !auth.isTokenExpired() &&
+            auth.user &&
+            auth.user.role === "admin"
+        ) {
             navigate("/dashboard/sales");
         }
     }, [auth]);

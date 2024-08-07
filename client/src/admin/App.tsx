@@ -33,6 +33,7 @@ function AdminApp() {
         <ThemeProvider theme={theme}>
             <div className="app-content">
                 {authContext &&
+                    !authContext.isTokenExpired() &&
                     authContext.user &&
                     authContext.user.role === "admin" && <AdminNav />}
                 <main>
