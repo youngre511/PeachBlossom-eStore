@@ -287,6 +287,7 @@ const AddProduct: React.FC = () => {
         });
 
         const token = localStorage.getItem("jwtToken");
+        console.log("token:", token);
         try {
             const response = await axios.post(
                 `${process.env.REACT_APP_API_URL}/product/create`,
