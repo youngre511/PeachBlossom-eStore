@@ -456,7 +456,7 @@ export const getAdminProducts = async (filters: AdminFilterObj) => {
                 productNo: product.productNo,
                 price: product.price,
                 category: product.Category.categoryName,
-                subCategory: product.SubCategory.subCategoryName,
+                subCategory: product.SubCategory?.subCategoryName || null,
                 lastModified: product.updatedAt.toLocaleString(),
                 createdAt: product.createdAt.toLocaleString(),
                 description: product.description,
