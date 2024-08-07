@@ -188,7 +188,6 @@ const CategoryManagement: React.FC<Props> = () => {
                 { name: popupInputValue },
                 {
                     headers: {
-                        "Content-Type": "multipart/form-data",
                         Authorization: `Bearer ${token}`, // Include the token in the Authorization header
                     },
                 }
@@ -220,7 +219,6 @@ const CategoryManagement: React.FC<Props> = () => {
                 { subCategoryName: popupInputValue },
                 {
                     headers: {
-                        "Content-Type": "multipart/form-data",
                         Authorization: `Bearer ${token}`, // Include the token in the Authorization header
                     },
                 }
@@ -251,7 +249,6 @@ const CategoryManagement: React.FC<Props> = () => {
                 `${process.env.REACT_APP_API_URL}/category/delete/${selectedCategory.categoryName}`,
                 {
                     headers: {
-                        "Content-Type": "multipart/form-data",
                         Authorization: `Bearer ${token}`, // Include the token in the Authorization header
                     },
                 }
@@ -287,7 +284,6 @@ const CategoryManagement: React.FC<Props> = () => {
                 )}`,
                 {
                     headers: {
-                        "Content-Type": "multipart/form-data",
                         Authorization: `Bearer ${token}`, // Include the token in the Authorization header
                     },
                 }
@@ -322,7 +318,6 @@ const CategoryManagement: React.FC<Props> = () => {
                 },
                 {
                     headers: {
-                        "Content-Type": "multipart/form-data",
                         Authorization: `Bearer ${token}`, // Include the token in the Authorization header
                     },
                 }
@@ -357,7 +352,6 @@ const CategoryManagement: React.FC<Props> = () => {
                 },
                 {
                     headers: {
-                        "Content-Type": "multipart/form-data",
                         Authorization: `Bearer ${token}`, // Include the token in the Authorization header
                     },
                 }
