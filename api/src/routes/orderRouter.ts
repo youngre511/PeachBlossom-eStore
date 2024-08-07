@@ -18,7 +18,7 @@ orderRouter.post("/create", placeOrder);
 orderRouter.put(
     "/update",
     authMiddleware,
-    authorizeRoles(["admin"], ["full, limited"]),
+    authorizeRoles(["admin"], ["full", "limited"]),
     updateOrder
 );
 

@@ -29,7 +29,7 @@ productRouter.get("/search-options", getSearchOptions);
 productRouter.post(
     "/create",
     authMiddleware,
-    authorizeRoles(["admin"], ["full, limited"]),
+    authorizeRoles(["admin"], ["full", "limited"]),
     upload.array("images", 10),
     createProduct
 );
@@ -37,7 +37,7 @@ productRouter.post(
 productRouter.put(
     "/update-details",
     authMiddleware,
-    authorizeRoles(["admin"], ["full, limited"]),
+    authorizeRoles(["admin"], ["full", "limited"]),
     upload.array("images", 10),
     updateProductDetails
 );
@@ -45,7 +45,7 @@ productRouter.put(
 productRouter.put(
     "/update-status",
     authMiddleware,
-    authorizeRoles(["admin"], ["full, limited"]),
+    authorizeRoles(["admin"], ["full", "limited"]),
     updateProductStatus
 );
 

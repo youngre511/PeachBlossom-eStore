@@ -15,7 +15,7 @@ inventoryRouter.put("/releaseStock", releaseStock);
 inventoryRouter.put(
     "/updateStockLevels",
     authMiddleware,
-    authorizeRoles(["admin"], ["full, limited"]),
+    authorizeRoles(["admin"], ["full", "limited"]),
     updateStockLevels
 );
 

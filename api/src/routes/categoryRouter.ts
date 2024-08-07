@@ -20,42 +20,42 @@ categoryRouter.get("/name/:name", getCategoryByName);
 categoryRouter.post(
     "/create",
     authMiddleware,
-    authorizeRoles(["admin"], ["full, limited"]),
+    authorizeRoles(["admin"], ["full", "limited"]),
     createCategory
 );
 
 categoryRouter.put(
     "/update",
     authMiddleware,
-    authorizeRoles(["admin"], ["full, limited"]),
+    authorizeRoles(["admin"], ["full", "limited"]),
     updateCategoryName
 );
 
 categoryRouter.put(
     "/subcategory/update",
     authMiddleware,
-    authorizeRoles(["admin"], ["full, limited"]),
+    authorizeRoles(["admin"], ["full", "limited"]),
     updateSubcategoryName
 );
 
 categoryRouter.delete(
     "/delete/:name",
     authMiddleware,
-    authorizeRoles(["admin"], ["full, limited"]),
+    authorizeRoles(["admin"], ["full", "limited"]),
     deleteCategory
 );
 
 categoryRouter.delete(
     "/subcategory/delete/:subcategoryName",
     authMiddleware,
-    authorizeRoles(["admin"], ["full, limited"]),
+    authorizeRoles(["admin"], ["full", "limited"]),
     deleteSubcategory
 );
 
 categoryRouter.post(
     "/:categoryName/create-sub",
     authMiddleware,
-    authorizeRoles(["admin"], ["full, limited"]),
+    authorizeRoles(["admin"], ["full", "limited"]),
     createSubCategory
 );
 

@@ -594,6 +594,7 @@ export const createProduct = async (
             productNo: productNo,
             productName: name,
             price: price,
+            status: "active",
             description: abbrDesc,
             category_id: sqlCategoryId,
             subCategory_id: sqlSubCategoryId,

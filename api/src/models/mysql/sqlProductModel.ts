@@ -11,6 +11,7 @@ import {
     HasMany,
     HasOne,
     Default,
+    AutoIncrement,
 } from "sequelize-typescript";
 import { sqlCategory } from "./sqlCategoryModel.js";
 import { sqlProductPromotion } from "./sqlProductPromotionModel.js";
@@ -26,6 +27,7 @@ import { sqlOrderItem } from "./sqlOrderItemModel.js";
 })
 export class sqlProduct extends Model {
     @PrimaryKey
+    @AutoIncrement
     @Column(DataType.BIGINT)
     declare id: number;
 

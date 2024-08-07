@@ -14,10 +14,10 @@ export const authorizeRoles = (roles: string[], accessLevels?: string[]) => {
                 .json({ message: "Access denied, unspecified access level." });
         }
 
-        if (req.user.role === "admin" && accessLevels && req.user.accessLevel) {
-            if (!accessLevels.includes(req.user.accessLevel)) {
+        if (req.user.role === "admin" && req.user.accessLevel) {
+            if (accessLevels && !accessLevels.includes(req.user.accessLevel)) {
                 return res.status(403).json({
-                    message: "Access denied, insufficient access level.",
+                    message: "Access denied,  insufficient access level.",
                 });
             }
         }
