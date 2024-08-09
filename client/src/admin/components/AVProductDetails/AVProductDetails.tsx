@@ -354,7 +354,7 @@ const AVProductDetails: React.FC = () => {
             name: string;
             price: number;
             category: string;
-            subcategory: string;
+            subCategory: string;
             color: string;
             material: string[];
             attributes: string;
@@ -377,7 +377,7 @@ const AVProductDetails: React.FC = () => {
                 formData.append("category", category);
             }
             if (subcategory !== currentDetails.subcategory) {
-                formData.append("subcategory", subcategory);
+                formData.append("subCategory", subcategory);
             }
             if (description !== currentDetails.description) {
                 formData.append("description", description);

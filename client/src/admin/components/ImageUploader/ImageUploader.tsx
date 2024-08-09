@@ -51,7 +51,7 @@ const ImageUploader: React.FC<Props> = ({
         addUpdateIndex: number[] | undefined
     ) => {
         // data for submit
-
+        console.log("image list:", imageList);
         setImages(imageList);
     };
 
@@ -176,126 +176,109 @@ const ImageUploader: React.FC<Props> = ({
                                         </div>
                                     )}
                                 {/* If there is more than one image total */}
-                                {imageList.length > 1 ||
+                                {(imageList.length > 1 ||
                                     (imageUrls &&
                                         imageUrls.length + imageList.length >
-                                            1 && (
-                                            <Carousel
-                                                swipeable={true}
-                                                draggable={false}
-                                                showDots={true}
-                                                responsive={responsive}
-                                                ssr={true} // means to render carousel on server-side.
-                                                infinite={true}
-                                                keyBoardControl={true}
-                                                customTransition="transform 300ms ease-in-out"
-                                                transitionDuration={500}
-                                                containerClass="carousel-container"
-                                                removeArrowOnDeviceType={[
-                                                    "tablet",
-                                                    "mobile",
-                                                ]}
-                                                dotListClass="custom-dot-list-style"
-                                                itemClass="carousel-item-padding-40-px"
-                                            >
-                                                {imageUrls &&
-                                                    imageUrls.map(
-                                                        (imageUrl, index) => (
-                                                            <div
-                                                                key={`imageUrl-${index}`}
-                                                            >
-                                                                <img
-                                                                    src={
-                                                                        imageUrl
+                                            1)) && (
+                                    <Carousel
+                                        swipeable={true}
+                                        draggable={false}
+                                        showDots={true}
+                                        responsive={responsive}
+                                        ssr={true} // means to render carousel on server-side.
+                                        infinite={true}
+                                        keyBoardControl={true}
+                                        customTransition="transform 300ms ease-in-out"
+                                        transitionDuration={500}
+                                        containerClass="carousel-container"
+                                        removeArrowOnDeviceType={[
+                                            "tablet",
+                                            "mobile",
+                                        ]}
+                                        dotListClass="custom-dot-list-style"
+                                        itemClass="carousel-item-padding-40-px"
+                                    >
+                                        {imageUrls &&
+                                            imageUrls.map((imageUrl, index) => (
+                                                <div key={imageUrl}>
+                                                    <img
+                                                        src={imageUrl}
+                                                        className="thumbnail"
+                                                        id={`existing-${index}`}
+                                                        alt={`product thumbnail ${
+                                                            index + 1
+                                                        }`}
+                                                    />
+                                                    {editMode && (
+                                                        <div className="delete-button-container imageUrl">
+                                                            <Tooltip title="Delete">
+                                                                <IconButton
+                                                                    className="delete-button"
+                                                                    sx={{
+                                                                        width: "100px",
+                                                                        height: "auto",
+                                                                    }}
+                                                                    onClick={() =>
+                                                                        onImageUrlRemove(
+                                                                            index
+                                                                        )
                                                                     }
-                                                                    className="thumbnail"
-                                                                    id={`existing-${index}`}
-                                                                    alt={`product thumbnail ${
-                                                                        index +
-                                                                        1
-                                                                    }`}
-                                                                />
-                                                                {editMode && (
-                                                                    <div className="delete-button-container imageUrl">
-                                                                        <Tooltip title="Delete">
-                                                                            <IconButton
-                                                                                className="delete-button"
-                                                                                sx={{
-                                                                                    width: "100px",
-                                                                                    height: "auto",
-                                                                                }}
-                                                                                onClick={() =>
-                                                                                    onImageUrlRemove(
-                                                                                        index
-                                                                                    )
-                                                                                }
-                                                                            >
-                                                                                <DeleteOutlineSharpIcon
-                                                                                    sx={{
-                                                                                        width: "100px",
-                                                                                        height: "auto",
-                                                                                        color: "white",
-                                                                                        opacity: 0.8,
-                                                                                    }}
-                                                                                />
-                                                                            </IconButton>
-                                                                        </Tooltip>
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                        )
-                                                    )}
-                                                {imageList.map(
-                                                    (image, index) => (
-                                                        <div
-                                                            key={`image-${index}`}
-                                                        >
-                                                            <img
-                                                                src={
-                                                                    image[
-                                                                        "dataURL"
-                                                                    ]
-                                                                }
-                                                                className="thumbnail"
-                                                                id={String(
-                                                                    index
-                                                                )}
-                                                                alt={`new product thumbnail ${
-                                                                    index + 1
-                                                                }`}
-                                                            />
-                                                            {editMode && (
-                                                                <div className="delete-button-container imageList">
-                                                                    <Tooltip title="Delete">
-                                                                        <IconButton
-                                                                            className="delete-button"
-                                                                            sx={{
-                                                                                width: "100px",
-                                                                                height: "auto",
-                                                                            }}
-                                                                            onClick={() =>
-                                                                                onImageRemove(
-                                                                                    index
-                                                                                )
-                                                                            }
-                                                                        >
-                                                                            <DeleteOutlineSharpIcon
-                                                                                sx={{
-                                                                                    width: "100px",
-                                                                                    height: "auto",
-                                                                                    color: "white",
-                                                                                    opacity: 0.8,
-                                                                                }}
-                                                                            />
-                                                                        </IconButton>
-                                                                    </Tooltip>
-                                                                </div>
-                                                            )}
+                                                                >
+                                                                    <DeleteOutlineSharpIcon
+                                                                        sx={{
+                                                                            width: "100px",
+                                                                            height: "auto",
+                                                                            color: "white",
+                                                                            opacity: 0.8,
+                                                                        }}
+                                                                    />
+                                                                </IconButton>
+                                                            </Tooltip>
                                                         </div>
-                                                    )
+                                                    )}
+                                                </div>
+                                            ))}
+                                        {imageList.map((image, index) => (
+                                            <div key={image["dataURL"]}>
+                                                <img
+                                                    src={image["dataURL"]}
+                                                    className="thumbnail"
+                                                    id={String(index)}
+                                                    alt={`new product thumbnail ${
+                                                        index + 1
+                                                    }`}
+                                                />
+                                                {editMode && (
+                                                    <div className="delete-button-container imageList">
+                                                        <Tooltip title="Delete">
+                                                            <IconButton
+                                                                className="delete-button"
+                                                                sx={{
+                                                                    width: "100px",
+                                                                    height: "auto",
+                                                                }}
+                                                                onClick={() =>
+                                                                    onImageRemove(
+                                                                        index
+                                                                    )
+                                                                }
+                                                            >
+                                                                <DeleteOutlineSharpIcon
+                                                                    sx={{
+                                                                        width: "100px",
+                                                                        height: "auto",
+                                                                        color: "white",
+                                                                        opacity: 0.8,
+                                                                    }}
+                                                                />
+                                                            </IconButton>
+                                                        </Tooltip>
+                                                    </div>
                                                 )}
-                                            </Carousel>
+                                            </div>
                                         ))}
+                                    </Carousel>
+                                )}
                             </div>
                             {!editMode ? (
                                 <div className="edit-buttons">

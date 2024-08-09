@@ -712,7 +712,7 @@ export const updateProductDetails = async (
             name,
             productNo,
             category,
-            subCategory = null,
+            subCategory,
             description,
             attributes,
             price,
@@ -720,7 +720,7 @@ export const updateProductDetails = async (
             images = [],
             tags = null,
         } = productData;
-        console.log("received productNo:", productNo);
+        console.log("received subcategory:", subCategory);
 
         // Delete unused images from S3
         const targetProduct = await Product.findOne({
@@ -781,8 +781,6 @@ export const updateProductDetails = async (
             imageUrls = [];
         }
 
-        console.log("imageUrls:", imageUrls);
-
         /////////////////////////////////////////////////
         //Construct update parameters for Mongo and SQL//
         /////////////////////////////////////////////////
@@ -796,44 +794,58 @@ export const updateProductDetails = async (
             sqlUpdateFields.productName = name;
         }
 
+        let foundCategory;
+        let foundSqlCategory;
         //category
         if (category) {
-            const foundCategory = await Category.findOne({ name: category });
+            foundCategory = await Category.findOne({ name: category });
             if (!foundCategory) {
                 throw new Error("Category not found in Mongo.");
             }
             updateFields.category = foundCategory._id;
 
-            const foundSqlCategory = await sqlCategory.findOne({
+            foundSqlCategory = await sqlCategory.findOne({
                 where: { categoryName: category },
             });
             if (!foundSqlCategory) {
                 throw new Error("Category not found in SQL");
             }
             sqlUpdateFields.category_id = foundSqlCategory.category_id;
-
-            // subcategories
-            if (subCategory) {
-                const foundSubCategory = foundCategory.subCategories.filter(
-                    (subcategory) => subcategory.name === subCategory
-                )[0];
-                if (!foundSubCategory) {
-                    throw new Error("Subcategory not found in Mongo");
-                }
-                updateFields.subCategory = foundSubCategory._id;
-
-                const foundSqlSubCategory = await sqlSubCategory.findOne({
-                    where: {
-                        subCategoryName: subCategory,
-                        category_id: foundSqlCategory.category_id,
-                    },
-                });
-                if (!foundSqlSubCategory) {
-                    throw new Error("Subcategory not found in SQL");
-                }
-                sqlUpdateFields.subCategory_id =
-                    foundSqlSubCategory.subCategory_id;
+        } else {
+            foundCategory = await Category.findOne({
+                _id: targetProduct.category,
+            });
+            if (!foundCategory) {
+                throw new Error("Category not found in Mongo.");
             }
+            foundSqlCategory = await sqlCategory.findOne({
+                where: { categoryName: foundCategory.name },
+            });
+            if (!foundSqlCategory) {
+                throw new Error("Category not found in SQL");
+            }
+        }
+        // subcategories
+        if (subCategory) {
+            console.log("adding subcategory");
+            const foundSubCategory = foundCategory.subCategories.filter(
+                (subcategory) => subcategory.name === subCategory
+            )[0];
+            if (!foundSubCategory) {
+                throw new Error("Subcategory not found in Mongo");
+            }
+            updateFields.subCategory = foundSubCategory._id;
+
+            const foundSqlSubCategory = await sqlSubCategory.findOne({
+                where: {
+                    subCategoryName: subCategory,
+                    category_id: foundSqlCategory.dataValues.category_id,
+                },
+            });
+            if (!foundSqlSubCategory) {
+                throw new Error("Subcategory not found in SQL");
+            }
+            sqlUpdateFields.subCategory_id = foundSqlSubCategory.subCategory_id;
         }
 
         //price
@@ -863,13 +875,14 @@ export const updateProductDetails = async (
             updateFields.tags = tags;
         }
 
+        console.log("mongo update fields:", updateFields);
         //UPDATE MONGO
         await Product.findByIdAndUpdate(
             targetProduct._id,
             { $set: updateFields },
             { new: true, session: session }
         ).exec();
-
+        console.log("sql update fields:", sqlUpdateFields);
         //UPDATE SQL
         await sqlProduct.update(sqlUpdateFields, {
             where: { productNo: productNo },

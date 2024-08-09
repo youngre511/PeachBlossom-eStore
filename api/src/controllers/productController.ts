@@ -363,8 +363,6 @@ export const updateProductDetails = async (
     req: UpdateProductDetailsRequest,
     res: Response
 ) => {
-    console.log("request", req);
-    console.log("req.body", req.body);
     try {
         const {
             name,
@@ -377,7 +375,6 @@ export const updateProductDetails = async (
             existingImageUrls,
             tags,
         } = req.body;
-
         let images: Array<{
             fileContent: Buffer;
             fileName: string;

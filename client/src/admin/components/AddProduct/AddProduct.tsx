@@ -480,13 +480,7 @@ const AddProduct: React.FC = () => {
                                 </Grid>
                             </Grid>
                         </Grid>
-                        <Grid
-                            container
-                            item
-                            xs={12}
-                            columnSpacing={{ xs: 3, md: 6 }}
-                            rowSpacing={3}
-                        >
+                        <Grid container item xs={12} rowSpacing={3}>
                             <Grid item xs={6} md={3}>
                                 <FormField
                                     label="Height"
@@ -521,7 +515,12 @@ const AddProduct: React.FC = () => {
                                     }}
                                 />
                             </Grid>
-                            <Grid item xs={6} md={3}>
+                            <Grid
+                                item
+                                xs={6}
+                                md={3}
+                                sx={{ paddingLeft: { xs: "24px", md: "48px" } }}
+                            >
                                 <FormField
                                     label="Width"
                                     name="width"
@@ -555,7 +554,12 @@ const AddProduct: React.FC = () => {
                                     }}
                                 />
                             </Grid>
-                            <Grid item xs={6} md={3}>
+                            <Grid
+                                item
+                                xs={6}
+                                md={3}
+                                sx={{ paddingLeft: { md: "48px" } }}
+                            >
                                 <FormField
                                     label="Depth"
                                     name="depth"
@@ -589,7 +593,12 @@ const AddProduct: React.FC = () => {
                                     }}
                                 />
                             </Grid>
-                            <Grid item xs={6} md={3}>
+                            <Grid
+                                item
+                                xs={6}
+                                md={3}
+                                sx={{ paddingLeft: { xs: "24px", md: "48px" } }}
+                            >
                                 <FormField
                                     label="Weight"
                                     name="weight"
