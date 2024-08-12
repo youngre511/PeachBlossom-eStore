@@ -192,7 +192,7 @@ const AVOrderDetails: React.FC = () => {
 
     useEffect(() => {
         if (orderNo) {
-            dispatch(avFetchOrderDetails(orderNo));
+            dispatch(avFetchOrderDetails({ orderNo }));
         }
     }, [orderNo]);
 
@@ -275,6 +275,31 @@ const AVOrderDetails: React.FC = () => {
         const newTax = ((newSubtotal + +shipping) * 0.06).toFixed(2);
         setTax(newTax);
         setTotal((newSubtotal + +shipping + +newTax).toFixed(2));
+    };
+
+    const handleCancel = () => {
+        if (currentDetails) {
+            setState(currentDetails.stateAbbr);
+            const splitAddress = currentDetails.shippingAddress.split(" | ");
+            setShippingAddress1(splitAddress[0]);
+            if (splitAddress[1]) {
+                setShippingAddress2(splitAddress[1]);
+            }
+            setOrderStatus(currentDetails.orderStatus);
+            setEmail(currentDetails.email);
+            setZipCode(currentDetails.zipCode);
+            setPhone(currentDetails.phoneNumber);
+            setItems([...currentDetails.OrderItem]);
+            setShipping(currentDetails.shipping);
+            setTotal(currentDetails.totalAmount);
+            setSubTotal(currentDetails.subTotal);
+            setTax(currentDetails.tax);
+            setCity(currentDetails.city);
+        } else {
+            if (orderNo) dispatch(avFetchOrderDetails({ orderNo }));
+        }
+        searchParams.delete("editing");
+        setSearchParams(searchParams);
     };
 
     const handleSave = useCallback(async () => {
@@ -415,13 +440,13 @@ const AVOrderDetails: React.FC = () => {
         }
         if (thereAreChanges) {
             const token = localStorage.getItem("jwtToken");
+            console.log("updateInfo:", updateInfo);
             try {
                 const response = await axios.put(
                     `${process.env.REACT_APP_API_URL}/order/update`,
                     updateInfo,
                     {
                         headers: {
-                            "Content-Type": "multipart/form-data",
                             Authorization: `Bearer ${token}`, // Include the token in the Authorization header
                         },
                     }
@@ -430,13 +455,19 @@ const AVOrderDetails: React.FC = () => {
                 setStatus("success");
                 searchParams.delete("editing");
                 setSearchParams(searchParams);
-                dispatch(avFetchOrderDetails(orderNo as string));
             } catch (error) {
                 if (error instanceof AxiosError) {
                     setError(error.message);
                 }
                 setStatus("failure");
                 console.error("Error uploading files:", error);
+            } finally {
+                dispatch(
+                    avFetchOrderDetails({
+                        orderNo: orderNo as string,
+                        force: true,
+                    })
+                );
             }
         } else {
             console.log("no changes");
@@ -556,14 +587,7 @@ const AVOrderDetails: React.FC = () => {
                                                     marginBottom: "20px",
                                                 }}
                                                 variant="contained"
-                                                onClick={() => {
-                                                    searchParams.delete(
-                                                        "editing"
-                                                    );
-                                                    setSearchParams(
-                                                        searchParams
-                                                    );
-                                                }}
+                                                onClick={handleCancel}
                                             >
                                                 Cancel
                                             </Button>

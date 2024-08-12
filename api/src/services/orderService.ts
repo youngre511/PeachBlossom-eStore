@@ -346,10 +346,11 @@ export const updateOrder = async (updateInfo: UpdateOrder) => {
     const sqlTransaction = await sequelize.transaction();
     try {
         const items: UpdateItem[] = updateInfo.items;
+        console.log("updateInfo:", updateInfo);
 
         let address = await sqlAddress.findOne({
             where: {
-                shippingAddress: updateInfo.shipping,
+                shippingAddress: updateInfo.shippingAddress,
                 city: updateInfo.city,
                 stateAbbr: updateInfo.stateAbbr,
                 zipCode: updateInfo.zipCode,
@@ -358,11 +359,13 @@ export const updateOrder = async (updateInfo: UpdateOrder) => {
             transaction: sqlTransaction,
         });
 
+        console.log("first run address:", address);
+
         // If the address doesn't exist, create a new one
         if (!address) {
             address = await sqlAddress.create(
                 {
-                    shippingAddress: updateInfo.shipping,
+                    shippingAddress: updateInfo.shippingAddress,
                     city: updateInfo.city,
                     stateAbbr: updateInfo.stateAbbr,
                     zipCode: updateInfo.zipCode,
@@ -378,7 +381,7 @@ export const updateOrder = async (updateInfo: UpdateOrder) => {
                 shipping: updateInfo.shipping,
                 tax: updateInfo.tax,
                 totalAmount: updateInfo.totalAmount,
-                address_id: address.address_id,
+                address_id: address.dataValues.address_id,
                 email: updateInfo.email,
                 orderStatus: updateInfo.orderStatus,
             },

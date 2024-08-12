@@ -117,13 +117,14 @@ export const avFetchOrders = createAsyncThunk<
 
 export const avFetchOrderDetails = createAsyncThunk<
     AVFetchOrderDetailsResponse,
-    string,
+    { orderNo: string; force?: boolean },
     { state: RootState }
 >(
     "avOrder/avFetchOrderDetails",
-    async (orderNo: string, { getState, rejectWithValue }) => {
+    async ({ orderNo, force = false }, { getState, rejectWithValue }) => {
         const state = getState() as RootState;
         if (
+            !force &&
             state.avOrder.orderDetails &&
             state.avOrder.orderDetails.orderNo === orderNo
         ) {

@@ -165,6 +165,7 @@ export const getOrders = async (req: GetOrdersRequest, res: Response) => {
 
 export const updateOrder = async (req: UpdateOrderRequest, res: Response) => {
     try {
+        console.log("req.body:", req.body);
         const result = await orderService.updateOrder(req.body);
 
         res.json(result);
