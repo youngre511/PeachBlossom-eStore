@@ -10,6 +10,7 @@ import { PersistGate } from "redux-persist/es/integration/react";
 import customerStore, { persistor } from "./customer/store/customerStore";
 import adminStore from "./admin/store/store";
 import { AuthProvider } from "./common/contexts/authContext";
+import { NavigationHistoryProvider } from "./common/contexts/navContext";
 
 const isAdmin = window.location.hostname.startsWith("admin");
 
@@ -30,7 +31,9 @@ root.render(
                 <PersistGate loading={null} persistor={persistor}>
                     <BrowserRouter>
                         <AuthProvider>
-                            <CustomerApp />
+                            <NavigationHistoryProvider>
+                                <CustomerApp />
+                            </NavigationHistoryProvider>
                         </AuthProvider>
                     </BrowserRouter>
                 </PersistGate>
@@ -39,7 +42,9 @@ root.render(
             <Provider store={adminStore}>
                 <BrowserRouter>
                     <AuthProvider>
-                        <AdminApp />
+                        <NavigationHistoryProvider>
+                            <AdminApp />
+                        </NavigationHistoryProvider>
                     </AuthProvider>
                 </BrowserRouter>
             </Provider>
