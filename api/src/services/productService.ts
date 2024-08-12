@@ -821,6 +821,7 @@ export const updateProductDetails = async (
             foundSqlCategory = await sqlCategory.findOne({
                 where: { categoryName: foundCategory.name },
             });
+
             if (!foundSqlCategory) {
                 throw new Error("Category not found in SQL");
             }
@@ -842,10 +843,12 @@ export const updateProductDetails = async (
                     category_id: foundSqlCategory.dataValues.category_id,
                 },
             });
+
             if (!foundSqlSubCategory) {
                 throw new Error("Subcategory not found in SQL");
             }
-            sqlUpdateFields.subCategory_id = foundSqlSubCategory.subCategory_id;
+            sqlUpdateFields.subCategory_id =
+                foundSqlSubCategory.dataValues.subCategory_id;
         }
 
         //price
