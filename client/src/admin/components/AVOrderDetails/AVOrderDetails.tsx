@@ -16,7 +16,7 @@ import {
 
 import axios, { AxiosError } from "axios";
 import "./av-order-details.css";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import BlankPopup from "../../../common/components/BlankPopup";
 import StatusPopup from "../../../common/components/StatusPopup";
 import {
@@ -180,6 +180,7 @@ const AVOrderDetails: React.FC = () => {
     const authContext = useContext(AuthContext);
     const accessLevel = authContext?.user?.accessLevel;
     const taxRate = 0.06;
+    const navigate = useNavigate();
     const orderStatusOptions = [
         "in process",
         "ready to ship",
@@ -524,7 +525,9 @@ const AVOrderDetails: React.FC = () => {
                                 >
                                     <Button
                                         variant="outlined"
-                                        href="/products/manage"
+                                        onClick={() =>
+                                            navigate("/orders/manage")
+                                        }
                                         sx={{
                                             color: "black",
                                             marginBottom: "20px",
