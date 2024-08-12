@@ -23,6 +23,7 @@ import "./product-management.css";
 import SearchField from "../../../common/components/Fields/SearchField";
 import { AVCategory } from "../../features/AVMenuData/avMenuDataTypes";
 import { AuthContext } from "../../../common/contexts/authContext";
+import { usePreviousRoute } from "../../../common/contexts/navContext";
 
 const inputStyle = {
     "& .MuiInputBase-root.MuiOutlinedInput-root": {
@@ -45,11 +46,13 @@ const ProductManagement: React.FC<Props> = () => {
     const tags = searchParams.get("tags")?.split(",") || null;
     const sort = searchParams.get("sort") || "name-ascend";
     const view = searchParams.get("view") || "active";
+    const fromCategoryManage = searchParams.get("fcm") ? true : false;
     const itemsPerPage = searchParams.get("itemsPerPage") || 24;
     const [justLoaded, setJustLoaded] = useState<boolean>(true);
     const [loading, setLoading] = useState<boolean>(true);
     const authContext = useContext(AuthContext);
     const accessLevel = authContext?.user?.accessLevel;
+    const { previousRoute } = usePreviousRoute();
 
     const navigate = useNavigate();
 
@@ -238,6 +241,13 @@ const ProductManagement: React.FC<Props> = () => {
                     onClick={() => navigate("/products/add")}
                     width="150px"
                 />
+                {fromCategoryManage && previousRoute && (
+                    <PeachButton
+                        text={`Back To Categories`}
+                        onClick={() => navigate(previousRoute)}
+                        width="150px"
+                    />
+                )}
             </div>
             <div className="search-and-filters">
                 <div className="pm-filters">

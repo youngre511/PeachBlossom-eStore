@@ -394,7 +394,7 @@ const CategoryManagement: React.FC<Props> = () => {
                                         {category.categoryName}
                                     </span>
                                     <Link
-                                        to={`/products/manage?category=${category.categoryName}&sort=name-ascend&page=1&view=active&itemsPerPage=24`}
+                                        to={`/products/manage?category=${category.categoryName}&sort=name-ascend&page=1&view=active&itemsPerPage=24&fcm=t`}
                                         className="catMan-category-count"
                                     >
                                         {category.productCount}
@@ -456,7 +456,7 @@ const CategoryManagement: React.FC<Props> = () => {
                                         }&sub_category=${subcategory.subCategoryName.replace(
                                             " ",
                                             "+"
-                                        )}&sort=name-ascend&page=1&view=active&itemsPerPage=24`}
+                                        )}&sort=name-ascend&page=1&view=active&itemsPerPage=24&fcm=t`}
                                         className="catMan-category-count"
                                     >
                                         {subcategory.productCount}

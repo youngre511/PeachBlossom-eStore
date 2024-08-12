@@ -29,6 +29,7 @@ import { SelectFieldNonFormik } from "../../../common/components/Fields/SelectFi
 import BlankPopup from "../../../common/components/BlankPopup";
 import StatusPopup from "../../../common/components/StatusPopup";
 import { AuthContext } from "../../../common/contexts/authContext";
+import { usePreviousRoute } from "../../../common/contexts/navContext";
 
 ///////////////////
 ///////TYPES///////
@@ -237,6 +238,7 @@ const AVProductDetails: React.FC = () => {
     const [mustFetchData, setMustFetchData] = useState<boolean>(true);
     const authContext = useContext(AuthContext);
     const accessLevel = authContext?.user?.accessLevel;
+    const { previousRoute } = usePreviousRoute();
 
     useEffect(() => {
         console.log("imageUrls:", imageUrls + ", images:", images);
@@ -849,7 +851,9 @@ const AVProductDetails: React.FC = () => {
                     <Button
                         variant="outlined"
                         sx={{ color: "black" }}
-                        onClick={() => navigate("/products/manage")}
+                        onClick={() =>
+                            navigate(previousRoute || "/products/manage")
+                        }
                     >
                         &lt; Back to product management
                     </Button>
