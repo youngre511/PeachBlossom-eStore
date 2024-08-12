@@ -307,13 +307,13 @@ const AVProductDetails: React.FC = () => {
         event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
         setAction: React.Dispatch<SetStateAction<string>>
     ) => {
-        const regex = new RegExp("^d*.?d{0,2}$");
+        const regex = /^\d*\.?\d{0,2}$/;
         const { value } = event.currentTarget;
         if (regex.test(value) || value === "") {
-            event.currentTarget.value = value;
+            // event.currentTarget.value = value;
             setAction(value);
         } else {
-            event.currentTarget.value = value.slice(0, -1);
+            // event.currentTarget.value = value.slice(0, -1);
         }
     };
 
@@ -848,8 +848,8 @@ const AVProductDetails: React.FC = () => {
                 >
                     <Button
                         variant="outlined"
-                        href="/products/manage"
                         sx={{ color: "black" }}
+                        onClick={() => navigate("/products/manage")}
                     >
                         &lt; Back to product management
                     </Button>
