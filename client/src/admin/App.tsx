@@ -21,6 +21,7 @@ import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import { AuthContext } from "../common/contexts/authContext";
 import Sales from "./components/Sales/Sales";
 import HomeRedirect from "./components/HomeRedirect";
+import AdminManagement from "./components/AdminManagement/AdminManagement";
 function AdminApp() {
     const dispatch = useAppDispatch();
     const authContext = useContext(AuthContext);
@@ -84,7 +85,7 @@ function AdminApp() {
                             }
                         />
                         <Route
-                            path="products/product-details"
+                            path="/products/product-details"
                             element={
                                 <ProtectedRoute
                                     component={AVProductDetails}
@@ -102,7 +103,7 @@ function AdminApp() {
                             }
                         />
                         <Route
-                            path="orders/order-details"
+                            path="/orders/order-details"
                             element={
                                 <ProtectedRoute
                                     component={AVOrderDetails}
@@ -111,11 +112,21 @@ function AdminApp() {
                             }
                         />
                         <Route
-                            path="categories"
+                            path="/categories"
                             element={
                                 <ProtectedRoute
                                     component={CategoryManagement}
                                     requiredRole="admin"
+                                />
+                            }
+                        />
+                        <Route
+                            path="/admin-management"
+                            element={
+                                <ProtectedRoute
+                                    component={AdminManagement}
+                                    requiredRole="admin"
+                                    requiredAccessLevel="full"
                                 />
                             }
                         />

@@ -10,7 +10,7 @@ import {
     deleteCategory,
     deleteSubcategory,
 } from "../controllers/categoryController.js";
-import { authMiddleware } from "../middleware/authMiddlware.js";
+import { authMiddleware } from "../middleware/authMiddleware.js";
 import { authorizeRoles } from "../middleware/authorize.js";
 
 categoryRouter.get("/", getAllCategories);

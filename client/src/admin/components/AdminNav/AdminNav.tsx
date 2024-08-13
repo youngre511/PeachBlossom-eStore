@@ -248,11 +248,13 @@ const AdminNav: React.FC<Props> = (props: Props) => {
                         </Accordion>
                     </ListItem>
                     <ListItem disablePadding>
-                        <ListItemButton>
+                        <ListItemButton
+                            onClick={() => navigate("/admin-management")}
+                        >
                             <ListItemIcon>
                                 <AdminIcon className="menu-svg" />
                             </ListItemIcon>
-                            <ListItemText primary={"Admin Users"} />
+                            <ListItemText primary={"Admin Management"} />
                         </ListItemButton>
                     </ListItem>
                     <ListItem disablePadding>

@@ -4,9 +4,10 @@ import {
     deleteUser,
     getAdmins,
     getCustomers,
+    resetPassword,
 } from "../controllers/userController.js";
 import { authorizeRoles } from "../middleware/authorize.js";
-import { authMiddleware } from "../middleware/authMiddlware.js";
+import { authMiddleware } from "../middleware/authMiddleware.js";
 
 const router = Router();
 
@@ -30,8 +31,15 @@ router.put(
     changeAdminAccessLevel
 );
 
+router.put(
+    "/resetPassword",
+    authMiddleware,
+    authorizeRoles(["admin"], ["full"]),
+    resetPassword
+);
+
 router.delete(
-    "/delete/:username",
+    "/delete/:userId",
     authMiddleware,
     authorizeRoles(["admin"], ["full"]),
     deleteUser

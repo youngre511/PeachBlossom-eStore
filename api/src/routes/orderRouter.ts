@@ -5,7 +5,7 @@ import {
     updateOrder,
 } from "../controllers/orderController.js";
 import { Router } from "express";
-import { authMiddleware } from "../middleware/authMiddlware.js";
+import { authMiddleware } from "../middleware/authMiddleware.js";
 import { authorizeRoles } from "../middleware/authorize.js";
 const orderRouter = Router();
 

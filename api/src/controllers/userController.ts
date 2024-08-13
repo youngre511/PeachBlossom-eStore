@@ -8,16 +8,40 @@ interface ChangeLevelRequest extends Request {
     };
 }
 
-interface UsernameParamsRequest extends Request {
-    params: {
-        username: string;
+interface ResetPasswordRequest extends Request {
+    body: {
+        user_id: number;
     };
 }
 
-export const getAdmins = async (req: Request, res: Response) => {
-    try {
-        const results = await userService.getAdmins();
+interface UserIdParamsRequest extends Request {
+    params: {
+        userId: string;
+    };
+}
 
+interface GetRequest extends Request {
+    query: {
+        page: string;
+        usersPerPage: string;
+        accessLevel?: string;
+        searchString?: string;
+    };
+}
+
+export const getAdmins = async (req: GetRequest, res: Response) => {
+    try {
+        const { searchString, accessLevel, page, usersPerPage } = req.query;
+        if (!accessLevel) {
+            throw new Error("Request missing accessLevel parameter");
+        }
+        const accessLevelArray = accessLevel.split(",");
+        const results = await userService.getAdmins(
+            +page,
+            +usersPerPage,
+            accessLevelArray as Array<"full" | "limited" | "view only">,
+            searchString
+        );
         res.json({
             message: "success",
             payload: results,
@@ -34,9 +58,14 @@ export const getAdmins = async (req: Request, res: Response) => {
     }
 };
 
-export const getCustomers = async (req: Request, res: Response) => {
+export const getCustomers = async (req: GetRequest, res: Response) => {
     try {
-        const results = await userService.getCustomers();
+        const { searchString, page, usersPerPage } = req.query;
+        const results = await userService.getCustomers(
+            +page,
+            +usersPerPage,
+            searchString
+        );
 
         res.json({
             message: "success",
@@ -80,11 +109,36 @@ export const changeAdminAccessLevel = async (
         res.status(500).json(errorObj);
     }
 };
-export const deleteUser = async (req: UsernameParamsRequest, res: Response) => {
+
+export const resetPassword = async (
+    req: ResetPasswordRequest,
+    res: Response
+) => {
     try {
-        const { username } = req.params;
+        const { user_id } = req.body;
+        const results = await userService.resetPassword(user_id);
+
+        res.json({
+            message: "success",
+            payload: results,
+        });
+    } catch (error) {
+        let errorObj = {
+            message: "change admin access level failure",
+            payload: error,
+        };
+
+        console.error(errorObj);
+
+        res.status(500).json(errorObj);
+    }
+};
+
+export const deleteUser = async (req: UserIdParamsRequest, res: Response) => {
+    try {
+        const { userId } = req.params;
         const accessLevel = req.user?.accessLevel;
-        const results = await userService.deleteUser(username, accessLevel);
+        const results = await userService.deleteUser(userId, accessLevel);
 
         res.json({
             message: "success",

@@ -6,26 +6,50 @@ import { Model } from "sequelize";
 import { sqlCustomer } from "../models/mysql/sqlCustomerModel.js";
 import { sqlAdmin } from "../models/mysql/sqlAdminModel.js";
 import { generateToken } from "../utils/jwt.js";
+import { Op } from "sequelize";
 
 interface IUser extends Model {
     user_id: number;
     username: string;
     password: string;
+    defaultPassword: boolean;
     role: "customer" | "admin";
 }
 
-export const getAdmins = async () => {
+export const getAdmins = async (
+    page: number,
+    usersPerPage: number,
+    accessLevel: Array<"full" | "limited" | "view only">,
+    searchString?: string
+) => {
     try {
-        const adminList = await sqlUser.findAll({
-            where: { role: "admin" },
+        const offset = (page - 1) * usersPerPage;
+        const whereClause: any = { [Op.and]: [{ role: "admin" }] };
+        const adminWhereClause: any = {
+            [Op.and]: [{ accessLevel: { [Op.in]: accessLevel } }],
+        };
+        if (searchString) {
+            whereClause[Op.or] = [
+                { user_id: { [Op.eq]: searchString } },
+                { username: { [Op.like]: `%${searchString}%` } },
+            ];
+            adminWhereClause[Op.or] = [{ admin_id: { [Op.eq]: searchString } }];
+        }
+        const adminResponse = await sqlUser.findAndCountAll({
+            where: whereClause,
             include: [
                 {
                     model: sqlAdmin,
                     as: "admin",
+                    where: adminWhereClause,
                 },
             ],
             nest: true,
+            limit: usersPerPage,
+            offset: offset,
         });
+
+        const adminList = adminResponse.rows;
 
         const parsedAdminList = adminList.map((user) => {
             const parsedUser = user.get();
@@ -35,11 +59,16 @@ export const getAdmins = async () => {
                 parsedUser["admin_id"] = parsedAdmin.admin_id;
                 parsedUser["accessLevel"] = parsedAdmin.accessLevel;
             }
+            if (parsedUser.defaultPassword === 0) {
+                parsedUser.defaultPassword = false;
+            } else if (parsedUser.defaultPassword === 1) {
+                parsedUser.defaultPassword = true;
+            }
             delete parsedUser.admin;
             return parsedUser;
         });
 
-        return parsedAdminList;
+        return { admins: parsedAdminList, numberOfAdmins: adminResponse.count };
     } catch (error) {
         if (error instanceof Error) {
             throw new Error("Error getting admins: " + error.message);
@@ -49,29 +78,61 @@ export const getAdmins = async () => {
     }
 };
 
-export const getCustomers = async () => {
+export const getCustomers = async (
+    page: number,
+    usersPerPage: number,
+    searchString?: string
+) => {
     try {
-        const adminList = await sqlUser.findAll({
-            where: { role: "customer" },
+        const offset = (page - 1) * usersPerPage;
+        const whereClause: any = { [Op.and]: [{ role: "customer" }] };
+        const customerWhereClause: any = {};
+        if (searchString) {
+            whereClause[Op.or] = [
+                { user_id: { [Op.eq]: searchString } },
+                { username: { [Op.like]: `%${searchString}%` } },
+            ];
+            customerWhereClause[Op.or] = [
+                { customer_id: { [Op.eq]: searchString } },
+                { email: { [Op.like]: `%${searchString}%` } },
+            ];
+        }
+        const customerResponse = await sqlUser.findAndCountAll({
+            where: whereClause,
             include: [
                 {
                     model: sqlCustomer,
                     as: "customer",
+                    where: customerWhereClause,
                 },
             ],
             nest: true,
+            limit: usersPerPage,
+            offset: offset,
         });
 
-        const parsedCustomerList = adminList.map((user) => {
+        const customerList = customerResponse.rows;
+        const parsedCustomerList = customerList.map((user) => {
             const parsedUser = user.get();
             delete parsedUser.password;
             if (parsedUser.customer) {
-                parsedUser.customer = parsedUser.customer.get();
+                const parsedCustomer = parsedUser.customer.get();
+                parsedUser.customer_id = parsedCustomer.customer_id;
+                parsedUser.email = parsedCustomer.email;
             }
+            if (parsedUser.defaultPassword === 0) {
+                parsedUser.defaultPassword = false;
+            } else if (parsedUser.defaultPassword === 1) {
+                parsedUser.defaultPassword = true;
+            }
+            delete parsedUser.customer;
             return parsedUser;
         });
 
-        return parsedCustomerList;
+        return {
+            customers: parsedCustomerList,
+            numberOfCustomers: customerResponse.count,
+        };
     } catch (error) {
         if (error instanceof Error) {
             throw new Error("Error getting customers: " + error.message);
@@ -125,36 +186,74 @@ export const changeAdminAccessLevel = async (
     }
 };
 
+export const resetPassword = async (user_id: number) => {
+    const sqlTransaction = await sequelize.transaction();
+    try {
+        const foundUser = await sqlUser.findByPk(user_id);
+        if (!foundUser) {
+            throw new Error(`User does not exist`);
+        }
+
+        if (foundUser.dataValues.username === "youngre511") {
+            throw new Error("Cannot reset site administrator's password");
+        }
+
+        const hashedPassword = await argon2.hash("default");
+
+        const [affectedCount] = await sqlUser.update(
+            { defaultPassword: true, password: hashedPassword },
+            {
+                where: { user_id: user_id },
+                transaction: sqlTransaction,
+            }
+        );
+        if (!affectedCount) {
+            throw new Error(
+                "Something went wrong when resetting password. Unable to update sqlUser table."
+            );
+        }
+        await sqlTransaction.commit();
+    } catch (error) {
+        await sqlTransaction.rollback();
+        if (error instanceof Error) {
+            throw new Error("Error resetting password: " + error.message);
+        } else {
+            throw new Error(
+                "An unknown error occurred while resetting password"
+            );
+        }
+    }
+};
+
 export const deleteUser = async (
-    username: string,
+    userId: string,
     accessLevel: "full" | "limited" | "view only" | undefined
 ) => {
     const sqlTransaction = await sequelize.transaction();
     try {
-        if (username === "youngre511") {
+        const foundUser = await sqlUser.findByPk(+userId);
+        if (!foundUser) {
+            throw new Error(`User does not exist`);
+        }
+
+        if (foundUser.dataValues.username === "youngre511") {
             throw new Error("Cannot delete site administrator");
         }
 
-        const foundUser = await sqlUser.findOne({
-            where: { username: username },
-        });
-        if (!foundUser) {
-            throw new Error(`No user with username ${username}`);
-        }
         let deleteCount: number;
-        if (foundUser.role === "admin") {
+        if (foundUser.dataValues.role === "admin") {
             if (!accessLevel || accessLevel !== "full") {
                 throw new Error(
                     "Insufficient permissions to perform this action"
                 );
             }
             deleteCount = await sqlAdmin.destroy({
-                where: { user_id: foundUser.user_id },
+                where: { user_id: userId },
                 transaction: sqlTransaction,
             });
         } else {
             deleteCount = await sqlCustomer.destroy({
-                where: { user_id: foundUser.user_id },
+                where: { user_id: userId },
                 transaction: sqlTransaction,
             });
         }
@@ -166,7 +265,7 @@ export const deleteUser = async (
         }
 
         const userDeleteCount = await sqlUser.destroy({
-            where: { user_id: foundUser.user_id },
+            where: { user_id: userId },
             transaction: sqlTransaction,
         });
         if (!userDeleteCount) {

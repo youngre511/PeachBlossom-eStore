@@ -12,7 +12,7 @@ import {
     getAdminProducts,
 } from "../controllers/productController.js";
 import upload from "../middleware/uploadMiddleware.js";
-import { authMiddleware } from "../middleware/authMiddlware.js";
+import { authMiddleware } from "../middleware/authMiddleware.js";
 import { authorizeRoles } from "../middleware/authorize.js";
 
 productRouter.get("/", getProducts);

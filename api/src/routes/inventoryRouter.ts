@@ -5,7 +5,7 @@ import {
     releaseStock,
     updateStockLevels,
 } from "../controllers/inventoryController.js";
-import { authMiddleware } from "../middleware/authMiddlware.js";
+import { authMiddleware } from "../middleware/authMiddleware.js";
 import { authorizeRoles } from "../middleware/authorize.js";
 
 inventoryRouter.put("/holdStock", holdStock);
