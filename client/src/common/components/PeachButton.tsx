@@ -8,6 +8,7 @@ interface Props {
     width?: string;
     height?: string;
     className?: string;
+    disabled?: boolean;
 }
 
 const PeachButton: React.FC<Props> = ({
@@ -18,6 +19,7 @@ const PeachButton: React.FC<Props> = ({
     width,
     height,
     className,
+    disabled,
 }) => {
     const divStyle: CSSProperties = {
         width: width ? width : "100px",
@@ -34,6 +36,7 @@ const PeachButton: React.FC<Props> = ({
         left: 0,
         borderRadius: "5px",
         boxShadow: "0.5px 0.5px 2px 0 black",
+        filter: disabled ? "saturate(0)" : undefined,
     };
 
     const backgroundOverlay: CSSProperties = {
@@ -74,14 +77,14 @@ const PeachButton: React.FC<Props> = ({
         position: "absolute",
         top: 0,
         left: 0,
-        cursor: "pointer",
+        cursor: disabled ? undefined : "pointer",
     };
 
     const buttonProps = {
         type: type ? type : "button",
         ...(id && { id }),
         className: className ? "button-comp" + " " + className : "button-comp",
-        onClick: onClick,
+        onClick: disabled ? undefined : onClick,
         style: buttonStyle,
     };
 
@@ -94,10 +97,12 @@ const PeachButton: React.FC<Props> = ({
     return (
         <div {...divProps}>
             <div className="button-comp-bkg" style={background}></div>
-            <div
-                className="button-comp-bkg-overlay"
-                style={backgroundOverlay}
-            ></div>
+            {!disabled && (
+                <div
+                    className="button-comp-bkg-overlay"
+                    style={backgroundOverlay}
+                ></div>
+            )}
             <button {...buttonProps}>{text.toUpperCase()}</button>
         </div>
     );
