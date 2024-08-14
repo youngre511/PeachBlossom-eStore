@@ -10,7 +10,7 @@ export interface AdminUser extends User {
     accessLevel: "full" | "limited" | "view only";
 }
 
-export interface CustomerUser {
+export interface CustomerUser extends User {
     customer_id: number;
     email: string;
 }
