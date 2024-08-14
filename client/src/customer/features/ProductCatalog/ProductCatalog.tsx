@@ -32,6 +32,7 @@ const ProductCatalog: React.FC<Props> = ({ page, results }) => {
     const updateContWidth = () => {
         if (productGrid.current) {
             const rect = productGrid.current.getBoundingClientRect();
+            console.log("rect.width:", rect.width);
             setProductGridWidth(rect.width);
         }
     };

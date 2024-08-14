@@ -8,9 +8,15 @@ import { RootState } from "../../store/customerStore";
 import "./shop-menu.css";
 
 interface Props {
-    setShopMenuVisible: React.Dispatch<React.SetStateAction<boolean>>;
+    isShopMenuVisible: boolean;
+    handleShopMouseEnter: () => void;
+    handleShopMouseLeave: () => void;
 }
-const ShopNav: React.FC<Props> = ({ setShopMenuVisible }) => {
+const ShopNav: React.FC<Props> = ({
+    isShopMenuVisible,
+    handleShopMouseEnter,
+    handleShopMouseLeave,
+}) => {
     // const categories = ["Planters", "Decor", "Candles", "Throws"];
     const shopNav = useRef<HTMLDivElement>(null);
     const { contextSafe } = useGSAP({ scope: shopNav });
@@ -22,8 +28,13 @@ const ShopNav: React.FC<Props> = ({ setShopMenuVisible }) => {
         <div
             className="shop-nav"
             ref={shopNav}
-            onMouseLeave={() => setShopMenuVisible(false)}
-            onMouseEnter={() => setShopMenuVisible(true)}
+            onMouseLeave={() => {
+                handleShopMouseLeave();
+            }}
+            onMouseEnter={() => {
+                handleShopMouseEnter();
+            }}
+            style={{ pointerEvents: isShopMenuVisible ? "auto" : "none" }}
         >
             <div className="shop-nav-bkg"></div>
             <div className="shop-nav-bkg-overlay"></div>
