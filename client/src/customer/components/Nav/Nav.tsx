@@ -34,8 +34,10 @@ const Nav: React.FC<Props> = () => {
     const header = useRef<HTMLElement>(null);
 
     const [isShopMenuVisible, setShopMenuVisible] = useState<boolean>(false);
+    const shopAnimationRef = useRef<GSAPTimeline | null>(null);
     const [isCartDropdownVisible, setCartDropdownVisible] =
         useState<boolean>(false);
+    const cartAnimationRef = useRef<GSAPTimeline | null>(null);
     const [isSearchBarVisible, setIsSearchBarVisible] =
         useState<boolean>(false);
 
@@ -45,7 +47,6 @@ const Nav: React.FC<Props> = () => {
     const [searchQuery, setSearchQuery] = useState<string>("");
 
     useEffect(() => {
-        console.log("search options:", searchOptionsSlice);
         if (searchOptionsSlice.searchOptions) {
             setSearchOptions(searchOptionsSlice.searchOptions);
         }
@@ -53,55 +54,38 @@ const Nav: React.FC<Props> = () => {
 
     useEffect(
         contextSafe(() => {
-            if (isShopMenuVisible) {
-                gsap.timeline()
-                    .set(".shop-nav", { display: "block" })
-                    .to(".shop-nav", {
-                        duration: 0.2,
-                        opacity: 1,
-                        scale: 1,
-                        ease: "power1.inOut",
-                    });
-            } else {
-                gsap.timeline()
-                    .to(".shop-nav", {
-                        opacity: 0,
-                        scale: 0.6,
-                        ease: "back.out",
-                    })
-                    .set(".shop-nav", { display: "none" });
-            }
+            shopAnimationRef.current = gsap
+                .timeline({ paused: true })
+                .to(".shop-nav", {
+                    duration: 0.3,
+                    opacity: 1,
+                    scale: 1,
+                    ease: "power1.inOut",
+                });
+            // The animation is played in reverse for hiding
+
+            // Ensure the menu is hidden initially
+            gsap.set(".shop-nav", { display: "none", opacity: 0 });
         }),
-        [isShopMenuVisible]
+        []
     );
 
     useEffect(
         contextSafe(() => {
-            if (cartContents > 0) {
-                if (
-                    isCartDropdownVisible &&
-                    location.pathname != "/shoppingcart"
-                ) {
-                    gsap.timeline()
-                        .set(".drop-cart", { display: "block" })
-                        .to(".drop-cart", {
-                            duration: 0.2,
-                            opacity: 1,
-                            scale: 1,
-                            ease: "power1.inOut",
-                        });
-                } else {
-                    gsap.timeline()
-                        .to(".drop-cart", {
-                            opacity: 0,
-                            scale: 0.6,
-                            ease: "back.out",
-                        })
-                        .set(".drop-cart", { display: "none" });
-                }
-            }
+            cartAnimationRef.current = gsap
+                .timeline({ paused: true })
+                .to(".drop-cart", {
+                    duration: 0.2,
+                    opacity: 1,
+                    scale: 1,
+                    ease: "power1.inOut",
+                });
+            // The animation is played in reverse for hiding
+
+            // Ensure the menu is hidden initially
+            gsap.set(".drop-cart", { display: "none", opacity: 0 });
         }),
-        [isCartDropdownVisible]
+        []
     );
 
     useEffect(
@@ -138,6 +122,57 @@ const Nav: React.FC<Props> = () => {
         setSearchQuery("");
     };
 
+    const handleShopMouseEnter = () => {
+        if (shopAnimationRef.current) {
+            // Play the animation forward
+            gsap.set(".shop-nav", { display: "block" });
+            shopAnimationRef.current.play();
+        }
+        setShopMenuVisible(true);
+    };
+
+    const handleShopMouseLeave = () => {
+        if (shopAnimationRef.current) {
+            // Reverse the animation (hide the menu)
+            shopAnimationRef.current.reverse().then(() => {
+                if (!isShopMenuVisible) {
+                    gsap.set(".shop-nav", { display: "none" });
+                }
+            });
+        }
+        setShopMenuVisible(false);
+    };
+
+    const handleCartMouseEnter = () => {
+        if (cartContents > 0 && location.pathname !== "/shoppingcart") {
+            if (cartAnimationRef.current) {
+                // Play the animation forward
+                gsap.set(".drop-cart", { display: "block" });
+                cartAnimationRef.current.play();
+            }
+            setCartDropdownVisible(true);
+        }
+    };
+
+    const handleCartMouseLeave = () => {
+        if (cartAnimationRef.current) {
+            // Reverse the animation (hide the cart)
+            cartAnimationRef.current.reverse().then(() => {
+                if (!isCartDropdownVisible) {
+                    gsap.set(".drop-cart", { display: "none" });
+                }
+            });
+        }
+        setCartDropdownVisible(false);
+    };
+
+    useEffect(() => {
+        if (location.pathname === "/shoppingcart") {
+            handleCartMouseLeave();
+            setCartDropdownVisible(false);
+        }
+    }, [location.pathname]);
+
     return (
         <header ref={header}>
             <div className="blur-filter"></div>
@@ -146,8 +181,8 @@ const Nav: React.FC<Props> = () => {
                 <ul className="left-menu">
                     <li
                         className="nav-text"
-                        onMouseEnter={() => setShopMenuVisible(true)}
-                        onMouseLeave={() => setShopMenuVisible(false)}
+                        onMouseEnter={() => handleShopMouseEnter()}
+                        onMouseLeave={() => handleShopMouseLeave()}
                     >
                         <Link
                             to="/shop"
@@ -222,8 +257,8 @@ const Nav: React.FC<Props> = () => {
                             aria-label="cart"
                             tabIndex={0}
                             role="button"
-                            onMouseEnter={() => setCartDropdownVisible(true)}
-                            onMouseLeave={() => setCartDropdownVisible(false)}
+                            onMouseEnter={() => handleCartMouseEnter()}
+                            onMouseLeave={() => handleCartMouseLeave()}
                             onClick={() => navigate("/shoppingcart")}
                         >
                             <Link
@@ -305,8 +340,16 @@ const Nav: React.FC<Props> = () => {
                     <div className="border-over"></div>
                     <img src={pblogo} alt="" />
                 </div>
-                <ShopNav setShopMenuVisible={setShopMenuVisible} />
-                <CartDropDown setCartDropdownVisible={setCartDropdownVisible} />
+                <ShopNav
+                    isShopMenuVisible={isShopMenuVisible}
+                    handleShopMouseEnter={handleShopMouseEnter}
+                    handleShopMouseLeave={handleShopMouseLeave}
+                />
+                <CartDropDown
+                    isCartDropdownVisible={isCartDropdownVisible}
+                    handleCartMouseEnter={handleCartMouseEnter}
+                    handleCartMouseLeave={handleCartMouseLeave}
+                />
             </div>
         </header>
     );

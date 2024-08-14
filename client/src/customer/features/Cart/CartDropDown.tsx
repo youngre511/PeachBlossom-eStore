@@ -7,16 +7,23 @@ import "./cart-drop-down.css";
 import PeachButton from "../../../common/components/PeachButton";
 
 interface Props {
-    setCartDropdownVisible: React.Dispatch<React.SetStateAction<boolean>>;
+    isCartDropdownVisible: boolean;
+    handleCartMouseEnter: () => void;
+    handleCartMouseLeave: () => void;
 }
-const CartDropDown: React.FC<Props> = ({ setCartDropdownVisible }) => {
+const CartDropDown: React.FC<Props> = ({
+    isCartDropdownVisible,
+    handleCartMouseEnter,
+    handleCartMouseLeave,
+}) => {
     const cart = useAppSelector((state: RootState) => state.cart);
     const navigate = useNavigate();
     return (
         <div
             className="drop-cart"
-            onMouseEnter={() => setCartDropdownVisible(true)}
-            onMouseLeave={() => setCartDropdownVisible(false)}
+            onMouseEnter={() => handleCartMouseEnter()}
+            onMouseLeave={() => handleCartMouseLeave()}
+            style={{ pointerEvents: isCartDropdownVisible ? "auto" : "none" }}
         >
             <div className="drop-cart-bkg"></div>
             <div className="drop-cart-bkg-overlay"></div>

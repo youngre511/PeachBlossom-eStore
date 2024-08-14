@@ -12,11 +12,13 @@
 .item img {
     width: 230px;
     height: auto;
+    cursor: pointer;
 }
 
 .cat-prod-name {
     font-size: 1.15rem;
     margin-bottom: 5px;
+    cursor: pointer;
 }
 
 .price-and-add {

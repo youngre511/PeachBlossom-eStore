@@ -36,7 +36,6 @@ export const NavigationHistoryProvider: React.FC<
     const [previousRoute, setPreviousRoute] = useState<string | null>(null);
 
     useEffect(() => {
-        console.log(location.pathname);
         return () => setPreviousRoute(location.pathname + location.search);
     }, [location]);
 
