@@ -5,7 +5,7 @@
 -   Minimal Front-End
     -   Browsable Catalog [COMPLETE]
     -   Product Detail Pages
-    -   Search
+    -   Search [COMPLETE]
     -   Filtering [COMPLETE]
     -   Customer Service Links
     -   Cart [COMPLETE]
@@ -32,9 +32,9 @@
     -   View Products with Sort and Filter [COMPLETE]
     -   Update Products [COMPLETE]
     -   Discontinue Products [COMPLETE]
-    -   Delete Products (Back-End Only for Data Integrity)
+    -   Delete Products (Back-End Only for Data Integrity) [COMPLETE]
 -   Categories
-    -   Manage Categories and SubCategories
+    -   Manage Categories and SubCategories [COMPLETE]
 -   Inventory Management [COMPLETE]
 -   Order Management [COMPLETE]
 -   Dashboard
@@ -45,8 +45,8 @@
 -   LogIn/LogOut
 -   Account Management
 -   User Preferences
--   Admin User Accounts
--   Admin User Management
+-   Admin User Accounts [COMPLETE]
+-   Admin User Management [COMPLETE]
 
 ### Phase 4: Admin Analytics
 
