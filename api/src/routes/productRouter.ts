@@ -10,6 +10,7 @@ import {
     updateProductDetails,
     updateProductStatus,
     getAdminProducts,
+    getCatalogProductDetails,
 } from "../controllers/productController.js";
 import upload from "../middleware/uploadMiddleware.js";
 import { authMiddleware } from "../middleware/authMiddleware.js";
@@ -57,5 +58,7 @@ productRouter.delete(
 );
 
 productRouter.get("/:productNo", getOneProduct);
+
+productRouter.get("/catalog/:productNo", getCatalogProductDetails);
 
 export default productRouter;

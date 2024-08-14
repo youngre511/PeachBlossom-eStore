@@ -521,6 +521,86 @@ export const getOneProduct = async (productNo: string) => {
 
 //////////////////////////////////////////////////////////////////////////
 
+export const getCatalogProductDetails = async (productNo: string) => {
+    try {
+        const result: ProductItem | null = await Product.findOne({
+            productNo: productNo,
+        });
+
+        if (!result) {
+            throw new Error("Product not found");
+        }
+
+        const category: CategoryItem | null = await Category.findOne({
+            _id: result.category,
+        });
+
+        if (!category) {
+            throw new Error("Product category not found");
+        }
+
+        const subcategory: SubCategoryItem | null =
+            category.subCategories.filter(
+                (subcategory) =>
+                    String(subcategory._id) === String(result.subCategory)
+            )[0];
+
+        // Find active promotions and calculate discount price if necessary
+        let discountPrice: number | null = null;
+        const activePromos = result.promotions.filter((promotion) => {
+            const now = new Date(Date.now());
+            const startDate = new Date(promotion.startDate);
+            const endDate = new Date(promotion.endDate);
+            return (
+                promotion.active === true && startDate < now && endDate > now
+            );
+        });
+
+        // If there is an active promotion, grab the description and determine whether it is a single-product sale.
+        let promoDesc: string | null = null;
+        let singleSale: boolean = false;
+        if (activePromos.length > 0) {
+            const activePromo = activePromos[0];
+            promoDesc = activePromo.description;
+            if (promoDesc === "single product") {
+                singleSale = true;
+            }
+            if (activePromo.discountType === "percentage") {
+                discountPrice =
+                    result.price - result.price * activePromo.discountValue;
+            } else {
+                discountPrice = result.price - activePromo.discountValue;
+            }
+        }
+
+        const productData = {
+            name: result.name,
+            productNo: result.productNo,
+            category: category.name,
+            subcategory: subcategory ? subcategory.name : null,
+            description: result.description,
+            attributes: result.attributes,
+            price: result.price,
+            discountPrice: discountPrice,
+            promoDesc: promoDesc,
+            singleProdProm: singleSale,
+            images: result.images,
+            stock: result.stock,
+            tags: result.tags || null,
+        };
+
+        return productData;
+    } catch (error) {
+        if (error instanceof Error) {
+            throw new Error("Error fetching product: " + error.message);
+        } else {
+            throw new Error("An unknown error occurred while fetching product");
+        }
+    }
+};
+
+//////////////////////////////////////////////////////////////////////////
+
 export const createProduct = async (
     productData: CreateProduct
 ): Promise<BooleString> => {

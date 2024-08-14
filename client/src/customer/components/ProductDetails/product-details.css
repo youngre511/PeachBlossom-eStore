@@ -1,0 +1,71 @@
+.product-images {
+    width: 510px;
+    height: 400px;
+    position: relative;
+}
+
+.product-details-image {
+    width: 400px;
+    height: auto;
+    position: absolute;
+    left: 110px;
+    top: 0;
+}
+
+/* React-Multi-Carousel Customization */
+
+.vertical-carousel-container {
+    max-width: 400px; /* Set the max height of the carousel */
+    /* width: 400px; */
+    height: 100px;
+    overflow-y: hidden; /* Hide overflow to create a scrollable effect */
+    transform-origin: top left;
+    transform: rotate(90deg);
+    position: absolute;
+    left: 100px;
+    bottom: 0;
+}
+
+.vertical-carousel-container .custom-dot-list-style {
+    display: none;
+}
+
+.react-multi-carousel-track {
+    max-width: 400px;
+}
+
+.vertical-carousel-container .react-multiple-carousel__arrow {
+    background: rgba(255, 255, 255, 0.5);
+    scale: 0.5;
+    opacity: 0.6;
+}
+
+.vertical-carousel-container .react-multiple-carousel__arrow::before {
+    color: black;
+}
+
+.vertical-carousel-container .react-multiple-carousel__arrow--right {
+    transform: translateX(50px);
+}
+
+.vertical-carousel-container .react-multiple-carousel__arrow--left {
+    transform: translateX(-50px);
+}
+
+.react-multi-carousel-track {
+    gap: 10px;
+}
+
+.carousel-item {
+    height: 100px; /* Set the height of each carousel item */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* padding-left: 10px; */
+}
+
+.product-details-thumbnail {
+    width: 100px;
+
+    transform: rotate(-90deg);
+}

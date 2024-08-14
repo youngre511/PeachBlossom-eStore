@@ -203,6 +203,30 @@ export const getOneProduct = async (
     }
 };
 
+export const getCatalogProductDetails = async (
+    req: ProductParamsRequest,
+    res: Response
+) => {
+    try {
+        const { productNo } = req.params;
+        const result = await productService.getCatalogProductDetails(productNo);
+
+        res.json({
+            message: "success",
+            payload: result,
+        });
+    } catch (error) {
+        let errorObj = {
+            message: "get catalog product details failure",
+            payload: error,
+        };
+
+        console.error(errorObj);
+
+        res.status(500).json(errorObj);
+    }
+};
+
 export const getSearchOptions: RequestHandler = async (
     req: Request,
     res: Response

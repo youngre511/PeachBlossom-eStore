@@ -10,6 +10,7 @@ import {
 import { arraysEqual } from "../../../common/utils/arraysEqual";
 
 const initialState: CatalogState = {
+    singleProduct: null,
     products: [],
     numberOfResults: 0,
     filters: {
@@ -108,6 +109,26 @@ export const fetchProducts = createAsyncThunk<
     }
 );
 
+export const fetchOneProduct = createAsyncThunk<
+    Product,
+    string,
+    { state: RootState }
+>(
+    "catalog/fetchOneProduct",
+    async (productNo: string, { getState, rejectWithValue }) => {
+        try {
+            const response = await axios.get(
+                `${process.env.REACT_APP_API_URL}/product/catalog/${productNo}`
+            );
+            return response.data.payload;
+        } catch (error: any) {
+            return rejectWithValue(
+                error.response?.data || "Error fetching products"
+            );
+        }
+    }
+);
+
 //Slice//
 const catalogSlice = createSlice({
     name: "catalog",
@@ -133,6 +154,19 @@ const catalogSlice = createSlice({
                 state.loading = false;
             })
             .addCase(fetchProducts.rejected, (state, action) => {
+                state.loading = false;
+                state.error =
+                    action.error.message || "Failed to fetch products";
+            })
+            .addCase(fetchOneProduct.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(fetchOneProduct.fulfilled, (state, action) => {
+                state.singleProduct = action.payload;
+                state.loading = false;
+            })
+            .addCase(fetchOneProduct.rejected, (state, action) => {
                 state.loading = false;
                 state.error =
                     action.error.message || "Failed to fetch products";

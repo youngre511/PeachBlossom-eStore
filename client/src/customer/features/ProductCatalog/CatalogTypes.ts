@@ -74,6 +74,7 @@ export interface Filters {
 }
 
 export interface CatalogState {
+    singleProduct: Product | null;
     products: Product[];
     numberOfResults: number;
     filters: Filters;
