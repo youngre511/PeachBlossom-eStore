@@ -80,15 +80,21 @@ const AddToCartButton: React.FC<Props> = ({ available, productNo }: Props) => {
                     width="25px"
                 />
                 <div className="quantity-display">
-                    <p id={`quantity-${productNo}`}>{numberInCart}</p>
+                    <p
+                        id={`quantity-${productNo}`}
+                        style={{ cursor: "default" }}
+                    >
+                        {numberInCart}
+                    </p>
                 </div>
-                {numberInCart && numberInCart < available && (
+                {numberInCart && (
                     <PeachButton
                         className="increase-quantity"
                         onClick={handleIncrease}
                         text="+"
                         height="25px"
                         width="25px"
+                        disabled={numberInCart >= available}
                     />
                 )}
             </div>
