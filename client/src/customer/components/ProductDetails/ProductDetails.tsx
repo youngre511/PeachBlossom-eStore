@@ -5,8 +5,13 @@ import { Product } from "../../features/ProductCatalog/CatalogTypes";
 import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
 import { fetchOneProduct } from "../../features/ProductCatalog/catalogSlice";
 import { RootState } from "../../store/customerStore";
-import Carousel from "react-multi-carousel";
+
+import Slider, { Settings } from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 import "./product-details.css";
+import AddToCartButton from "../AddToCartButton/AddToCartButton";
+import useWindowDimensions from "../../../common/hooks/useWindowDimensions";
 
 interface Props {}
 const ProductDetails: React.FC<Props> = () => {
@@ -17,7 +22,69 @@ const ProductDetails: React.FC<Props> = () => {
     const productState = useAppSelector(
         (state: RootState) => state.catalog.singleProduct
     );
+    const windowDimensions = useWindowDimensions();
     const dispatch = useAppDispatch();
+    const [isVertical, setIsVertical] = useState<boolean>(true);
+
+    useEffect(() => {
+        if (windowDimensions.width && windowDimensions.width < 1342) {
+            setIsVertical(false);
+        } else {
+            setIsVertical(true);
+        }
+    }, [windowDimensions]);
+
+    const settings: Settings = {
+        swipe: true,
+        draggable: false,
+        dots: false,
+        infinite: false,
+        speed: 500,
+        cssEase: "ease-in-out",
+        arrows: false,
+        adaptiveHeight: false,
+        className: "pd-carousel-container",
+        vertical: isVertical,
+        appendDots: (dots) => <ul className="custom-dot-list-style">{dots}</ul>,
+        responsive: [
+            {
+                breakpoint: 6000, // Max width for desktop
+                settings: {
+                    slidesToShow: 4,
+                    slidesToScroll:
+                        product && product.images.length > 4
+                            ? 4
+                            : product?.images.length,
+                    arrows: true,
+                },
+            },
+            {
+                breakpoint: 1512, // Max width for desktop
+                settings: {
+                    slidesToShow: 3,
+                    slidesToScroll: 2,
+                    // product && product.images.length > 3
+                    //     ? 3
+                    //     : product?.images.length,
+                    arrows: true,
+                },
+            },
+            {
+                breakpoint: 1024, // Max width for tablet
+                settings: {
+                    slidesToShow: 1,
+                    slidesToScroll: 1,
+                },
+            },
+            {
+                breakpoint: 464, // Max width for mobile
+                settings: {
+                    slidesToShow: 1,
+                    slidesToScroll: 1,
+                },
+            },
+        ],
+    };
 
     useEffect(() => {
         if (productState) {
@@ -34,64 +101,109 @@ const ProductDetails: React.FC<Props> = () => {
         }
     }, [productNo]);
 
-    const responsive = {
-        desktop: {
-            breakpoint: { max: 6000, min: 1024 },
-            items: 4,
-            slidesToSlide: 3, // optional, default to 1.
-        },
-        tablet: {
-            breakpoint: { max: 1024, min: 464 },
-            items: 1,
-            slidesToSlide: 1, // optional, default to 1.
-        },
-        mobile: {
-            breakpoint: { max: 464, min: 0 },
-            items: 1,
-            slidesToSlide: 1, // optional, default to 1.
-        },
-    };
-
     return (
-        <div>
+        <div className="product-details-container">
             {product && (
-                <div className="product-images">
-                    {product.images.length > 1 && (
-                        <Carousel
-                            swipeable={true}
-                            draggable={false}
-                            showDots={true}
-                            responsive={responsive}
-                            ssr={true} // means to render carousel on server-side.
-                            infinite={true}
-                            keyBoardControl={true}
-                            customTransition="transform 300ms ease-in-out"
-                            transitionDuration={500}
-                            containerClass="vertical-carousel-container"
-                            removeArrowOnDeviceType={["tablet", "mobile"]}
-                            dotListClass="custom-dot-list-style"
-                            itemClass="carousel-item"
-                        >
-                            {product.images.map((imageUrl, index) => (
+                <React.Fragment>
+                    <div className="product-images-cont">
+                        <div className="product-images">
+                            {product.images.length > 1 && (
+                                <Slider
+                                    {...settings}
+                                    key={windowDimensions.width}
+                                >
+                                    {product.images.map((imageUrl, index) => (
+                                        <img
+                                            src={imageUrl}
+                                            className="product-details-thumbnail"
+                                            alt={`${product.name} thumbnail ${
+                                                index + 1
+                                            }`}
+                                            onClick={() =>
+                                                setCurrentImage(imageUrl)
+                                            }
+                                            key={imageUrl}
+                                        />
+                                    ))}
+                                </Slider>
+                            )}
+                            <div className="product-details-image-cont">
                                 <img
-                                    src={imageUrl}
-                                    className="product-details-thumbnail"
-                                    alt={`${product.name} thumbnail ${
-                                        index + 1
-                                    }`}
-                                    onClick={() => setCurrentImage(imageUrl)}
-                                    key={imageUrl}
+                                    src={currentImage}
+                                    className="product-details-image"
+                                    alt={`${product.name} thumbnail`}
                                 />
-                            ))}
-                        </Carousel>
-                    )}
-
-                    <img
-                        src={currentImage}
-                        className="product-details-image"
-                        alt={`${product.name} thumbnail`}
-                    />
-                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="product-info">
+                        <div className="pd-top">
+                            <div className="pd-header">
+                                {product.discountPrice && (
+                                    <div className="pd-sale-label">SALE</div>
+                                )}
+                                <h1 className="pd-product-name">
+                                    {product.name}
+                                </h1>
+                                <div className="pd-price-cont">
+                                    <span
+                                        className="pd-discount-price"
+                                        style={{
+                                            display: product.discountPrice
+                                                ? undefined
+                                                : "none",
+                                        }}
+                                    >
+                                        ${product.discountPrice}
+                                    </span>
+                                    <span
+                                        className="pd-price"
+                                        style={{
+                                            textDecoration:
+                                                product.discountPrice
+                                                    ? "line-through"
+                                                    : "none",
+                                        }}
+                                    >
+                                        ${product.price}
+                                    </span>
+                                </div>
+                            </div>
+                            <p className="pd-description">
+                                {product.description}
+                            </p>
+                        </div>
+                        <div className="pd-attributes-cont">
+                            <h2 className="pd-details-header">
+                                Product Details
+                            </h2>
+                            <dl className="pd-attributes">
+                                <dt>Color</dt>
+                                <dd>{product.attributes.color}</dd>
+                                <dt>Material</dt>
+                                <dd>
+                                    {product.attributes.material.join(", ")}
+                                </dd>
+                                <dt>Weight</dt>
+                                <dd>{product.attributes.weight} lbs.</dd>
+                                <dt>Dimensions</dt>
+                                <dd>
+                                    {product.attributes.dimensions.height} in. h
+                                    &times;
+                                    {product.attributes.dimensions.width} in. w
+                                    &times;
+                                    {product.attributes.dimensions.depth} in. d
+                                </dd>
+                                <dt>Product No.</dt>
+                                <dd>{product.productNo}</dd>
+                            </dl>
+                        </div>
+                        <AddToCartButton
+                            available={product.stock}
+                            productNo={product.productNo}
+                        />
+                    </div>
+                </React.Fragment>
             )}
         </div>
     );
