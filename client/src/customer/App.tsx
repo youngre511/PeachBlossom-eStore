@@ -21,6 +21,8 @@ import { fetchCategories } from "./features/Categories/categoriesSlice";
 import { fetchSearchOptions } from "./features/SearchOptions/searchOptionsSlice";
 import Cart from "./features/Cart/Cart";
 import Checkout from "./components/Checkout/Checkout";
+import useWindowDimensions from "../common/hooks/useWindowDimensions";
+import MobileNav from "./components/MobileNav/MobileNav";
 
 const CustomerApp: React.FC = () => {
     const dispatch = useAppDispatch();
@@ -29,10 +31,12 @@ const CustomerApp: React.FC = () => {
         dispatch(fetchSearchOptions());
     }, [dispatch]);
 
+    const { width } = useWindowDimensions();
+
     return (
         <ThemeProvider theme={theme}>
             <div className="App">
-                <Nav />
+                {width && width < 810 ? <MobileNav /> : <Nav />}
                 <main>
                     <Routes>
                         <Route path="/" element={<Home />} />
