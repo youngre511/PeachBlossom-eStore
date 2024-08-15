@@ -39,14 +39,14 @@
 -   Order Management [COMPLETE]
 -   Dashboard
     -   Basic Sales Trends
+-   Admin User Accounts [COMPLETE]
+-   Admin User Management [COMPLETE]
 
-### Phase 3: Accounts
+### Phase 3: Customer Accounts
 
 -   LogIn/LogOut
 -   Account Management
 -   User Preferences
--   Admin User Accounts [COMPLETE]
--   Admin User Management [COMPLETE]
 
 ### Phase 4: Admin Analytics
 
