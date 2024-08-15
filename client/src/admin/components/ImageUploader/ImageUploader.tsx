@@ -1,6 +1,7 @@
 import React, { useRef, Dispatch, SetStateAction } from "react";
-import Carousel from "react-multi-carousel";
-import "react-multi-carousel/lib/styles.css";
+import Slider, { Settings } from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 import { useEffect, useState } from "react";
 import "./image-uploader.css";
 import ImageUploading, { ImageListType } from "react-images-uploading";
@@ -17,22 +18,41 @@ interface Props {
     productEditMode?: boolean;
 }
 
-const responsive = {
-    desktop: {
-        breakpoint: { max: 6000, min: 1024 },
-        items: 1,
-        slidesToSlide: 1, // optional, default to 1.
-    },
-    tablet: {
-        breakpoint: { max: 1024, min: 464 },
-        items: 1,
-        slidesToSlide: 1, // optional, default to 1.
-    },
-    mobile: {
-        breakpoint: { max: 464, min: 0 },
-        items: 1,
-        slidesToSlide: 1, // optional, default to 1.
-    },
+const settings: Settings = {
+    swipe: true,
+    draggable: false,
+    dots: true,
+    infinite: true,
+    speed: 500,
+    cssEase: "ease-in-out",
+    arrows: false,
+    adaptiveHeight: true,
+    className: "carousel-container",
+    appendDots: (dots) => <ul className="custom-dot-list-style">{dots}</ul>,
+    responsive: [
+        {
+            breakpoint: 6000, // Max width for desktop
+            settings: {
+                slidesToShow: 1,
+                slidesToScroll: 1,
+                arrows: true,
+            },
+        },
+        {
+            breakpoint: 1024, // Max width for tablet
+            settings: {
+                slidesToShow: 1,
+                slidesToScroll: 1,
+            },
+        },
+        {
+            breakpoint: 464, // Max width for mobile
+            settings: {
+                slidesToShow: 1,
+                slidesToScroll: 1,
+            },
+        },
+    ],
 };
 
 const ImageUploader: React.FC<Props> = ({
@@ -180,24 +200,7 @@ const ImageUploader: React.FC<Props> = ({
                                     (imageUrls &&
                                         imageUrls.length + imageList.length >
                                             1)) && (
-                                    <Carousel
-                                        swipeable={true}
-                                        draggable={false}
-                                        showDots={true}
-                                        responsive={responsive}
-                                        ssr={true} // means to render carousel on server-side.
-                                        infinite={true}
-                                        keyBoardControl={true}
-                                        customTransition="transform 300ms ease-in-out"
-                                        transitionDuration={500}
-                                        containerClass="carousel-container"
-                                        removeArrowOnDeviceType={[
-                                            "tablet",
-                                            "mobile",
-                                        ]}
-                                        dotListClass="custom-dot-list-style"
-                                        itemClass="carousel-item-padding-40-px"
-                                    >
+                                    <Slider {...settings}>
                                         {imageUrls &&
                                             imageUrls.map((imageUrl, index) => (
                                                 <div key={imageUrl}>
@@ -277,7 +280,7 @@ const ImageUploader: React.FC<Props> = ({
                                                 )}
                                             </div>
                                         ))}
-                                    </Carousel>
+                                    </Slider>
                                 )}
                             </div>
                             {!editMode ? (
