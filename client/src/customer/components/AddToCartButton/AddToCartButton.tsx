@@ -57,7 +57,16 @@ const AddToCartButton: React.FC<Props> = ({ available, productNo }: Props) => {
 
     if (!inStock) {
         buttonDisplay = (
-            <button className="add-to-cart-btn disabled">OUT OF STOCK</button>
+            <PeachButton
+                className="add-to-cart-btn disabled"
+                text="OUT OF STOCK"
+                disabled={true}
+                onClick={() => {
+                    return;
+                }}
+                width={"120px"}
+                height={"30px"}
+            />
         );
     } else if (!isInCart) {
         buttonDisplay = (
