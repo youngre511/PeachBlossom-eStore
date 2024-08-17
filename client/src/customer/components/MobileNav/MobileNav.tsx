@@ -78,19 +78,20 @@ const MobileNav: React.FC<Props> = () => {
     }, [categories]);
 
     useGSAP(() => {
-        gsap.to(".m-full-logo", {
+        gsap.timeline({
             scrollTrigger: {
                 trigger: ".m-nav-bar",
                 start: "top top+=25px",
                 end: "top+=25px top",
                 scrub: true,
-
                 onEnter: () => {
                     gsap.to(".m-full-logo", {
                         opacity: 0,
+                        duration: 0.5,
                     });
                     gsap.to(".m-text-only-logo", {
                         opacity: 1,
+                        duration: 0.5,
                     });
                     setShowFullLogo(false);
                 },
@@ -99,9 +100,11 @@ const MobileNav: React.FC<Props> = () => {
                         console.log(isSearchBarVisible);
                         gsap.to(".m-full-logo", {
                             opacity: 1,
+                            duration: 0.5,
                         });
                         gsap.to(".m-text-only-logo", {
                             opacity: 0,
+                            duration: 0.5,
                         });
                     }
                     setShowFullLogo(true);
@@ -181,6 +184,7 @@ const MobileNav: React.FC<Props> = () => {
     const handleOpenMenu = () => {
         if (menuToggleRef.current) {
             menuToggleRef.current.play();
+            setIsSearchBarVisible(false);
         }
     };
 

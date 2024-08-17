@@ -182,6 +182,7 @@ header {
     position: absolute;
     top: 0;
     left: 0;
+    /* will-change: opacity; */
 }
 
 .m-border-over {
@@ -193,7 +194,8 @@ header {
     top: 0;
     left: 0;
     mix-blend-mode: luminosity;
-    opacity: 0m-5;
+    opacity: 0.5;
+    /* will-change: opacity; */
 }
 
 .m-full-logo img {
@@ -202,6 +204,7 @@ header {
     position: absolute;
     top: 4px;
     left: 4px;
+    will-change: opacity;
 }
 
 /***** Search Tab *****/
