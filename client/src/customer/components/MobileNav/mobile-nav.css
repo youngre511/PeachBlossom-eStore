@@ -1,6 +1,8 @@
-header {
-    position: sticky;
-    top: -50px;
+@media (max-width: 810) {
+    header {
+        position: sticky;
+        top: -50px;
+    }
 }
 .m-blur-filter {
     background-color: #fbeee576;

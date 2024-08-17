@@ -11,6 +11,15 @@ h4 {
     font-family: var(--Playfair);
 }
 
+header {
+    z-index: 100;
+}
+
+button {
+    font-family: var(--Lato);
+    font-size: 0.8rem;
+}
+
 .policies > ul {
     list-style: none;
     padding-left: 0;

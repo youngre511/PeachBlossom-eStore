@@ -366,16 +366,26 @@ const MobileNav: React.FC<Props> = () => {
                                 </button>
                             </li>
                             <li>
-                                <button>Order Status</button>
+                                <button
+                                    onClick={() => navigate("/order-status")}
+                                >
+                                    Order Status
+                                </button>
                             </li>
                             <li>
                                 <button>Support</button>
                             </li>
                             <li>
-                                <button>About</button>
+                                <button onClick={() => navigate("/about")}>
+                                    About
+                                </button>
                             </li>
                             <li>
-                                <button>Sustainability</button>
+                                <button
+                                    onClick={() => navigate("/sustainability")}
+                                >
+                                    Sustainability
+                                </button>
                             </li>
                             {categories &&
                                 categories.length > 5 &&
@@ -390,6 +400,7 @@ const MobileNav: React.FC<Props> = () => {
                         </ul>
                     </div>
                     <div className="m-shop-menu">
+                        {/* <div className=".m-shop-category-block">Shop All</div> */}
                         {categories &&
                             categories.map((category) => {
                                 return (

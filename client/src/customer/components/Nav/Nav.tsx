@@ -183,19 +183,27 @@ const Nav: React.FC<Props> = () => {
                         className="nav-text"
                         onMouseEnter={() => handleShopMouseEnter()}
                         onMouseLeave={() => handleShopMouseLeave()}
+                        onClick={() => {
+                            setShopMenuVisible(false);
+                            navigate("/shop");
+                        }}
+                        role="button"
                     >
-                        <Link
-                            to="/shop"
-                            onClick={() => setShopMenuVisible(false)}
-                        >
-                            Shop
-                        </Link>
+                        Shop
                     </li>
-                    <li className="nav-text">
-                        <Link to="/about">About</Link>
+                    <li
+                        className="nav-text"
+                        role="button"
+                        onClick={() => navigate("/about")}
+                    >
+                        About
                     </li>
-                    <li className="nav-text">
-                        <Link to="/sustainability">Sustainability</Link>
+                    <li
+                        className="nav-text"
+                        role="button"
+                        onClick={() => navigate("/sustainability")}
+                    >
+                        Sustainability
                     </li>
                 </ul>
                 {/* SVG serves double duty as logo placeholder and clip-path-template for search tab */}
@@ -210,8 +218,12 @@ const Nav: React.FC<Props> = () => {
                     </defs>
                 </svg>
                 <ul className="right-menu">
-                    <li className="nav-text">
-                        <Link to="/order-status">Orders</Link>
+                    <li
+                        className="nav-text"
+                        role="button"
+                        onClick={() => navigate("/order-status")}
+                    >
+                        Orders
                     </li>
                     <li className="nav-text">Support</li>
                     <li>
@@ -261,27 +273,19 @@ const Nav: React.FC<Props> = () => {
                             onMouseLeave={() => handleCartMouseLeave()}
                             onClick={() => navigate("/shoppingcart")}
                         >
-                            <Link
-                                to="/shoppingcart"
-                                onClick={() => setCartDropdownVisible(false)}
-                            >
-                                <CartButton />
-                                {cartContents > 0 && (
-                                    <div
-                                        className="cart-badge"
-                                        aria-live="polite"
+                            <CartButton />
+                            {cartContents > 0 && (
+                                <div className="cart-badge" aria-live="polite">
+                                    <div className="badge-background"></div>
+                                    <div className="badge-background-overlay"></div>
+                                    <p
+                                        id="cart-contents"
+                                        aria-label={`Cart with ${cartContents} items`}
                                     >
-                                        <div className="badge-background"></div>
-                                        <div className="badge-background-overlay"></div>
-                                        <p
-                                            id="cart-contents"
-                                            aria-label={`Cart with ${cartContents} items`}
-                                        >
-                                            {cartContents}
-                                        </p>
-                                    </div>
-                                )}
-                            </Link>
+                                        {cartContents}
+                                    </p>
+                                </div>
+                            )}
                         </div>
                     </li>
                 </ul>
