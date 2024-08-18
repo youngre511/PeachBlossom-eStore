@@ -51,7 +51,6 @@ const MobileNav: React.FC<Props> = () => {
     const isSearchBarVisibleRef = useRef(isSearchBarVisible);
     const { contextSafe } = useGSAP({ scope: header });
     const navigate = useNavigate();
-    const location = useLocation();
     const [searchQuery, setSearchQuery] = useState<string>("");
     const categories = useAppSelector(
         (state: RootState) => state.categories.categories

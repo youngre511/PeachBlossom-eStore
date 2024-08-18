@@ -2,5 +2,11 @@
     display: grid;
     gap: 20px;
     margin-top: 30px;
-    width: calc(100vw - 380px);
+    width: calc(100vw - 40px);
+}
+
+@media (min-width: 1155px) {
+    .catalog-item-container {
+        width: calc(100vw - 380px);
+    }
 }
