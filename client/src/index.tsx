@@ -11,6 +11,7 @@ import customerStore, { persistor } from "./customer/store/customerStore";
 import adminStore from "./admin/store/store";
 import { AuthProvider } from "./common/contexts/authContext";
 import { NavigationHistoryProvider } from "./common/contexts/navContext";
+import { WindowSizeProvider } from "./common/contexts/windowSizeContext";
 
 const isAdmin = window.location.hostname.startsWith("admin");
 
@@ -32,7 +33,9 @@ root.render(
                     <BrowserRouter>
                         <AuthProvider>
                             <NavigationHistoryProvider>
-                                <CustomerApp />
+                                <WindowSizeProvider>
+                                    <CustomerApp />
+                                </WindowSizeProvider>
                             </NavigationHistoryProvider>
                         </AuthProvider>
                     </BrowserRouter>
@@ -43,7 +46,9 @@ root.render(
                 <BrowserRouter>
                     <AuthProvider>
                         <NavigationHistoryProvider>
-                            <AdminApp />
+                            <WindowSizeProvider>
+                                <AdminApp />
+                            </WindowSizeProvider>
                         </NavigationHistoryProvider>
                     </AuthProvider>
                 </BrowserRouter>
