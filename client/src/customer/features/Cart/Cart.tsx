@@ -3,6 +3,8 @@ import { useAppSelector } from "../../hooks/reduxHooks";
 import { RootState } from "../../store/customerStore";
 import CartItem from "../CartItem/CartItem";
 import { useNavigate } from "react-router-dom";
+import "./cart.css";
+import PeachButton from "../../../common/components/PeachButton";
 
 const Cart: React.FC = () => {
     const cart = useAppSelector((state: RootState) => state.cart);
@@ -13,7 +15,7 @@ const Cart: React.FC = () => {
     return (
         <div className="cart-container">
             <div className="cart">
-                <h1>ShoppingCart</h1>
+                <h1>Shopping Cart</h1>
                 <div className="cart-items-container">
                     {cart.items.length === 0 && <p>No items in cart</p>}
                     {cart.items.length > 0 &&
@@ -23,12 +25,16 @@ const Cart: React.FC = () => {
                 </div>
             </div>
             <div className="order-options">
-                <h2>Order Summary</h2>
+                <h2 className="order-summary-label">Order Summary</h2>
                 <div className="cart-subtotal">
                     <p>Subtotal ({cart.numberOfItems} items)</p>
                     <p>${cart.subTotal}</p>
                 </div>
-                <button onClick={() => navigate("/checkout")}>CHECKOUT</button>
+                <PeachButton
+                    onClick={() => navigate("/checkout")}
+                    text="PROCEED TO CHECKOUT"
+                    width="100%"
+                />
             </div>
         </div>
     );

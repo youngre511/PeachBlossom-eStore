@@ -1,9 +1,10 @@
-@media (max-width: 810) {
+@media (max-width: 810px) {
     header {
         position: sticky;
         top: -50px;
     }
 }
+
 .m-blur-filter {
     background-color: #fbeee576;
     top: 0;
@@ -102,8 +103,8 @@
 
 .m-cart-badge {
     position: absolute;
-    bottom: -8px;
-    right: -5px;
+    bottom: 15px;
+    right: 20px;
     height: 16px;
     width: 16px;
     display: flex;

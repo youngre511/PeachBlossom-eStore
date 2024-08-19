@@ -67,9 +67,7 @@ const MobileNav: React.FC<Props> = () => {
         }
     }, [searchOptionsSlice]);
 
-    useEffect(() => {
-        console.log("forceCollapsed");
-    }, [forceCollapse]);
+    useEffect(() => {}, [forceCollapse]);
 
     useEffect(() => {
         const numberOfElements = categories.length > 5 ? categories.length : 5;

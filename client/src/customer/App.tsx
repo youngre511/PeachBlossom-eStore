@@ -21,8 +21,8 @@ import { fetchCategories } from "./features/Categories/categoriesSlice";
 import { fetchSearchOptions } from "./features/SearchOptions/searchOptionsSlice";
 import Cart from "./features/Cart/Cart";
 import Checkout from "./components/Checkout/Checkout";
-import useWindowDimensions from "../common/hooks/useWindowDimensions";
 import MobileNav from "./components/MobileNav/MobileNav";
+import { useWindowSizeContext } from "../common/contexts/windowSizeContext";
 
 const CustomerApp: React.FC = () => {
     const dispatch = useAppDispatch();
@@ -31,7 +31,7 @@ const CustomerApp: React.FC = () => {
         dispatch(fetchSearchOptions());
     }, [dispatch]);
 
-    const { width } = useWindowDimensions();
+    const { width } = useWindowSizeContext();
 
     return (
         <ThemeProvider theme={theme}>

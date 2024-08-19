@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { CartItem as item } from "../Cart/CartTypes";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../../hooks/reduxHooks";
 import { RootState } from "../../store/customerStore";
 import { updateItemQuantity } from "../Cart/cartSlice";
@@ -13,6 +13,7 @@ const CartItem: React.FC<Props> = ({ item }: Props) => {
     const totalPrice =
         item.quantity * (item.discountPrice ? item.discountPrice : item.price);
     const dispatch = useAppDispatch();
+    const navigate = useNavigate();
 
     const handleUpdateQuantity = () => {
         dispatch(
@@ -46,21 +47,20 @@ const CartItem: React.FC<Props> = ({ item }: Props) => {
     return (
         <div className="cart-item">
             <div className="thumbnail-remove">
-                <Link to={item.productUrl}>
-                    <img
-                        src={item.thumbnailUrl}
-                        alt={item.name}
-                        className="cart-thumbnail"
-                    />
-                </Link>
+                <img
+                    src={item.thumbnailUrl}
+                    alt={item.name}
+                    className="cart-thumbnail"
+                    onClick={() => navigate(item.productUrl)}
+                />
                 {cartView && (
-                    <p
+                    <div
                         className="remove-button"
                         role="button"
                         onClick={handleRemoveProduct}
                     >
                         Remove
-                    </p>
+                    </div>
                 )}
             </div>
             <div className="cartItemDetails">
@@ -68,49 +68,54 @@ const CartItem: React.FC<Props> = ({ item }: Props) => {
                     <Link to={item.productUrl}>
                         <h2 className="cart-item-name">{item.name}</h2>
                     </Link>
-                    <p className="cart-productNo">#{item.productNo}</p>
+                    <div className="cart-productNo">#{item.productNo}</div>
                 </div>
                 <div className="price-and-quantity">
                     {!cartView && (
-                        <p className="drop-quantity">Qty: {item.quantity}</p>
+                        <div className="drop-quantity">
+                            Qty: {item.quantity}
+                        </div>
                     )}
                     {item.discountPrice && (
                         <div className="pricing">
-                            <p className="discount-price">
+                            <div className="discount-price">
                                 {item.discountPrice}
-                            </p>
-                            <p className="reg-price">{item.price}</p>
+                            </div>
+                            <div className="reg-price">{item.price}</div>
                         </div>
                     )}
                     {!item.discountPrice && (
                         <div className="pricing">
-                            <p className="price">{item.price}</p>
+                            <div className="price">{item.price}</div>
                         </div>
                     )}
                     {cartView && (
                         <div className="quantity">
-                            <input
-                                type="number"
-                                value={quantity}
-                                onChange={updateLocalQuantity}
-                                max={item.maxAvailable}
-                            />
-                            <p
+                            <div>
+                                Qty.
+                                <input
+                                    type="number"
+                                    value={quantity}
+                                    onChange={updateLocalQuantity}
+                                    max={item.maxAvailable}
+                                />
+                            </div>
+                            <div
                                 role="button"
                                 className="update-quantity"
                                 onClick={handleUpdateQuantity}
                             >
                                 Update
-                            </p>
-                        </div>
-                    )}
-                    {cartView && (
-                        <div className="item-total">
-                            <p className="total-label">Item Total</p>
-                            <p className="item-total-price">${totalPrice}</p>
+                            </div>
                         </div>
                     )}
                 </div>
+                {cartView && (
+                    <div className="item-total">
+                        <p className="total-label">Item Total</p>
+                        <p className="item-total-price">${totalPrice}</p>
+                    </div>
+                )}
             </div>
         </div>
     );

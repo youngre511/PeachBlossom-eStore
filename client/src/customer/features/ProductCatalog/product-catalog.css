@@ -1,8 +1,22 @@
 .catalog-item-container {
-    display: grid;
-    gap: 20px;
-    margin-top: 30px;
     width: calc(100vw - 40px);
+}
+
+@media (min-width: 550px) {
+    .catalog-item-container {
+        display: grid;
+        gap: 20px;
+        margin: 30px auto 0 auto;
+        width: 510px;
+    }
+}
+
+@media (min-width: 815px) {
+    .catalog-item-container {
+        width: calc(100vw - 40px);
+        margin-left: 0;
+        margin-right: 0;
+    }
 }
 
 @media (min-width: 1155px) {

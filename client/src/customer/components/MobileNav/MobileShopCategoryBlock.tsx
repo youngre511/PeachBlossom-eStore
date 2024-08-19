@@ -20,7 +20,6 @@ const MobileShopCategoryBlock: React.FC<Props> = ({
     const [isExpanded, setIsExpanded] = useState<boolean>(false);
 
     useEffect(() => {
-        console.log("force collapsing:", forceCollapse);
         if (forceCollapse) {
             setIsExpanded(false);
         }

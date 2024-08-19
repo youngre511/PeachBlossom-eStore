@@ -11,7 +11,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "./product-details.css";
 import AddToCartButton from "../AddToCartButton/AddToCartButton";
-import useWindowDimensions from "../../../common/hooks/useWindowDimensions";
+import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
 
 interface Props {}
 const ProductDetails: React.FC<Props> = () => {
@@ -22,7 +22,7 @@ const ProductDetails: React.FC<Props> = () => {
     const productState = useAppSelector(
         (state: RootState) => state.catalog.singleProduct
     );
-    const windowDimensions = useWindowDimensions();
+    const windowDimensions = useWindowSizeContext();
     const dispatch = useAppDispatch();
     const [isVertical, setIsVertical] = useState<boolean>(true);
 
@@ -37,11 +37,17 @@ const ProductDetails: React.FC<Props> = () => {
     const settings: Settings = {
         swipe: true,
         draggable: false,
-        dots: false,
+        dots:
+            windowDimensions.width &&
+            windowDimensions.width <= 1024 &&
+            product &&
+            product.images.length > 1
+                ? true
+                : false,
         infinite: false,
         speed: 500,
         cssEase: "ease-in-out",
-        arrows: false,
+        arrows: true,
         adaptiveHeight: false,
         className: "pd-carousel-container",
         vertical: isVertical,
@@ -55,18 +61,29 @@ const ProductDetails: React.FC<Props> = () => {
                         product && product.images.length > 4
                             ? 4
                             : product?.images.length,
-                    arrows: true,
+                    arrows: product && product.images.length > 4 ? true : false,
                 },
             },
             {
                 breakpoint: 1512, // Max width for desktop
                 settings: {
                     slidesToShow: 3,
-                    slidesToScroll: 2,
-                    // product && product.images.length > 3
-                    //     ? 3
-                    //     : product?.images.length,
-                    arrows: true,
+                    slidesToScroll:
+                        product && product.images.length > 3
+                            ? 3
+                            : product?.images.length,
+                    arrows: product && product.images.length > 3 ? true : false,
+                },
+            },
+            {
+                breakpoint: 1025, // Max width for tablet
+                settings: {
+                    slidesToShow: 3,
+                    slidesToScroll:
+                        product && product.images.length > 3
+                            ? 3
+                            : product?.images.length,
+                    arrows: product && product.images.length > 3 ? true : false,
                 },
             },
             {
@@ -74,13 +91,11 @@ const ProductDetails: React.FC<Props> = () => {
                 settings: {
                     slidesToShow: 1,
                     slidesToScroll: 1,
-                },
-            },
-            {
-                breakpoint: 464, // Max width for mobile
-                settings: {
-                    slidesToShow: 1,
-                    slidesToScroll: 1,
+                    arrows:
+                        (product && product.images.length === 1) ||
+                        windowDimensions.isTouchDevice
+                            ? false
+                            : true,
                 },
             },
         ],
@@ -107,7 +122,9 @@ const ProductDetails: React.FC<Props> = () => {
                 <React.Fragment>
                     <div className="product-images-cont">
                         <div className="product-images">
-                            {product.images.length > 1 && (
+                            {((windowDimensions.width &&
+                                windowDimensions.width < 1025) ||
+                                product.images.length > 1) && (
                                 <Slider
                                     {...settings}
                                     key={windowDimensions.width}
@@ -201,6 +218,7 @@ const ProductDetails: React.FC<Props> = () => {
                         <AddToCartButton
                             available={product.stock}
                             productNo={product.productNo}
+                            isTouchDevice={windowDimensions.isTouchDevice}
                         />
                     </div>
                 </React.Fragment>

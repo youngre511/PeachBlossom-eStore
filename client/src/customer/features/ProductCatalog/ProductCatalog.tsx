@@ -6,6 +6,7 @@ import Item from "../../components/Item/Item";
 import { Product } from "./CatalogTypes";
 import { CircularProgress } from "@mui/material";
 import "./product-catalog.css";
+import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
 
 interface Props {
     page: number;
@@ -28,18 +29,16 @@ const ProductCatalog: React.FC<Props> = ({ page, results }) => {
     const [spacing, setSpacing] = useState<number | string>(0);
     const productGrid = useRef<HTMLDivElement | null>(null);
     const [numInRow, setNumInRow] = useState(1);
-
+    const winDim = useWindowSizeContext();
     const updateContWidth = () => {
         if (productGrid.current) {
             const rect = productGrid.current.getBoundingClientRect();
-            console.log("rect.width:", rect.width);
             setProductGridWidth(rect.width);
         }
     };
 
     useEffect(() => {
         updateContWidth();
-
         window.addEventListener("resize", updateContWidth);
 
         return () => {
@@ -48,7 +47,7 @@ const ProductCatalog: React.FC<Props> = ({ page, results }) => {
     }, []);
 
     useEffect(() => {
-        if (productGridWidth) {
+        if (productGridWidth && winDim.width && winDim.width >= 815) {
             const calculatedNumInRow = Math.floor(
                 (productGridWidth + 20) / 265
             );
@@ -61,14 +60,11 @@ const ProductCatalog: React.FC<Props> = ({ page, results }) => {
                     : 20;
             setNumInRow(calculatedNumInRow);
             setSpacing(calculatedSpacing);
+        } else if (winDim.width && winDim.width >= 550) {
+            setNumInRow(2);
+            setSpacing("20px");
         }
-
-        // if (productGridWidth >= 512) {
-        //     setSpacing((productGridWidth - 245 * numInRow) / (numInRow - 1));
-        // } else {
-        //     setSpacing("auto");
-        // }
-    }, [productGridWidth]);
+    }, [productGridWidth, winDim]);
 
     if (loading) {
         return (

@@ -18,7 +18,8 @@ import FilterAltSharpIcon from "@mui/icons-material/FilterAltSharp";
 import SwapVertSharpIcon from "@mui/icons-material/SwapVertSharp";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
-import useWindowDimensions from "../../../common/hooks/useWindowDimensions";
+import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
+import ArrowUpwardSharpIcon from "@mui/icons-material/ArrowUpwardSharp";
 
 const Shop = () => {
     const dispatch = useAppDispatch();
@@ -26,7 +27,7 @@ const Shop = () => {
     const itemsPerPage = useAppSelector(
         (state: RootState) => state.userPreferences.itemsPerPage
     );
-    const { width } = useWindowDimensions();
+    const { width } = useWindowSizeContext();
     const [searchParams, setSearchParams] = useSearchParams();
     const search = searchParams.get("search");
     const category = searchParams.get("category");
@@ -48,7 +49,13 @@ const Shop = () => {
     const [drawerInitialized, setDrawerInitialized] = useState<boolean>(false);
     const filterAnimationRef = useRef<GSAPTimeline | null>(null);
     const shop = useRef<HTMLDivElement>(null);
+    const [currentWidth, setCurrentWidth] = useState<number | null>(null);
     const { contextSafe } = useGSAP({ scope: shop });
+    const [sortMenuVisible, setSortMenuVisible] = useState<boolean>(false);
+    const selectedBtnStyle = {
+        backgroundColor: "var(--deep-peach)",
+        color: "white",
+    };
 
     useEffect(
         // Set up drawer animation
@@ -71,6 +78,19 @@ const Shop = () => {
                 // Change initialization tracker state
                 setDrawerInitialized(true);
             }
+
+            // Separately, check to see, on resize, if the resize has crossed 550px one way or another. If so, and if itemsPerPage is not 24, run fetchData(), which has logic overriding user-setting for itemsPerPage on mobile (< 550px).
+            if (
+                itemsPerPage !== 24 &&
+                currentWidth &&
+                width &&
+                ((width >= 550 && currentWidth < 550) ||
+                    (width < 550 && currentWidth >= 550))
+            ) {
+                fetchData();
+            }
+            //Set the current width so that resized widths can be compared to it.
+            setCurrentWidth(width);
         }),
         [width]
     );
@@ -194,7 +214,7 @@ const Shop = () => {
             );
             const existingFilters = Object.values({
                 ...catalog.filters,
-                itemsPerPage: itemsPerPage,
+                itemsPerPage: width && width >= 550 ? itemsPerPage : 24,
             }).map((value) => (value ? value.toString() : ""));
 
             // Before dispatching request, check that params have changed
@@ -233,10 +253,6 @@ const Shop = () => {
         setSearchParams,
     ]);
 
-    const handleItemsPerPageChange = (newItemsPerPage: 24 | 48 | 96) => {
-        dispatch(setItemsPerPage(newItemsPerPage));
-    };
-
     const updateSearchParams = (newFilters: Record<string, string>): void => {
         Object.keys(newFilters).forEach((key) => {
             const value = newFilters[key];
@@ -247,6 +263,16 @@ const Shop = () => {
             }
         });
         setSearchParams(searchParams);
+    };
+
+    const changeSortOrder = (
+        newOrder:
+            | "name-ascend"
+            | "name-descend"
+            | "price-ascend"
+            | "price-descend"
+    ) => {
+        updateSearchParams({ sort: newOrder });
     };
 
     const removeSubCategory = (): void => {
@@ -310,11 +336,90 @@ const Shop = () => {
                         </h1>
                     )}
                     <div className="sort-and-ipp">
-                        <SortMethodSelector
-                            sortMethod={sort}
-                            updateSearchParams={updateSearchParams}
-                        />
-                        <ItemsPerPageSelector />
+                        {width && width >= 500 && (
+                            <React.Fragment>
+                                <SortMethodSelector
+                                    sortMethod={sort}
+                                    updateSearchParams={updateSearchParams}
+                                />
+                                <ItemsPerPageSelector />
+                            </React.Fragment>
+                        )}
+                        {width && width < 500 && (
+                            <React.Fragment>
+                                <button
+                                    className="shop-sort-button"
+                                    onClick={() =>
+                                        setSortMenuVisible(!sortMenuVisible)
+                                    }
+                                >
+                                    Sort
+                                    <SwapVertSharpIcon
+                                        className="shop-sort-icon"
+                                        // fontSize="large"
+                                    />
+                                </button>
+                                <div
+                                    className="mobile-sort-menu"
+                                    style={{
+                                        height: sortMenuVisible ? "240px" : 0,
+                                    }}
+                                >
+                                    <button
+                                        className="sort-buttons"
+                                        style={
+                                            sort === "name-ascend"
+                                                ? selectedBtnStyle
+                                                : undefined
+                                        }
+                                        onClick={() =>
+                                            changeSortOrder("name-ascend")
+                                        }
+                                    >
+                                        A&ndash;Z
+                                    </button>
+                                    <button
+                                        className="sort-buttons"
+                                        style={
+                                            sort === "name-descend"
+                                                ? selectedBtnStyle
+                                                : undefined
+                                        }
+                                        onClick={() =>
+                                            changeSortOrder("name-descend")
+                                        }
+                                    >
+                                        Z&ndash;A
+                                    </button>
+                                    <button
+                                        className="sort-buttons"
+                                        style={
+                                            sort === "price-ascend"
+                                                ? selectedBtnStyle
+                                                : undefined
+                                        }
+                                        onClick={() =>
+                                            changeSortOrder("price-ascend")
+                                        }
+                                    >
+                                        $&ndash;$$$
+                                    </button>
+                                    <button
+                                        className="sort-buttons"
+                                        style={
+                                            sort === "price-descend"
+                                                ? selectedBtnStyle
+                                                : undefined
+                                        }
+                                        onClick={() =>
+                                            changeSortOrder("price-descend")
+                                        }
+                                    >
+                                        $$$&ndash;$
+                                    </button>
+                                </div>
+                            </React.Fragment>
+                        )}
                         <button
                             className="shop-filter-button"
                             onClick={() => handleFilterDrawerOpen()}

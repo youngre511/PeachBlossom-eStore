@@ -25,7 +25,7 @@ import PeachButton from "../../../common/components/PeachButton";
 import CloseSharpIcon from "@mui/icons-material/CloseSharp";
 
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import useWindowDimensions from "../../../common/hooks/useWindowDimensions";
+import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
 
 interface Props {
     updateSearchParams: (newFilters: Record<string, string>) => void;
@@ -43,7 +43,7 @@ const FilterOptions: React.FC<Props> = ({
     handleFilterDrawerClose,
 }: Props) => {
     const theme = useTheme();
-    const { width } = useWindowDimensions();
+    const { width } = useWindowSizeContext();
     const existingFilters: Filters = useAppSelector(
         (state: RootState) => state.catalog.filters
     );
@@ -754,7 +754,6 @@ const FilterOptions: React.FC<Props> = ({
                                 </div>
                             </div>
                             <div className="filter-section">
-                                <h2 className="filter-type">Price</h2>
                                 <div className="price-filters">
                                     <FormGroup
                                         sx={{
@@ -764,7 +763,9 @@ const FilterOptions: React.FC<Props> = ({
                                             alignItems: "center",
                                         }}
                                     >
-                                        <p className="dimension-label">Price</p>
+                                        <span className="price-label">
+                                            Price
+                                        </span>
                                         <div className="min-max-fields">
                                             <span
                                                 style={{
@@ -786,11 +787,6 @@ const FilterOptions: React.FC<Props> = ({
                                                     width: "80px",
                                                     marginLeft: "10px",
                                                 }}
-                                                // endAdornment={
-                                                //     <InputAdornment position="end">
-                                                //         in.
-                                                //     </InputAdornment>
-                                                // }
                                             />
                                             <span
                                                 style={{
@@ -813,11 +809,6 @@ const FilterOptions: React.FC<Props> = ({
                                                     width: "80px",
                                                     marginLeft: "10px",
                                                 }}
-                                                // endAdornment={
-                                                //     <InputAdornment position="end">
-                                                //         in.
-                                                //     </InputAdornment>
-                                                // }
                                             />
                                         </div>
                                     </FormGroup>
