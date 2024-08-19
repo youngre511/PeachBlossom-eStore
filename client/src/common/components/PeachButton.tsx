@@ -9,6 +9,7 @@ interface Props {
     height?: string;
     className?: string;
     disabled?: boolean;
+    mobile?: boolean;
 }
 
 const PeachButton: React.FC<Props> = ({
@@ -20,6 +21,7 @@ const PeachButton: React.FC<Props> = ({
     height,
     className,
     disabled,
+    mobile,
 }) => {
     const divStyle: CSSProperties = {
         width: width ? width : "100px",
@@ -84,7 +86,7 @@ const PeachButton: React.FC<Props> = ({
         type: type ? type : "button",
         ...(id && { id }),
         className: className ? "button-comp" + " " + className : "button-comp",
-        onClick: disabled ? undefined : onClick,
+        // onClick: disabled ? undefined : onClick,
         style: buttonStyle,
     };
 
@@ -94,16 +96,30 @@ const PeachButton: React.FC<Props> = ({
         style: divStyle,
     };
 
+    const mobileDivProps = !mobile
+        ? undefined
+        : {
+              minWidth: "40px",
+              minHeight: "40px",
+              width: "auto",
+              height: "auto",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+          };
+
     return (
-        <div {...divProps}>
-            <div className="button-comp-bkg" style={background}></div>
-            {!disabled && (
-                <div
-                    className="button-comp-bkg-overlay"
-                    style={backgroundOverlay}
-                ></div>
-            )}
-            <button {...buttonProps}>{text.toUpperCase()}</button>
+        <div style={mobileDivProps} onClick={disabled ? undefined : onClick}>
+            <div {...divProps}>
+                <div className="button-comp-bkg" style={background}></div>
+                {!disabled && (
+                    <div
+                        className="button-comp-bkg-overlay"
+                        style={backgroundOverlay}
+                    ></div>
+                )}
+                <button {...buttonProps}>{text.toUpperCase()}</button>
+            </div>
         </div>
     );
 };

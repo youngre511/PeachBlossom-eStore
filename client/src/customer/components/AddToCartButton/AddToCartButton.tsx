@@ -12,8 +12,13 @@ import "./AddToCartButton.css";
 interface Props {
     available: number;
     productNo: string;
+    isTouchDevice?: boolean;
 }
-const AddToCartButton: React.FC<Props> = ({ available, productNo }: Props) => {
+const AddToCartButton: React.FC<Props> = ({
+    available,
+    productNo,
+    isTouchDevice = false,
+}: Props) => {
     const inStock: boolean = available > 0;
     const cart = useAppSelector((state: RootState) => state.cart);
     const dispatch = useAppDispatch();
@@ -66,6 +71,7 @@ const AddToCartButton: React.FC<Props> = ({ available, productNo }: Props) => {
                 }}
                 width={"120px"}
                 height={"30px"}
+                mobile={isTouchDevice}
             />
         );
     } else if (!isInCart) {
@@ -76,6 +82,7 @@ const AddToCartButton: React.FC<Props> = ({ available, productNo }: Props) => {
                 text="ADD TO CART"
                 width="120px"
                 height="30px"
+                mobile={isTouchDevice}
             />
         );
     } else {
@@ -87,6 +94,7 @@ const AddToCartButton: React.FC<Props> = ({ available, productNo }: Props) => {
                     text="-"
                     height="25px"
                     width="25px"
+                    mobile={isTouchDevice}
                 />
                 <div className="quantity-display">
                     <p
@@ -104,6 +112,7 @@ const AddToCartButton: React.FC<Props> = ({ available, productNo }: Props) => {
                         height="25px"
                         width="25px"
                         disabled={numberInCart >= available}
+                        mobile={isTouchDevice}
                     />
                 )}
             </div>
