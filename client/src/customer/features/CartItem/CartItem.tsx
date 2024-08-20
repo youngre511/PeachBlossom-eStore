@@ -92,7 +92,7 @@ const CartItem: React.FC<Props> = ({ item }: Props) => {
                     {cartView && (
                         <div className="quantity">
                             <div>
-                                Qty.car
+                                Qty.
                                 <input
                                     type="number"
                                     value={quantity}

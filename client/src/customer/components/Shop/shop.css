@@ -34,6 +34,7 @@
     background-color: transparent;
     border: none;
     box-shadow: none;
+    z-index: 11;
 }
 
 .shop-filter-button {

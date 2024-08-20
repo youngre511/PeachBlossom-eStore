@@ -24,17 +24,19 @@ const Cart: React.FC = () => {
                         ))}
                 </div>
             </div>
-            <div className="order-options">
-                <h2 className="order-summary-label">Order Summary</h2>
-                <div className="cart-subtotal">
-                    <p>Subtotal ({cart.numberOfItems} items)</p>
-                    <p>${cart.subTotal}</p>
+            <div className="order-options-container">
+                <div className="order-options">
+                    <h2 className="order-summary-label">Order Summary</h2>
+                    <div className="cart-subtotal">
+                        <p>Subtotal ({cart.numberOfItems} items)</p>
+                        <p>${cart.subTotal}</p>
+                    </div>
+                    <PeachButton
+                        onClick={() => navigate("/checkout")}
+                        text="PROCEED TO CHECKOUT"
+                        width="100%"
+                    />
                 </div>
-                <PeachButton
-                    onClick={() => navigate("/checkout")}
-                    text="PROCEED TO CHECKOUT"
-                    width="100%"
-                />
             </div>
         </div>
     );
