@@ -82,19 +82,30 @@ const MobileNav: React.FC<Props> = () => {
                 end: "top+=25px top",
                 scrub: true,
                 onEnter: () => {
-                    gsap.to(".m-full-logo", {
-                        opacity: 0,
-                        duration: 0.5,
-                    });
-                    gsap.to(".m-text-only-logo", {
-                        opacity: 1,
-                        duration: 0.5,
-                    });
+                    gsap.timeline()
+                        .to(".m-full-logo", {
+                            opacity: 0,
+                            duration: 0.5,
+                        })
+                        .to(
+                            ".m-text-only-logo",
+                            {
+                                opacity: 1,
+                                duration: 0.5,
+                            },
+                            "<"
+                        )
+                        .to(
+                            ".m-nav-logo",
+                            { duration: 0.5, height: "111px" },
+                            "<"
+                        )
+                        .set(".m-full-logo", { display: "none" });
                     setShowFullLogo(false);
                 },
                 onLeaveBack: () => {
                     if (!isSearchBarVisibleRef.current) {
-                        console.log(isSearchBarVisible);
+                        gsap.to(".m-full-logo", { display: "block" });
                         gsap.to(".m-full-logo", {
                             opacity: 1,
                             duration: 0.5,
@@ -102,6 +113,10 @@ const MobileNav: React.FC<Props> = () => {
                         gsap.to(".m-text-only-logo", {
                             opacity: 0,
                             duration: 0.5,
+                        });
+                        gsap.to(".m-nav-logo", {
+                            duration: 0.5,
+                            height: "158px",
                         });
                     }
                     setShowFullLogo(true);
@@ -175,6 +190,7 @@ const MobileNav: React.FC<Props> = () => {
     const handleCloseMenu = () => {
         if (menuToggleRef.current) {
             menuToggleRef.current.reverse();
+            setShopMenuVisible(false);
         }
     };
 
@@ -397,7 +413,18 @@ const MobileNav: React.FC<Props> = () => {
                         </ul>
                     </div>
                     <div className="m-shop-menu">
-                        {/* <div className=".m-shop-category-block">Shop All</div> */}
+                        <div className=".m-shop-category-block">
+                            <div
+                                className="m-shop-category"
+                                style={{ fontWeight: 700 }}
+                                onClick={() => {
+                                    navigate(`/shop`);
+                                    handleCloseMenu();
+                                }}
+                            >
+                                Shop All
+                            </div>
+                        </div>
                         {categories &&
                             categories.map((category) => {
                                 return (
@@ -407,6 +434,7 @@ const MobileNav: React.FC<Props> = () => {
                                         menusExpanded={menusExpanded}
                                         setMenusExpanded={setMenusExpanded}
                                         key={category.categoryName}
+                                        handleCloseMenu={handleCloseMenu}
                                     />
                                 );
                             })}
@@ -478,145 +506,6 @@ const MobileNav: React.FC<Props> = () => {
                     </div>
                 </div>
             </div>
-
-            {/* <div className="m-nav-bar">
-                <ul className="m-left-menu">
-                    <li
-                        className="m-nav-text"
-                        onMouseEnter={() => handleShopMouseEnter()}
-                        onMouseLeave={() => handleShopMouseLeave()}
-                    >
-                        <Link
-                            to="/shop"
-                            onClick={() => setShopMenuVisible(false)}
-                        >
-                            Shop
-                        </Link>
-                    </li>
-                    <li className="m-nav-text">
-                        <Link to="/about">About</Link>
-                    </li>
-                    <li className="m-nav-text">
-                        <Link to="/sustainability">Sustainability</Link>
-                    </li>
-                </ul>
-                
-                <svg width="160px" height="0">
-                    <defs>
-                        <clipPath id="complex-left-clip">
-                            <path
-                                transform="scale(0.39)"
-                                d="M799.4-.3v74.3c0,66.3.7-86.9,0,86.4h-489.6c-180,0-160.8-160.8-280.8-160.8h770.4"
-                            />
-                        </clipPath>
-                    </defs>
-                </svg>
-                <ul className="m-right-menu">
-                    <li className="m-nav-text">
-                        <Link to="/order-status">Orders</Link>
-                    </li>
-                    <li className="m-nav-text">Support</li>
-                    <li>
-                        <div
-                            className="m-nav-icon"
-                            id="search"
-                            aria-label="search"
-                            tabIndex={0}
-                            role="button"
-                            onClick={() =>
-                                setIsSearchBarVisible(!isSearchBarVisible)
-                            }
-                        >
-                            <SearchButton />
-                        </div>
-                    </li>
-                    <li>
-                        <div
-                            className="m-nav-icon"
-                            id="account"
-                            aria-label="account"
-                            tabIndex={0}
-                            role="button"
-                        >
-                            <AccountButton />
-                        </div>
-                    </li>
-                    <li>
-                        <div
-                            className="m-nav-icon"
-                            id="recents"
-                            aria-label="recently viewed"
-                            tabIndex={0}
-                            role="button"
-                        >
-                            <RecentButton />
-                        </div>
-                    </li>
-                    <li>
-                        
-                    </li>
-                </ul>
-               
-                <div className="m-search-tab">
-                    <div className="m-search-input">
-                        <form onSubmit={(e) => handleSearch(e)}>
-                            <Autocomplete
-                                freeSolo
-                                id="product-search"
-                                disableClearable
-                                filterOptions={(searchOptions) => {
-                                    const inputValue =
-                                        searchQuery.toLowerCase();
-                                    return searchQuery.length >= 2
-                                        ? searchOptions.filter((option) =>
-                                              option
-                                                  .toLowerCase()
-                                                  .includes(inputValue)
-                                          )
-                                        : [];
-                                }}
-                                options={searchOptions}
-                                renderInput={(params) => (
-                                    <TextField
-                                        {...params}
-                                        label="Search Products"
-                                        variant="filled"
-                                        value={searchQuery}
-                                        onChange={(
-                                            e: ChangeEvent<HTMLInputElement>
-                                        ) => setSearchQuery(e.target.value)}
-                                        fullWidth
-                                        sx={{
-                                            backgroundColor: "white",
-                                        }}
-                                        size="small"
-                                        InputProps={{
-                                            ...params.InputProps,
-                                            type: "search",
-                                        }}
-                                        inputProps={{
-                                            ...params.inputProps,
-                                            inputMode: "search",
-                                            // sx: { backgroundColor: "white" },
-                                        }}
-                                    />
-                                )}
-                            />
-                            <Button type="submit" style={{ display: "none" }} />
-                        </form>
-                    </div>
-                </div>
-                <ShopNav
-                    isShopMenuVisible={isShopMenuVisible}
-                    handleShopMouseEnter={handleShopMouseEnter}
-                    handleShopMouseLeave={handleShopMouseLeave}
-                />
-                <CartDropDown
-                    isCartDropdownVisible={isCartDropdownVisible}
-                    handleCartMouseEnter={handleCartMouseEnter}
-                    handleCartMouseLeave={handleCartMouseLeave}
-                />
-            </div> */}
         </header>
     );
 };
