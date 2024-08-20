@@ -20,6 +20,7 @@ import {
     InputAdornment,
     SvgIcon,
     TextField,
+    Tooltip,
 } from "@mui/material";
 
 interface Props {}
@@ -241,26 +242,30 @@ const Nav: React.FC<Props> = () => {
                         </div>
                     </li>
                     <li>
-                        <div
-                            className="nav-icon"
-                            id="account"
-                            aria-label="account"
-                            tabIndex={0}
-                            role="button"
-                        >
-                            <AccountButton />
-                        </div>
+                        <Tooltip title="Coming Soon!">
+                            <div
+                                className="nav-icon"
+                                id="account"
+                                aria-label="account"
+                                tabIndex={0}
+                                role="button"
+                            >
+                                <AccountButton />
+                            </div>
+                        </Tooltip>
                     </li>
                     <li>
-                        <div
-                            className="nav-icon"
-                            id="recents"
-                            aria-label="recently viewed"
-                            tabIndex={0}
-                            role="button"
-                        >
-                            <RecentButton />
-                        </div>
+                        <Tooltip title="Coming Soon!">
+                            <div
+                                className="nav-icon"
+                                id="recents"
+                                aria-label="recently viewed"
+                                tabIndex={0}
+                                role="button"
+                            >
+                                <RecentButton />
+                            </div>
+                        </Tooltip>
                     </li>
                     <li>
                         <div
