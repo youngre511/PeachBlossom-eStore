@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";
-import { useLocation, Location, useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -14,7 +14,6 @@ import Stepper from "@mui/material/Stepper";
 import Typography from "@mui/material/Typography";
 
 import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
-import AutoAwesomeRoundedIcon from "@mui/icons-material/AutoAwesomeRounded";
 import ChevronLeftRoundedIcon from "@mui/icons-material/ChevronLeftRounded";
 import ChevronRightRoundedIcon from "@mui/icons-material/ChevronRightRounded";
 
@@ -28,6 +27,7 @@ import { RootState } from "../../store/customerStore";
 import axios, { AxiosError } from "axios";
 import { syncCart, clearCart } from "../../features/Cart/cartSlice";
 import { CartState } from "../../features/Cart/CartTypes";
+import "./checkout.css";
 
 export interface PaymentDetails {
     cardType: string;
@@ -101,6 +101,12 @@ const Checkout: React.FC = () => {
     const [orderTotal, setOrderTotal] = useState(subTotal);
     const navigate = useNavigate();
     const [orderPlaced, setOrderPlaced] = useState<boolean>(false);
+    const [canProceedFromShipping, setCanProceedFromShipping] =
+        useState<boolean>(false);
+    const [canProceedFromPayment, setCanProceedFromPayment] =
+        useState<boolean>(false);
+    const [canPlaceOrder, setCanPlaceOrder] = useState<boolean>(false);
+    const [nextDisabled, setNextDisabled] = useState<boolean>(false);
 
     // Hold stock till checkout is complete or user navigates away from page.
     useEffect(() => {
@@ -154,6 +160,75 @@ const Checkout: React.FC = () => {
             releaseStock();
         };
     }, []);
+
+    useEffect(() => {
+        let canProceed = true;
+        for (const key of Object.keys(shippingDetails)) {
+            if (
+                key !== "shippingAddress2" &&
+                shippingDetails[key as keyof ShippingDetails] === ""
+            ) {
+                canProceed = false;
+                break;
+            }
+        }
+        setCanProceedFromPayment(canProceed);
+    }, [shippingDetails]);
+
+    useEffect(() => {
+        let canProceed = true;
+        if (
+            paymentDetails.cardHolder === "" ||
+            paymentDetails.expiryDate === ""
+        ) {
+            canProceed = false;
+        }
+        setCanProceedFromShipping(canProceed);
+    }, [paymentDetails]);
+
+    useEffect(() => {
+        let canProceed = true;
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (email === "" || !emailRegex.test(email)) {
+            canProceed = false;
+        }
+
+        setCanPlaceOrder(canProceed);
+    }, [email]);
+
+    useEffect(() => {
+        switch (activeStep) {
+            case 0:
+                if (canProceedFromPayment) {
+                    setNextDisabled(false);
+                } else {
+                    setNextDisabled(true);
+                }
+                break;
+            case 1:
+                if (canProceedFromShipping) {
+                    setNextDisabled(false);
+                } else {
+                    setNextDisabled(true);
+                }
+                break;
+            case 2:
+                if (canPlaceOrder) {
+                    setNextDisabled(false);
+                } else {
+                    setNextDisabled(true);
+                }
+                break;
+            default:
+                setNextDisabled(false);
+                break;
+        }
+    }, [
+        activeStep,
+        canProceedFromPayment,
+        canProceedFromShipping,
+        canPlaceOrder,
+    ]);
 
     function getStepContent(step: number) {
         switch (step) {
@@ -441,7 +516,7 @@ const Checkout: React.FC = () => {
                             flexGrow: 1,
                             width: "100%",
                             maxWidth: { sm: "100%", md: 600 },
-                            maxHeight: "720px",
+                            // maxHeight: "px",
                             gap: { xs: 5, md: "none" },
                         }}
                     >
@@ -543,9 +618,9 @@ const Checkout: React.FC = () => {
                                         alignItems: "end",
                                         flexGrow: 1,
                                         gap: 1,
-                                        pb: { xs: 12, sm: 0 },
+                                        pb: { xs: 6, sm: 0 },
                                         mt: { xs: 2, sm: 0 },
-                                        mb: "60px",
+                                        mb: { xs: 0, md: "60px" },
                                     }}
                                 >
                                     {activeStep !== 0 && (
@@ -593,6 +668,7 @@ const Checkout: React.FC = () => {
                                                 sm: "fit-content",
                                             },
                                         }}
+                                        disabled={nextDisabled}
                                     >
                                         {activeStep === steps.length - 1
                                             ? "Place order"
