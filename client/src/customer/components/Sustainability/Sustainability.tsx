@@ -4,7 +4,7 @@ import { useEffect } from "react";
 interface Props {}
 const Sustainability: React.FC<Props> = () => {
     return (
-        <div>
+        <article>
             <h1>Our Commitment</h1>
             <p>
                 At Peach Blossom, we are committed to promoting sustainability
@@ -70,7 +70,7 @@ const Sustainability: React.FC<Props> = () => {
                 enhance your space but also contribute positively to our planet.
                 Join us in making a difference&mdash;one purchase at a time.
             </p>
-        </div>
+        </article>
     );
 };
 export default Sustainability;

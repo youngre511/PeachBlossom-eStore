@@ -1,0 +1,30 @@
+.delivery-terms dl {
+    display: grid;
+    grid-template-columns: minmax(150px, 1fr) 3fr;
+    gap: 0;
+}
+
+.delivery-terms dl * {
+    min-height: 60px;
+    align-content: center;
+    padding: 10px 5px 10px 20px;
+}
+
+.grid-row-1,
+.grid-row-3,
+.grid-row-5 {
+    background-color: var(--peach-blush);
+}
+
+.grid-row-2,
+.grid-row-4 {
+    background-color: var(--peaches-and-cream);
+}
+
+.delivery-terms dt {
+    font-weight: 700;
+}
+
+.delivery-terms dd {
+    margin: 0;
+}

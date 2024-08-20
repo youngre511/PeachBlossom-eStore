@@ -1,5 +1,5 @@
 main {
-    margin-top: 50px;
+    margin-top: 60px;
     padding: 0 10px;
     min-height: calc(100dvh - 520px);
 }
@@ -20,14 +20,23 @@ button {
     font-size: 0.8rem;
 }
 
-.policies > ul {
+article {
+    max-width: 1000px;
+    margin: 0 auto 60px auto;
+}
+
+article h1 {
+    font-size: 2rem;
+}
+
+article > ul {
     list-style: none;
     padding-left: 0;
 }
 
 @media (min-width: 810px) {
     main {
-        margin-top: 170px;
+        margin-top: 180px;
         padding: 0 20px;
     }
 }

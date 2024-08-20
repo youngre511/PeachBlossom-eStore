@@ -4,7 +4,7 @@ import { useEffect } from "react";
 interface Props {}
 const TermsAndConditions: React.FC<Props> = () => {
     return (
-        <div className="policies">
+        <article>
             <h1>Terms & Conditions</h1>
             <ul>
                 <li>
@@ -178,7 +178,7 @@ const TermsAndConditions: React.FC<Props> = () => {
                     </p>
                 </li>
             </ul>
-        </div>
+        </article>
     );
 };
 export default TermsAndConditions;

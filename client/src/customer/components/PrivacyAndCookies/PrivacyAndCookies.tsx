@@ -4,7 +4,7 @@ import { useEffect } from "react";
 interface Props {}
 const PrivacyAndCookies: React.FC<Props> = () => {
     return (
-        <div className="policies">
+        <article>
             <h1>Privacy Policy</h1>
             <ul>
                 <li>
@@ -47,15 +47,15 @@ const PrivacyAndCookies: React.FC<Props> = () => {
                         processing your payment information, arranging for
                         shipping, and providing you with invoices and/or order
                         confirmations). Additionally, we use this Order
-                        Information to:
+                        Information to
                     </p>
                     <ul>
-                        <li>Communicate with you;</li>
+                        <li>communicate with you;</li>
                         <li>
-                            Screen our orders for potential risk or fraud; and
+                            screen our orders for potential risk or fraud; and
                         </li>
                         <li>
-                            When in line with the preferences you have shared
+                            when in line with the preferences you have shared
                             with us, provide you with information or advertising
                             relating to our products or services.
                         </li>
@@ -156,7 +156,7 @@ const PrivacyAndCookies: React.FC<Props> = () => {
                     </p>
                 </li>
             </ul>
-        </div>
+        </article>
     );
 };
 export default PrivacyAndCookies;
