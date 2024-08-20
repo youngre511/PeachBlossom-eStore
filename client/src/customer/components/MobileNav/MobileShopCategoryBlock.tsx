@@ -9,12 +9,14 @@ interface Props {
     forceCollapse: boolean;
     setMenusExpanded: React.Dispatch<SetStateAction<string[]>>;
     menusExpanded: string[];
+    handleCloseMenu: () => void;
 }
 const MobileShopCategoryBlock: React.FC<Props> = ({
     category,
     forceCollapse,
     setMenusExpanded,
     menusExpanded,
+    handleCloseMenu,
 }) => {
     const navigate = useNavigate();
     const [isExpanded, setIsExpanded] = useState<boolean>(false);
@@ -44,6 +46,7 @@ const MobileShopCategoryBlock: React.FC<Props> = ({
                 <div
                     className="m-shop-category-name"
                     onClick={() => {
+                        handleCloseMenu();
                         navigate(`/shop?category=${category.categoryName}`);
                     }}
                 >
@@ -77,6 +80,7 @@ const MobileShopCategoryBlock: React.FC<Props> = ({
                     <div
                         className="m-shop-subcategory"
                         onClick={() => {
+                            handleCloseMenu();
                             navigate(
                                 `/shop?category=${
                                     category.categoryName
