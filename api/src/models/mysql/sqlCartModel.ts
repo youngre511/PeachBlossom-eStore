@@ -32,6 +32,12 @@ export class sqlCart extends Model {
     })
     customer_id?: number;
 
+    @Column({
+        type: DataType.DATE,
+        allowNull: true,
+    })
+    checkoutExpiration!: Date;
+
     @HasMany(() => sqlCartItem, { as: "CartItem", foreignKey: "cart_id" })
     cartItems!: sqlCartItem[];
 

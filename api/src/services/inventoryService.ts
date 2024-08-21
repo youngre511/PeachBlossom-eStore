@@ -60,19 +60,34 @@ export const holdStock = async (cartId: number) => {
 
         for (const item of cartItems) {
             const product = await sqlProduct.findOne({
-                where: { productNo: item.productNo },
+                where: { productNo: item.dataValues.productNo },
                 transaction: sqlTransaction,
             });
             if (product) {
                 const inventory = await sqlInventory.findOne({
-                    where: { product_id: product.id },
+                    where: { product_id: product.dataValues.id },
+                    attributes: [
+                        "inventory_id",
+                        "reserved",
+                        [sequelize.literal("stock - reserved"), "available"],
+                    ],
                     transaction: sqlTransaction,
                 });
-                if (inventory && inventory.available >= item.quantity) {
-                    inventory.reserved += item.quantity;
-                    await inventory.save({ transaction: sqlTransaction });
-                    item.reserved = true;
-                    await item.save({ transaction: sqlTransaction });
+                if (
+                    inventory &&
+                    inventory.dataValues.available >= item.dataValues.quantity
+                ) {
+                    const newReserved =
+                        inventory.dataValues.reserved +
+                        item.dataValues.quantity;
+                    await inventory.update(
+                        { reserved: newReserved },
+                        { transaction: sqlTransaction }
+                    );
+                    await item.update(
+                        { reserved: true },
+                        { transaction: sqlTransaction }
+                    );
                 } else {
                     throw new Error(
                         "Unable to find inventory record or insufficient stock"
@@ -81,6 +96,19 @@ export const holdStock = async (cartId: number) => {
             } else {
                 throw new Error("product not found");
             }
+        }
+        const cart = await sqlCart.findByPk(cartId);
+        if (!cart) {
+            throw new Error("Unable to retrieve cart to set expiration");
+        }
+        if (!cart.dataValues.checkoutExpiration) {
+            const expirationDate = new Date();
+            const utcExpirationDate = expirationDate.toISOString();
+            expirationDate.setMinutes(expirationDate.getMinutes() + 5);
+            await sqlCart.update(
+                { checkoutExpiration: utcExpirationDate },
+                { where: { cart_id: cartId }, transaction: sqlTransaction }
+            );
         }
         await sqlTransaction.commit();
         return true;
@@ -112,23 +140,35 @@ export const releaseStock = async (cartId: number) => {
 
         for (const item of cartItems) {
             const product = await sqlProduct.findOne({
-                where: { productNo: item.productNo },
+                where: { productNo: item.dataValues.productNo },
                 transaction: sqlTransaction,
             });
             if (product) {
                 const inventory = await sqlInventory.findOne({
-                    where: { product_id: product.id },
+                    where: { product_id: product.dataValues.id },
                     transaction: sqlTransaction,
                 });
+                let newReserved;
                 if (inventory) {
-                    if (inventory.reserved >= item.quantity) {
-                        inventory.reserved -= item.quantity;
+                    if (
+                        inventory.dataValues.reserved >=
+                        item.dataValues.quantity
+                    ) {
+                        newReserved =
+                            inventory.dataValues.reserved -
+                            item.dataValues.quantity;
                     } else {
-                        inventory.reserved = 0;
+                        newReserved = 0;
                     }
-                    await inventory.save({ transaction: sqlTransaction });
-                    item.reserved = false;
-                    await item.save({ transaction: sqlTransaction });
+                    await inventory.update(
+                        { reserved: newReserved },
+                        { transaction: sqlTransaction }
+                    );
+
+                    await item.update(
+                        { reserved: false },
+                        { transaction: sqlTransaction }
+                    );
                 } else {
                     throw new Error("Unable to find inventory record");
                 }
@@ -192,7 +232,6 @@ export const updateStockLevels = async (
             }
         }
 
-        console.log("still working post sql update");
         // Update Mongo Records
         const bulkOps = productNos.map((productNo) => ({
             updateOne: {
