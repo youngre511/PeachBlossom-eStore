@@ -2,6 +2,8 @@ import { IconButton, Menu, MenuItem, Tooltip } from "@mui/material";
 import React from "react";
 import { useEffect, useState } from "react";
 import MoreVertSharpIcon from "@mui/icons-material/MoreVertSharp";
+import { useNavigate } from "react-router-dom";
+import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
 
 interface Props {
     productNo: string;
@@ -23,6 +25,8 @@ const MoreMenu: React.FC<Props> = ({
     const handleClose = () => {
         setAnchorEl(null);
     };
+    const navigate = useNavigate();
+    const { width } = useWindowSizeContext();
 
     return (
         <div>
@@ -46,6 +50,17 @@ const MoreMenu: React.FC<Props> = ({
                     "aria-labelledby": "basic-button",
                 }}
             >
+                {!discontinued && width && width < 600 && (
+                    <MenuItem
+                        onClick={() =>
+                            navigate(
+                                `/products/product-details?product=${productNo}&editing=true`
+                            )
+                        }
+                    >
+                        Edit
+                    </MenuItem>
+                )}
                 {!discontinued ? (
                     <MenuItem
                         onClick={() => {

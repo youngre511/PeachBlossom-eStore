@@ -226,6 +226,7 @@
 .m-menu-drawer-container {
     position: fixed;
     top: 0;
+    height: 100vh;
     height: 100dvh;
     width: 100vw;
     z-index: 6;
@@ -245,6 +246,7 @@
 .m-menu-drawer {
     position: relative;
     top: 0;
+    height: 100vh;
     height: 100dvh;
     width: 375px;
     background-color: white;

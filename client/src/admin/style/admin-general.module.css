@@ -4,7 +4,7 @@ main {
     position: absolute;
     left: 0;
     top: 56px;
-    padding: 20px;
+    padding: 10px;
     overflow: scroll;
 }
 
@@ -26,5 +26,6 @@ a {
         height: 100%;
         left: 240px;
         top: 0;
+        padding: 20px;
     }
 }

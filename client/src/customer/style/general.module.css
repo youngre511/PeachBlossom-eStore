@@ -1,6 +1,7 @@
 main {
     margin-top: 60px;
     padding: 0 10px;
+    min-height: calc(100vh - 520px);
     min-height: calc(100dvh - 520px);
 }
 

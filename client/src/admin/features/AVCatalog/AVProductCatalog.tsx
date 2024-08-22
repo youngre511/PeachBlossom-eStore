@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
 import { RootState } from "../../store/store";
@@ -21,12 +21,15 @@ import {
 import MoreVertSharpIcon from "@mui/icons-material/MoreVertSharp";
 import ImageSharpIcon from "@mui/icons-material/ImageSharp";
 import ModeEditSharpIcon from "@mui/icons-material/ModeEditSharp";
-import AddAPhotoSharpIcon from "@mui/icons-material/AddAPhotoSharp";
+import KeyboardArrowUpSharpIcon from "@mui/icons-material/KeyboardArrowUpSharp";
+import KeyboardArrowDownSharpIcon from "@mui/icons-material/KeyboardArrowDownSharp";
 import AVCatalogHead from "./AVCatalogHead";
 import AVProductTableToolbar from "./AVProductTableToolbar";
 import { AVProduct } from "./avCatalogTypes";
 import MoreMenu from "./MoreMenu";
 import { useNavigate, Link } from "react-router-dom";
+import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
+import AVTableRow from "./AVTableRow";
 
 interface AVCatProps {
     page: number;
@@ -38,7 +41,7 @@ interface AVCatProps {
     activateSelected: (productNos: string[]) => void;
 }
 
-interface Row {
+export interface Row {
     id: string;
     thumbnailUrl: string;
     name: string;
@@ -71,6 +74,7 @@ const AVProductCatalog: React.FC<AVCatProps> = ({
     const [orderBy, setOrderBy] = React.useState<keyof AVProduct>("name");
     const [selected, setSelected] = React.useState<readonly string[]>([]);
     const [rowsPerPage, setRowsPerPage] = React.useState(24);
+    const { width, isTouchDevice } = useWindowSizeContext();
 
     const rows = products.map((product) => {
         const rowData: Row = {
@@ -161,7 +165,11 @@ const AVProductCatalog: React.FC<AVCatProps> = ({
                 />
                 <TableContainer sx={{ maxHeight: 500 }}>
                     <Table
-                        sx={{ minWidth: 750 }}
+                        sx={
+                            {
+                                // minWidth: width && width >= 600 ? 750 : undefined,
+                            }
+                        }
                         aria-labelledby="tableTitle"
                         size={"medium"}
                         stickyHeader
@@ -176,137 +184,21 @@ const AVProductCatalog: React.FC<AVCatProps> = ({
                             rowCount={rows.length}
                         />
                         <TableBody>
-                            {rows.map((row, index) => {
-                                const isItemSelected = isSelected(row.id);
-                                const labelId = `enhanced-table-checkbox-${index}`;
-
-                                return (
-                                    <TableRow
-                                        hover
-                                        aria-checked={isItemSelected}
-                                        tabIndex={-1}
-                                        key={row.id}
-                                        selected={isItemSelected}
-                                        sx={{
-                                            cursor: "pointer",
-                                            backgroundColor:
-                                                row.status === "discontinued"
-                                                    ? "darkgray"
-                                                    : "undefined",
-                                        }}
-                                    >
-                                        <TableCell padding="checkbox">
-                                            <Checkbox
-                                                color="primary"
-                                                onClick={(event) =>
-                                                    handleClick(event, row.id)
-                                                }
-                                                checked={isItemSelected}
-                                                inputProps={{
-                                                    "aria-labelledby": labelId,
-                                                }}
-                                            />
-                                        </TableCell>
-                                        <TableCell
-                                            component="th"
-                                            id={labelId}
-                                            scope="row"
-                                            padding="none"
-                                        >
-                                            <img
-                                                src={row.thumbnailUrl}
-                                                alt={row.name}
-                                                className={
-                                                    row.status ===
-                                                    "discontinued"
-                                                        ? "admin-catalog-thumbnail grayscale-thumbnail"
-                                                        : "admin-catalog-thumbnail"
-                                                }
-                                            />
-                                        </TableCell>
-                                        <TableCell
-                                            component="th"
-                                            id={labelId}
-                                            scope="row"
-                                            padding="none"
-                                            sx={{ minWidth: 138 }}
-                                        >
-                                            <Link
-                                                to={`/products/product-details?product=${row.productNo}`}
-                                            >
-                                                {row.name}
-                                            </Link>
-                                        </TableCell>
-                                        <TableCell
-                                            align="left"
-                                            sx={{ minWidth: 162 }}
-                                        >
-                                            {row.productNo}
-                                        </TableCell>
-                                        <TableCell align="right">
-                                            {row.status === "discontinued"
-                                                ? "discontinued"
-                                                : row.price}
-                                        </TableCell>
-                                        <TableCell align="left">
-                                            {row.category}
-                                        </TableCell>
-                                        <TableCell align="left">
-                                            {row.subCategory}
-                                        </TableCell>
-                                        {/* <TableCell align="left">
-                                            {row.tags}
-                                        </TableCell> */}
-                                        <TableCell
-                                            align="left"
-                                            sx={{ minWidth: 164 }}
-                                        >
-                                            {row.lastModified}
-                                        </TableCell>
-                                        <TableCell
-                                            align="left"
-                                            sx={{ minWidth: 140 }}
-                                        >
-                                            {row.createdAt}
-                                        </TableCell>
-                                        <TableCell
-                                            align="left"
-                                            sx={{
-                                                display: "flex",
-                                                justifyContent: "flex-end",
-                                                alignItems: "center",
-                                            }}
-                                        >
-                                            {row.status !== "discontinued" && (
-                                                <Tooltip title="Edit">
-                                                    <IconButton
-                                                        onClick={() =>
-                                                            navigate(
-                                                                `/products/product-details?product=${row.productNo}&editing=true`
-                                                            )
-                                                        }
-                                                    >
-                                                        <ModeEditSharpIcon />
-                                                    </IconButton>
-                                                </Tooltip>
-                                            )}
-                                            <MoreMenu
-                                                productNo={row.productNo}
-                                                discontinued={
-                                                    row.status ===
-                                                    "discontinued"
-                                                }
-                                                handleProductActivate={
-                                                    handleProductActivate
-                                                }
-                                                handleProductDiscontinue={
-                                                    handleProductDiscontinue
-                                                }
-                                            />
-                                        </TableCell>
-                                    </TableRow>
-                                );
-                            })}
+                            {rows.map((row, index) => (
+                                <AVTableRow
+                                    row={row}
+                                    handleClick={handleClick}
+                                    index={index}
+                                    isSelected={isSelected}
+                                    handleProductActivate={
+                                        handleProductActivate
+                                    }
+                                    handleProductDiscontinue={
+                                        handleProductDiscontinue
+                                    }
+                                    key={row.productNo}
+                                />
+                            ))}
                             {emptyRows > 0 && (
                                 <TableRow
                                     style={{

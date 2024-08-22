@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useRef } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import AVProductCatalog from "../../features/AVCatalog/AVProductCatalog";
@@ -12,18 +12,23 @@ import { RootState } from "../../store/store.js";
 import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
 import PeachButton from "../../../common/components/PeachButton";
 import AddCircleOutlineSharpIcon from "@mui/icons-material/AddCircleOutlineSharp";
+import FilterAltSharpIcon from "@mui/icons-material/FilterAltSharp";
 import {
     Select,
     SvgIcon,
     InputLabel,
     MenuItem,
     SelectChangeEvent,
+    Icon,
 } from "@mui/material";
 import "./product-management.css";
 import SearchField from "../../../common/components/Fields/SearchField";
 import { AVCategory } from "../../features/AVMenuData/avMenuDataTypes";
 import { AuthContext } from "../../../common/contexts/authContext";
 import { usePreviousRoute } from "../../../common/contexts/navContext";
+import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
 
 const inputStyle = {
     "& .MuiInputBase-root.MuiOutlinedInput-root": {
@@ -53,6 +58,12 @@ const ProductManagement: React.FC<Props> = () => {
     const authContext = useContext(AuthContext);
     const accessLevel = authContext?.user?.accessLevel;
     const { previousRoute } = usePreviousRoute();
+    const { width } = useWindowSizeContext();
+    const filterAnimationRef = useRef<GSAPTimeline | null>(null);
+    const [mobileFiltersExpanded, setMobileFiltersExpanded] =
+        useState<boolean>(false);
+    const productManagement = useRef<HTMLDivElement>(null);
+    const { contextSafe } = useGSAP({ scope: productManagement });
 
     const navigate = useNavigate();
 
@@ -95,6 +106,17 @@ const ProductManagement: React.FC<Props> = () => {
             }
         }
     }, [avMenuData]);
+
+    // useEffect(
+    //     contextSafe(() => {
+    //         filterAnimationRef.current = gsap
+    //             .timeline({ paused: true })
+    //             .set(".pm-filters", { display: "flex" })
+    //             .to(".pm-filters", { duration: 0.3, height: "300px" });
+
+    //     }),
+    //     []
+    // );
 
     const fetchData = async (force = false) => {
         const changesNeeded: Record<string, string> = {};
@@ -233,14 +255,16 @@ const ProductManagement: React.FC<Props> = () => {
     };
 
     return (
-        <div className="product-management">
+        <div className="product-management" ref={productManagement}>
             <div className="header-and-add">
                 <h1>Product Management</h1>
-                <PeachButton
-                    text={`Add New Product`}
-                    onClick={() => navigate("/products/add")}
-                    width="150px"
-                />
+                <div className="pm-desktop-add">
+                    <PeachButton
+                        text={`Add New Product`}
+                        onClick={() => navigate("/products/add")}
+                        width="150px"
+                    />
+                </div>
                 {fromCategoryManage && previousRoute && (
                     <PeachButton
                         text={`Back To Categories`}
@@ -249,8 +273,22 @@ const ProductManagement: React.FC<Props> = () => {
                     />
                 )}
             </div>
+
             <div className="search-and-filters">
-                <div className="pm-filters">
+                <div
+                    className={
+                        width && width >= 600
+                            ? "pm-filters"
+                            : "pm-filters-mobile"
+                    }
+                    style={
+                        width && width < 600 && mobileFiltersExpanded
+                            ? {
+                                  height: "300px",
+                              }
+                            : undefined
+                    }
+                >
                     <div className="view-select">
                         <InputLabel id={`view-label`}>View</InputLabel>
                         <Select
@@ -263,6 +301,7 @@ const ProductManagement: React.FC<Props> = () => {
                             onChange={(event) =>
                                 updateSearchParams({ view: event.target.value })
                             }
+                            sx={{ backgroundColor: "white" }}
                         >
                             <MenuItem value={"all"}>All</MenuItem>
                             <MenuItem value={"active"}>Active</MenuItem>
@@ -271,7 +310,7 @@ const ProductManagement: React.FC<Props> = () => {
                             </MenuItem>
                         </Select>
                     </div>
-                    <div className="category-select" style={{ width: "200px" }}>
+                    <div className="category-select">
                         <InputLabel id={`category-label`}>Category</InputLabel>
                         <Select
                             fullWidth
@@ -285,6 +324,7 @@ const ProductManagement: React.FC<Props> = () => {
                             id="category"
                             label="Category"
                             onChange={handleCategorySelect}
+                            sx={{ backgroundColor: "white" }}
                         >
                             <MenuItem value={"all"}>All</MenuItem>
                             {avMenuData.categories.map(
@@ -319,6 +359,7 @@ const ProductManagement: React.FC<Props> = () => {
                             }
                             label="Subcategory"
                             onChange={handleSubcategorySelect}
+                            sx={{ backgroundColor: "white" }}
                         >
                             <MenuItem value={"all"}>All</MenuItem>
                             {categorySelection &&
@@ -336,14 +377,37 @@ const ProductManagement: React.FC<Props> = () => {
                         </Select>
                     </div>
                 </div>
-
-                <div className="search-bar">
-                    <SearchField
-                        updateSearchParams={updateSearchParams}
-                        sx={inputStyle}
-                        inputSx={{ backgroundColor: "white" }}
-                        options={avMenuData.searchOptions}
-                    />
+                <div className="pm-mobile-buttons">
+                    <button
+                        onClick={() => navigate("/products/add")}
+                        className="pm-mobile-add"
+                    >
+                        <Icon sx={{ marginRight: "10px" }}>
+                            <AddCircleOutlineSharpIcon />
+                        </Icon>{" "}
+                        Add New Product
+                    </button>
+                    <button
+                        className="pm-mobile-filter"
+                        onClick={() =>
+                            setMobileFiltersExpanded(!mobileFiltersExpanded)
+                        }
+                    >
+                        <Icon sx={{ marginRight: "10px" }}>
+                            <FilterAltSharpIcon />
+                        </Icon>
+                        Filters
+                    </button>
+                </div>
+                <div className="search-bar-container">
+                    <div className="search-bar">
+                        <SearchField
+                            updateSearchParams={updateSearchParams}
+                            sx={inputStyle}
+                            inputSx={{ backgroundColor: "white" }}
+                            options={avMenuData.searchOptions}
+                        />
+                    </div>
                 </div>
             </div>
             <AVProductCatalog

@@ -1,4 +1,5 @@
 .shop-container {
+    min-height: 90vh;
     min-height: 90dvh;
 }
 
@@ -73,6 +74,7 @@
     top: 0;
     margin: 0;
     z-index: 101;
+    height: 100vh;
     height: 100dvh;
     background-color: white;
     display: none;
@@ -97,6 +99,7 @@
 .filters {
     overflow-y: scroll;
     overflow-x: hidden;
+    height: calc(100vh - 160px);
     height: calc(100dvh - 160px);
     -ms-overflow-style: none;
     scrollbar-width: none;
