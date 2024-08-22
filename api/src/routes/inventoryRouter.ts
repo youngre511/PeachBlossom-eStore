@@ -20,6 +20,6 @@ inventoryRouter.put(
     updateStockLevels
 );
 
-inventoryRouter.post("/syncStockLevels", syncStockLevels);
+inventoryRouter.put("/syncStockLevels", syncStockLevels);
 
 export default inventoryRouter;
