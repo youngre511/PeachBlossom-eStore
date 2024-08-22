@@ -3,6 +3,7 @@ const inventoryRouter = Router();
 import {
     holdStock,
     releaseStock,
+    syncStockLevels,
     updateStockLevels,
 } from "../controllers/inventoryController.js";
 import { authMiddleware } from "../middleware/authMiddleware.js";
@@ -18,5 +19,7 @@ inventoryRouter.put(
     authorizeRoles(["admin"], ["full", "limited"]),
     updateStockLevels
 );
+
+inventoryRouter.post("/syncStockLevels", syncStockLevels);
 
 export default inventoryRouter;

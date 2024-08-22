@@ -83,3 +83,23 @@ export const updateStockLevels = async (
         res.status(500).json(errorObj);
     }
 };
+
+export const syncStockLevels = async (req: Request, res: Response) => {
+    try {
+        const result = await inventoryService.syncStockLevels();
+
+        res.json({
+            message: "success",
+            payload: result,
+        });
+    } catch (error) {
+        let errorObj = {
+            message: "hold stock failure",
+            payload: error,
+        };
+
+        console.error(errorObj);
+
+        res.status(500).json(errorObj);
+    }
+};

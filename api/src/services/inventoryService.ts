@@ -59,39 +59,46 @@ export const holdStock = async (cartId: number) => {
         }
 
         for (const item of cartItems) {
-            const product = await sqlProduct.findOne({
-                where: { productNo: item.dataValues.productNo },
-                transaction: sqlTransaction,
-            });
-            if (product) {
-                const inventory = await sqlInventory.findOne({
-                    where: { product_id: product.dataValues.id },
-                    attributes: [
-                        "inventory_id",
-                        "reserved",
-                        [sequelize.literal("stock - reserved"), "available"],
-                    ],
+            // Execute only if item is not marked as reserved in order to avoid duplicate holds.
+            if (!item.dataValues.reserved) {
+                const product = await sqlProduct.findOne({
+                    where: { productNo: item.dataValues.productNo },
                     transaction: sqlTransaction,
                 });
-                if (
-                    inventory &&
-                    inventory.dataValues.available >= item.dataValues.quantity
-                ) {
-                    const newReserved =
-                        inventory.dataValues.reserved +
-                        item.dataValues.quantity;
-                    await inventory.update(
-                        { reserved: newReserved },
-                        { transaction: sqlTransaction }
-                    );
-                    await item.update(
-                        { reserved: true },
-                        { transaction: sqlTransaction }
-                    );
-                } else {
-                    throw new Error(
-                        "Unable to find inventory record or insufficient stock"
-                    );
+                if (product) {
+                    const inventory = await sqlInventory.findOne({
+                        where: { product_id: product.dataValues.id },
+                        attributes: [
+                            "inventory_id",
+                            "reserved",
+                            [
+                                sequelize.literal("stock - reserved"),
+                                "available",
+                            ],
+                        ],
+                        transaction: sqlTransaction,
+                    });
+                    if (
+                        inventory &&
+                        inventory.dataValues.available >=
+                            item.dataValues.quantity
+                    ) {
+                        const newReserved =
+                            inventory.dataValues.reserved +
+                            item.dataValues.quantity;
+                        await inventory.update(
+                            { reserved: newReserved },
+                            { transaction: sqlTransaction }
+                        );
+                        await item.update(
+                            { reserved: true },
+                            { transaction: sqlTransaction }
+                        );
+                    } else {
+                        throw new Error(
+                            "Unable to find inventory record or insufficient stock"
+                        );
+                    }
                 }
             } else {
                 throw new Error("product not found");
@@ -101,10 +108,30 @@ export const holdStock = async (cartId: number) => {
         if (!cart) {
             throw new Error("Unable to retrieve cart to set expiration");
         }
-        if (!cart.dataValues.checkoutExpiration) {
+
+        //Get the current time, the expiration time, and the expiration time minus 30 sec all in UTC for later comparison.
+        //If cart.dataValues.checkoutExpiration is null, it will give the Unix epoch and not cause errors. This is fine, because these variables are used only if cart.dataValues.checkoutExpiration is not null (see below).
+        const recordedExpiration = new Date(cart.dataValues.checkoutExpiration);
+        const recordedExpirationMinus30Sec = new Date(
+            cart.dataValues.checkoutExpiration
+        );
+        recordedExpirationMinus30Sec.setSeconds(
+            recordedExpirationMinus30Sec.getSeconds() - 30
+        );
+        const currentTime = new Date();
+
+        // Issue a new cart expiration date if no expiration date exists or if the current time is within the 30 second grace period after the front-end 5min timer.
+        // Expiration date is 30 seconds longer than the front-end countdown in order to prevent conflicts if checkout executes at the same moment that the lambda releaseHold function clears expiration dates and inventory holds.
+        // Logic allows user to reinitiate expiration countdown immediately after front-end countdown ends without losing their inventory reservations
+        if (
+            !cart.dataValues.checkoutExpiration ||
+            (currentTime < recordedExpiration &&
+                currentTime >= recordedExpirationMinus30Sec)
+        ) {
             const expirationDate = new Date();
             const utcExpirationDate = expirationDate.toISOString();
             expirationDate.setMinutes(expirationDate.getMinutes() + 5);
+            expirationDate.setSeconds(expirationDate.getSeconds() + 30);
             await sqlCart.update(
                 { checkoutExpiration: utcExpirationDate },
                 { where: { cart_id: cartId }, transaction: sqlTransaction }
@@ -259,5 +286,47 @@ export const updateStockLevels = async (
         }
     } finally {
         session.endSession();
+    }
+};
+
+export const syncStockLevels = async () => {
+    const session: ClientSession = await mongoose.startSession();
+    session.startTransaction();
+    try {
+        const allProducts = await sqlInventory.findAll({
+            attributes: [[sequelize.literal("stock - reserved"), "available"]],
+            include: [
+                {
+                    model: sqlProduct,
+                    as: "Product",
+                    attributes: ["productNo"],
+                },
+            ],
+        });
+
+        if (allProducts.length === 0) {
+            throw new Error("No inventory found in mysql database");
+        }
+
+        const bulkUpdates = allProducts.map((record) => ({
+            updateOne: {
+                filter: {
+                    productNo: record.dataValues.Product.dataValues.productNo,
+                },
+                update: { $set: { stock: record.dataValues.available } },
+            },
+        }));
+
+        const result = await Product.bulkWrite(bulkUpdates, { session });
+        console.log("Bulk update result:", result);
+
+        return {
+            statusCode: 200,
+            body: JSON.stringify({ status: "Complete" }),
+        };
+    } catch (error) {
+        await session.abortTransaction();
+        console.error("error during execution:", error);
+        return { statusCode: 500, body: error };
     }
 };
