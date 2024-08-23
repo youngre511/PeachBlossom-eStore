@@ -25,6 +25,7 @@ import AddAPhotoSharpIcon from "@mui/icons-material/AddAPhotoSharp";
 import AVCatalogHead from "./InventoryCatalogHead";
 import { AVProduct } from "../../features/AVCatalog/avCatalogTypes";
 import StockField from "./StockField";
+import InventoryTableRow from "./InventoryTableRow";
 
 interface AVCatProps {
     page: number;
@@ -36,7 +37,7 @@ interface AVCatProps {
     >;
 }
 
-interface Row {
+export interface InventoryRow {
     id: string;
     name: string;
     productNo: string;
@@ -67,7 +68,7 @@ const InventoryCatalog: React.FC<AVCatProps> = ({
     const [rowsPerPage, setRowsPerPage] = React.useState(24);
 
     const rows = products.map((product) => {
-        const rowData: Row = {
+        const rowData: InventoryRow = {
             id: product.productNo,
             name: product.name,
             productNo: product.productNo,
@@ -112,10 +113,10 @@ const InventoryCatalog: React.FC<AVCatProps> = ({
 
     return (
         <Box sx={{ width: "100%" }}>
-            <Paper sx={{ width: "100%", mb: 2 }}>
-                <TableContainer sx={{ maxHeight: 500 }}>
+            <Paper sx={{ width: "100%", mb: 2, mt: 2 }}>
+                <TableContainer sx={{ maxHeight: "70vh" }}>
                     <Table
-                        sx={{ minWidth: 750, paddingLeft: "20px" }}
+                        sx={{ paddingLeft: "20px" }}
                         aria-labelledby="tableTitle"
                         size={"medium"}
                         stickyHeader
@@ -129,50 +130,18 @@ const InventoryCatalog: React.FC<AVCatProps> = ({
                             rowCount={rows.length}
                         />
                         <TableBody>
-                            {rows.map((row, index) => {
-                                const stockAmount: number =
-                                    pendingInventoryUpdates[row.productNo] ??
-                                    row.stock;
-                                return (
-                                    <TableRow hover tabIndex={-1} key={row.id}>
-                                        <TableCell component="th" scope="row">
-                                            {row.name}
-                                        </TableCell>
-                                        <TableCell align="left">
-                                            {row.productNo}
-                                        </TableCell>
-                                        <TableCell align="right">
-                                            <div className="stock-input">
-                                                <StockField
-                                                    value={String(stockAmount)}
-                                                    productNo={row.productNo}
-                                                    setPendingInventoryUpdates={
-                                                        setPendingInventoryUpdates
-                                                    }
-                                                    pendingInventoryUpdates={
-                                                        pendingInventoryUpdates
-                                                    }
-                                                />
-                                            </div>
-                                        </TableCell>
-                                        <TableCell align="right">
-                                            {row.reserved}
-                                        </TableCell>
-                                        <TableCell align="right">
-                                            {row.available}
-                                        </TableCell>
-                                        <TableCell align="right">
-                                            {row.price}
-                                        </TableCell>
-                                        <TableCell align="left">
-                                            {row.category}
-                                        </TableCell>
-                                        <TableCell align="left">
-                                            {row.subCategory}
-                                        </TableCell>
-                                    </TableRow>
-                                );
-                            })}
+                            {rows.map((row, index) => (
+                                <InventoryTableRow
+                                    row={row}
+                                    pendingInventoryUpdates={
+                                        pendingInventoryUpdates
+                                    }
+                                    setPendingInventoryUpdates={
+                                        setPendingInventoryUpdates
+                                    }
+                                    key={row.productNo}
+                                />
+                            ))}
                             {emptyRows > 0 && (
                                 <TableRow
                                     style={{

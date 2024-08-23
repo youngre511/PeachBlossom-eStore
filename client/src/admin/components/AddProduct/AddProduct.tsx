@@ -327,7 +327,17 @@ const AddProduct: React.FC = () => {
                 onSubmit={handleSubmit}
             >
                 <Form>
-                    <Grid container spacing={3} mt={3} sx={{ width: "100%" }}>
+                    <Grid
+                        container
+                        spacing={3}
+                        sx={{
+                            width: {
+                                sm: "calc(100% + 48px)",
+                                md: "calc(100% + 24px)",
+                            },
+                            marginLeft: { sm: "-36px", md: "-24px" },
+                        }}
+                    >
                         <Grid
                             item
                             xs={12}
@@ -358,7 +368,10 @@ const AddProduct: React.FC = () => {
                             xs={12}
                             lg={7}
                             rowSpacing={3}
-                            sx={{ alignItems: "space-between", height: "auto" }}
+                            sx={{
+                                alignItems: "space-between",
+                                height: "auto",
+                            }}
                         >
                             <FormField
                                 label="Product Name"
@@ -375,7 +388,7 @@ const AddProduct: React.FC = () => {
                                 container
                                 xs={12}
                             >
-                                <Grid item sm={6}>
+                                <Grid item xs={6}>
                                     <FormField
                                         label="Prefix"
                                         name="prefix"
@@ -385,7 +398,7 @@ const AddProduct: React.FC = () => {
                                         inputSx={{ backgroundColor: "white" }}
                                     />
                                 </Grid>
-                                <Grid item sm={6}>
+                                <Grid item xs={6}>
                                     <FormField
                                         label="Price"
                                         name="price"
@@ -422,13 +435,13 @@ const AddProduct: React.FC = () => {
                                 </Grid>
                             </Grid>
                             <Grid
-                                columnSpacing={3}
+                                spacing={3}
                                 sx={{ display: "flex", flexWrap: "wrap" }}
                                 item
                                 xs={12}
                                 container
                             >
-                                <Grid item sm={6}>
+                                <Grid item xs={12} sm={6}>
                                     <DynamicCategory
                                         label="Category"
                                         name="category"
@@ -440,7 +453,7 @@ const AddProduct: React.FC = () => {
                                         sx={inputStyle}
                                     />
                                 </Grid>
-                                <Grid item sm={6}>
+                                <Grid item xs={12} sm={6}>
                                     <SelectField
                                         label="Subcategory"
                                         name="subcategory"
@@ -452,13 +465,13 @@ const AddProduct: React.FC = () => {
                                 </Grid>
                             </Grid>
                             <Grid
-                                columnSpacing={3}
+                                spacing={3}
                                 sx={{ display: "flex", flexWrap: "wrap" }}
                                 item
                                 xs={12}
                                 container
                             >
-                                <Grid item sm={6}>
+                                <Grid item xs={12} sm={6}>
                                     <SelectField
                                         label="Color"
                                         name="color"
@@ -468,7 +481,7 @@ const AddProduct: React.FC = () => {
                                         sx={inputStyle}
                                     />
                                 </Grid>
-                                <Grid item sm={6}>
+                                <Grid item xs={12} sm={6}>
                                     <SelectField
                                         label="Material"
                                         name="material"
@@ -481,7 +494,14 @@ const AddProduct: React.FC = () => {
                             </Grid>
                         </Grid>
                         <Grid container item xs={12} rowSpacing={3}>
-                            <Grid item xs={6} md={3}>
+                            <Grid
+                                item
+                                xs={6}
+                                lg={3}
+                                sx={{
+                                    paddingRight: { xs: "12px", lg: "36px" },
+                                }}
+                            >
                                 <FormField
                                     label="Height"
                                     name="height"
@@ -518,8 +538,11 @@ const AddProduct: React.FC = () => {
                             <Grid
                                 item
                                 xs={6}
-                                md={3}
-                                sx={{ paddingLeft: { xs: "24px", md: "48px" } }}
+                                lg={3}
+                                sx={{
+                                    paddingLeft: { xs: "12px", lg: "12px" },
+                                    paddingRight: { lg: "24px" },
+                                }}
                             >
                                 <FormField
                                     label="Width"
@@ -557,8 +580,11 @@ const AddProduct: React.FC = () => {
                             <Grid
                                 item
                                 xs={6}
-                                md={3}
-                                sx={{ paddingLeft: { md: "48px" } }}
+                                lg={3}
+                                sx={{
+                                    paddingLeft: { lg: "24px" },
+                                    paddingRight: "12px",
+                                }}
                             >
                                 <FormField
                                     label="Depth"
@@ -596,8 +622,8 @@ const AddProduct: React.FC = () => {
                             <Grid
                                 item
                                 xs={6}
-                                md={3}
-                                sx={{ paddingLeft: { xs: "24px", md: "48px" } }}
+                                lg={3}
+                                sx={{ paddingLeft: { xs: "12px", lg: "36px" } }}
                             >
                                 <FormField
                                     label="Weight"
@@ -653,16 +679,35 @@ const AddProduct: React.FC = () => {
                                 justifyContent: "space-between",
                                 alignItems: "center",
                                 width: "100%",
+                                flexDirection: { xs: "column", md: "row" },
+                                gap: { xs: 2, md: 0 },
                             }}
                         >
                             <Button
                                 variant="outlined"
-                                href="/products/manage"
-                                sx={{ color: "black" }}
+                                onClick={() => navigate("/products/manage")}
+                                sx={{
+                                    color: "black",
+                                    width: {
+                                        xs: "100%",
+
+                                        md: "auto",
+                                    },
+                                }}
                             >
                                 &lt; Back to product management
                             </Button>
-                            <Button variant="contained" type="submit">
+                            <Button
+                                variant="contained"
+                                type="submit"
+                                sx={{
+                                    width: {
+                                        xs: "100%",
+
+                                        md: "auto",
+                                    },
+                                }}
+                            >
                                 Create Product
                             </Button>
                         </Grid>

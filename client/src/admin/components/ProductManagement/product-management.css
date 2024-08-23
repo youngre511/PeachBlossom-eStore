@@ -19,6 +19,7 @@
     grid-template-columns: 1fr 1fr;
     background-color: var(--peach-blush);
     width: 100vw;
+    margin-left: -10px;
 }
 
 .pm-mobile-add,
@@ -98,7 +99,7 @@
     }
 
     .pm-mobile-buttons {
-        width: 100%;
+        width: calc(100% + 20px);
     }
 }
 

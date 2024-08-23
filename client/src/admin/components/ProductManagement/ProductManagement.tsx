@@ -277,12 +277,12 @@ const ProductManagement: React.FC<Props> = () => {
             <div className="search-and-filters">
                 <div
                     className={
-                        width && width >= 600
+                        width && width >= 800
                             ? "pm-filters"
                             : "pm-filters-mobile"
                     }
                     style={
-                        width && width < 600 && mobileFiltersExpanded
+                        width && width < 800 && mobileFiltersExpanded
                             ? {
                                   height: "300px",
                               }

@@ -8,6 +8,8 @@ import ImageUploading, { ImageListType } from "react-images-uploading";
 import { Button, IconButton, Tooltip } from "@mui/material";
 import { ReactComponent as CloseButton } from "../../../assets/img/close.svg";
 import DeleteOutlineSharpIcon from "@mui/icons-material/DeleteOutlineSharp";
+import AddAPhotoSharpIcon from "@mui/icons-material/AddAPhotoSharp";
+import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
 
 interface Props {
     setImages: Dispatch<SetStateAction<ImageListType>>;
@@ -65,6 +67,7 @@ const ImageUploader: React.FC<Props> = ({
 }) => {
     const [addMode, setAddMode] = useState<boolean>(true);
     const [editMode, setEditMode] = useState<boolean>(false);
+    const { isTouchDevice } = useWindowSizeContext();
 
     const onChange = (
         imageList: ImageListType,
@@ -355,14 +358,24 @@ const ImageUploader: React.FC<Props> = ({
                                     />
                                 )}
                             </div>
-                            <Button
-                                onClick={onImageUpload}
-                                variant="contained"
-                                className="choose-button"
-                                {...dragProps}
-                            >
-                                Click or Drop Here
-                            </Button>
+                            {isTouchDevice ? (
+                                <IconButton
+                                    onClick={onImageUpload}
+                                    className="choose-button"
+                                >
+                                    <AddAPhotoSharpIcon sx={{ fontSize: 48 }} />
+                                </IconButton>
+                            ) : (
+                                <Button
+                                    onClick={onImageUpload}
+                                    variant="contained"
+                                    className="choose-button"
+                                    {...dragProps}
+                                >
+                                    Click or Drop Here
+                                </Button>
+                            )}
+
                             <div style={{ height: "30px" }}></div>
                         </div>
                     )}

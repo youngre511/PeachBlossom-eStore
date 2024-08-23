@@ -11,10 +11,13 @@ import {
     SelectChangeEvent,
     styled,
     IconButton,
+    Box,
+    Icon,
 } from "@mui/material";
 import SearchField from "../../../common/components/Fields/SearchField";
 import { SelectFieldNonFormik } from "../../../common/components/Fields/SelectFieldNonFormik";
-import { EditCalendarSharp } from "@mui/icons-material";
+import FilterAltSharpIcon from "@mui/icons-material/FilterAltSharp";
+import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
 
 const inputStyle = {
     // backgroundColor: "white",
@@ -36,6 +39,14 @@ const inputStyle = {
             },
         },
     },
+    "& .MuiInputBase-root.MuiOutlinedInput-root.MuiInputBase-colorPrimary": {
+        backgroundColor: "white",
+    },
+    "& .MuiFormLabel-root.MuiInputLabel-root.MuiInputLabel-formControl.Mui-focused":
+        {
+            color: "rgba(0, 0, 0, 0.63)",
+        },
+
     "& .MuiInputBase-input.MuiFilledInput-input:focus": {
         backgroundColor: "white",
     },
@@ -139,6 +150,8 @@ const OrderManagementFilters: React.FC<Props> = ({ updateSearchParams }) => {
     const [orderStatus, setOrderStatus] = useState<string[]>([]);
     const [region, setRegion] = useState<string>("");
     const [state, setState] = useState<string[]>([]);
+    const [filtersExpanded, setFiltersExpanded] = useState<boolean>(false);
+    const { width } = useWindowSizeContext();
 
     useEffect(() => {
         let st: string;
@@ -160,7 +173,7 @@ const OrderManagementFilters: React.FC<Props> = ({ updateSearchParams }) => {
                     : "",
             state: st,
         };
-        console.log(updateParams);
+
         updateSearchParams(updateParams);
     }, [dateMin, dateMax, orderStatus, region, state]);
 
@@ -176,15 +189,40 @@ const OrderManagementFilters: React.FC<Props> = ({ updateSearchParams }) => {
     //   }, [cleared]);
 
     return (
-        <div className="search-and-filters">
-            <div className="om-filters">
-                <div className="orderStatus-select">
+        <div className="om-search-and-filters">
+            <div className="om-search-bar">
+                <SearchField
+                    updateSearchParams={updateSearchParams}
+                    sx={{ ...inputStyle }}
+                    options={[]}
+                />
+            </div>
+            <button
+                className="om-filter-button"
+                onClick={() => setFiltersExpanded(!filtersExpanded)}
+            >
+                <Icon sx={{ marginRight: "5px" }}>
+                    <FilterAltSharpIcon />
+                </Icon>
+                Filter
+            </button>
+            <div
+                className={
+                    width && width < 600 ? "om-filters-mobile" : "om-filters"
+                }
+                style={
+                    width && width < 600 && !filtersExpanded
+                        ? { height: 0 }
+                        : undefined
+                }
+            >
+                <div className="om-orderStatus-select">
                     <SelectFieldNonFormik
                         label="Order Status"
                         name={"orderStatus"}
                         value={orderStatus}
                         multiple={true}
-                        variant="filled"
+                        variant="outlined"
                         options={[
                             "In Process",
                             "Cancelled",
@@ -199,10 +237,10 @@ const OrderManagementFilters: React.FC<Props> = ({ updateSearchParams }) => {
                         sx={inputStyle}
                     />
                 </div>
-                <div className="region-select" style={{ width: "200px" }}>
+                <div className="region-select">
                     <SelectFieldNonFormik
                         value={region}
-                        variant="filled"
+                        variant="outlined"
                         label="Region"
                         name="region"
                         multiple={false}
@@ -223,7 +261,7 @@ const OrderManagementFilters: React.FC<Props> = ({ updateSearchParams }) => {
                 <div className="state-select">
                     <SelectFieldNonFormik
                         value={state}
-                        variant="filled"
+                        variant="outlined"
                         label="State"
                         name="state"
                         options={
@@ -255,7 +293,10 @@ const OrderManagementFilters: React.FC<Props> = ({ updateSearchParams }) => {
                                 },
                                 field: { clearable: true },
                             }}
-                            sx={{ backgroundColor: "white" }}
+                            sx={{
+                                ...inputStyle,
+                                width: { xs: "100%" },
+                            }}
                         />
                     </LocalizationProvider>
                 </div>
@@ -276,19 +317,13 @@ const OrderManagementFilters: React.FC<Props> = ({ updateSearchParams }) => {
                                 },
                                 field: { clearable: true },
                             }}
-                            sx={{ backgroundColor: "white" }}
+                            sx={{
+                                ...inputStyle,
+                                width: { xs: "100%" },
+                            }}
                         />
                     </LocalizationProvider>
                 </div>
-            </div>
-
-            <div className="search-bar">
-                <SearchField
-                    updateSearchParams={updateSearchParams}
-                    sx={inputStyle}
-                    // inputSx={{ backgroundColor: "white" }}
-                    options={[]}
-                />
             </div>
         </div>
     );

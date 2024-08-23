@@ -69,7 +69,6 @@ const AVTableRow: React.FC<Props> = ({
                     </TableCell>
                 )}
                 <TableCell
-                    component="th"
                     id={labelId}
                     scope="row"
                     padding={width && width >= 800 ? "none" : undefined}
@@ -85,7 +84,6 @@ const AVTableRow: React.FC<Props> = ({
                     />
                 </TableCell>
                 <TableCell
-                    // component="th"
                     id={labelId}
                     scope="row"
                     padding="none"

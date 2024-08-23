@@ -490,7 +490,17 @@ const AVProductDetails: React.FC = () => {
     return (
         <Container>
             <h1 style={{ marginBottom: "30px" }}>Product Details</h1>
-            <Grid container spacing={3} sx={{ width: "100%" }}>
+            <Grid
+                container
+                spacing={3}
+                sx={{
+                    width: {
+                        sm: "calc(100% + 48px)",
+                        md: "calc(100% + 24px)",
+                    },
+                    marginLeft: { sm: "-36px", md: "-24px" },
+                }}
+            >
                 <Grid
                     item
                     xs={12}
@@ -525,7 +535,10 @@ const AVProductDetails: React.FC = () => {
                     xs={12}
                     lg={7}
                     rowSpacing={3}
-                    // sx={{ alignItems: "space-between", height: "auto" }}
+                    sx={{
+                        alignItems: "space-between",
+                        height: "auto",
+                    }}
                 >
                     <TextField
                         fullWidth
@@ -551,7 +564,7 @@ const AVProductDetails: React.FC = () => {
                         container
                         xs={12}
                     >
-                        <Grid item sm={6}>
+                        <Grid item xs={6}>
                             <TextField
                                 fullWidth
                                 variant={editMode ? "filled" : "standard"}
@@ -568,7 +581,7 @@ const AVProductDetails: React.FC = () => {
                                 value={productNo}
                             />
                         </Grid>
-                        <Grid item sm={6}>
+                        <Grid item xs={6}>
                             <TextField
                                 fullWidth
                                 variant={editMode ? "filled" : "standard"}
@@ -603,13 +616,13 @@ const AVProductDetails: React.FC = () => {
                         </Grid>
                     </Grid>
                     <Grid
-                        columnSpacing={3}
+                        spacing={3}
                         sx={{ display: "flex", flexWrap: "wrap" }}
                         item
                         xs={12}
                         container
                     >
-                        <Grid item sm={6}>
+                        <Grid item xs={12} sm={6}>
                             <SelectFieldNonFormik
                                 label="Category"
                                 name="category"
@@ -623,7 +636,7 @@ const AVProductDetails: React.FC = () => {
                                 variant={editMode ? "filled" : "standard"}
                             />
                         </Grid>
-                        <Grid item sm={6}>
+                        <Grid item xs={12} sm={6}>
                             <SelectFieldNonFormik
                                 label="Subcategory"
                                 name="subcategory"
@@ -643,13 +656,13 @@ const AVProductDetails: React.FC = () => {
                         </Grid>
                     </Grid>
                     <Grid
-                        columnSpacing={3}
+                        spacing={3}
                         sx={{ display: "flex", flexWrap: "wrap" }}
                         item
                         xs={12}
                         container
                     >
-                        <Grid item sm={6}>
+                        <Grid item xs={12} sm={6}>
                             <SelectFieldNonFormik
                                 label="Color"
                                 name="color"
@@ -663,7 +676,7 @@ const AVProductDetails: React.FC = () => {
                                 variant={editMode ? "filled" : "standard"}
                             />
                         </Grid>
-                        <Grid item sm={6}>
+                        <Grid item xs={12} sm={6}>
                             <SelectFieldNonFormik
                                 label="Material"
                                 name="material"
@@ -680,7 +693,14 @@ const AVProductDetails: React.FC = () => {
                     </Grid>
                 </Grid>
                 <Grid container item xs={12} rowSpacing={3}>
-                    <Grid item xs={6} md={3}>
+                    <Grid
+                        item
+                        xs={6}
+                        lg={3}
+                        sx={{
+                            paddingRight: { xs: "12px", lg: "36px" },
+                        }}
+                    >
                         <TextField
                             fullWidth
                             variant={editMode ? "filled" : "standard"}
@@ -713,8 +733,11 @@ const AVProductDetails: React.FC = () => {
                     <Grid
                         item
                         xs={6}
-                        md={3}
-                        sx={{ paddingLeft: { xs: "24px", md: "48px" } }}
+                        lg={3}
+                        sx={{
+                            paddingLeft: { xs: "12px", lg: "12px" },
+                            paddingRight: { lg: "24px" },
+                        }}
                     >
                         <TextField
                             fullWidth
@@ -748,8 +771,11 @@ const AVProductDetails: React.FC = () => {
                     <Grid
                         item
                         xs={6}
-                        md={3}
-                        sx={{ paddingLeft: { md: "48px" } }}
+                        lg={3}
+                        sx={{
+                            paddingRight: "12px",
+                            paddingLeft: { lg: "24px" },
+                        }}
                     >
                         <TextField
                             fullWidth
@@ -783,8 +809,8 @@ const AVProductDetails: React.FC = () => {
                     <Grid
                         item
                         xs={6}
-                        md={3}
-                        sx={{ paddingLeft: { xs: "24px", md: "48px" } }}
+                        lg={3}
+                        sx={{ paddingLeft: { xs: "12px", lg: "36px" } }}
                     >
                         <TextField
                             fullWidth
@@ -850,7 +876,14 @@ const AVProductDetails: React.FC = () => {
                 >
                     <Button
                         variant="outlined"
-                        sx={{ color: "black" }}
+                        sx={{
+                            color: "black",
+                            width: {
+                                xs: "100%",
+
+                                md: "auto",
+                            },
+                        }}
                         onClick={() =>
                             navigate(previousRoute || "/products/manage")
                         }
@@ -860,17 +893,32 @@ const AVProductDetails: React.FC = () => {
                     {editMode ? (
                         <Box
                             className="edit-mode-buttons"
-                            sx={{ mb: { xs: 2, md: 0 } }}
+                            sx={{
+                                mb: { xs: 2, md: 0 },
+                                width: { xs: "100%", md: "auto" },
+                            }}
                         >
                             <Button
                                 variant="contained"
                                 onClick={() => setIsConfirming(true)}
                                 disabled={accessLevel === "view only"}
+                                sx={{
+                                    width: {
+                                        xs: "calc(50% - 10px)",
+                                        md: "auto",
+                                    },
+                                }}
                             >
                                 Save Changes
                             </Button>
                             <Button
-                                sx={{ marginLeft: "20px" }}
+                                sx={{
+                                    marginLeft: "20px",
+                                    width: {
+                                        xs: "calc(50% - 10px)",
+                                        md: "auto",
+                                    },
+                                }}
                                 variant="contained"
                                 onClick={() => {
                                     searchParams.delete("editing");
@@ -887,6 +935,14 @@ const AVProductDetails: React.FC = () => {
                             onClick={() => {
                                 searchParams.set("editing", "true");
                                 setSearchParams(searchParams);
+                            }}
+                            sx={{
+                                mb: { xs: 2, md: 0 },
+                                width: {
+                                    xs: "100%",
+
+                                    md: "auto",
+                                },
                             }}
                         >
                             Edit

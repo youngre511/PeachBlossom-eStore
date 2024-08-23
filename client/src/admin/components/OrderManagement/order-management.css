@@ -1,0 +1,45 @@
+/* .om-header {
+    position: sticky;
+    top: 0;
+} */
+
+.om-search-and-filters {
+    background-color: var(--peach-blush);
+    width: 100vw;
+    margin-left: -10px;
+    padding: 20px 10px 0 10px;
+    margin-bottom: 30px;
+}
+
+.om-search-bar {
+    margin-bottom: 20px;
+}
+
+.om-filters-mobile {
+    overflow: hidden;
+    height: 410px;
+    transition: height 0.3s ease-in-out;
+}
+
+.om-orderStatus-select {
+    margin-top: 20px;
+}
+
+.om-filter-button {
+    width: 100vw;
+    margin-left: -10px;
+    background-color: transparent;
+    height: 64px;
+    border: none;
+    border-top: 1px solid var(--peach-blossom);
+    border-bottom: 1px solid var(--peach-blossom);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+}
+
+.start-date-select,
+.end-date-select {
+    margin-bottom: 23px;
+}

@@ -77,7 +77,7 @@ const SearchField: React.FC<Props> = ({
             <form onSubmit={handleSubmit}>
                 <Autocomplete
                     freeSolo
-                    id="free-solo-2-demo"
+                    id="search-bar"
                     disableClearable
                     filterOptions={(options) => {
                         const inputValue = searchQuery.toLowerCase();

@@ -199,6 +199,7 @@ export const getOrders = async (filters: GetOrdersFilters) => {
     const offset = (page - 1) * +filters.itemsPerPage;
 
     const whereClause: any = {};
+    const addressWhereClause: any = {};
     if (filters.search) {
         whereClause[Op.or] = [
             { customer_id: { [Op.like]: `%${filters.search}%` } },
@@ -216,7 +217,7 @@ export const getOrders = async (filters: GetOrdersFilters) => {
 
     if (filters.state) {
         if (Array.isArray(filters.state)) {
-            andConditions.push({ stateAbbr: { [Op.in]: filters.state } });
+            addressWhereClause.stateAbbr = { [Op.in]: filters.state };
         }
     }
 
@@ -271,6 +272,7 @@ export const getOrders = async (filters: GetOrdersFilters) => {
             {
                 model: sqlAddress,
                 as: "Address",
+                where: addressWhereClause,
             },
         ],
         subQuery: false,

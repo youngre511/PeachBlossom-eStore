@@ -27,6 +27,7 @@ import ExpandMoreIconSharp from "@mui/icons-material/ExpandMoreSharp";
 import "./admin-nav.css";
 import { AuthContext } from "../../../common/contexts/authContext";
 import { Button } from "@mui/material";
+import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
 
 export const drawerWidth = 240;
 
@@ -41,6 +42,7 @@ const AdminNav: React.FC<Props> = (props: Props) => {
     );
     const navigate = useNavigate();
     const user = authContext?.user;
+    const { width } = useWindowSizeContext();
 
     const handleDrawerClose = () => {
         setIsClosing(true);
@@ -66,7 +68,33 @@ const AdminNav: React.FC<Props> = (props: Props) => {
     const drawer = (
         <div className="menu-drawer">
             <div>
-                <Toolbar />
+                <Toolbar
+                    sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                    }}
+                >
+                    <Typography
+                        sx={{
+                            fontFamily: "var(--Delafield)",
+                            fontSize: "2rem",
+                            marginTop: "5px",
+                            marginBottom: "-20px",
+                            color: "black",
+                        }}
+                    >
+                        peach blossom
+                    </Typography>
+                    <Typography
+                        sx={{
+                            fontFamily: "var(--Playfair)",
+                            margin: 0,
+                            color: "black",
+                        }}
+                    >
+                        Admin Panel
+                    </Typography>
+                </Toolbar>
                 <Divider />
                 <List>
                     <ListItem disablePadding>
@@ -317,6 +345,14 @@ const AdminNav: React.FC<Props> = (props: Props) => {
                         sx={{
                             fontFamily: "var(--Delafield)",
                             fontSize: "2.5rem",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            flexGrow: width && width >= 440 ? 1 : undefined,
+                            paddingLeft:
+                                width && width < 440 ? "14px" : undefined,
+                            paddingRight:
+                                width && width >= 440 ? "40px" : undefined,
                         }}
                         variant="h6"
                         noWrap
@@ -326,7 +362,8 @@ const AdminNav: React.FC<Props> = (props: Props) => {
                         <span
                             style={{
                                 fontFamily: "var(--Playfair)",
-                                fontSize: "1.5rem",
+                                fontSize: "1.4rem",
+                                padding: "0 0 5px 10px",
                             }}
                         >
                             Admin Panel

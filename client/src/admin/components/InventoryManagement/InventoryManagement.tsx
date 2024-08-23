@@ -18,6 +18,7 @@ import InventoryCatalog from "./InventoryCatalog";
 import "./inventory-management.css";
 import StatusPopup from "../../../common/components/StatusPopup";
 import { AuthContext } from "../../../common/contexts/authContext";
+import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
 
 const inputStyle = {
     "& .MuiInputBase-root.MuiOutlinedInput-root": {
@@ -47,6 +48,7 @@ const InventoryManagement: React.FC<Props> = () => {
     const itemsPerPage = searchParams.get("itemsPerPage") || 24;
     const authContext = useContext(AuthContext);
     const accessLevel = authContext?.user?.accessLevel;
+    const { width } = useWindowSizeContext();
 
     const memoParams = useMemo(() => {
         return {
@@ -188,32 +190,64 @@ const InventoryManagement: React.FC<Props> = () => {
 
     return (
         <div className="inventory-management">
-            <h1>Inventory Management</h1>
-            <div className="add-and-search">
-                <div className="search-bar">
-                    <SearchField
-                        updateSearchParams={updateSearchParams}
-                        sx={inputStyle}
-                        inputSx={{ backgroundColor: "white" }}
-                        options={avMenuData.searchOptions}
-                    />
+            <div className="inv-header">
+                <h1>Inventory Management</h1>
+                <div className="inv-save-and-search">
+                    <div className="inv-search-bar">
+                        <SearchField
+                            updateSearchParams={updateSearchParams}
+                            sx={inputStyle}
+                            inputSx={{ backgroundColor: "white" }}
+                            options={avMenuData.searchOptions}
+                        />
+                    </div>
+                    <div className="inv-buttons">
+                        {Object.keys(pendingInventoryUpdates).length > 0 &&
+                        accessLevel !== "view only" ? (
+                            <Button
+                                variant="contained"
+                                onClick={handleSaveChanges}
+                                sx={{
+                                    height: "56px",
+                                    width:
+                                        width && width < 800
+                                            ? "calc(50% - 5px)"
+                                            : undefined,
+                                }}
+                            >
+                                SAVE CHANGES
+                            </Button>
+                        ) : (
+                            <Button
+                                variant="contained"
+                                disabled
+                                sx={{
+                                    height: "56px",
+                                    width:
+                                        width && width < 800
+                                            ? "calc(50% - 5px)"
+                                            : undefined,
+                                }}
+                            >
+                                SAVE CHANGES
+                            </Button>
+                        )}
+                        <Button
+                            variant="outlined"
+                            onClick={() => setPendingInventoryUpdates({})}
+                            sx={{
+                                height: "56px",
+                                marginLeft: "10px",
+                                width:
+                                    width && width < 800
+                                        ? "calc(50% - 5px)"
+                                        : undefined,
+                            }}
+                        >
+                            RESET
+                        </Button>
+                    </div>
                 </div>
-                {Object.keys(pendingInventoryUpdates).length > 0 &&
-                accessLevel !== "view only" ? (
-                    <Button variant="contained" onClick={handleSaveChanges}>
-                        SAVE CHANGES
-                    </Button>
-                ) : (
-                    <Button variant="contained" disabled>
-                        SAVE CHANGES
-                    </Button>
-                )}
-                <Button
-                    variant="outlined"
-                    onClick={() => setPendingInventoryUpdates({})}
-                >
-                    RESET
-                </Button>
             </div>
             <InventoryCatalog
                 page={+page}

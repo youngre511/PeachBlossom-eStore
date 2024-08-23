@@ -83,6 +83,7 @@ const OrderManagement: React.FC<Props> = () => {
         endDate,
         sort,
         itemsPerPage,
+        searchParams,
     ]);
 
     useEffect(() => {
@@ -126,8 +127,12 @@ const OrderManagement: React.FC<Props> = () => {
 
     return (
         <div className="product-management">
-            <h1>Order Management</h1>
-            <OrderManagementFilters updateSearchParams={updateSearchParams} />
+            <div className="om-header">
+                <h1>Order Management</h1>
+                <OrderManagementFilters
+                    updateSearchParams={updateSearchParams}
+                />
+            </div>
             <OrdersList
                 page={+page}
                 results={results}
