@@ -26,6 +26,7 @@ import AVCatalogHead from "./InventoryCatalogHead";
 import { AVProduct } from "../../features/AVCatalog/avCatalogTypes";
 import StockField from "./StockField";
 import InventoryTableRow from "./InventoryTableRow";
+import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
 
 interface AVCatProps {
     page: number;
@@ -66,6 +67,7 @@ const InventoryCatalog: React.FC<AVCatProps> = ({
     const [selected, setSelected] = React.useState<readonly string[]>([]);
     // const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(24);
+    const { width } = useWindowSizeContext();
 
     const rows = products.map((product) => {
         const rowData: InventoryRow = {
@@ -114,7 +116,14 @@ const InventoryCatalog: React.FC<AVCatProps> = ({
     return (
         <Box sx={{ width: "100%" }}>
             <Paper sx={{ width: "100%", mb: 2, mt: 2 }}>
-                <TableContainer sx={{ maxHeight: "70vh" }}>
+                <TableContainer
+                    sx={{
+                        maxHeight:
+                            width && width < 600
+                                ? "calc(100dvh - 311px)"
+                                : "70vh",
+                    }}
+                >
                     <Table
                         sx={{ paddingLeft: "20px" }}
                         aria-labelledby="tableTitle"

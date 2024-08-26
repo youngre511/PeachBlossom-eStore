@@ -224,6 +224,7 @@ const Shop = () => {
             );
 
             if (filtersChanged) {
+                console.log("params:", params);
                 dispatch(fetchProducts(params as Filters));
             }
         }

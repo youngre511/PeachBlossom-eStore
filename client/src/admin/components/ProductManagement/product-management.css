@@ -96,6 +96,7 @@
 @media (min-width: 600px) {
     .search-and-filters {
         width: 100%;
+        margin-left: 0;
     }
 
     .pm-mobile-buttons {
@@ -120,7 +121,6 @@
         margin: 10px 0;
         justify-content: space-between;
         align-items: flex-end;
-        /* flex-direction: row; */
         background-color: transparent;
         padding: 0;
     }

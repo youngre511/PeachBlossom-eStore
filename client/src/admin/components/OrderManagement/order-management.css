@@ -1,10 +1,5 @@
-/* .om-header {
-    position: sticky;
-    top: 0;
-} */
-
 .om-search-and-filters {
-    background-color: var(--peach-blush);
+    background-color: var(--peaches-and-cream);
     width: 100vw;
     margin-left: -10px;
     padding: 20px 10px 0 10px;
@@ -42,4 +37,76 @@
 .start-date-select,
 .end-date-select {
     margin-bottom: 23px;
+}
+
+@media (min-width: 600px) {
+    .om-search-and-filters {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .om-filter-button {
+        width: 100%;
+    }
+}
+
+@media (min-width: 800px) {
+    .om-search-and-filters {
+        background-color: transparent;
+        padding: 0;
+    }
+
+    .om-filter-button {
+        display: none;
+    }
+
+    .om-filters {
+        display: grid;
+        width: 100%;
+        margin-top: 20px;
+        column-gap: 20px;
+        grid-template-areas:
+            "orderstatus orderstatus"
+            "region state"
+            "startdate enddate";
+    }
+
+    .om-orderStatus-select {
+        margin: 0;
+    }
+
+    .om-search-bar {
+        margin-bottom: 0;
+    }
+}
+
+@media (min-width: 1000px) {
+    .om-head-and-search {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+    }
+    .om-search-bar {
+        width: 300px;
+    }
+
+    .om-filters {
+        grid-template-areas:
+            "orderstatus orderstatus region region state state"
+            "startdate startdate startdate enddate enddate enddate";
+    }
+}
+
+@media (min-width: 1200px) {
+    .om-filters {
+        display: flex;
+        align-items: center;
+        justify-content: space-evenly;
+    }
+
+    .om-orderStatus-select,
+    .region-select,
+    .state-select {
+        flex-grow: 1;
+    }
 }

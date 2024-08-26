@@ -11,8 +11,10 @@
     justify-content: space-between;
     align-items: center;
     gap: 10px;
-    width: 100%;
+    width: 100vw;
     flex-direction: column;
+    background-color: var(--peaches-and-cream);
+    padding: 20px;
 }
 
 .inv-search-bar {
@@ -27,9 +29,22 @@
     max-width: 80px;
 }
 
+@media (min-width: 600px) {
+    .inv-header {
+        margin-top: 0;
+    }
+
+    .inv-save-and-search {
+        width: 100%;
+        margin: 0;
+    }
+}
+
 @media (min-width: 800px) {
     .inv-save-and-search {
         flex-direction: row;
+        background-color: transparent;
+        padding: 0;
     }
 
     .inv-search-bar {

@@ -163,7 +163,14 @@ const AVProductCatalog: React.FC<AVCatProps> = ({
                     discontinueSelected={discontinueSelected}
                     activateSelected={activateSelected}
                 />
-                <TableContainer sx={{ maxHeight: "50vh" }}>
+                <TableContainer
+                    sx={{
+                        maxHeight:
+                            width && width < 600
+                                ? "calc(100dvh - 354px)"
+                                : "70vh",
+                    }}
+                >
                     <Table
                         sx={
                             {

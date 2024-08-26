@@ -22,9 +22,10 @@ import AdminListHead from "./AdminListHead";
 import { IAVOrder } from "../../features/AVOrders/avOrdersTypes";
 import { useNavigate } from "react-router-dom";
 import { AdminUser } from "../../features/Users/userTypes";
-import AdminMoreMenu from "./adminMoreMenu";
+import AdminMoreMenu from "./AdminMoreMenu";
 import { deleteUser, resetUserPassword } from "../../features/Users/userSlice";
 import axios from "axios";
+import AdminListRow from "./AdminListRow";
 
 interface AdminListProps {
     page: number;
@@ -40,7 +41,7 @@ interface AdminListProps {
     ) => void;
 }
 
-interface Row {
+export interface AdminRow {
     user_id: number;
     username: string;
     admin_id: number;
@@ -61,7 +62,7 @@ const AdminList: React.FC<AdminListProps> = ({
     const navigate = useNavigate();
 
     const rows = results.map((user) => {
-        const rowData: Row = {
+        const rowData: AdminRow = {
             user_id: user.user_id,
             username: user.username,
             admin_id: user.admin_id,
@@ -93,7 +94,7 @@ const AdminList: React.FC<AdminListProps> = ({
             <Paper sx={{ width: "100%", mb: 2 }}>
                 <TableContainer sx={{ maxHeight: 500 }}>
                     <Table
-                        sx={{ minWidth: 750, paddingLeft: "20px" }}
+                        sx={{ paddingLeft: "20px" }}
                         aria-labelledby="tableTitle"
                         size={"medium"}
                         stickyHeader
@@ -101,54 +102,17 @@ const AdminList: React.FC<AdminListProps> = ({
                     >
                         <AdminListHead />
                         <TableBody>
-                            {rows.map((row, index) => {
-                                return (
-                                    <TableRow
-                                        hover
-                                        tabIndex={-1}
-                                        key={row.user_id}
-                                    >
-                                        <TableCell align="left">
-                                            {row.user_id}
-                                        </TableCell>
-                                        <TableCell align="left">
-                                            {row.username}
-                                        </TableCell>
-                                        <TableCell align="left">
-                                            {row.admin_id}
-                                        </TableCell>
-                                        <TableCell align="left">
-                                            {row.accessLevel}
-                                        </TableCell>
-                                        <TableCell align="left">
-                                            {String(row.defaultPassword)}
-                                        </TableCell>
-                                        <TableCell align="left">
-                                            {row.username !== "youngre511" && (
-                                                <AdminMoreMenu
-                                                    user_id={row.user_id}
-                                                    username={row.username}
-                                                    currentAccessLevel={
-                                                        row.accessLevel
-                                                    }
-                                                    isDefaultPassword={
-                                                        row.defaultPassword
-                                                    }
-                                                    handleResetPassword={
-                                                        handleResetPassword
-                                                    }
-                                                    handleUserDelete={
-                                                        handleUserDelete
-                                                    }
-                                                    handleChangeAccessLevel={
-                                                        handleChangeAccessLevel
-                                                    }
-                                                />
-                                            )}
-                                        </TableCell>
-                                    </TableRow>
-                                );
-                            })}
+                            {rows.map((row, index) => (
+                                <AdminListRow
+                                    row={row}
+                                    handleChangeAccessLevel={
+                                        handleChangeAccessLevel
+                                    }
+                                    handleResetPassword={handleResetPassword}
+                                    handleUserDelete={handleUserDelete}
+                                    key={row.username}
+                                />
+                            ))}
                             {emptyRows > 0 && (
                                 <TableRow
                                     style={{

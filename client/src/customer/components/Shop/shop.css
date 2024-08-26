@@ -9,8 +9,14 @@
     justify-content: space-between;
     align-items: center;
     position: sticky;
-    top: -42.5px;
+    top: -18.5px;
     z-index: 10;
+}
+
+.shop-heading {
+    font-size: 1.6rem;
+    height: 42.5px;
+    margin: 20px 0 0 0;
 }
 
 .sort-and-ipp {
@@ -171,6 +177,7 @@
 
     .shop-heading {
         margin-bottom: 0;
+        font-size: 2rem;
     }
 
     .sort-and-ipp {

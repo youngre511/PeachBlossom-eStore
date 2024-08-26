@@ -1,0 +1,90 @@
+.admin-manage-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.add-admin-btn {
+    display: none;
+}
+
+.access-select {
+    display: none;
+}
+
+.am-mobile-buttons {
+    display: grid;
+    position: relative;
+    align-items: center;
+    grid-template-columns: 1fr 1fr;
+    background-color: var(--peaches-and-cream);
+    width: 100vw;
+    margin-left: -10px;
+    margin-bottom: 20px;
+}
+
+.am-mobile-add,
+.am-mobile-views {
+    width: 100%;
+    height: 64px;
+    background-color: transparent;
+    border: none;
+    border-top: 1px solid var(--peach-blossom);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.mobile-view-menu {
+    width: 50vw;
+    position: absolute;
+    right: 0;
+    top: 64px;
+    background-color: var(--peaches-and-cream);
+    z-index: 11;
+    height: 0;
+    overflow: hidden;
+    transition: height 0.3s ease-in-out;
+}
+
+.mobile-view-menu button {
+    width: 100%;
+    height: 64px;
+    background-color: transparent;
+    border: none;
+    border-top: 1px solid var(--peach-blossom);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+@media (min-width: 600px) {
+    .am-mobile-buttons {
+        width: calc(100%);
+        margin-left: 0;
+    }
+    .mobile-view-menu {
+        width: 50%;
+    }
+}
+
+@media (min-width: 800px) {
+    .admin-manage-header {
+        justify-content: space-between;
+    }
+
+    .am-mobile-buttons {
+        display: none;
+    }
+
+    .add-admin-btn {
+        display: block;
+    }
+
+    .access-select {
+        display: block;
+        margin-bottom: 20px;
+        width: 300px;
+    }
+}

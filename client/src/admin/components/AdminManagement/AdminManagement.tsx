@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import UserList from "./AdminList";
 import axios, { AxiosError } from "axios";
 import "./admin-management.css";
@@ -23,6 +23,7 @@ import {
     FormControl,
     FormControlLabel,
     FormLabel,
+    Icon,
     InputLabel,
     MenuItem,
     Radio,
@@ -37,6 +38,8 @@ import { FormField } from "../../../common/components/Fields/FormField";
 import { inputStyle } from "../AddProduct/AddProduct";
 import AddAdminPopup from "./AddAdminPopup";
 import AdminList from "./AdminList";
+import AddCircleOutlineSharpIcon from "@mui/icons-material/AddCircleOutlineSharp";
+import VisibilitySharpIcon from "@mui/icons-material/VisibilitySharp";
 
 interface FetchAdminParams {
     page: string;
@@ -54,21 +57,20 @@ const AdminManagement: React.FC<Props> = () => {
     const users = useAppSelector((state: RootState) => state.users);
     const numberOfResults = users.numberOfAdmins;
     const results = users.admins;
-    const [loading, setLoading] = useState<boolean>(true);
+    const [loading, setLoading] = useState<boolean>(false);
     const [isError, setIsError] = useState<boolean>(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [showConfirm, setShowConfirm] = useState<boolean>(false);
-    const [justLoaded, setJustLoaded] = useState<boolean>(false);
+    const [justLoaded, setJustLoaded] = useState<boolean>(true);
     const [accessView, setAccessView] = useState<string>("all");
     const [deleteId, setDeleteId] = useState<number | null>(null);
     const [addingUser, setAddingUser] = useState<boolean>(false);
+    const [mobileViewsExpanded, setMobileViewsExpanded] =
+        useState<boolean>(false);
+    const navigate = useNavigate();
 
     const dispatch = useAppDispatch();
 
-    useEffect(() => {
-        console.log("results changed");
-        console.log(results);
-    }, [results]);
     useEffect(() => {
         setLoading(users.loading);
     }, [users.loading]);
@@ -93,7 +95,7 @@ const AdminManagement: React.FC<Props> = () => {
             setAccessView(accessLevel);
         }
         fetchAdminData();
-    }, [search, page, usersPerPage, accessLevel]);
+    }, [searchParams, search, page, usersPerPage, accessLevel]);
 
     useEffect(() => {
         if (accessView !== accessLevel) {
@@ -117,7 +119,6 @@ const AdminManagement: React.FC<Props> = () => {
         }
 
         if (Object.keys(initialParams).length > 0) {
-            console.log("adding search parameters");
             setSearchParams((prevParams) => {
                 const newParams = new URLSearchParams(prevParams);
                 Object.keys(initialParams).forEach((key) => {
@@ -139,7 +140,6 @@ const AdminManagement: React.FC<Props> = () => {
                 accessLevel: accessLevelParam,
                 searchString: search ? search : undefined,
             };
-            console.log("dispatching fetchAdmins");
             dispatch(fetchAdmins(params));
         }
     };
@@ -247,10 +247,13 @@ const AdminManagement: React.FC<Props> = () => {
         <div className="admin-management">
             <div className="admin-manage-header">
                 <h1>Admin Management</h1>
-                <PeachButton
-                    text="Add New Admin"
-                    onClick={() => setAddingUser(true)}
-                />
+                <div className="add-admin-btn">
+                    <PeachButton
+                        text="Add New Admin"
+                        onClick={() => setAddingUser(true)}
+                        width={"150px"}
+                    />
+                </div>
             </div>
             <div className="access-select">
                 <InputLabel id={`view-label`}>View</InputLabel>
@@ -268,6 +271,73 @@ const AdminManagement: React.FC<Props> = () => {
                     <MenuItem value={"limited"}>Limited Access</MenuItem>
                     <MenuItem value={"view only"}>View Only</MenuItem>
                 </Select>
+            </div>
+            <div className="am-mobile-buttons">
+                <button
+                    onClick={() => navigate("/products/add")}
+                    className="am-mobile-add"
+                >
+                    <Icon sx={{ marginRight: "10px" }}>
+                        <AddCircleOutlineSharpIcon />
+                    </Icon>{" "}
+                    Add New Admin
+                </button>
+                <button
+                    className="am-mobile-views"
+                    onClick={() => setMobileViewsExpanded(!mobileViewsExpanded)}
+                >
+                    <Icon sx={{ marginRight: "10px" }}>
+                        <VisibilitySharpIcon />
+                    </Icon>
+                    Views
+                </button>
+                <div
+                    className="mobile-view-menu"
+                    style={
+                        mobileViewsExpanded ? { height: "256px" } : undefined
+                    }
+                >
+                    <button
+                        style={
+                            accessView === "all"
+                                ? { backgroundColor: "var(--peach-blush)" }
+                                : undefined
+                        }
+                        onClick={() => setAccessView("all")}
+                    >
+                        All
+                    </button>
+                    <button
+                        style={
+                            accessView === "full"
+                                ? { backgroundColor: "var(--peach-blush)" }
+                                : undefined
+                        }
+                        onClick={() => setAccessView("full")}
+                    >
+                        Full
+                    </button>
+                    <button
+                        style={
+                            accessView === "limited"
+                                ? { backgroundColor: "var(--peach-blush)" }
+                                : undefined
+                        }
+                        onClick={() => setAccessView("limited")}
+                    >
+                        Limited
+                    </button>
+                    <button
+                        style={
+                            accessView === "view only"
+                                ? { backgroundColor: "var(--peach-blush)" }
+                                : undefined
+                        }
+                        onClick={() => setAccessView("view only")}
+                    >
+                        View Only
+                    </button>
+                </div>
             </div>
             <AdminList
                 page={+page}

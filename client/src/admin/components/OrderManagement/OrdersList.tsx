@@ -17,7 +17,6 @@ import {
     Tooltip,
     IconButton,
 } from "@mui/material";
-import dayjs from "dayjs";
 
 import MoreVertSharpIcon from "@mui/icons-material/MoreVertSharp";
 import ImageSharpIcon from "@mui/icons-material/ImageSharp";
@@ -26,6 +25,8 @@ import AddAPhotoSharpIcon from "@mui/icons-material/AddAPhotoSharp";
 import OrdersListHead from "./OrdersListHead";
 import { IAVOrder } from "../../features/AVOrders/avOrdersTypes";
 import { useNavigate } from "react-router-dom";
+import OrderListRow from "./OrderListRow";
+import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
 
 interface AVCatProps {
     page: number;
@@ -34,7 +35,7 @@ interface AVCatProps {
     updateSearchParams: (newFilters: Record<string, string>) => void;
 }
 
-interface Row {
+export interface OrderRow {
     orderNo: string;
     orderDate: string;
     total: string;
@@ -56,9 +57,10 @@ const OrdersList: React.FC<AVCatProps> = ({
     const [orderBy, setOrderBy] = React.useState<keyof IAVOrder>("orderDate");
     const [rowsPerPage, setRowsPerPage] = React.useState(24);
     const navigate = useNavigate();
+    const { width } = useWindowSizeContext();
 
     const rows = results.map((order) => {
-        const rowData: Row = {
+        const rowData: OrderRow = {
             orderNo: order.orderNo,
             orderDate: order.orderDate.toLocaleString(),
             total: `$${Number(order.totalAmount).toFixed(2)}`,
@@ -105,9 +107,16 @@ const OrdersList: React.FC<AVCatProps> = ({
     return (
         <Box sx={{ width: "100%" }}>
             <Paper sx={{ width: "100%", mb: 2 }}>
-                <TableContainer sx={{ maxHeight: 500 }}>
+                <TableContainer
+                    sx={{
+                        maxHeight:
+                            width && width < 800
+                                ? "calc(100vh - 320px)"
+                                : "70dvh",
+                    }}
+                >
                     <Table
-                        sx={{ minWidth: 750, paddingLeft: "20px" }}
+                        sx={{ paddingLeft: "20px" }}
                         aria-labelledby="tableTitle"
                         size={"medium"}
                         stickyHeader
@@ -119,48 +128,9 @@ const OrdersList: React.FC<AVCatProps> = ({
                             onRequestSort={handleRequestSort}
                         />
                         <TableBody>
-                            {rows.map((row, index) => {
-                                return (
-                                    <TableRow
-                                        hover
-                                        tabIndex={-1}
-                                        key={row.orderNo}
-                                    >
-                                        <TableCell
-                                            component="th"
-                                            scope="row"
-                                            sx={{ cursor: "pointer" }}
-                                            onClick={() =>
-                                                navigate(
-                                                    `/orders/order-details?order=${row.orderNo}`
-                                                )
-                                            }
-                                        >
-                                            {row.orderNo}
-                                        </TableCell>
-                                        <TableCell align="left">
-                                            {dayjs(row.orderDate).format(
-                                                "YYYY-MM-DD HH:mm:ss"
-                                            )}
-                                        </TableCell>
-                                        <TableCell align="right">
-                                            {row.total}
-                                        </TableCell>
-                                        <TableCell align="left">
-                                            {row.shippingAddress}
-                                        </TableCell>
-                                        <TableCell align="left">
-                                            {row.state}
-                                        </TableCell>
-                                        <TableCell align="left">
-                                            {row.email}
-                                        </TableCell>
-                                        <TableCell align="left">
-                                            {row.orderStatus}
-                                        </TableCell>
-                                    </TableRow>
-                                );
-                            })}
+                            {rows.map((row, index) => (
+                                <OrderListRow row={row} key={row.orderNo} />
+                            ))}
                             {emptyRows > 0 && (
                                 <TableRow
                                     style={{

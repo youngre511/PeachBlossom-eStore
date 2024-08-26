@@ -14,54 +14,11 @@ import {
     Box,
     Icon,
 } from "@mui/material";
+import { CSSProperties } from "@mui/material/styles/createTypography";
 import SearchField from "../../../common/components/Fields/SearchField";
 import { SelectFieldNonFormik } from "../../../common/components/Fields/SelectFieldNonFormik";
 import FilterAltSharpIcon from "@mui/icons-material/FilterAltSharp";
 import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
-
-const inputStyle = {
-    // backgroundColor: "white",
-    "&.MuiFilledInput-root": {
-        backgroundColor: "white",
-        "&.Mui-disabled": {
-            backgroundColor: "peach.light",
-        },
-    },
-    "&.MuiFilledInput-input": {
-        backgroundColor: "white",
-    },
-    "&.MuiInputBase-root": {
-        backgroundColor: "white",
-        "&.MuiFilledInput-root": {
-            backgroundColor: "white",
-            "&.Mui-disabled": {
-                backgroundColor: "peach.light",
-            },
-        },
-    },
-    "& .MuiInputBase-root.MuiOutlinedInput-root.MuiInputBase-colorPrimary": {
-        backgroundColor: "white",
-    },
-    "& .MuiFormLabel-root.MuiInputLabel-root.MuiInputLabel-formControl.Mui-focused":
-        {
-            color: "rgba(0, 0, 0, 0.63)",
-        },
-
-    "& .MuiInputBase-input.MuiFilledInput-input:focus": {
-        backgroundColor: "white",
-    },
-    "& .MuiInputBase-root.MuiFilledInput-root.MuiFilledInput-underline.MuiInputBase-adornedStart":
-        {
-            backgroundColor: "white",
-        },
-    "& .MuiInputBase-root.MuiFilledInput-root.MuiFilledInput-underline.MuiInputBase-adornedEnd":
-        {
-            backgroundColor: "white",
-        },
-    "& .MuiInputBase-root.MuiFilledInput-root": {
-        backgroundColor: "white",
-    },
-};
 
 const stateAbbreviations = [
     "AL",
@@ -141,10 +98,17 @@ const regions: RegionMap = {
     West: ["AK", "CA", "CO", "HI", "ID", "MT", "NV", "OR", "UT", "WA", "WY"],
 };
 
+interface CustomStyles {
+    [key: string]: CSSProperties | CustomStyles;
+}
 interface Props {
     updateSearchParams: (newFilters: Record<string, string>) => void;
+    inputStyle: CustomStyles;
 }
-const OrderManagementFilters: React.FC<Props> = ({ updateSearchParams }) => {
+const OrderManagementFilters: React.FC<Props> = ({
+    updateSearchParams,
+    inputStyle,
+}) => {
     const [dateMin, setDateMin] = useState<Dayjs | null>(null);
     const [dateMax, setDateMax] = useState<Dayjs | null>(null);
     const [orderStatus, setOrderStatus] = useState<string[]>([]);
@@ -177,26 +141,17 @@ const OrderManagementFilters: React.FC<Props> = ({ updateSearchParams }) => {
         updateSearchParams(updateParams);
     }, [dateMin, dateMax, orderStatus, region, state]);
 
-    // useEffect(() => {
-    //     if (cleared) {
-    //       const timeout = setTimeout(() => {
-    //         setCleared(false);
-    //       }, 1500);
-
-    //       return () => clearTimeout(timeout);
-    //     }
-    //     return () => {};
-    //   }, [cleared]);
-
     return (
         <div className="om-search-and-filters">
-            <div className="om-search-bar">
-                <SearchField
-                    updateSearchParams={updateSearchParams}
-                    sx={{ ...inputStyle }}
-                    options={[]}
-                />
-            </div>
+            {width && width < 1000 && (
+                <div className="om-search-bar">
+                    <SearchField
+                        updateSearchParams={updateSearchParams}
+                        sx={{ ...inputStyle }}
+                        options={[]}
+                    />
+                </div>
+            )}
             <button
                 className="om-filter-button"
                 onClick={() => setFiltersExpanded(!filtersExpanded)}
@@ -208,15 +163,18 @@ const OrderManagementFilters: React.FC<Props> = ({ updateSearchParams }) => {
             </button>
             <div
                 className={
-                    width && width < 600 ? "om-filters-mobile" : "om-filters"
+                    width && width < 800 ? "om-filters-mobile" : "om-filters"
                 }
                 style={
-                    width && width < 600 && !filtersExpanded
+                    width && width < 800 && !filtersExpanded
                         ? { height: 0 }
                         : undefined
                 }
             >
-                <div className="om-orderStatus-select">
+                <div
+                    className="om-orderStatus-select"
+                    style={{ gridArea: "orderstatus" }}
+                >
                     <SelectFieldNonFormik
                         label="Order Status"
                         name={"orderStatus"}
@@ -237,7 +195,7 @@ const OrderManagementFilters: React.FC<Props> = ({ updateSearchParams }) => {
                         sx={inputStyle}
                     />
                 </div>
-                <div className="region-select">
+                <div className="region-select" style={{ gridArea: "region" }}>
                     <SelectFieldNonFormik
                         value={region}
                         variant="outlined"
@@ -258,7 +216,7 @@ const OrderManagementFilters: React.FC<Props> = ({ updateSearchParams }) => {
                         sx={inputStyle}
                     />
                 </div>
-                <div className="state-select">
+                <div className="state-select" style={{ gridArea: "state" }}>
                     <SelectFieldNonFormik
                         value={state}
                         variant="outlined"
@@ -276,7 +234,10 @@ const OrderManagementFilters: React.FC<Props> = ({ updateSearchParams }) => {
                         sx={inputStyle}
                     />
                 </div>
-                <div className="start-date-select">
+                <div
+                    className="start-date-select"
+                    style={{ gridArea: "startdate" }}
+                >
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DatePicker
                             value={dateMin}
@@ -300,7 +261,10 @@ const OrderManagementFilters: React.FC<Props> = ({ updateSearchParams }) => {
                         />
                     </LocalizationProvider>
                 </div>
-                <div className="end-date-select">
+                <div
+                    className="end-date-select"
+                    style={{ gridArea: "enddate" }}
+                >
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DatePicker
                             value={dateMax}

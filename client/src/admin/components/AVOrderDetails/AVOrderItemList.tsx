@@ -25,6 +25,7 @@ import { useNavigate, Link } from "react-router-dom";
 import AVOrderItemQuantity from "./AVOrderItemQuantity";
 import AVOrderItemStatus from "./AVOrderItemStatus";
 import { IAVOrderItem } from "../../features/AVOrders/avOrdersTypes";
+import AVOrderItemRow from "./AVOrderItemRow";
 
 interface AVCatProps {
     orderItems: IAVOrderItem[];
@@ -34,7 +35,7 @@ interface AVCatProps {
     editMode: boolean;
 }
 
-interface Row {
+export interface OrderItemRow {
     id: string;
     productNo: string;
     productName: string;
@@ -52,13 +53,13 @@ const AVOrderItemList: React.FC<AVCatProps> = ({
     editMode,
 }) => {
     const [selected, setSelected] = React.useState<readonly string[]>([]);
-    const [rows, setRows] = React.useState<Row[]>([]);
+    const [rows, setRows] = React.useState<OrderItemRow[]>([]);
     const [cancelledRowNumber, setCancelledRowNumber] =
         React.useState<number>(0);
 
     React.useEffect(() => {
         const updatedRows = orderItems.map((item) => {
-            const rowData: Row = {
+            const rowData: OrderItemRow = {
                 id: String(item.order_item_id),
                 productNo: item.productNo,
                 productName: item.Product.productName,
@@ -191,7 +192,6 @@ const AVOrderItemList: React.FC<AVCatProps> = ({
                 />
                 <TableContainer sx={{ maxHeight: 500 }}>
                     <Table
-                        sx={{ minWidth: 750 }}
                         aria-labelledby="tableTitle"
                         size={"medium"}
                         stickyHeader
@@ -202,113 +202,21 @@ const AVOrderItemList: React.FC<AVCatProps> = ({
                             onSelectAllClick={handleSelectAllClick}
                             rowCount={rows.length}
                             cancelledRowCount={cancelledRowNumber}
+                            editMode={editMode}
                         />
                         <TableBody>
-                            {rows.map((row, index) => {
-                                const isItemSelected = isSelected(row.id);
-                                const labelId = `enhanced-table-checkbox-${index}`;
-
-                                return (
-                                    <TableRow
-                                        hover
-                                        aria-checked={isItemSelected}
-                                        tabIndex={-1}
-                                        key={row.id}
-                                        selected={isItemSelected}
-                                        sx={{
-                                            cursor: "pointer",
-                                            backgroundColor:
-                                                row.status === "discontinued"
-                                                    ? "darkgray"
-                                                    : "undefined",
-                                        }}
-                                    >
-                                        <TableCell padding="checkbox">
-                                            <Checkbox
-                                                color="primary"
-                                                disabled={
-                                                    row.status === "cancelled"
-                                                }
-                                                onClick={(event) =>
-                                                    handleClick(event, row.id)
-                                                }
-                                                checked={isItemSelected}
-                                                inputProps={{
-                                                    "aria-labelledby": labelId,
-                                                }}
-                                            />
-                                        </TableCell>
-                                        <TableCell
-                                            component="th"
-                                            id={labelId}
-                                            scope="row"
-                                            padding="none"
-                                            sx={{ minWidth: "131px" }}
-                                        >
-                                            {row.productNo}
-                                        </TableCell>
-                                        <TableCell
-                                            component="th"
-                                            id={labelId}
-                                            scope="row"
-                                            sx={{ minWidth: "143px" }}
-                                        >
-                                            <Link
-                                                to={`/products/product-details?product=${row.productNo}`}
-                                            >
-                                                {row.productName}
-                                            </Link>
-                                        </TableCell>
-                                        <TableCell align="right">
-                                            {row.price}
-                                        </TableCell>
-                                        <TableCell align="right">
-                                            {editMode ? (
-                                                <div className="quantity-field">
-                                                    <AVOrderItemQuantity
-                                                        quantity={row.quantity}
-                                                        item_id={row.id}
-                                                        handleChangeQuantity={
-                                                            handleChangeQuantity
-                                                        }
-                                                        disabled={
-                                                            row.status ===
-                                                            "cancelled"
-                                                        }
-                                                    />
-                                                </div>
-                                            ) : (
-                                                row.quantity
-                                            )}
-                                        </TableCell>
-                                        <TableCell
-                                            align="right"
-                                            sx={{ minWidth: "111px" }}
-                                        >
-                                            {row.status === "cancelled"
-                                                ? "$0"
-                                                : row.itemTotal}
-                                        </TableCell>
-                                        <TableCell align="left">
-                                            {editMode ? (
-                                                <AVOrderItemStatus
-                                                    item_id={row.id}
-                                                    status={row.status}
-                                                    quantity={+row.quantity}
-                                                    priceWhenOrdered={
-                                                        +row.price.slice(1)
-                                                    }
-                                                    handleChangeStatus={
-                                                        handleChangeStatus
-                                                    }
-                                                />
-                                            ) : (
-                                                row.status
-                                            )}
-                                        </TableCell>
-                                    </TableRow>
-                                );
-                            })}
+                            {rows.map((row, index) => (
+                                <AVOrderItemRow
+                                    key={row.productNo}
+                                    row={row}
+                                    isSelected={isSelected}
+                                    editMode={editMode}
+                                    handleClick={handleClick}
+                                    handleChangeQuantity={handleChangeQuantity}
+                                    handleChangeStatus={handleChangeStatus}
+                                    index={index}
+                                />
+                            ))}
                         </TableBody>
                     </Table>
                 </TableContainer>

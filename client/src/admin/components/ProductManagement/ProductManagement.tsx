@@ -256,157 +256,164 @@ const ProductManagement: React.FC<Props> = () => {
 
     return (
         <div className="product-management" ref={productManagement}>
-            <div className="header-and-add">
-                <h1>Product Management</h1>
-                <div className="pm-desktop-add">
-                    <PeachButton
-                        text={`Add New Product`}
-                        onClick={() => navigate("/products/add")}
-                        width="150px"
-                    />
+            <div className="pm-header">
+                <div className="header-and-add">
+                    <h1>Product Management</h1>
+                    <div className="pm-desktop-add">
+                        <PeachButton
+                            text={`Add New Product`}
+                            onClick={() => navigate("/products/add")}
+                            width="150px"
+                        />
+                    </div>
+                    {fromCategoryManage && previousRoute && (
+                        <PeachButton
+                            text={`Back To Categories`}
+                            onClick={() => navigate(previousRoute)}
+                            width="150px"
+                        />
+                    )}
                 </div>
-                {fromCategoryManage && previousRoute && (
-                    <PeachButton
-                        text={`Back To Categories`}
-                        onClick={() => navigate(previousRoute)}
-                        width="150px"
-                    />
-                )}
-            </div>
-
-            <div className="search-and-filters">
-                <div
-                    className={
-                        width && width >= 800
-                            ? "pm-filters"
-                            : "pm-filters-mobile"
-                    }
-                    style={
-                        width && width < 800 && mobileFiltersExpanded
-                            ? {
-                                  height: "300px",
-                              }
-                            : undefined
-                    }
-                >
-                    <div className="view-select">
-                        <InputLabel id={`view-label`}>View</InputLabel>
-                        <Select
-                            fullWidth
-                            labelId={"view-label"}
-                            value={view || "active"}
-                            variant="outlined"
-                            id="view"
-                            label="View"
-                            onChange={(event) =>
-                                updateSearchParams({ view: event.target.value })
-                            }
-                            sx={{ backgroundColor: "white" }}
-                        >
-                            <MenuItem value={"all"}>All</MenuItem>
-                            <MenuItem value={"active"}>Active</MenuItem>
-                            <MenuItem value={"discontinued"}>
-                                Discontinued
-                            </MenuItem>
-                        </Select>
-                    </div>
-                    <div className="category-select">
-                        <InputLabel id={`category-label`}>Category</InputLabel>
-                        <Select
-                            fullWidth
-                            labelId={"category-label"}
-                            value={
-                                avMenuData.categories.length > 0
-                                    ? category || "all"
-                                    : "all"
-                            }
-                            variant="outlined"
-                            id="category"
-                            label="Category"
-                            onChange={handleCategorySelect}
-                            sx={{ backgroundColor: "white" }}
-                        >
-                            <MenuItem value={"all"}>All</MenuItem>
-                            {avMenuData.categories.map(
-                                (category: AVCategory, index) => (
-                                    <MenuItem
-                                        value={category.categoryName}
-                                        key={`category-${index}`}
-                                    >
-                                        {category.categoryName}
-                                    </MenuItem>
-                                )
-                            )}
-                        </Select>
-                    </div>
-                    <div className="subcategory-select">
-                        <InputLabel id={`subcategory-label`}>
-                            Subcategory
-                        </InputLabel>
-                        <Select
-                            fullWidth
-                            labelId={"subcategory-label"}
-                            value={
-                                categorySelection ? subCategory || "all" : "all"
-                            }
-                            variant="outlined"
-                            id="category"
-                            disabled={
-                                categorySelection &&
-                                categorySelection.SubCategory.length > 0
-                                    ? false
-                                    : true
-                            }
-                            label="Subcategory"
-                            onChange={handleSubcategorySelect}
-                            sx={{ backgroundColor: "white" }}
-                        >
-                            <MenuItem value={"all"}>All</MenuItem>
-                            {categorySelection &&
-                                categorySelection?.SubCategory.length > 0 &&
-                                categorySelection.SubCategory.map(
-                                    (subCat, index) => (
+                <div className="search-and-filters">
+                    <div
+                        className={
+                            width && width >= 800
+                                ? "pm-filters"
+                                : "pm-filters-mobile"
+                        }
+                        style={
+                            width && width < 800 && mobileFiltersExpanded
+                                ? {
+                                      height: "300px",
+                                  }
+                                : undefined
+                        }
+                    >
+                        <div className="view-select">
+                            <InputLabel id={`view-label`}>View</InputLabel>
+                            <Select
+                                fullWidth
+                                labelId={"view-label"}
+                                value={view || "active"}
+                                variant="outlined"
+                                id="view"
+                                label="View"
+                                onChange={(event) =>
+                                    updateSearchParams({
+                                        view: event.target.value,
+                                    })
+                                }
+                                sx={{ backgroundColor: "white" }}
+                            >
+                                <MenuItem value={"all"}>All</MenuItem>
+                                <MenuItem value={"active"}>Active</MenuItem>
+                                <MenuItem value={"discontinued"}>
+                                    Discontinued
+                                </MenuItem>
+                            </Select>
+                        </div>
+                        <div className="category-select">
+                            <InputLabel id={`category-label`}>
+                                Category
+                            </InputLabel>
+                            <Select
+                                fullWidth
+                                labelId={"category-label"}
+                                value={
+                                    avMenuData.categories.length > 0
+                                        ? category || "all"
+                                        : "all"
+                                }
+                                variant="outlined"
+                                id="category"
+                                label="Category"
+                                onChange={handleCategorySelect}
+                                sx={{ backgroundColor: "white" }}
+                            >
+                                <MenuItem value={"all"}>All</MenuItem>
+                                {avMenuData.categories.map(
+                                    (category: AVCategory, index) => (
                                         <MenuItem
-                                            value={subCat.subCategoryName}
-                                            key={`subcategory-${index}`}
+                                            value={category.categoryName}
+                                            key={`category-${index}`}
                                         >
-                                            {subCat.subCategoryName}
+                                            {category.categoryName}
                                         </MenuItem>
                                     )
                                 )}
-                        </Select>
+                            </Select>
+                        </div>
+                        <div className="subcategory-select">
+                            <InputLabel id={`subcategory-label`}>
+                                Subcategory
+                            </InputLabel>
+                            <Select
+                                fullWidth
+                                labelId={"subcategory-label"}
+                                value={
+                                    categorySelection
+                                        ? subCategory || "all"
+                                        : "all"
+                                }
+                                variant="outlined"
+                                id="category"
+                                disabled={
+                                    categorySelection &&
+                                    categorySelection.SubCategory.length > 0
+                                        ? false
+                                        : true
+                                }
+                                label="Subcategory"
+                                onChange={handleSubcategorySelect}
+                                sx={{ backgroundColor: "white" }}
+                            >
+                                <MenuItem value={"all"}>All</MenuItem>
+                                {categorySelection &&
+                                    categorySelection?.SubCategory.length > 0 &&
+                                    categorySelection.SubCategory.map(
+                                        (subCat, index) => (
+                                            <MenuItem
+                                                value={subCat.subCategoryName}
+                                                key={`subcategory-${index}`}
+                                            >
+                                                {subCat.subCategoryName}
+                                            </MenuItem>
+                                        )
+                                    )}
+                            </Select>
+                        </div>
                     </div>
-                </div>
-                <div className="pm-mobile-buttons">
-                    <button
-                        onClick={() => navigate("/products/add")}
-                        className="pm-mobile-add"
-                    >
-                        <Icon sx={{ marginRight: "10px" }}>
-                            <AddCircleOutlineSharpIcon />
-                        </Icon>{" "}
-                        Add New Product
-                    </button>
-                    <button
-                        className="pm-mobile-filter"
-                        onClick={() =>
-                            setMobileFiltersExpanded(!mobileFiltersExpanded)
-                        }
-                    >
-                        <Icon sx={{ marginRight: "10px" }}>
-                            <FilterAltSharpIcon />
-                        </Icon>
-                        Filters
-                    </button>
-                </div>
-                <div className="search-bar-container">
-                    <div className="search-bar">
-                        <SearchField
-                            updateSearchParams={updateSearchParams}
-                            sx={inputStyle}
-                            inputSx={{ backgroundColor: "white" }}
-                            options={avMenuData.searchOptions}
-                        />
+                    <div className="pm-mobile-buttons">
+                        <button
+                            onClick={() => navigate("/products/add")}
+                            className="pm-mobile-add"
+                        >
+                            <Icon sx={{ marginRight: "10px" }}>
+                                <AddCircleOutlineSharpIcon />
+                            </Icon>{" "}
+                            Add New Product
+                        </button>
+                        <button
+                            className="pm-mobile-filter"
+                            onClick={() =>
+                                setMobileFiltersExpanded(!mobileFiltersExpanded)
+                            }
+                        >
+                            <Icon sx={{ marginRight: "10px" }}>
+                                <FilterAltSharpIcon />
+                            </Icon>
+                            Filters
+                        </button>
+                    </div>
+                    <div className="search-bar-container">
+                        <div className="search-bar">
+                            <SearchField
+                                updateSearchParams={updateSearchParams}
+                                sx={inputStyle}
+                                inputSx={{ backgroundColor: "white" }}
+                                options={avMenuData.searchOptions}
+                            />
+                        </div>
                     </div>
                 </div>
             </div>

@@ -493,8 +493,18 @@ const AVOrderDetails: React.FC = () => {
     return (
         <React.Fragment>
             {!loading && currentDetails && (
-                <Container>
-                    <Grid container spacing={3} mt={3} sx={{ width: "100%" }}>
+                <Container
+                    sx={{
+                        pl: { xs: 3, sm: 0, md: 2 },
+                        pr: { xs: 3, sm: 0, md: 2 },
+                    }}
+                >
+                    <Grid
+                        container
+                        spacing={3}
+                        mt={3}
+                        sx={{ width: "calc(100% + 24px)" }}
+                    >
                         <Grid
                             container
                             item
@@ -508,7 +518,6 @@ const AVOrderDetails: React.FC = () => {
                                 xs={12}
                                 md={6}
                                 sx={{
-                                    paddingLeft: 3,
                                     order: {
                                         xs: 2,
                                         md: 1,
@@ -536,10 +545,6 @@ const AVOrderDetails: React.FC = () => {
                                     order: {
                                         xs: 1,
                                         md: 2,
-                                    },
-                                    paddingLeft: {
-                                        xs: 3,
-                                        md: 0,
                                     },
                                 }}
                             >
@@ -617,7 +622,6 @@ const AVOrderDetails: React.FC = () => {
                                 item
                                 xs={12}
                                 sx={{
-                                    paddingLeft: 3,
                                     justifyContent: "space-between",
                                     order: 3,
                                 }}
@@ -725,7 +729,7 @@ const AVOrderDetails: React.FC = () => {
                                 />
                             </Grid>
                             <Grid spacing={3} item container xs={12}>
-                                <Grid item sm={5}>
+                                <Grid item xs={5}>
                                     <TextField
                                         fullWidth
                                         variant={
@@ -748,7 +752,7 @@ const AVOrderDetails: React.FC = () => {
                                         value={city}
                                     />
                                 </Grid>
-                                <Grid item sm={3}>
+                                <Grid item xs={3}>
                                     <TextField
                                         fullWidth
                                         variant={
@@ -780,7 +784,7 @@ const AVOrderDetails: React.FC = () => {
                                         }
                                     />
                                 </Grid>
-                                <Grid item sm={4}>
+                                <Grid item xs={4}>
                                     <TextField
                                         fullWidth
                                         variant={
@@ -812,13 +816,13 @@ const AVOrderDetails: React.FC = () => {
                                 </Grid>
                             </Grid>
                             <Grid
-                                columnSpacing={3}
+                                spacing={3}
                                 sx={{ display: "flex", flexWrap: "wrap" }}
                                 item
                                 xs={12}
                                 container
                             >
-                                <Grid item sm={6}>
+                                <Grid item xs={12} md={6}>
                                     <TextField
                                         fullWidth
                                         variant={
@@ -861,7 +865,7 @@ const AVOrderDetails: React.FC = () => {
                                         }
                                     />
                                 </Grid>
-                                <Grid item sm={6}>
+                                <Grid item xs={12} md={6}>
                                     <MuiTelInput
                                         id="phone"
                                         name="phoneNumber"

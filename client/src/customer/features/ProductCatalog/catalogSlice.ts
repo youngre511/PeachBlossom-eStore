@@ -44,7 +44,6 @@ export const fetchProducts = createAsyncThunk<
 >(
     "catalog/fetchProducts",
     async (filters: Filters, { getState, rejectWithValue }) => {
-        console.log("running fetch products");
         const state = getState() as RootState;
         const itemsPerPage = state.userPreferences.itemsPerPage;
         const existingFilters = state.catalog.filters;

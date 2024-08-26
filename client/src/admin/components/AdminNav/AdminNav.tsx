@@ -74,26 +74,30 @@ const AdminNav: React.FC<Props> = (props: Props) => {
                         flexDirection: "column",
                     }}
                 >
-                    <Typography
-                        sx={{
-                            fontFamily: "var(--Delafield)",
-                            fontSize: "2rem",
-                            marginTop: "5px",
-                            marginBottom: "-20px",
-                            color: "black",
-                        }}
-                    >
-                        peach blossom
-                    </Typography>
-                    <Typography
-                        sx={{
-                            fontFamily: "var(--Playfair)",
-                            margin: 0,
-                            color: "black",
-                        }}
-                    >
-                        Admin Panel
-                    </Typography>
+                    {width && width >= 600 && (
+                        <React.Fragment>
+                            <Typography
+                                sx={{
+                                    fontFamily: "var(--Delafield)",
+                                    fontSize: "2rem",
+                                    marginTop: "5px",
+                                    marginBottom: "-20px",
+                                    color: "black",
+                                }}
+                            >
+                                peach blossom
+                            </Typography>
+                            <Typography
+                                sx={{
+                                    fontFamily: "var(--Playfair)",
+                                    margin: 0,
+                                    color: "black",
+                                }}
+                            >
+                                Admin Panel
+                            </Typography>
+                        </React.Fragment>
+                    )}
                 </Toolbar>
                 <Divider />
                 <List>

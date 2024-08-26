@@ -11,6 +11,7 @@ import React from "react";
 import { useEffect, useState } from "react";
 import MoreVertSharpIcon from "@mui/icons-material/MoreVertSharp";
 import { Check } from "@mui/icons-material";
+import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
 
 interface Props {
     user_id: number;
@@ -42,6 +43,7 @@ const AdminMoreMenu: React.FC<Props> = ({
     const handleClose = () => {
         setAnchorEl(null);
     };
+    const { isTouchDevice } = useWindowSizeContext();
 
     const accessOptions: Array<{
         label: string;
@@ -61,6 +63,15 @@ const AdminMoreMenu: React.FC<Props> = ({
                     aria-haspopup="true"
                     aria-expanded={open ? "true" : undefined}
                     onClick={handleClick}
+                    sx={
+                        isTouchDevice
+                            ? {
+                                  width: "40px",
+                                  height: "40px",
+                                  marginLeft: "8px",
+                              }
+                            : undefined
+                    }
                 >
                     <MoreVertSharpIcon />
                 </IconButton>

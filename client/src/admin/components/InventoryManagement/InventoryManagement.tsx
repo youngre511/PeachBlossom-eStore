@@ -233,7 +233,7 @@ const InventoryManagement: React.FC<Props> = () => {
                             </Button>
                         )}
                         <Button
-                            variant="outlined"
+                            variant="contained"
                             onClick={() => setPendingInventoryUpdates({})}
                             sx={{
                                 height: "56px",

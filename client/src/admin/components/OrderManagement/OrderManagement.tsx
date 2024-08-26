@@ -12,11 +12,56 @@ import {
 import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
 import { avFetchOrders } from "../../features/AVOrders/avOrdersSlice";
 import { RootState } from "../../store/store";
+import SearchField from "../../../common/components/Fields/SearchField";
+import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
 
 interface AVOrderResponse {
     totalCount: number;
     orders: IAVOrder[];
 }
+
+const inputStyle = {
+    "&.MuiFilledInput-root": {
+        backgroundColor: "white",
+        "&.Mui-disabled": {
+            backgroundColor: "peach.light",
+        },
+    },
+    "&.MuiFilledInput-input": {
+        backgroundColor: "white",
+    },
+    "&.MuiInputBase-root": {
+        backgroundColor: "white",
+        "&.MuiFilledInput-root": {
+            backgroundColor: "white",
+            "&.Mui-disabled": {
+                backgroundColor: "peach.light",
+            },
+        },
+    },
+    "& .MuiInputBase-root.MuiOutlinedInput-root.MuiInputBase-colorPrimary": {
+        backgroundColor: "white",
+    },
+    "& .MuiFormLabel-root.MuiInputLabel-root.MuiInputLabel-formControl.Mui-focused":
+        {
+            color: "rgba(0, 0, 0, 0.63)",
+        },
+
+    "& .MuiInputBase-input.MuiFilledInput-input:focus": {
+        backgroundColor: "white",
+    },
+    "& .MuiInputBase-root.MuiFilledInput-root.MuiFilledInput-underline.MuiInputBase-adornedStart":
+        {
+            backgroundColor: "white",
+        },
+    "& .MuiInputBase-root.MuiFilledInput-root.MuiFilledInput-underline.MuiInputBase-adornedEnd":
+        {
+            backgroundColor: "white",
+        },
+    "& .MuiInputBase-root.MuiFilledInput-root": {
+        backgroundColor: "white",
+    },
+};
 
 interface Props {}
 const OrderManagement: React.FC<Props> = () => {
@@ -33,6 +78,7 @@ const OrderManagement: React.FC<Props> = () => {
     const numberOfResults = avOrder.numberOfResults;
     const results = avOrder.orderList;
     const dispatch = useAppDispatch();
+    const { width } = useWindowSizeContext();
 
     useEffect(() => {
         const initialParams: Record<string, string> = {};
@@ -128,9 +174,21 @@ const OrderManagement: React.FC<Props> = () => {
     return (
         <div className="product-management">
             <div className="om-header">
-                <h1>Order Management</h1>
+                <div className="om-head-and-search">
+                    <h1>Order Management</h1>
+                    {width && width >= 1000 && (
+                        <div className="om-search-bar">
+                            <SearchField
+                                updateSearchParams={updateSearchParams}
+                                sx={{ ...inputStyle }}
+                                options={[]}
+                            />
+                        </div>
+                    )}
+                </div>
                 <OrderManagementFilters
                     updateSearchParams={updateSearchParams}
+                    inputStyle={inputStyle}
                 />
             </div>
             <OrdersList
