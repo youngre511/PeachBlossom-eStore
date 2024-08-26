@@ -137,7 +137,6 @@ const FilterOptions: React.FC<Props> = ({
         event: React.ChangeEvent<HTMLInputElement>
     ): void => {
         const { value, checked } = event.target;
-        console.log(value);
         const currentFilters = localFilters;
         const currentMaterials = currentFilters.material;
         const newMaterials = checked
@@ -375,12 +374,12 @@ const FilterOptions: React.FC<Props> = ({
                                                                     materialPair[0]
                                                                 }
                                                                 checked={
-                                                                    localFilters.color?.includes(
+                                                                    localFilters.material?.includes(
                                                                         materialPair[0]
                                                                     ) || false
                                                                 }
                                                                 onChange={
-                                                                    handleColorChange
+                                                                    handleMaterialChange
                                                                 }
                                                             />
                                                         }
@@ -397,13 +396,13 @@ const FilterOptions: React.FC<Props> = ({
                                                                         materialPair[1]
                                                                     }
                                                                     checked={
-                                                                        localFilters.color?.includes(
+                                                                        localFilters.material?.includes(
                                                                             materialPair[1]
                                                                         ) ||
                                                                         false
                                                                     }
                                                                     onChange={
-                                                                        handleColorChange
+                                                                        handleMaterialChange
                                                                     }
                                                                 />
                                                             }
@@ -556,11 +555,6 @@ const FilterOptions: React.FC<Props> = ({
                                                                 marginLeft:
                                                                     "10px",
                                                             }}
-                                                            // endAdornment={
-                                                            //     <InputAdornment position="end">
-                                                            //         in.
-                                                            //     </InputAdornment>
-                                                            // }
                                                         />
                                                         <span
                                                             style={{
@@ -586,11 +580,6 @@ const FilterOptions: React.FC<Props> = ({
                                                                 marginLeft:
                                                                     "10px",
                                                             }}
-                                                            // endAdornment={
-                                                            //     <InputAdornment position="end">
-                                                            //         in.
-                                                            //     </InputAdornment>
-                                                            // }
                                                         />
                                                     </div>
                                                 </FormGroup>
@@ -710,12 +699,12 @@ const FilterOptions: React.FC<Props> = ({
                                                                     materialPair[0]
                                                                 }
                                                                 checked={
-                                                                    localFilters.color?.includes(
+                                                                    localFilters.material?.includes(
                                                                         materialPair[0]
                                                                     ) || false
                                                                 }
                                                                 onChange={
-                                                                    handleColorChange
+                                                                    handleMaterialChange
                                                                 }
                                                             />
                                                         }
@@ -732,13 +721,13 @@ const FilterOptions: React.FC<Props> = ({
                                                                         materialPair[1]
                                                                     }
                                                                     checked={
-                                                                        localFilters.color?.includes(
+                                                                        localFilters.material?.includes(
                                                                             materialPair[1]
                                                                         ) ||
                                                                         false
                                                                     }
                                                                     onChange={
-                                                                        handleColorChange
+                                                                        handleMaterialChange
                                                                     }
                                                                 />
                                                             }
