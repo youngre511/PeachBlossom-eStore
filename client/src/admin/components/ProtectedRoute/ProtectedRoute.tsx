@@ -1,6 +1,7 @@
-import React, { useContext } from "react";
-import { Navigate, RouteProps } from "react-router-dom";
+import React, { useContext, useEffect, useState } from "react";
+import { Navigate, RouteProps, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../../common/contexts/authContext";
+import { LinearProgress } from "@mui/material";
 
 interface ProtectedRouteProps {
     component: React.ComponentType<any>;
@@ -16,6 +17,41 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     ...rest
 }) => {
     const authContext = useContext(AuthContext);
+    const [isLoadingAuthorization, setIsLoadingAuthorization] =
+        useState<boolean>(true);
+
+    useEffect(() => {
+        const checkAuthentication = async () => {
+            if (
+                authContext &&
+                (!authContext.user || authContext.isTokenExpired())
+            ) {
+                await authContext.requestAccessTokenRefresh();
+                if (authContext.user) {
+                    setIsLoadingAuthorization(false);
+                }
+            } else {
+                setIsLoadingAuthorization(false);
+            }
+        };
+        checkAuthentication();
+    }, [authContext]);
+
+    if (isLoadingAuthorization) {
+        return (
+            <div
+                style={{
+                    width: "100vw",
+                    height: "100vh",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                }}
+            >
+                <LinearProgress />
+            </div>
+        );
+    }
 
     if (!authContext || !authContext.user || authContext.isTokenExpired()) {
         // If the user is not logged in, redirect to the login page

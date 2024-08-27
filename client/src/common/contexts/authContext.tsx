@@ -1,5 +1,11 @@
-import React, { createContext, useState, useEffect, ReactNode } from "react";
-import { useNavigate } from "react-router-dom";
+import React, {
+    createContext,
+    useState,
+    useEffect,
+    ReactNode,
+    useCallback,
+} from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import axios, { AxiosError } from "axios";
 import { jwtDecode } from "jwt-decode";
 
@@ -17,6 +23,7 @@ interface AuthContextProps {
     login: (username: string, password: string) => Promise<void>;
     logout: () => void;
     isTokenExpired: () => boolean;
+    requestAccessTokenRefresh: () => void;
     error: string;
 }
 
@@ -32,6 +39,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [user, setUser] = useState<IUserToken | undefined>(undefined);
     const navigate = useNavigate();
     const [error, setError] = useState<string>("");
+    const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
+    const location = useLocation();
 
     useEffect(() => {
         const token = localStorage.getItem("jwtToken");
@@ -48,6 +57,100 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             }
         }
     }, []);
+
+    const requestAccessTokenRefresh = useCallback(async () => {
+        if (location.pathname === "/login") {
+            return;
+        }
+
+        try {
+            // Send api request only if there is no current access token, if the token has no expiration date, or if the expiration date is not more than 15 minutes in the future.
+            const accessToken = localStorage.getItem("jwtToken");
+            let proceed: boolean = false;
+            if (!accessToken) {
+                proceed = true;
+            } else {
+                const decoded = jwtDecode<IUserToken>(accessToken);
+                if (!decoded.exp) {
+                    proceed = true;
+                } else {
+                    const expirationTime = decoded.exp * 1000;
+                    const currentTime = Date.now();
+                    const timeToCompare = currentTime + 1 + 15 * 60 * 1000;
+                    if (timeToCompare >= expirationTime) {
+                        proceed = true;
+                    }
+                }
+            }
+
+            if (proceed && !isRefreshing) {
+                setIsRefreshing(true);
+                const response = await axios.post(
+                    `${process.env.REACT_APP_API_URL}/auth/refresh-access-token`
+                );
+                const { newAccessToken } = response.data;
+                const decodedToken = jwtDecode<IUserToken>(newAccessToken);
+                if (!decodedToken) {
+                    throw new Error("Failed to decode new token");
+                }
+                if (!decodedToken.exp) {
+                    throw new Error(
+                        "New token does not have an expiration date"
+                    );
+                }
+                const newExpirationTime = decodedToken.exp * 1000;
+
+                localStorage.setItem("jwtToken", newAccessToken);
+                localStorage.setItem(
+                    "jwtExpiration",
+                    newExpirationTime.toString()
+                );
+                setUser(decodedToken);
+            }
+        } catch (error) {
+            if (error instanceof AxiosError) {
+                if (error.response && error.response.status === 401) {
+                    console.error("Refresh token is invalid or expired");
+                    setUser(undefined);
+                    localStorage.removeItem("jwtToken");
+                    localStorage.removeItem("jwtExpiration");
+                    navigate("/login");
+                } else {
+                    console.error(
+                        error.response
+                            ? error.response.data.message
+                            : error.message
+                    );
+                }
+            } else {
+                console.error("An unknown error occurred");
+            }
+        } finally {
+            setIsRefreshing(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        // Refresh access token every 30 minutes
+        const intervalId = setInterval(() => {
+            requestAccessTokenRefresh();
+        }, 15 * 60 * 1000);
+
+        const handleUserActivity = () => {
+            requestAccessTokenRefresh();
+        };
+
+        window.addEventListener("mousemove", handleUserActivity);
+        window.addEventListener("click", handleUserActivity);
+        window.addEventListener("keydown", handleUserActivity);
+
+        return () => {
+            clearInterval(intervalId);
+            window.removeEventListener("mousemove", handleUserActivity);
+            window.removeEventListener("click", handleUserActivity);
+            window.removeEventListener("keydown", handleUserActivity);
+        };
+    }, [requestAccessTokenRefresh]);
 
     const isTokenExpired = (): boolean => {
         try {
@@ -73,14 +176,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 `${process.env.REACT_APP_API_URL}/auth/login`,
                 { username, password }
             );
-            const { token } = response.data;
-            const decodedToken = jwtDecode<IUserToken>(token);
+            console.log(response);
+            const { accessToken } = response.data;
+            const decodedToken = jwtDecode<IUserToken>(accessToken);
             if (!decodedToken.exp) {
                 throw new Error("Token does not have an expiration date");
             }
             const expirationTime = decodedToken.exp * 1000;
 
-            localStorage.setItem("jwtToken", token);
+            localStorage.setItem("jwtToken", accessToken);
             localStorage.setItem("jwtExpiration", expirationTime.toString());
 
             setUser(decodedToken);
@@ -96,16 +200,36 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
     };
 
-    const logout = () => {
+    const logout = async () => {
         localStorage.removeItem("jwtToken");
         localStorage.removeItem("jwtExpiration");
         setUser(undefined);
+        try {
+            axios.put(
+                `${process.env.REACT_APP_API_URL}/auth/revoke-refresh-token`
+            );
+        } catch (error) {
+            if (error instanceof AxiosError) {
+                console.error(error.message);
+            } else {
+                console.error(
+                    "An unknown error occurred while requesting refresh token revocation"
+                );
+            }
+        }
         navigate("/login"); // Redirect to the login page
     };
 
     return (
         <AuthContext.Provider
-            value={{ user, login, logout, isTokenExpired, error }}
+            value={{
+                user,
+                login,
+                logout,
+                isTokenExpired,
+                requestAccessTokenRefresh,
+                error,
+            }}
         >
             {children}
         </AuthContext.Provider>

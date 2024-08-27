@@ -6,6 +6,7 @@ import connectToMongoDB from "./db/mongodb.js";
 import connectToMySQLDatabase from "./db/mysql.js";
 import dotenv from "dotenv";
 import "reflect-metadata";
+import cookieParser from "cookie-parser";
 dotenv.config();
 
 // Router Imports
@@ -23,6 +24,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 // logs requests to the server
 app.use(logger("dev"));
+// parse cookies
+app.use(cookieParser());
 
 //Cors settings
 const allowedOrigins: string[] = [
