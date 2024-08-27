@@ -15,6 +15,7 @@ import { sqlUser } from "./sqlUserModel.js";
 import { sqlAddress } from "./sqlAddressModel.js";
 import { sqlAdmin } from "./sqlAdminModel.js";
 import { sqlCustomerAddress } from "./sqlCustomerAddressModel.js";
+import { sqlRefreshToken } from "./sqlRefreshTokenModel.js";
 
 const env = process.env.NODE_ENV || "development";
 const dbConfig = config[env];
@@ -41,6 +42,7 @@ const sequelize = new Sequelize({
         sqlAddress,
         sqlAdmin,
         sqlCustomerAddress,
+        sqlRefreshToken,
     ],
     logging: console.log,
 });

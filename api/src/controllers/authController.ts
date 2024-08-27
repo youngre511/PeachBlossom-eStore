@@ -27,15 +27,21 @@ export const createUser = async (req: CreateAccountRequest, res: Response) => {
             accessLevel = null,
             email = null,
         } = req.body;
-        const token = await authService.createUser(
+        const { accessToken, refreshToken } = await authService.createUser(
             username,
             password,
             role,
             accessLevel,
             email
         );
-
-        res.status(201).json({ token });
+        // Store refresh token in http-only cookie
+        res.cookie("refreshToken", refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production", //Only use secure in production mode, not local dev mode
+            sameSite: "strict",
+            maxAge: 7 * 24 * 60 * 60 * 1000, //7 days
+        });
+        res.status(201).json({ accessToken });
     } catch (error) {
         let errorObj = {
             message: "create user failure",
@@ -51,9 +57,18 @@ export const createUser = async (req: CreateAccountRequest, res: Response) => {
 export const login = async (req: LoginRequest, res: Response) => {
     try {
         const { username, password } = req.body;
-        const token = await authService.login(username, password);
-
-        res.json({ token });
+        const { accessToken, refreshToken } = await authService.login(
+            username,
+            password
+        );
+        // Store refresh token in http-only cookie
+        res.cookie("refreshToken", refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production", //Only use secure in production mode, not local dev mode
+            sameSite: "strict",
+            maxAge: 7 * 24 * 60 * 60 * 1000, //7 days
+        });
+        res.json({ accessToken });
     } catch (error) {
         if (error instanceof Error) {
             if (error.message === "Invalid username or password.") {
@@ -66,6 +81,63 @@ export const login = async (req: LoginRequest, res: Response) => {
         } else {
             res.status(500).json({
                 message: "An unknown error occurred when logging in.",
+            });
+        }
+    }
+};
+
+export const refreshAccessToken = async (req: Request, res: Response) => {
+    try {
+        if (!req.refreshToken) {
+            throw new Error("No refresh token provided by middleware");
+        }
+        const { jti, user_id } = req.refreshToken;
+
+        const { newAccessToken, newRefreshToken } =
+            await authService.refreshAccessToken(user_id, jti);
+
+        res.cookie("refreshToken", newRefreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production", //Only use secure in production mode, not local dev mode
+            sameSite: "strict",
+            maxAge: 7 * 24 * 60 * 60 * 1000, //7 days
+        });
+        res.json({ newAccessToken });
+    } catch (error) {
+        if (error instanceof Error) {
+            res.status(500).json({ message: error.message });
+        } else {
+            res.status(500).json({
+                message:
+                    "An unknown error occurred when refreshing access token.",
+            });
+        }
+    }
+};
+
+export const revokeRefreshToken = async (req: Request, res: Response) => {
+    try {
+        if (!req.refreshToken) {
+            throw new Error("No refresh token provided by middleware");
+        }
+        const { jti } = req.refreshToken;
+
+        await authService.revokeRefreshToken(jti);
+
+        res.cookie("refreshToken", "", {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production", //Only use secure in production mode, not local dev mode
+            sameSite: "strict",
+            maxAge: 7 * 24 * 60 * 60 * 1000, //7 days
+        });
+        res.json({ success: true });
+    } catch (error) {
+        if (error instanceof Error) {
+            res.status(500).json({ message: error.message });
+        } else {
+            res.status(500).json({
+                message:
+                    "An unknown error occurred when revoking refresh token.",
             });
         }
     }
