@@ -21,7 +21,7 @@ export class sqlInventory extends Model {
     @PrimaryKey
     @AutoIncrement
     @Column(DataType.BIGINT)
-    inventory_id!: number;
+    declare inventory_id: number;
 
     @Unique
     @ForeignKey(() => sqlProduct)
@@ -29,21 +29,21 @@ export class sqlInventory extends Model {
         type: DataType.BIGINT,
         allowNull: false,
     })
-    product_id!: number;
+    declare product_id: number;
 
     @Column({
         type: DataType.INTEGER,
         allowNull: false,
         defaultValue: 0,
     })
-    stock!: number;
+    declare stock: number;
 
     @Column({
         type: DataType.INTEGER,
         allowNull: false,
         defaultValue: 0,
     })
-    reserved!: number;
+    declare reserved: number;
 
     @Column({
         type: DataType.VIRTUAL,
@@ -54,7 +54,7 @@ export class sqlInventory extends Model {
             throw new Error("Do not try to set the 'available' value");
         },
     })
-    available!: number;
+    declare available: number;
 
     @BelongsTo(() => sqlProduct, {
         as: "Product",

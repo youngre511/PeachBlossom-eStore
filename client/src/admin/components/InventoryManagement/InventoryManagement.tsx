@@ -169,6 +169,7 @@ const InventoryManagement: React.FC<Props> = () => {
         if (Object.keys(pendingInventoryUpdates).length > 0) {
             setStatus("loading");
             setIsSaving(true);
+            console.log("pending", pendingInventoryUpdates);
             dispatch(updateInventory(pendingInventoryUpdates));
         }
     };

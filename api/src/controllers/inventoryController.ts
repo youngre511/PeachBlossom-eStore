@@ -47,7 +47,7 @@ export const releaseStock = async (req: CartIdRequest, res: Response) => {
         });
     } catch (error) {
         let errorObj = {
-            message: "hold stock failure",
+            message: "release stock failure",
             payload: error,
         };
 
@@ -74,7 +74,7 @@ export const updateStockLevels = async (
         });
     } catch (error) {
         let errorObj = {
-            message: "hold stock failure",
+            message: "update stock levels failure",
             payload: error,
         };
 
@@ -94,7 +94,7 @@ export const syncStockLevels = async (req: Request, res: Response) => {
         });
     } catch (error) {
         let errorObj = {
-            message: "hold stock failure",
+            message: "sync stock failure",
             payload: error,
         };
 

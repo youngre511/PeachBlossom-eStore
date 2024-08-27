@@ -48,7 +48,7 @@ const InventoryTableRow: React.FC<Props> = ({
                         {row.productNo}
                     </TableCell>
                 )}
-                <TableCell align="right">
+                <TableCell align="right" sx={{ minWidth: "92px" }}>
                     <div className="stock-input">
                         <StockField
                             value={String(stockAmount)}

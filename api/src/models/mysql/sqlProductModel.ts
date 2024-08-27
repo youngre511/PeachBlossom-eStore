@@ -36,25 +36,25 @@ export class sqlProduct extends Model {
         type: DataType.STRING(20),
         allowNull: false,
     })
-    productNo!: string;
+    declare productNo: string;
 
     @Column({
         type: DataType.STRING(100),
         allowNull: false,
     })
-    productName!: string;
+    declare productName: string;
 
     @Column({
         type: DataType.DECIMAL(10, 2),
         allowNull: false,
     })
-    price!: number;
+    declare price: number;
 
     @Column({
         type: DataType.TEXT("tiny"),
         allowNull: false,
     })
-    description!: string;
+    declare description: string;
 
     @Index
     @ForeignKey(() => sqlCategory)
@@ -62,7 +62,7 @@ export class sqlProduct extends Model {
         type: DataType.BIGINT,
         allowNull: false,
     })
-    category_id!: number;
+    declare category_id: number;
 
     @BelongsTo(() => sqlCategory, { as: "Category", foreignKey: "category_id" })
     @Index
@@ -71,7 +71,7 @@ export class sqlProduct extends Model {
         type: DataType.BIGINT,
         allowNull: true,
     })
-    subCategory_id?: number;
+    declare subCategory_id?: number;
 
     @BelongsTo(() => sqlSubCategory, {
         as: "SubCategory",
@@ -81,7 +81,7 @@ export class sqlProduct extends Model {
         type: DataType.STRING,
         allowNull: true,
     })
-    thumbnailUrl?: string;
+    declare thumbnailUrl?: string;
 
     @Default(DataType.NOW)
     @Column({
@@ -101,7 +101,7 @@ export class sqlProduct extends Model {
         type: DataType.ENUM("active", "discontinued"),
         allowNull: false,
     })
-    status!: string;
+    declare status: string;
 
     @BelongsToMany(() => sqlPromotion, () => sqlProductPromotion)
     productPromotions!: sqlProductPromotion[];

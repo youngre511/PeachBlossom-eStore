@@ -221,10 +221,8 @@ export const updateStockLevels = async (
     updateData: Record<string, number>,
     filters: AdminFilterObj
 ) => {
-    const session: ClientSession = await mongoose.startSession();
-    session.startTransaction();
     const sqlTransaction = await sequelize.transaction();
-    console.log("starting update function");
+
     try {
         //SQL Updates
         const productNos = Object.keys(updateData);
@@ -241,6 +239,7 @@ export const updateStockLevels = async (
             ],
             nest: true,
             transaction: sqlTransaction,
+            lock: sqlTransaction.LOCK.UPDATE,
         })) as unknown as JoinReqInventory[];
 
         for (const record of inventoryRecords) {
@@ -259,23 +258,14 @@ export const updateStockLevels = async (
             }
         }
 
-        // Update Mongo Records
-        const bulkOps = productNos.map((productNo) => ({
-            updateOne: {
-                filter: { productNo },
-                update: { $set: { stock: updateData[productNo] } },
-            },
-        }));
-        const result = await Product.bulkWrite(bulkOps, { session });
+        // Mongo Records will be synced automatically in the lambda-function-triggered syncStockLevels function.
 
-        await session.commitTransaction();
         await sqlTransaction.commit();
 
         const productsUpdate = await getAdminProducts(filters);
 
         return productsUpdate;
     } catch (error) {
-        await session.abortTransaction();
         await sqlTransaction.rollback();
         if (error instanceof Error) {
             throw new Error("Error updating stock levels: " + error.message);
@@ -284,8 +274,6 @@ export const updateStockLevels = async (
                 "An unknown error occurred while updating stock levels"
             );
         }
-    } finally {
-        session.endSession();
     }
 };
 
