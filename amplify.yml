@@ -13,6 +13,13 @@ applications:
         baseDirectory: build
         files:
           - '**/*'
+      customHeaders:
+        - pattern: '**/site.webmanifest'
+          headers:
+            - key: 'Content-Type'
+              value: 'application/manifest+json'
+            - key: 'Cache-Control'
+              value: 'no-cache, no-store, must-revalidate'
       cache:
         paths:
           - node_modules/**/*
