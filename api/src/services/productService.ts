@@ -774,7 +774,7 @@ export const createProduct = async (
             throw new Error("An unknown error occurred while adding product");
         }
     } finally {
-        session.endSession();
+        await session.endSession();
     }
 };
 
@@ -990,7 +990,7 @@ export const updateProductDetails = async (
             );
         }
     } finally {
-        session.endSession();
+        await session.endSession();
     }
 };
 
@@ -1054,7 +1054,7 @@ export const updateProductStatus = async (
             );
         }
     } finally {
-        session.endSession();
+        await session.endSession();
     }
 };
 
@@ -1138,6 +1138,6 @@ export const deleteProduct = async (
             );
         }
     } finally {
-        session.endSession();
+        await session.endSession();
     }
 };

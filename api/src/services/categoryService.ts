@@ -123,7 +123,7 @@ export const createCategory = async (
             );
         }
     } finally {
-        session.endSession();
+        await session.endSession();
     }
 };
 
@@ -181,7 +181,7 @@ export const createSubCategory = async (
             );
         }
     } finally {
-        session.endSession();
+        await session.endSession();
     }
 };
 
@@ -245,7 +245,7 @@ export const updateCategoryName = async (
             );
         }
     } finally {
-        session.endSession();
+        await session.endSession();
     }
 };
 
@@ -300,7 +300,7 @@ export const updateSubcategoryName = async (
             );
         }
     } finally {
-        session.endSession();
+        await session.endSession();
     }
 };
 //delete category only if it contains no products
@@ -369,7 +369,7 @@ export const deleteCategory = async (
             );
         }
     } finally {
-        session.endSession();
+        await session.endSession();
     }
 };
 
@@ -438,6 +438,6 @@ export const deleteSubcategory = async (
             );
         }
     } finally {
-        session.endSession();
+        await session.endSession();
     }
 };

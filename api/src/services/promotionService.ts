@@ -103,7 +103,7 @@ export const createPromotion = async (
             throw new Error("An unknown error occurred while adding promotion");
         }
     } finally {
-        session.endSession();
+        await session.endSession();
     }
 };
 
@@ -185,7 +185,7 @@ export const addProductsToPromo = async (
         }
     } finally {
         if (ownSession) {
-            session.endSession();
+            await session.endSession();
         }
     }
 };
@@ -276,7 +276,7 @@ export const addCategoriesToPromo = async (
         }
     } finally {
         if (ownSession) {
-            session.endSession();
+            await session.endSession();
         }
     }
 };
@@ -329,7 +329,7 @@ export const updatePromo = async (
             );
         }
     } finally {
-        session.endSession();
+        await session.endSession();
     }
 };
 
@@ -371,7 +371,7 @@ export const deletePromotion = async (
             );
         }
     } finally {
-        session.endSession();
+        await session.endSession();
     }
 };
 
@@ -435,7 +435,7 @@ export const removeProductsFromPromo = async (
         }
     } finally {
         if (ownSession) {
-            session.endSession();
+            await session.endSession();
         }
     }
 };
@@ -508,7 +508,7 @@ export const removeCategoriesFromPromo = async (
         }
     } finally {
         if (ownSession) {
-            session.endSession();
+            await session.endSession();
         }
     }
 };
