@@ -4,6 +4,18 @@ import { useAppSelector } from "../../hooks/reduxHooks";
 import { RootState } from "../../store/customerStore";
 import { setItemsPerPage } from "../../features/UserPreferences/userPreferencesSlice";
 
+const inputStyle = {
+    "&.MuiInputBase-root": {
+        backgroundColor: "white",
+        "&.MuiFilledInput-root": {
+            backgroundColor: "white",
+            "&.Mui-disabled": {
+                backgroundColor: "peach.light",
+            },
+        },
+    },
+};
+
 const ItemsPerPageSelector: React.FC = () => {
     const itemsPerPage = useAppSelector(
         (state: RootState) => state.userPreferences.itemsPerPage
@@ -28,7 +40,7 @@ const ItemsPerPageSelector: React.FC = () => {
                 id="ipp-selection"
                 value={currentItemsPerPage}
                 onChange={handleChange}
-                sx={{ width: "110px" }}
+                sx={{ ...inputStyle, width: "110px" }}
             >
                 <MenuItem value={"24"}>24</MenuItem>
                 <MenuItem value={"48"}>48</MenuItem>

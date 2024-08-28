@@ -21,6 +21,14 @@ import CloseSharpIcon from "@mui/icons-material/CloseSharp";
 import ChevronRightSharpIcon from "@mui/icons-material/ChevronRightSharp";
 import ChevronLeftSharpIcon from "@mui/icons-material/ChevronLeftSharp";
 
+//logo imports
+import pblogo1x from "../../../assets/peachblossomlogo-1x.webp";
+import pblogo2x from "../../../assets/peachblossomlogo-2x.webp";
+import pblogo3x from "../../../assets/peachblossomlogo-3x.webp";
+import pbtext1x from "../../../assets/peachblossomtext-1x.webp";
+import pbtext2x from "../../../assets/peachblossomtext-2x.webp";
+import pbtext3x from "../../../assets/peachblossomtext-3x.webp";
+
 import {
     Autocomplete,
     Button,
@@ -294,10 +302,22 @@ const MobileNav: React.FC<Props> = () => {
                     <div className="m-full-logo">
                         <div className="m-border-under"></div>
                         <div className="m-border-over"></div>
-                        <img src={pblogo} alt="peach blossom logo" />
+                        <img
+                            src={pblogo3x}
+                            srcSet={`${pblogo1x} 1x, ${pblogo2x} 2x, ${pblogo3x} 3x`}
+                            alt="peach blossom logo"
+                            width="158px"
+                            height="158px"
+                        />
                     </div>
                     <div className="m-text-only-logo">
-                        <img src={pbtext} alt="peach blossom logo" />
+                        <img
+                            src={pbtext3x}
+                            srcSet={`${pbtext1x} 1x, ${pbtext2x} 2x, ${pbtext3x} 3x`}
+                            alt="peach blossom logo"
+                            width="158px"
+                            height="auto"
+                        />
                     </div>
                 </div>
                 <div className="m-right-navbar">

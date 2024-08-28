@@ -127,9 +127,12 @@
     font-size: 1.1rem;
 }
 
+.filter-category,
 .filter-subcategory {
-    margin-left: 10px;
-    padding: 5px 0;
+    margin-left: 20px;
+    min-height: 42px;
+    padding: 8px 0;
+    cursor: pointer;
 }
 
 .color-option,
@@ -195,7 +198,7 @@
         border-radius: 4px;
         height: 56px;
         color: rgba(0, 0, 0, 0.87);
-        background-color: transparent;
+        background-color: var(--peaches-and-cream);
         display: flex;
         justify-content: center;
         align-items: center;

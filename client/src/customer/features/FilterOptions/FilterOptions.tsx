@@ -24,7 +24,7 @@ import { useTheme, styled } from "@mui/material/styles";
 import PeachButton from "../../../common/components/PeachButton";
 import CloseSharpIcon from "@mui/icons-material/CloseSharp";
 
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import ChevronRightSharpIcon from "@mui/icons-material/ChevronRightSharp";
 import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
 
 interface Props {
@@ -170,80 +170,23 @@ const FilterOptions: React.FC<Props> = ({
         <React.Fragment>
             {width && width > 1154 && (
                 <div className="filter-options">
-                    {!existingFilters.category && (
-                        <Paper
-                            square
-                            sx={{
-                                width: "320px",
-                                padding: "10px 20px",
-                                borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
-                            }}
-                            className="category-filters"
-                        >
-                            <span className="cat-label">Categories</span>
-                            {categories &&
-                                categories.map((category, index) => (
-                                    <div
-                                        className="filter-category-cont"
-                                        key={index}
-                                    >
-                                        <div
-                                            className="filter-category"
-                                            onClick={() =>
-                                                addCategory(
-                                                    category.categoryName
-                                                )
-                                            }
-                                            role="button"
-                                        >
-                                            {category.categoryName}
-                                        </div>
-                                        {category.Subcategory.length > 0 && (
-                                            <div className="filter-subcategory-cont">
-                                                {category.Subcategory.map(
-                                                    (subcategory, index) => (
-                                                        <div
-                                                            className="filter-subcategory"
-                                                            key={index}
-                                                            onClick={() =>
-                                                                addSubcategoryAndCategory(
-                                                                    subcategory.subcategoryName,
-                                                                    category.categoryName
-                                                                )
-                                                            }
-                                                            role="button"
-                                                        >
-                                                            {
-                                                                subcategory.subcategoryName
-                                                            }
-                                                        </div>
-                                                    )
-                                                )}
-                                            </div>
-                                        )}
-                                    </div>
-                                ))}
-                        </Paper>
-                    )}
-                    {existingFilters.category &&
-                        !existingFilters.subcategory && (
-                            <Paper
-                                className="subcategory-filters"
+                    <FormControl>
+                        {!existingFilters.subcategory && (
+                            <Accordion
+                                disableGutters
                                 square
-                                sx={{
-                                    width: "320px",
-                                    padding: "10px 20px",
-                                    borderBottom:
-                                        "1px solid rgba(0, 0, 0, 0.12)",
-                                }}
+                                defaultExpanded={false}
+                                sx={accordionSx}
                             >
-                                <p className="subcat-label">Subcategories</p>
-                                {categories &&
-                                    categories.filter(
-                                        (category) =>
-                                            category.categoryName ===
-                                            existingFilters.category
-                                    )[0].Subcategory.length > 0 && (
+                                <AccordionSummary
+                                    expandIcon={<ChevronRightSharpIcon />}
+                                >
+                                    {existingFilters.category
+                                        ? "Subcategory"
+                                        : "Category"}
+                                </AccordionSummary>
+                                <AccordionDetails>
+                                    {existingFilters.category ? (
                                         <div className="filter-subcategory-cont">
                                             {categories
                                                 .filter(
@@ -270,10 +213,36 @@ const FilterOptions: React.FC<Props> = ({
                                                     )
                                                 )}
                                         </div>
+                                    ) : (
+                                        <div className="category-filters">
+                                            {categories &&
+                                                categories.map(
+                                                    (category, index) => (
+                                                        <div
+                                                            className="filter-category-cont"
+                                                            key={index}
+                                                        >
+                                                            <div
+                                                                className="filter-category"
+                                                                onClick={() =>
+                                                                    addCategory(
+                                                                        category.categoryName
+                                                                    )
+                                                                }
+                                                                role="button"
+                                                            >
+                                                                {
+                                                                    category.categoryName
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                    )
+                                                )}
+                                        </div>
                                     )}
-                            </Paper>
+                                </AccordionDetails>
+                            </Accordion>
                         )}
-                    <FormControl>
                         <Accordion
                             disableGutters
                             square
@@ -285,7 +254,9 @@ const FilterOptions: React.FC<Props> = ({
                             }
                             sx={accordionSx}
                         >
-                            <AccordionSummary expandIcon={<ChevronRightIcon />}>
+                            <AccordionSummary
+                                expandIcon={<ChevronRightSharpIcon />}
+                            >
                                 Color
                             </AccordionSummary>
                             <AccordionDetails sx={{ margin: 1 }}>
@@ -353,7 +324,9 @@ const FilterOptions: React.FC<Props> = ({
                             }
                             sx={accordionSx}
                         >
-                            <AccordionSummary expandIcon={<ChevronRightIcon />}>
+                            <AccordionSummary
+                                expandIcon={<ChevronRightSharpIcon />}
+                            >
                                 Material
                             </AccordionSummary>
                             <AccordionDetails sx={{ margin: 1 }}>
@@ -427,7 +400,9 @@ const FilterOptions: React.FC<Props> = ({
                             }
                             sx={accordionSx}
                         >
-                            <AccordionSummary expandIcon={<ChevronRightIcon />}>
+                            <AccordionSummary
+                                expandIcon={<ChevronRightSharpIcon />}
+                            >
                                 Price
                             </AccordionSummary>
                             <AccordionDetails sx={{ margin: 1 }}>
@@ -513,7 +488,9 @@ const FilterOptions: React.FC<Props> = ({
                             }
                             sx={accordionSx}
                         >
-                            <AccordionSummary expandIcon={<ChevronRightIcon />}>
+                            <AccordionSummary
+                                expandIcon={<ChevronRightSharpIcon />}
+                            >
                                 Dimensions (in inches)
                             </AccordionSummary>
                             <AccordionDetails sx={{ margin: 1 }}>

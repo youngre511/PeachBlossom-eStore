@@ -7,7 +7,6 @@ import { ReactComponent as SearchButton } from "../../../assets/img/search.svg";
 import { ReactComponent as CartButton } from "../../../assets/img/cart.svg";
 import { ReactComponent as RecentButton } from "../../../assets/img/recent.svg";
 import { ReactComponent as AccountButton } from "../../../assets/img/account.svg";
-import pblogo from "../../../assets/img/peach-blossom-logo.png";
 import ShopNav from "../ShopMenu/ShopNav";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -22,6 +21,11 @@ import {
     TextField,
     Tooltip,
 } from "@mui/material";
+
+//logo imports
+import pblogo1x from "../../../assets/peachblossomlogo-1x.webp";
+import pblogo2x from "../../../assets/peachblossomlogo-2x.webp";
+import pblogo3x from "../../../assets/peachblossomlogo-3x.webp";
 
 interface Props {}
 const Nav: React.FC<Props> = () => {
@@ -347,7 +351,13 @@ const Nav: React.FC<Props> = () => {
                 <div className="nav-logo">
                     <div className="border-under"></div>
                     <div className="border-over"></div>
-                    <img src={pblogo} alt="" />
+                    <img
+                        src={pblogo3x}
+                        srcSet={`${pblogo1x} 1x, ${pblogo2x} 2x, ${pblogo3x} 3x`}
+                        alt="peach blossom logo"
+                        width="158px"
+                        height="158px"
+                    />
                 </div>
                 <ShopNav
                     isShopMenuVisible={isShopMenuVisible}

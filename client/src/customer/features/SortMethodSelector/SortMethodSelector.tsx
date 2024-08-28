@@ -1,6 +1,18 @@
 import React, { useState } from "react";
 import { InputLabel, Select, SelectChangeEvent, MenuItem } from "@mui/material";
 
+const inputStyle = {
+    "&.MuiInputBase-root": {
+        backgroundColor: "white",
+        "&.MuiFilledInput-root": {
+            backgroundColor: "white",
+            "&.Mui-disabled": {
+                backgroundColor: "peach.light",
+            },
+        },
+    },
+};
+
 interface Props {
     sortMethod: string;
     updateSearchParams: (newFilters: Record<string, string>) => void;
@@ -24,6 +36,7 @@ const SortMethodSelector: React.FC<Props> = ({
                 id="sort-selection"
                 value={currentSortMethod}
                 onChange={handleChange}
+                sx={inputStyle}
             >
                 <MenuItem value={"name-ascend"}>Alphabetical (A to Z)</MenuItem>
                 <MenuItem value={"name-descend"}>

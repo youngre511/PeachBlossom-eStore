@@ -15,3 +15,8 @@ footer a {
 footer ul {
     list-style: none;
 }
+
+footer li {
+    margin: 8px 0;
+    height: 20px;
+}
