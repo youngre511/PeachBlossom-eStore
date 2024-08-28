@@ -330,6 +330,7 @@ const Shop = () => {
                             <span
                                 className="back-to-category"
                                 onClick={removeSubcategory}
+                                style={{ cursor: "pointer" }}
                             >
                                 {category}
                             </span>{" "}

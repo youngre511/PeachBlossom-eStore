@@ -63,85 +63,87 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     // Request new access token
     const requestAccessTokenRefresh = useCallback(async () => {
-        if (location.pathname === "/login" || loggingOut) {
-            return;
-        }
+        if (location.pathname.startsWith("admin")) {
+            if (location.pathname === "/login" || loggingOut) {
+                return;
+            }
 
-        try {
-            // Send api request only if there is no current access token and attempt to refresh has not already been made in the absence of said token, if the token has no expiration date, or if the expiration date is not more than 15 minutes in the future.
-            const accessToken = localStorage.getItem("jwtToken");
-            let proceed: boolean = false;
-            if (!accessToken) {
-                if (!madeInitialCheck) {
-                    proceed = true;
-                    setMadeInitialCheck(true);
+            try {
+                // Send api request only if there is no current access token and attempt to refresh has not already been made in the absence of said token, if the token has no expiration date, or if the expiration date is not more than 15 minutes in the future.
+                const accessToken = localStorage.getItem("jwtToken");
+                let proceed: boolean = false;
+                if (!accessToken) {
+                    if (!madeInitialCheck) {
+                        proceed = true;
+                        setMadeInitialCheck(true);
+                    } else {
+                        navigate("/login");
+                    }
                 } else {
+                    const decoded = jwtDecode<IUserToken>(accessToken);
+                    if (!decoded.exp) {
+                        proceed = true;
+                    } else {
+                        const expirationTime = decoded.exp * 1000;
+                        const currentTime = Date.now();
+                        const timeToCompare = currentTime + 1 + 15 * 60 * 1000;
+                        if (timeToCompare >= expirationTime) {
+                            proceed = true;
+                        }
+                    }
+                }
+
+                if (proceed && !isRefreshing) {
+                    setIsRefreshing(true);
+                    const response = await axios.post(
+                        `${process.env.REACT_APP_API_URL}/auth/refresh-access-token`,
+                        {},
+                        {
+                            withCredentials: true,
+                        }
+                    );
+                    const { newAccessToken } = response.data;
+                    const decodedToken = jwtDecode<IUserToken>(newAccessToken);
+                    if (!decodedToken) {
+                        throw new Error("Failed to decode new token");
+                    }
+                    if (!decodedToken.exp) {
+                        throw new Error(
+                            "New token does not have an expiration date"
+                        );
+                    }
+                    const newExpirationTime = decodedToken.exp * 1000;
+
+                    localStorage.setItem("jwtToken", newAccessToken);
+                    localStorage.setItem(
+                        "jwtExpiration",
+                        newExpirationTime.toString()
+                    );
+                    setUser(decodedToken);
+                }
+            } catch (error) {
+                if (error instanceof AxiosError) {
+                    if (error.response && error.response.status === 401) {
+                        console.error("Refresh token is invalid or expired");
+                    } else {
+                        console.error(
+                            error.response
+                                ? error.response.data.message
+                                : error.message
+                        );
+                    }
+                } else {
+                    console.error("An unknown error occurred");
+                }
+                if (isTokenExpired()) {
+                    setUser(undefined);
+                    localStorage.removeItem("jwtToken");
+                    localStorage.removeItem("jwtExpiration");
                     navigate("/login");
                 }
-            } else {
-                const decoded = jwtDecode<IUserToken>(accessToken);
-                if (!decoded.exp) {
-                    proceed = true;
-                } else {
-                    const expirationTime = decoded.exp * 1000;
-                    const currentTime = Date.now();
-                    const timeToCompare = currentTime + 1 + 15 * 60 * 1000;
-                    if (timeToCompare >= expirationTime) {
-                        proceed = true;
-                    }
-                }
+            } finally {
+                setIsRefreshing(false);
             }
-
-            if (proceed && !isRefreshing) {
-                setIsRefreshing(true);
-                const response = await axios.post(
-                    `${process.env.REACT_APP_API_URL}/auth/refresh-access-token`,
-                    {},
-                    {
-                        withCredentials: true,
-                    }
-                );
-                const { newAccessToken } = response.data;
-                const decodedToken = jwtDecode<IUserToken>(newAccessToken);
-                if (!decodedToken) {
-                    throw new Error("Failed to decode new token");
-                }
-                if (!decodedToken.exp) {
-                    throw new Error(
-                        "New token does not have an expiration date"
-                    );
-                }
-                const newExpirationTime = decodedToken.exp * 1000;
-
-                localStorage.setItem("jwtToken", newAccessToken);
-                localStorage.setItem(
-                    "jwtExpiration",
-                    newExpirationTime.toString()
-                );
-                setUser(decodedToken);
-            }
-        } catch (error) {
-            if (error instanceof AxiosError) {
-                if (error.response && error.response.status === 401) {
-                    console.error("Refresh token is invalid or expired");
-                } else {
-                    console.error(
-                        error.response
-                            ? error.response.data.message
-                            : error.message
-                    );
-                }
-            } else {
-                console.error("An unknown error occurred");
-            }
-            if (isTokenExpired()) {
-                setUser(undefined);
-                localStorage.removeItem("jwtToken");
-                localStorage.removeItem("jwtExpiration");
-                navigate("/login");
-            }
-        } finally {
-            setIsRefreshing(false);
         }
     }, [location, isRefreshing, loggingOut, madeInitialCheck]);
 
