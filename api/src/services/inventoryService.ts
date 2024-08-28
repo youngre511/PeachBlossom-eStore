@@ -8,6 +8,7 @@ import sequelize from "../models/mysql/index.js";
 import mongoose, { ClientSession } from "mongoose";
 import { Model } from "sequelize-typescript";
 import { AdminFilterObj, getAdminProducts } from "./productService.js";
+let syncInProgress = false;
 
 interface ParsedInventoryProduct {
     id: number;
@@ -278,43 +279,52 @@ export const updateStockLevels = async (
 };
 
 export const syncStockLevels = async () => {
-    const session: ClientSession = await mongoose.startSession();
-    session.startTransaction();
-    try {
-        const allProducts = await sqlInventory.findAll({
-            attributes: [[sequelize.literal("stock - reserved"), "available"]],
-            include: [
-                {
-                    model: sqlProduct,
-                    as: "Product",
-                    attributes: ["productNo"],
-                },
-            ],
-        });
+    if (!syncInProgress) {
+        syncInProgress = true;
+        const session: ClientSession = await mongoose.startSession();
+        session.startTransaction();
+        try {
+            const allProducts = await sqlInventory.findAll({
+                attributes: [
+                    [sequelize.literal("stock - reserved"), "available"],
+                ],
+                include: [
+                    {
+                        model: sqlProduct,
+                        as: "Product",
+                        attributes: ["productNo"],
+                    },
+                ],
+            });
 
-        if (allProducts.length === 0) {
-            throw new Error("No inventory found in mysql database");
+            if (allProducts.length === 0) {
+                throw new Error("No inventory found in mysql database");
+            }
+
+            const bulkUpdates = allProducts.map((record) => ({
+                updateOne: {
+                    filter: {
+                        productNo:
+                            record.dataValues.Product.dataValues.productNo,
+                    },
+                    update: { $set: { stock: record.dataValues.available } },
+                },
+            }));
+
+            const result = await Product.bulkWrite(bulkUpdates, { session });
+            console.log("Bulk update result:", result);
+
+            return {
+                statusCode: 200,
+                body: JSON.stringify({ status: "Complete" }),
+            };
+        } catch (error) {
+            await session.abortTransaction();
+            console.error("error during execution:", error);
+            return { statusCode: 500, body: error };
+        } finally {
+            await session.endSession();
+            syncInProgress = false;
         }
-
-        const bulkUpdates = allProducts.map((record) => ({
-            updateOne: {
-                filter: {
-                    productNo: record.dataValues.Product.dataValues.productNo,
-                },
-                update: { $set: { stock: record.dataValues.available } },
-            },
-        }));
-
-        const result = await Product.bulkWrite(bulkUpdates, { session });
-        console.log("Bulk update result:", result);
-
-        return {
-            statusCode: 200,
-            body: JSON.stringify({ status: "Complete" }),
-        };
-    } catch (error) {
-        await session.abortTransaction();
-        console.error("error during execution:", error);
-        return { statusCode: 500, body: error };
     }
 };
