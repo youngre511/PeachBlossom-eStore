@@ -40,6 +40,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const navigate = useNavigate();
     const [error, setError] = useState<string>("");
     const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
+    const [loggingOut, setLoggingOut] = useState<boolean>(false);
     const location = useLocation();
 
     useEffect(() => {
@@ -59,7 +60,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }, []);
 
     const requestAccessTokenRefresh = useCallback(async () => {
-        if (location.pathname === "/login") {
+        if (location.pathname === "/login" || loggingOut) {
             return;
         }
 
@@ -86,7 +87,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             if (proceed && !isRefreshing) {
                 setIsRefreshing(true);
                 const response = await axios.post(
-                    `${process.env.REACT_APP_API_URL}/auth/refresh-access-token`
+                    `${process.env.REACT_APP_API_URL}/auth/refresh-access-token`,
+                    {},
+                    {
+                        withCredentials: true,
+                    }
                 );
                 const { newAccessToken } = response.data;
                 const decodedToken = jwtDecode<IUserToken>(newAccessToken);
@@ -136,7 +141,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             requestAccessTokenRefresh();
         }, 15 * 60 * 1000);
 
-        const handleUserActivity = () => {
+        const handleUserActivity = (event: MouseEvent | KeyboardEvent) => {
+            // Check if the click is on the logout button
+            const isLogoutButton =
+                event.target instanceof Element &&
+                event.target.closest("#logout");
+            if (isLogoutButton) {
+                console.log("that it is");
+                return;
+            }
             requestAccessTokenRefresh();
         };
 
@@ -174,7 +187,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         try {
             const response = await axios.post(
                 `${process.env.REACT_APP_API_URL}/auth/login`,
-                { username, password }
+                { username, password },
+                { withCredentials: true }
             );
             console.log(response);
             const { accessToken } = response.data;
@@ -205,8 +219,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         localStorage.removeItem("jwtExpiration");
         setUser(undefined);
         try {
-            axios.put(
-                `${process.env.REACT_APP_API_URL}/auth/revoke-refresh-token`
+            await axios.put(
+                `${process.env.REACT_APP_API_URL}/auth/revoke-refresh-token`,
+                {},
+                {
+                    withCredentials: true,
+                }
             );
         } catch (error) {
             if (error instanceof AxiosError) {

@@ -24,8 +24,6 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 // logs requests to the server
 app.use(logger("dev"));
-// parse cookies
-app.use(cookieParser());
 
 //Cors settings
 const allowedOrigins: string[] = [
@@ -47,6 +45,22 @@ const corsOptions: CorsOptions = {
 };
 
 app.use(cors(corsOptions));
+
+// parse cookies
+app.use(cookieParser());
+
+app.get("/set-test-cookie", (req, res) => {
+    res.cookie("test", "value", {
+        path: "/",
+        domain: "localhost",
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+    res.send("Cookie set");
+});
+
+app.get("/test-cookies", (req, res) => {
+    res.send(JSON.stringify(req.cookies));
+});
 
 app.use("/category", categoryRouter);
 

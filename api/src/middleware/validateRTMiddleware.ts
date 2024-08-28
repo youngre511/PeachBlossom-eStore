@@ -8,6 +8,7 @@ export const validateRT = async (
     next: NextFunction
 ) => {
     console.log("validating token");
+    console.log(req.cookies);
     const refreshToken = req.cookies.refreshToken;
     if (!refreshToken) {
         return res

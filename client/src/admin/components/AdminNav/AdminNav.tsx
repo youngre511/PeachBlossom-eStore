@@ -316,6 +316,7 @@ const AdminNav: React.FC<Props> = (props: Props) => {
                             onClick={authContext.logout}
                             variant="contained"
                             sx={{ bgcolor: "peach.main" }}
+                            id={"logout"}
                         >
                             Log Out
                         </Button>
