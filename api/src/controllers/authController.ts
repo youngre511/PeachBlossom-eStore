@@ -64,7 +64,7 @@ export const login = async (req: LoginRequest, res: Response) => {
         // Store refresh token in http-only cookie
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production", //Only use secure in production mode, not local dev mode
+            secure: true, //Only use secure in production mode, not local dev mode
             sameSite: "none",
             path: "/",
             domain: ".pb.ryanyoung.codes",
