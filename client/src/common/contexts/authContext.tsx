@@ -42,7 +42,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
     const [loggingOut, setLoggingOut] = useState<boolean>(false);
     const location = useLocation();
+    const [madeInitialCheck, setMadeInitialCheck] = useState<boolean>(false);
 
+    // Check for an access token, and if it exists, store its data in "user" state.
     useEffect(() => {
         const token = localStorage.getItem("jwtToken");
         if (token) {
@@ -59,17 +61,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
     }, []);
 
+    // Request new access token
     const requestAccessTokenRefresh = useCallback(async () => {
         if (location.pathname === "/login" || loggingOut) {
             return;
         }
 
         try {
-            // Send api request only if there is no current access token, if the token has no expiration date, or if the expiration date is not more than 15 minutes in the future.
+            // Send api request only if there is no current access token and attempt to refresh has not already been made in the absence of said token, if the token has no expiration date, or if the expiration date is not more than 15 minutes in the future.
             const accessToken = localStorage.getItem("jwtToken");
             let proceed: boolean = false;
             if (!accessToken) {
-                proceed = true;
+                if (!madeInitialCheck) {
+                    proceed = true;
+                    setMadeInitialCheck(true);
+                } else {
+                    navigate("/login");
+                }
             } else {
                 const decoded = jwtDecode<IUserToken>(accessToken);
                 if (!decoded.exp) {
@@ -116,10 +124,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             if (error instanceof AxiosError) {
                 if (error.response && error.response.status === 401) {
                     console.error("Refresh token is invalid or expired");
-                    setUser(undefined);
-                    localStorage.removeItem("jwtToken");
-                    localStorage.removeItem("jwtExpiration");
-                    navigate("/login");
                 } else {
                     console.error(
                         error.response
@@ -130,10 +134,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             } else {
                 console.error("An unknown error occurred");
             }
+            if (isTokenExpired()) {
+                setUser(undefined);
+                localStorage.removeItem("jwtToken");
+                localStorage.removeItem("jwtExpiration");
+                navigate("/login");
+            }
         } finally {
             setIsRefreshing(false);
         }
-    }, []);
+    }, [location, isRefreshing, loggingOut, madeInitialCheck]);
 
     useEffect(() => {
         // Refresh access token every 30 minutes
@@ -202,6 +212,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             localStorage.setItem("jwtExpiration", expirationTime.toString());
 
             setUser(decodedToken);
+            setMadeInitialCheck(false);
             navigate("/");
         } catch (error) {
             if (error instanceof AxiosError) {
@@ -215,6 +226,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
 
     const logout = async () => {
+        setLoggingOut(true);
         localStorage.removeItem("jwtToken");
         localStorage.removeItem("jwtExpiration");
         setUser(undefined);
@@ -235,6 +247,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 );
             }
         }
+        setLoggingOut(false);
         navigate("/login"); // Redirect to the login page
     };
 
