@@ -16,7 +16,7 @@ import { AdminRow } from "./AdminList";
 import ModeEditSharpIcon from "@mui/icons-material/ModeEditSharp";
 import KeyboardArrowUpSharpIcon from "@mui/icons-material/KeyboardArrowUpSharp";
 import KeyboardArrowDownSharpIcon from "@mui/icons-material/KeyboardArrowDownSharp";
-import AdminMoreMenu from "./AdminMoreMenu";
+import AdminMoreMenu from "./AdminMoreMenu.js";
 
 interface Props {
     row: AdminRow;
