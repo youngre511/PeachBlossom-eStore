@@ -29,17 +29,17 @@ import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext
 
 interface Props {
     updateSearchParams: (newFilters: Record<string, string>) => void;
-    addSubCategory: (subCategory: string) => void;
-    addSubCategoryAndCategory: (subCategory: string, category: string) => void;
+    addSubcategory: (subcategory: string) => void;
+    addSubcategoryAndCategory: (subcategory: string, category: string) => void;
     addCategory: (category: string) => void;
     handleFilterDrawerClose: () => void;
 }
 
 const FilterOptions: React.FC<Props> = ({
     updateSearchParams,
-    addSubCategory,
+    addSubcategory,
     addCategory,
-    addSubCategoryAndCategory,
+    addSubcategoryAndCategory,
     handleFilterDrawerClose,
 }: Props) => {
     const theme = useTheme();
@@ -53,7 +53,7 @@ const FilterOptions: React.FC<Props> = ({
     const [localFilters, setLocalFilters] = useState<Filters>({
         search: null,
         category: null,
-        subCategory: null,
+        subcategory: null,
         color: [],
         minPrice: null,
         maxPrice: null,
@@ -198,23 +198,23 @@ const FilterOptions: React.FC<Props> = ({
                                         >
                                             {category.categoryName}
                                         </div>
-                                        {category.SubCategory.length > 0 && (
+                                        {category.Subcategory.length > 0 && (
                                             <div className="filter-subcategory-cont">
-                                                {category.SubCategory.map(
-                                                    (subCategory, index) => (
+                                                {category.Subcategory.map(
+                                                    (subcategory, index) => (
                                                         <div
                                                             className="filter-subcategory"
                                                             key={index}
                                                             onClick={() =>
-                                                                addSubCategoryAndCategory(
-                                                                    subCategory.subCategoryName,
+                                                                addSubcategoryAndCategory(
+                                                                    subcategory.subcategoryName,
                                                                     category.categoryName
                                                                 )
                                                             }
                                                             role="button"
                                                         >
                                                             {
-                                                                subCategory.subCategoryName
+                                                                subcategory.subcategoryName
                                                             }
                                                         </div>
                                                     )
@@ -226,7 +226,7 @@ const FilterOptions: React.FC<Props> = ({
                         </Paper>
                     )}
                     {existingFilters.category &&
-                        !existingFilters.subCategory && (
+                        !existingFilters.subcategory && (
                             <Paper
                                 className="subcategory-filters"
                                 square
@@ -243,7 +243,7 @@ const FilterOptions: React.FC<Props> = ({
                                         (category) =>
                                             category.categoryName ===
                                             existingFilters.category
-                                    )[0].SubCategory.length > 0 && (
+                                    )[0].Subcategory.length > 0 && (
                                         <div className="filter-subcategory-cont">
                                             {categories
                                                 .filter(
@@ -251,20 +251,20 @@ const FilterOptions: React.FC<Props> = ({
                                                         category.categoryName ===
                                                         existingFilters.category
                                                 )[0]
-                                                .SubCategory.map(
-                                                    (subCategory, index) => (
+                                                .Subcategory.map(
+                                                    (subcategory, index) => (
                                                         <div
                                                             className="filter-subcategory"
                                                             key={index}
                                                             onClick={() =>
-                                                                addSubCategory(
-                                                                    subCategory.subCategoryName
+                                                                addSubcategory(
+                                                                    subcategory.subcategoryName
                                                                 )
                                                             }
                                                             role="button"
                                                         >
                                                             {
-                                                                subCategory.subCategoryName
+                                                                subcategory.subcategoryName
                                                             }
                                                         </div>
                                                     )

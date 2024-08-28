@@ -14,21 +14,21 @@ import { sqlProduct } from "./sqlProductModel.js";
 import { sqlCategory } from "./sqlCategoryModel.js";
 
 @Table({
-    tableName: "SubCategories",
+    tableName: "Subcategories",
     timestamps: false,
 })
-export class sqlSubCategory extends Model {
+export class sqlSubcategory extends Model {
     @PrimaryKey
     @AutoIncrement
     @Column(DataType.BIGINT)
-    subCategory_id!: number;
+    subcategory_id!: number;
 
     @Index
     @Column({
         type: DataType.STRING(20),
         allowNull: false,
     })
-    subCategoryName!: string;
+    subcategoryName!: string;
 
     @Index
     @ForeignKey(() => sqlCategory)

@@ -4,7 +4,7 @@ export type FetchCategoriesResponse = ApiResponse<Category[]>;
 export interface Category {
     categoryName: string;
     productCount: number;
-    SubCategory: { subCategoryName: string; productCount: number }[];
+    Subcategory: { subcategoryName: string; productCount: number }[];
 }
 
 export interface CategoryState {

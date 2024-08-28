@@ -43,7 +43,7 @@ export type FetchCategoriesResponse = ApiResponse<Category[]>;
 
 export interface Category {
     name: string;
-    subCategories: string[];
+    subcategories: string[];
 }
 
 interface OneProduct {
@@ -203,7 +203,7 @@ const AVProductDetails: React.FC = () => {
     const categories = useAppSelector(
         (state: RootState) => state.avMenuData.categories
     );
-    const [subCategories, setSubCategories] = useState<string[] | "disabled">(
+    const [subcategories, setSubcategories] = useState<string[] | "disabled">(
         "disabled"
     );
     const [images, setImages] = useState<ImageListType>([]);
@@ -335,14 +335,14 @@ const AVProductDetails: React.FC = () => {
             const selectedCategory = categories.find(
                 (cat) => cat.categoryName === category
             );
-            if (selectedCategory && selectedCategory.SubCategory.length > 0) {
-                setSubCategories(
-                    selectedCategory.SubCategory.map(
-                        (subcategory) => subcategory.subCategoryName
+            if (selectedCategory && selectedCategory.Subcategory.length > 0) {
+                setSubcategories(
+                    selectedCategory.Subcategory.map(
+                        (subcategory) => subcategory.subcategoryName
                     )
                 );
             } else {
-                setSubCategories("disabled");
+                setSubcategories("disabled");
             }
         }
     }, [category, categories]);
@@ -356,7 +356,7 @@ const AVProductDetails: React.FC = () => {
             name: string;
             price: number;
             category: string;
-            subCategory: string;
+            subcategory: string;
             color: string;
             material: string[];
             attributes: string;
@@ -379,7 +379,7 @@ const AVProductDetails: React.FC = () => {
                 formData.append("category", category);
             }
             if (subcategory !== currentDetails.subcategory) {
-                formData.append("subCategory", subcategory);
+                formData.append("subcategory", subcategory);
             }
             if (description !== currentDetails.description) {
                 formData.append("description", description);
@@ -642,11 +642,11 @@ const AVProductDetails: React.FC = () => {
                                 name="subcategory"
                                 multiple={false}
                                 required={false}
-                                options={subCategories}
+                                options={subcategories}
                                 readOnly={editMode ? false : true}
                                 sx={editMode ? inputStyle : readOnlyStyle}
                                 value={
-                                    subCategories !== "disabled" && subcategory
+                                    subcategories !== "disabled" && subcategory
                                         ? subcategory
                                         : ""
                                 }

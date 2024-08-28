@@ -30,12 +30,12 @@ interface CategoryCreateRequest extends Request {
     };
 }
 
-interface SubCategoryCreateRequest extends Request {
+interface SubcategoryCreateRequest extends Request {
     params: {
         categoryName: string;
     };
     body: {
-        subCategoryName: string;
+        subcategoryName: string;
     };
 }
 interface CategoryUpdateRequest extends Request {
@@ -50,7 +50,7 @@ export const getAllCategories = async (req: Request, res: Response) => {
         const results: Array<{
             categoryName: string;
             productCount: number;
-            Subcategory: { subCategoryName: string; productCount: number }[];
+            Subcategory: { subcategoryName: string; productCount: number }[];
         }> = await categoryService.getAllCategories();
 
         res.json({
@@ -119,17 +119,17 @@ export const createCategory = async (
     }
 };
 
-export const createSubCategory = async (
-    req: SubCategoryCreateRequest,
+export const createSubcategory = async (
+    req: SubcategoryCreateRequest,
     res: Response
 ) => {
     try {
         // Accepting the front-end form data from the client to generate the document
         const { categoryName } = req.params;
-        const { subCategoryName } = req.body;
-        const response: BooleString = await categoryService.createSubCategory(
+        const { subcategoryName } = req.body;
+        const response: BooleString = await categoryService.createSubcategory(
             categoryName,
-            subCategoryName
+            subcategoryName
         );
 
         res.json({

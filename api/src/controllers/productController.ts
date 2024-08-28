@@ -16,7 +16,7 @@ import { Request, Response, RequestHandler } from "express";
 export interface CreateProduct {
     name: string;
     category: string;
-    subCategory?: string;
+    subcategory?: string;
     prefix: string;
     description: string;
     attributes: Attributes;
@@ -56,7 +56,7 @@ interface CreateProductRequest extends Request {
     body: {
         name: string;
         category: string;
-        subCategory?: string;
+        subcategory?: string;
         prefix: string;
         description: string;
         attributes: string;
@@ -98,7 +98,7 @@ interface ProductGetRequest extends Request {
 interface AdminProductGetRequest extends Request {
     query: {
         category?: string;
-        subCategory?: string;
+        subcategory?: string;
         tags?: string;
         page: string;
         sort: string;
@@ -119,7 +119,7 @@ interface UpdateProductDetailsRequest extends Request {
         name?: string;
         productNo: string;
         category?: string;
-        subCategory?: string;
+        subcategory?: string;
         description?: string;
         attributes?: string;
         price?: number;
@@ -287,7 +287,7 @@ export const createProduct = async (
         const {
             name,
             category,
-            subCategory,
+            subcategory,
             prefix,
             description,
             attributes,
@@ -328,7 +328,7 @@ export const createProduct = async (
         const productData = {
             name,
             category,
-            subCategory,
+            subcategory,
             prefix,
             description,
             attributes: attributesObj,
@@ -392,7 +392,7 @@ export const updateProductDetails = async (
             name,
             productNo,
             category,
-            subCategory,
+            subcategory,
             description,
             attributes,
             price,
@@ -435,7 +435,7 @@ export const updateProductDetails = async (
             name,
             productNo,
             category,
-            subCategory,
+            subcategory,
             description,
             attributes: attributesObj,
             price,

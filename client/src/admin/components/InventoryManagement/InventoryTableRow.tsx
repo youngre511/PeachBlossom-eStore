@@ -66,7 +66,7 @@ const InventoryTableRow: React.FC<Props> = ({
                     <React.Fragment>
                         <TableCell align="right">{row.price}</TableCell>
                         <TableCell align="left">{row.category}</TableCell>
-                        <TableCell align="left">{row.subCategory}</TableCell>
+                        <TableCell align="left">{row.subcategory}</TableCell>
                     </React.Fragment>
                 ) : (
                     <TableCell
@@ -118,7 +118,7 @@ const InventoryTableRow: React.FC<Props> = ({
                                     <b>Category:</b> {row.category}
                                 </Typography>
                                 <Typography variant="body2">
-                                    <b>Subcategory:</b> {row.subCategory}
+                                    <b>Subcategory:</b> {row.subcategory}
                                 </Typography>
                             </Box>
                         </Collapse>

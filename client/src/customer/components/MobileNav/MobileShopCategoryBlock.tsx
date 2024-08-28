@@ -72,11 +72,11 @@ const MobileShopCategoryBlock: React.FC<Props> = ({
                 className="m-shop-subcategories"
                 style={{
                     height: isExpanded
-                        ? `${category.SubCategory.length * 48}px`
+                        ? `${category.Subcategory.length * 48}px`
                         : 0,
                 }}
             >
-                {category.SubCategory.map((subcategory) => (
+                {category.Subcategory.map((subcategory) => (
                     <div
                         className="m-shop-subcategory"
                         onClick={() => {
@@ -85,13 +85,13 @@ const MobileShopCategoryBlock: React.FC<Props> = ({
                                 `/shop?category=${
                                     category.categoryName
                                 }&sub_category=${encodeURI(
-                                    subcategory.subCategoryName
+                                    subcategory.subcategoryName
                                 )}`
                             );
                         }}
-                        key={subcategory.subCategoryName}
+                        key={subcategory.subcategoryName}
                     >
-                        {subcategory.subCategoryName}
+                        {subcategory.subcategoryName}
                     </div>
                 ))}
             </div>

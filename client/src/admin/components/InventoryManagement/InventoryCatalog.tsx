@@ -47,7 +47,7 @@ export interface InventoryRow {
     available: number;
     price: string;
     category: string;
-    subCategory: string | null;
+    subcategory: string | null;
 }
 
 export type Order = "asc" | "desc";
@@ -79,7 +79,7 @@ const InventoryCatalog: React.FC<AVCatProps> = ({
             available: product.available,
             price: `$${Number(product.price).toFixed(2)}`,
             category: product.category,
-            subCategory: product.subCategory,
+            subcategory: product.subcategory,
         };
         return rowData;
     });

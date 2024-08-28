@@ -106,7 +106,7 @@ const AVTableRow: React.FC<Props> = ({
                                 : row.price}
                         </TableCell>
                         <TableCell align="left">{row.category}</TableCell>
-                        <TableCell align="left">{row.subCategory}</TableCell>
+                        <TableCell align="left">{row.subcategory}</TableCell>
                         {/* <TableCell align="left">{row.tags}</TableCell> */}
                         <TableCell align="left" sx={{ minWidth: 164 }}>
                             {row.lastModified}
@@ -191,7 +191,7 @@ const AVTableRow: React.FC<Props> = ({
                                     <b>Category:</b> {row.category}
                                 </Typography>
                                 <Typography variant="body2">
-                                    <b>Subcategory:</b> {row.subCategory}
+                                    <b>Subcategory:</b> {row.subcategory}
                                 </Typography>
                                 <Typography variant="body2">
                                     <b>Last Modified:</b> {row.lastModified}

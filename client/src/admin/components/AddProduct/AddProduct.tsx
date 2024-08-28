@@ -61,7 +61,7 @@ export type FetchCategoriesResponse = ApiResponse<Category[]>;
 
 export interface Category {
     name: string;
-    subCategories: string[];
+    subcategories: string[];
 }
 
 ///////////////////////
@@ -155,7 +155,7 @@ interface DynamicCategoryProps {
     required: boolean;
     sx?: ComponentProps<typeof TextField>["sx"];
     categories: AVCategory[];
-    setSubCategories: React.Dispatch<
+    setSubcategories: React.Dispatch<
         React.SetStateAction<string[] | "disabled">
     >;
 }
@@ -167,14 +167,14 @@ const DynamicCategory: React.FC<DynamicCategoryProps> = ({
     required,
     sx,
     categories,
-    setSubCategories,
+    setSubcategories,
 }) => {
     const { values } = useFormikContext<Submission>();
-    const memoizedSetSubCategories = useCallback(
-        (subCategories: string[] | "disabled") => {
-            setSubCategories(subCategories);
+    const memoizedSetSubcategories = useCallback(
+        (subcategories: string[] | "disabled") => {
+            setSubcategories(subcategories);
         },
-        [setSubCategories]
+        [setSubcategories]
     );
 
     useEffect(() => {
@@ -182,17 +182,17 @@ const DynamicCategory: React.FC<DynamicCategoryProps> = ({
             const selectedCategory = categories.find(
                 (category) => category.categoryName === values.category
             );
-            if (selectedCategory && selectedCategory.SubCategory.length > 0) {
-                memoizedSetSubCategories(
-                    selectedCategory.SubCategory.map(
-                        (subcategory) => subcategory.subCategoryName
+            if (selectedCategory && selectedCategory.Subcategory.length > 0) {
+                memoizedSetSubcategories(
+                    selectedCategory.Subcategory.map(
+                        (subcategory) => subcategory.subcategoryName
                     )
                 );
             } else {
-                memoizedSetSubCategories("disabled");
+                memoizedSetSubcategories("disabled");
             }
         }
-    }, [values.category, categories, memoizedSetSubCategories]);
+    }, [values.category, categories, memoizedSetSubcategories]);
 
     useEffect(() => {
         console.log("values.category useEffect", values.category, Date.now());
@@ -218,7 +218,7 @@ const AddProduct: React.FC = () => {
     const categories = useAppSelector(
         (state: RootState) => state.avMenuData.categories
     );
-    const [subCategories, setSubCategories] = useState<string[] | "disabled">(
+    const [subcategories, setSubcategories] = useState<string[] | "disabled">(
         "disabled"
     );
     const [images, setImages] = useState<ImageListType>([]);
@@ -261,7 +261,7 @@ const AddProduct: React.FC = () => {
         formData.append("name", values.name);
         formData.append("category", values.category);
         if (values.subcategory) {
-            formData.append("subCategory", values.subcategory);
+            formData.append("subcategory", values.subcategory);
         }
         formData.append("prefix", values.prefix.toLowerCase());
         formData.append("description", values.description);
@@ -449,7 +449,7 @@ const AddProduct: React.FC = () => {
                                         required={true}
                                         options={categoryOptions}
                                         categories={categories}
-                                        setSubCategories={setSubCategories}
+                                        setSubcategories={setSubcategories}
                                         sx={inputStyle}
                                     />
                                 </Grid>
@@ -459,7 +459,7 @@ const AddProduct: React.FC = () => {
                                         name="subcategory"
                                         multiple={false}
                                         required={false}
-                                        options={subCategories}
+                                        options={subcategories}
                                         sx={inputStyle}
                                     />
                                 </Grid>

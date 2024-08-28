@@ -1,7 +1,7 @@
 import Product, { ProductItem } from "../models/mongo/productModel.js";
 import Category, {
     CategoryItem,
-    SubCategoryItem,
+    SubcategoryItem,
 } from "../models/mongo/categoryModel.js";
 import Tag, { TagItem } from "../models/mongo/tagModel.js";
 import { sqlCategory } from "../models/mysql/sqlCategoryModel.js";
@@ -15,7 +15,7 @@ import {
     CreateProduct,
     UpdateProduct,
 } from "../controllers/productController.js";
-import { sqlSubCategory } from "../models/mysql/sqlSubCategoryModel.js";
+import { sqlSubcategory } from "../models/mysql/sqlSubcategoryModel.js";
 import { BooleString } from "../../types/api_resp.js";
 import { Op } from "sequelize";
 import { JoinReqProduct } from "./cartService.js";
@@ -61,7 +61,7 @@ export type Material =
 interface FilterObject {
     search?: string;
     category?: string;
-    subCategory?: string;
+    subcategory?: string;
     tags?: string;
     page: string;
     color?: Color[];
@@ -81,7 +81,7 @@ interface FilterObject {
 export interface AdminFilterObj {
     search?: string;
     category?: string;
-    subCategory?: string;
+    subcategory?: string;
     tags?: string;
     page: string;
     sort: string;
@@ -95,7 +95,7 @@ interface AdminCatalogResponse {
     productNo: string;
     price: number;
     category: string;
-    subCategory: string;
+    subcategory: string;
     lastModified: string;
     createdAt: string;
     description: string;
@@ -133,14 +133,14 @@ interface JoinReqCategory extends Model {
     categoryName: string;
 }
 
-interface JoinReqSubCategory extends Model {
-    subCategory_id: number;
-    subCategoryName: string;
+interface JoinReqSubcategory extends Model {
+    subcategory_id: number;
+    subcategoryName: string;
     category_id: number;
 }
 
 interface AdminProduct extends JoinReqProduct {
-    SubCategory: JoinReqSubCategory;
+    Subcategory: JoinReqSubcategory;
     Category: JoinReqCategory;
 }
 
@@ -159,8 +159,8 @@ export const extractSqlProductData = (productData: JoinReqSQLProduct) => {
         if (parsedProduct.Category) {
             parsedProduct.Category = parsedProduct.Category.get();
         }
-        if (parsedProduct.SubCategory) {
-            parsedProduct.SubCategory = parsedProduct.SubCategory.get();
+        if (parsedProduct.Subcategory) {
+            parsedProduct.Subcategory = parsedProduct.Subcategory.get();
         }
         if (parsedProduct.Inventory) {
             parsedProduct.Inventory = parsedProduct.Inventory.get();
@@ -191,24 +191,24 @@ export const getProducts = async (filters: FilterObject) => {
     }
     const skip = (+filters.page - 1) * +filters.itemsPerPage;
     let categoryId: Schema.Types.ObjectId | undefined;
-    let subCategoryId: Types.ObjectId | undefined;
+    let subcategoryId: Types.ObjectId | undefined;
 
     // Retrieve category and tag object ids if names are provided
     if (filters.category) {
         const cat = await Category.findOne({ name: filters.category }).exec();
         if (cat) {
             categoryId = cat._id;
-            if (filters.subCategory) {
-                const subCat = cat.subCategories.filter(
-                    (subCategory: SubCategoryItem) =>
-                        subCategory.name === filters.subCategory
+            if (filters.subcategory) {
+                const subcat = cat.subcategories.filter(
+                    (subcategory: SubcategoryItem) =>
+                        subcategory.name === filters.subcategory
                 );
-                if (subCat.length === 0) {
+                if (subcat.length === 0) {
                     throw new Error(
                         `Not a valid subcategory of ${filters.category}`
                     );
                 } else {
-                    subCategoryId = subCat[0]._id;
+                    subcategoryId = subcat[0]._id;
                 }
             }
         } else {
@@ -238,8 +238,8 @@ export const getProducts = async (filters: FilterObject) => {
     }
 
     // Narrow by category
-    if (subCategoryId) {
-        query = query.where({ subCategory: subCategoryId });
+    if (subcategoryId) {
+        query = query.where({ subcategory: subcategoryId });
     } else if (categoryId) {
         query = query.where({ category: categoryId });
     }
@@ -427,10 +427,10 @@ export const getAdminProducts = async (filters: AdminFilterObj) => {
                     : undefined,
             },
             {
-                model: sqlSubCategory,
-                as: "SubCategory",
-                where: filters.subCategory
-                    ? { subCategoryName: filters.subCategory }
+                model: sqlSubcategory,
+                as: "Subcategory",
+                where: filters.subcategory
+                    ? { subcategoryName: filters.subcategory }
                     : undefined,
             },
             {
@@ -456,7 +456,7 @@ export const getAdminProducts = async (filters: AdminFilterObj) => {
                 productNo: product.productNo,
                 price: product.price,
                 category: product.Category.categoryName,
-                subCategory: product.SubCategory?.subCategoryName || null,
+                subcategory: product.Subcategory?.subcategoryName || null,
                 lastModified: product.updatedAt.toLocaleString(),
                 createdAt: product.createdAt.toLocaleString(),
                 description: product.description,
@@ -492,10 +492,10 @@ export const getOneProduct = async (productNo: string) => {
             throw new Error("Product category not found");
         }
 
-        const subcategory: SubCategoryItem | null =
-            category.subCategories.filter(
+        const subcategory: SubcategoryItem | null =
+            category.subcategories.filter(
                 (subcategory) =>
-                    String(subcategory._id) === String(result.subCategory)
+                    String(subcategory._id) === String(result.subcategory)
             )[0];
 
         const productData = {
@@ -539,10 +539,10 @@ export const getCatalogProductDetails = async (productNo: string) => {
             throw new Error("Product category not found");
         }
 
-        const subcategory: SubCategoryItem | null =
-            category.subCategories.filter(
+        const subcategory: SubcategoryItem | null =
+            category.subcategories.filter(
                 (subcategory) =>
-                    String(subcategory._id) === String(result.subCategory)
+                    String(subcategory._id) === String(result.subcategory)
             )[0];
 
         // Find active promotions and calculate discount price if necessary
@@ -612,7 +612,7 @@ export const createProduct = async (
         const {
             name,
             category,
-            subCategory = null,
+            subcategory = null,
             prefix,
             description,
             attributes,
@@ -648,25 +648,25 @@ export const createProduct = async (
         }
         const sqlCategoryId: number = sqlCatRec.category_id;
 
-        let sqlSubCategoryId: number | null;
-        if (subCategory) {
-            const subCatRec = await sqlSubCategory.findOne({
-                where: { subCategoryName: subCategory },
+        let sqlSubcategoryId: number | null;
+        if (subcategory) {
+            const subcatRec = await sqlSubcategory.findOne({
+                where: { subcategoryName: subcategory },
                 transaction: sqlTransaction,
                 raw: true,
             });
-            if (!subCatRec) {
+            if (!subcatRec) {
                 throw new Error("subcategory does not exist in SQL database");
             }
 
-            if (subCatRec.category_id !== sqlCategoryId) {
+            if (subcatRec.category_id !== sqlCategoryId) {
                 throw new Error(
-                    `${subCategory} is not a subcategory of ${category}`
+                    `${subcategory} is not a subcategory of ${category}`
                 );
             }
-            sqlSubCategoryId = subCatRec.subCategory_id;
+            sqlSubcategoryId = subcatRec.subcategory_id;
         } else {
-            sqlSubCategoryId = null;
+            sqlSubcategoryId = null;
         }
 
         const thumbnailUrl = imageUrls[0] ? imageUrls[0] : null;
@@ -677,7 +677,7 @@ export const createProduct = async (
             status: "active",
             description: abbrDesc,
             category_id: sqlCategoryId,
-            subCategory_id: sqlSubCategoryId,
+            subcategory_id: sqlSubcategoryId,
             thumbnailUrl: thumbnailUrl,
         };
 
@@ -704,20 +704,20 @@ export const createProduct = async (
         }
         const categoryId: Schema.Types.ObjectId = categoryDoc._id;
 
-        let subCategoryId: Types.ObjectId | null;
-        if (subCategory) {
-            const filteredSubCat = categoryDoc.subCategories.filter(
-                (subCat: { name: string; _id: Types.ObjectId }) =>
-                    subCat.name === subCategory
+        let subcategoryId: Types.ObjectId | null;
+        if (subcategory) {
+            const filteredSubcat = categoryDoc.subcategories.filter(
+                (subcat: { name: string; _id: Types.ObjectId }) =>
+                    subcat.name === subcategory
             );
-            if (filteredSubCat.length === 0) {
+            if (filteredSubcat.length === 0) {
                 throw new Error(
-                    `${subCategory} is not a subcategory of ${category}`
+                    `${subcategory} is not a subcategory of ${category}`
                 );
             }
-            subCategoryId = filteredSubCat[0]._id;
+            subcategoryId = filteredSubcat[0]._id;
         } else {
-            subCategoryId = null;
+            subcategoryId = null;
         }
 
         let validTagIds: Array<Schema.Types.ObjectId> | null;
@@ -745,7 +745,7 @@ export const createProduct = async (
                     productNo: productNo,
                     name: name,
                     category: categoryId,
-                    subCategory: subCategoryId,
+                    subcategory: subcategoryId,
                     description: description,
                     attributes: attributes,
                     price: price,
@@ -792,7 +792,7 @@ export const updateProductDetails = async (
             name,
             productNo,
             category,
-            subCategory,
+            subcategory,
             description,
             attributes,
             price,
@@ -800,7 +800,7 @@ export const updateProductDetails = async (
             images = [],
             tags = null,
         } = productData;
-        console.log("received subcategory:", subCategory);
+        console.log("received subcategory:", subcategory);
 
         // Delete unused images from S3
         const targetProduct = await Product.findOne({
@@ -907,28 +907,28 @@ export const updateProductDetails = async (
             }
         }
         // subcategories
-        if (subCategory) {
+        if (subcategory) {
             console.log("adding subcategory");
-            const foundSubCategory = foundCategory.subCategories.filter(
-                (subcategory) => subcategory.name === subCategory
+            const foundSubcategory = foundCategory.subcategories.filter(
+                (subcat) => subcat.name === subcategory
             )[0];
-            if (!foundSubCategory) {
+            if (!foundSubcategory) {
                 throw new Error("Subcategory not found in Mongo");
             }
-            updateFields.subCategory = foundSubCategory._id;
+            updateFields.subcategory = foundSubcategory._id;
 
-            const foundSqlSubCategory = await sqlSubCategory.findOne({
+            const foundSqlSubcategory = await sqlSubcategory.findOne({
                 where: {
-                    subCategoryName: subCategory,
+                    subcategoryName: subcategory,
                     category_id: foundSqlCategory.dataValues.category_id,
                 },
             });
 
-            if (!foundSqlSubCategory) {
+            if (!foundSqlSubcategory) {
                 throw new Error("Subcategory not found in SQL");
             }
-            sqlUpdateFields.subCategory_id =
-                foundSqlSubCategory.dataValues.subCategory_id;
+            sqlUpdateFields.subcategory_id =
+                foundSqlSubcategory.dataValues.subcategory_id;
         }
 
         //price

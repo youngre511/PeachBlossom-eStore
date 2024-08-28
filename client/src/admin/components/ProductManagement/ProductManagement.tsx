@@ -46,7 +46,7 @@ const ProductManagement: React.FC<Props> = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const search = searchParams.get("search");
     const category = searchParams.get("category");
-    const subCategory = searchParams.get("sub_category");
+    const subcategory = searchParams.get("sub_category");
     const page = searchParams.get("page") || "1";
     const tags = searchParams.get("tags")?.split(",") || null;
     const sort = searchParams.get("sort") || "name-ascend";
@@ -80,20 +80,20 @@ const ProductManagement: React.FC<Props> = () => {
 
     useEffect(() => {
         fetchData(true);
-    }, [search, category, subCategory, page, tags, sort, view, itemsPerPage]);
+    }, [search, category, subcategory, page, tags, sort, view, itemsPerPage]);
 
     const memoParams = useMemo(() => {
         return {
             search,
             category,
-            subCategory,
+            subcategory,
             tags,
             sort,
             page,
             view,
             itemsPerPage,
         };
-    }, [search, category, subCategory, tags, sort, page, view, itemsPerPage]);
+    }, [search, category, subcategory, tags, sort, page, view, itemsPerPage]);
 
     useEffect(() => {
         if (avMenuData.categories) {
@@ -142,7 +142,7 @@ const ProductManagement: React.FC<Props> = () => {
             const params = {
                 search,
                 category,
-                subCategory,
+                subcategory,
                 tags,
                 sort,
                 page,
@@ -352,14 +352,14 @@ const ProductManagement: React.FC<Props> = () => {
                                 labelId={"subcategory-label"}
                                 value={
                                     categorySelection
-                                        ? subCategory || "all"
+                                        ? subcategory || "all"
                                         : "all"
                                 }
                                 variant="outlined"
                                 id="category"
                                 disabled={
                                     categorySelection &&
-                                    categorySelection.SubCategory.length > 0
+                                    categorySelection.Subcategory.length > 0
                                         ? false
                                         : true
                                 }
@@ -369,14 +369,14 @@ const ProductManagement: React.FC<Props> = () => {
                             >
                                 <MenuItem value={"all"}>All</MenuItem>
                                 {categorySelection &&
-                                    categorySelection?.SubCategory.length > 0 &&
-                                    categorySelection.SubCategory.map(
-                                        (subCat, index) => (
+                                    categorySelection?.Subcategory.length > 0 &&
+                                    categorySelection.Subcategory.map(
+                                        (subcat, index) => (
                                             <MenuItem
-                                                value={subCat.subCategoryName}
+                                                value={subcat.subcategoryName}
                                                 key={`subcategory-${index}`}
                                             >
-                                                {subCat.subCategoryName}
+                                                {subcat.subcategoryName}
                                             </MenuItem>
                                         )
                                     )}

@@ -41,7 +41,7 @@ const InventoryManagement: React.FC<Props> = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const search = searchParams.get("search");
     const category = searchParams.get("category");
-    const subCategory = searchParams.get("sub_category");
+    const subcategory = searchParams.get("sub_category");
     const page = searchParams.get("page") || "1";
     const tags = searchParams.get("tags")?.split(",") || null;
     const sort = searchParams.get("sort") || "name-ascend";
@@ -54,13 +54,13 @@ const InventoryManagement: React.FC<Props> = () => {
         return {
             search,
             category,
-            subCategory,
+            subcategory,
             tags,
             sort,
             page,
             itemsPerPage,
         };
-    }, [search, category, subCategory, tags, sort, page, itemsPerPage]);
+    }, [search, category, subcategory, tags, sort, page, itemsPerPage]);
 
     useEffect(() => {
         const initialParams: Record<string, string> = {};
@@ -90,7 +90,7 @@ const InventoryManagement: React.FC<Props> = () => {
             const params = {
                 search,
                 category,
-                subCategory,
+                subcategory,
                 tags,
                 sort,
                 page,
@@ -112,7 +112,7 @@ const InventoryManagement: React.FC<Props> = () => {
                 dispatch(avFetchProducts({ filters: params as AVFilters }));
             }
         }
-    }, [search, category, subCategory, page, tags, sort, itemsPerPage]);
+    }, [search, category, subcategory, page, tags, sort, itemsPerPage]);
 
     useEffect(() => {
         const initialParams: Record<string, string> = {};
@@ -142,7 +142,7 @@ const InventoryManagement: React.FC<Props> = () => {
         const params = {
             search,
             category,
-            subCategory,
+            subcategory,
             tags,
             sort,
             page,

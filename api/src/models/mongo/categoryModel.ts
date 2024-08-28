@@ -1,18 +1,18 @@
 import { Document, Schema, model, Types } from "mongoose";
 
-export interface SubCategoryItem {
+export interface SubcategoryItem {
     _id: Types.ObjectId;
     name: string;
 }
 export interface CategoryItem extends Document {
     _id: Schema.Types.ObjectId;
     name: string;
-    subCategories: SubCategoryItem[];
+    subcategories: SubcategoryItem[];
     createdAt?: Date;
     updatedAt?: Date;
 }
 
-const SubCategorySchema: Schema = new Schema({
+const SubcategorySchema: Schema = new Schema({
     _id: { type: Schema.Types.ObjectId, auto: false },
     name: {
         type: String,
@@ -28,7 +28,7 @@ const CategorySchema: Schema = new Schema(
             unique: true,
             required: true,
         },
-        subCategories: [SubCategorySchema],
+        subcategories: [SubcategorySchema],
     },
     { timestamps: true }
 );

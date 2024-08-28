@@ -18,7 +18,7 @@ const CategoryManagement: React.FC<Props> = () => {
         (state: RootState) => state.avMenuData.categories
     );
     const [subcategories, setSubcategories] = useState<
-        Array<{ subCategoryName: string; productCount: number }>
+        Array<{ subcategoryName: string; productCount: number }>
     >([]);
 
     const [selectedCategory, setSelectedCategory] = useState<AVCategory | null>(
@@ -27,7 +27,7 @@ const CategoryManagement: React.FC<Props> = () => {
     const [selectedCategoryElement, setSelectedCategoryElement] =
         useState<HTMLElement | null>(null);
     const [selectedSubcategory, setSelectedSubcategory] = useState<{
-        subCategoryName: string;
+        subcategoryName: string;
         productCount: number;
     } | null>(null);
     const [selectedSubcategoryElement, setSelectedSubcategoryElement] =
@@ -85,7 +85,7 @@ const CategoryManagement: React.FC<Props> = () => {
     // When a category is selected, update subcategories array to match that of the selected category.
     useEffect(() => {
         if (selectedCategory) {
-            setSubcategories(selectedCategory.SubCategory);
+            setSubcategories(selectedCategory.Subcategory);
         }
     }, [selectedCategory]);
 
@@ -121,7 +121,7 @@ const CategoryManagement: React.FC<Props> = () => {
                 break;
             case "editSubcat":
                 setPopupMessage("Enter new subcategory name:");
-                setPopupInputValue(selectedSubcategory?.subCategoryName || "");
+                setPopupInputValue(selectedSubcategory?.subcategoryName || "");
                 setPopupVisible(true);
                 break;
             case "deleteCat":
@@ -162,7 +162,7 @@ const CategoryManagement: React.FC<Props> = () => {
         if (e.currentTarget != selectedCategoryElement) {
             const subcategory = subcategories.filter(
                 (subcategory) =>
-                    subcategory.subCategoryName === e.currentTarget.id
+                    subcategory.subcategoryName === e.currentTarget.id
             )[0];
             if (selectedSubcategoryElement) {
                 selectedSubcategoryElement.classList.remove(
@@ -216,7 +216,7 @@ const CategoryManagement: React.FC<Props> = () => {
             }
             await axios.post(
                 `${process.env.REACT_APP_API_URL}/category/${selectedCategory.categoryName}/create-sub`,
-                { subCategoryName: popupInputValue },
+                { subcategoryName: popupInputValue },
                 {
                     headers: {
                         Authorization: `Bearer ${token}`, // Include the token in the Authorization header
@@ -278,7 +278,7 @@ const CategoryManagement: React.FC<Props> = () => {
             await axios.delete(
                 `${
                     process.env.REACT_APP_API_URL
-                }category/subcategory/delete/${selectedSubcategory.subCategoryName.replace(
+                }category/subcategory/delete/${selectedSubcategory.subcategoryName.replace(
                     " ",
                     "%20"
                 )}`,
@@ -347,7 +347,7 @@ const CategoryManagement: React.FC<Props> = () => {
             await axios.put(
                 `${process.env.REACT_APP_API_URL}/category/subcategory/update`,
                 {
-                    oldName: selectedSubcategory.subCategoryName,
+                    oldName: selectedSubcategory.subcategoryName,
                     newName: popupInputValue,
                 },
                 {
@@ -443,17 +443,17 @@ const CategoryManagement: React.FC<Props> = () => {
                             subcategories.map((subcategory) => (
                                 <div
                                     className="catMan-listItem"
-                                    key={subcategory.subCategoryName}
-                                    id={subcategory.subCategoryName}
+                                    key={subcategory.subcategoryName}
+                                    id={subcategory.subcategoryName}
                                     onClick={handleSubcategorySelect}
                                 >
                                     <span className="catMan-category-name">
-                                        {subcategory.subCategoryName}
+                                        {subcategory.subcategoryName}
                                     </span>
                                     <Link
                                         to={`/products/manage?category=${
                                             selectedCategory?.categoryName
-                                        }&sub_category=${subcategory.subCategoryName.replace(
+                                        }&sub_category=${subcategory.subcategoryName.replace(
                                             " ",
                                             "+"
                                         )}&sort=name-ascend&page=1&view=active&itemsPerPage=24&fcm=t`}
@@ -556,7 +556,7 @@ const CategoryManagement: React.FC<Props> = () => {
                                 disabled={
                                     !popupInputValue ||
                                     popupInputValue ===
-                                        selectedSubcategory.subCategoryName
+                                        selectedSubcategory.subcategoryName
                                 }
                                 onClick={handleEditSubcategory}
                             >

@@ -3,7 +3,7 @@ import { ApiResponse } from "../../../common/types/commonTypes";
 export interface AVCategory {
     categoryName: string;
     productCount: number;
-    SubCategory: { subCategoryName: string; productCount: number }[];
+    Subcategory: { subcategoryName: string; productCount: number }[];
 }
 
 export interface AVMenuDataState {

@@ -18,7 +18,7 @@ import { sqlProductPromotion } from "./sqlProductPromotionModel.js";
 import { sqlPromotion } from "./sqlPromotionModel.js";
 import { sqlCartItem } from "./sqlCartItemModel.js";
 import { sqlInventory } from "./sqlInventoryModel.js";
-import { sqlSubCategory } from "./sqlSubCategoryModel.js";
+import { sqlSubcategory } from "./sqlSubcategoryModel.js";
 import { sqlOrderItem } from "./sqlOrderItemModel.js";
 
 @Table({
@@ -66,16 +66,16 @@ export class sqlProduct extends Model {
 
     @BelongsTo(() => sqlCategory, { as: "Category", foreignKey: "category_id" })
     @Index
-    @ForeignKey(() => sqlSubCategory)
+    @ForeignKey(() => sqlSubcategory)
     @Column({
         type: DataType.BIGINT,
         allowNull: true,
     })
-    declare subCategory_id?: number;
+    declare subcategory_id?: number;
 
-    @BelongsTo(() => sqlSubCategory, {
-        as: "SubCategory",
-        foreignKey: "subCategory_id",
+    @BelongsTo(() => sqlSubcategory, {
+        as: "Subcategory",
+        foreignKey: "subcategory_id",
     })
     @Column({
         type: DataType.STRING,

@@ -16,7 +16,7 @@ export interface ProductItem extends Document {
     productNo: string;
     name: string;
     category: Schema.Types.ObjectId;
-    subCategory: Types.ObjectId;
+    subcategory: Types.ObjectId;
     description: string;
     attributes: Attributes;
     price: number;
@@ -156,9 +156,9 @@ const ProductSchema: Schema = new Schema(
             type: Schema.Types.ObjectId,
             ref: "Category",
         },
-        subCategory: {
+        subcategory: {
             type: Types.ObjectId,
-            ref: "Category.subCategories",
+            ref: "Category.subcategories",
         },
         tags: [
             {

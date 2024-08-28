@@ -57,7 +57,7 @@ export interface Product {
 export interface Filters {
     search: string | null;
     category: string | null;
-    subCategory: string | null;
+    subcategory: string | null;
     color: string[] | null;
     minPrice: string | null;
     maxPrice: string | null;

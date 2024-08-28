@@ -48,7 +48,7 @@ export interface Row {
     productNo: string;
     price: string;
     category: string;
-    subCategory: string | null;
+    subcategory: string | null;
     tags: string;
     lastModified: string;
     createdAt: string;
@@ -84,7 +84,7 @@ const AVProductCatalog: React.FC<AVCatProps> = ({
             productNo: product.productNo,
             price: `$${Number(product.price).toFixed(2)}`,
             category: product.category,
-            subCategory: product.subCategory,
+            subcategory: product.subcategory,
             tags: product.tags ? product.tags.join(",") : "",
             lastModified: product.lastModified,
             createdAt: product.createdAt,

@@ -31,7 +31,7 @@ const Shop = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const search = searchParams.get("search");
     const category = searchParams.get("category");
-    const subCategory = searchParams.get("sub_category");
+    const subcategory = searchParams.get("sub_category");
     const page = searchParams.get("page") || "1";
     const color = searchParams.get("color")?.split(",") || null;
     const minPrice = searchParams.get("min_price");
@@ -131,7 +131,7 @@ const Shop = () => {
         return {
             search,
             category,
-            subCategory,
+            subcategory,
             color,
             minPrice,
             maxPrice,
@@ -150,7 +150,7 @@ const Shop = () => {
     }, [
         search,
         category,
-        subCategory,
+        subcategory,
         color,
         minPrice,
         maxPrice,
@@ -193,7 +193,7 @@ const Shop = () => {
             const params = {
                 search,
                 category,
-                subCategory,
+                subcategory,
                 color,
                 minPrice,
                 maxPrice,
@@ -235,7 +235,7 @@ const Shop = () => {
     }, [
         search,
         category,
-        subCategory,
+        subcategory,
         page,
         color,
         minPrice,
@@ -276,22 +276,22 @@ const Shop = () => {
         updateSearchParams({ sort: newOrder });
     };
 
-    const removeSubCategory = (): void => {
+    const removeSubcategory = (): void => {
         searchParams.delete("sub_category");
         setSearchParams(searchParams);
     };
 
-    const addSubCategoryAndCategory = (
-        subCategory: string,
+    const addSubcategoryAndCategory = (
+        subcategory: string,
         category: string
     ): void => {
-        searchParams.set("sub_category", subCategory);
+        searchParams.set("sub_category", subcategory);
         searchParams.set("category", category);
         setSearchParams(searchParams);
     };
 
-    const addSubCategory = (subCategory: string): void => {
-        searchParams.set("sub_category", subCategory);
+    const addSubcategory = (subcategory: string): void => {
+        searchParams.set("sub_category", subcategory);
         setSearchParams(searchParams);
     };
 
@@ -304,8 +304,8 @@ const Shop = () => {
         <div className="shop-container" ref={shop}>
             <FilterOptions
                 updateSearchParams={updateSearchParams}
-                addSubCategory={addSubCategory}
-                addSubCategoryAndCategory={addSubCategoryAndCategory}
+                addSubcategory={addSubcategory}
+                addSubcategoryAndCategory={addSubcategoryAndCategory}
                 addCategory={addCategory}
                 handleFilterDrawerClose={handleFilterDrawerClose}
             />
@@ -320,20 +320,20 @@ const Shop = () => {
                             for "{search}"
                         </h1>
                     )}
-                    {!subCategory && !search && (
+                    {!subcategory && !search && (
                         <h1 className="shop-heading">
                             {category ? category : "Shop All"}
                         </h1>
                     )}
-                    {subCategory && !search && (
+                    {subcategory && !search && (
                         <h1 className="shop-heading">
                             <span
                                 className="back-to-category"
-                                onClick={removeSubCategory}
+                                onClick={removeSubcategory}
                             >
                                 {category}
                             </span>{" "}
-                            / {subCategory}
+                            / {subcategory}
                         </h1>
                     )}
                     <div className="sort-and-ipp">

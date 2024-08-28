@@ -9,7 +9,7 @@ import {
     HasMany,
 } from "sequelize-typescript";
 import { sqlProduct } from "./sqlProductModel.js";
-import { sqlSubCategory } from "./sqlSubCategoryModel.js";
+import { sqlSubcategory } from "./sqlSubcategoryModel.js";
 
 @Table({
     tableName: "Categories",
@@ -28,8 +28,8 @@ export class sqlCategory extends Model {
     })
     categoryName!: string;
 
-    @HasMany(() => sqlSubCategory, { as: "SubCategory" })
-    subCategory!: sqlSubCategory[];
+    @HasMany(() => sqlSubcategory, { as: "Subcategory" })
+    subcategory!: sqlSubcategory[];
 
     @HasMany(() => sqlProduct, { as: "Product" })
     products!: sqlProduct[];

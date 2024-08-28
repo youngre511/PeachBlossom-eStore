@@ -1,7 +1,7 @@
 import { Sequelize } from "sequelize-typescript";
 import config from "../../config/config.js";
 import { sqlCategory } from "./sqlCategoryModel.js";
-import { sqlSubCategory } from "./sqlSubCategoryModel.js";
+import { sqlSubcategory } from "./sqlSubcategoryModel.js";
 import { sqlProduct } from "./sqlProductModel.js";
 import { sqlCart } from "./sqlCartModel.js";
 import { sqlCartItem } from "./sqlCartItemModel.js";
@@ -37,7 +37,7 @@ const sequelize = new Sequelize({
         sqlProduct,
         sqlProductPromotion,
         sqlPromotion,
-        sqlSubCategory,
+        sqlSubcategory,
         sqlUser,
         sqlAddress,
         sqlAdmin,

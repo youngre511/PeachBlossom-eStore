@@ -53,20 +53,20 @@ const ShopNav: React.FC<Props> = ({
                                     >
                                         {category.categoryName}
                                     </Link>
-                                    {category.SubCategory.length > 0 && (
+                                    {category.Subcategory.length > 0 && (
                                         <ul className="shopnav-subcategory-list">
-                                            {category.SubCategory.map(
-                                                (subCategory, index) => (
+                                            {category.Subcategory.map(
+                                                (subcategory, index) => (
                                                     <li key={index}>
                                                         <Link
                                                             to={`/shop?category=${
                                                                 category.categoryName
                                                             }&sub_category=${encodeURI(
-                                                                subCategory.subCategoryName
+                                                                subcategory.subcategoryName
                                                             )}`}
                                                         >
                                                             {
-                                                                subCategory.subCategoryName
+                                                                subcategory.subcategoryName
                                                             }
                                                         </Link>
                                                     </li>

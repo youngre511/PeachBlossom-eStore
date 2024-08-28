@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import Category, {
     CategoryItem,
-    SubCategoryItem,
+    SubcategoryItem,
 } from "../models/mongo/categoryModel.js";
 import Product from "../models/mongo/productModel.js";
 
@@ -10,14 +10,14 @@ import { ClientSession } from "mongoose";
 import { ProductItem } from "../models/mongo/productModel.js";
 import { sqlCategory } from "../models/mysql/sqlCategoryModel.js";
 import { BooleString } from "../../types/api_resp.js";
-import { sqlSubCategory } from "../models/mysql/sqlSubCategoryModel.js";
+import { sqlSubcategory } from "../models/mysql/sqlSubcategoryModel.js";
 import sequelize from "../models/mysql/index.js";
 
 export const getAllCategories = async (): Promise<
     Array<{
         categoryName: string;
         productCount: number;
-        Subcategory: Array<{ subCategoryName: string; productCount: number }>;
+        Subcategory: Array<{ subcategoryName: string; productCount: number }>;
     }>
 > => {
     const categoriesAndCounts = await sqlCategory.findAll({
@@ -35,16 +35,16 @@ export const getAllCategories = async (): Promise<
         ],
         include: [
             {
-                model: sqlSubCategory,
-                as: "SubCategory",
+                model: sqlSubcategory,
+                as: "Subcategory",
                 attributes: [
-                    "subCategoryName",
+                    "subcategoryName",
                     [
                         sequelize.literal(`(
                         SELECT COUNT(*)
                         FROM Products AS Product
                         WHERE
-                          Product.subCategory_id = SubCategory.subCategory_id
+                          Product.subcategory_id = Subcategory.subcategory_id
                       )`),
                         "productCount",
                     ],
@@ -59,11 +59,11 @@ export const getAllCategories = async (): Promise<
 
     const parsedCategoriesAndCounts = categoriesAndCounts.map((category) => {
         const parsedCategory = category.get();
-        if (parsedCategory.SubCategory) {
-            const parsedSubCategories = parsedCategory.SubCategory.map(
-                (subCategory: any) => subCategory.get()
+        if (parsedCategory.Subcategory) {
+            const parsedSubcategories = parsedCategory.Subcategory.map(
+                (subcategory: any) => subcategory.get()
             );
-            parsedCategory.SubCategory = parsedSubCategories;
+            parsedCategory.Subcategory = parsedSubcategories;
         }
         return parsedCategory;
     });
@@ -129,9 +129,9 @@ export const createCategory = async (
 
 //create subcategory
 
-export const createSubCategory = async (
+export const createSubcategory = async (
     categoryName: string,
-    subCategoryName: string
+    subcategoryName: string
 ): Promise<BooleString> => {
     const session: ClientSession = await mongoose.startSession();
     session.startTransaction();
@@ -145,12 +145,12 @@ export const createSubCategory = async (
         }
 
         // construct subcategory in required format
-        const subCategory: SubCategoryItem = {
+        const subcategory: SubcategoryItem = {
             _id: new mongoose.Types.ObjectId(),
-            name: subCategoryName,
+            name: subcategoryName,
         };
 
-        categoryDoc.subCategories.push(subCategory);
+        categoryDoc.subcategories.push(subcategory);
 
         await categoryDoc.save({ session });
 
@@ -162,8 +162,8 @@ export const createSubCategory = async (
             throw new Error("category does not exist");
         }
 
-        await sqlSubCategory.create({
-            subCategoryName: subCategoryName,
+        await sqlSubcategory.create({
+            subcategoryName: subcategoryName,
             category_id: sqlCatRec.dataValues.category_id,
         });
 
@@ -261,24 +261,24 @@ export const updateSubcategoryName = async (
 
     try {
         await Category.findOneAndUpdate(
-            { "subCategories.name": oldName },
-            { $set: { "subCategories.$[elem].name": newName } },
+            { "subcategories.name": oldName },
+            { $set: { "subcategories.$[elem].name": newName } },
             { arrayFilters: [{ "elem.name": oldName }], session }
         );
 
         //SQL Update Function
-        const foundSqlSubcat = await sqlSubCategory.findOne({
-            where: { subCategoryName: oldName },
+        const foundSqlSubcat = await sqlSubcategory.findOne({
+            where: { subcategoryName: oldName },
             transaction: sqlTransaction,
         });
 
         if (!foundSqlSubcat) {
             throw new Error("Old subcategory name not found in sql database");
         }
-        await sqlSubCategory.update(
-            { subCategoryName: newName },
+        await sqlSubcategory.update(
+            { subcategoryName: newName },
             {
-                where: { subCategoryName: oldName },
+                where: { subcategoryName: oldName },
                 transaction: sqlTransaction,
             }
         );
@@ -346,7 +346,7 @@ export const deleteCategory = async (
             throw new Error("Category not found");
         }
 
-        await sqlSubCategory.destroy({
+        await sqlSubcategory.destroy({
             where: { category_id: foundSqlCat.dataValues.category_id },
         });
 
@@ -378,25 +378,25 @@ export const deleteSubcategory = async (
 ): Promise<{ success: boolean }> => {
     const targetCategory: CategoryItem | null = await Category.findOne(
         {
-            subCategories: { $elemMatch: { name: subcategoryName } },
+            subcategories: { $elemMatch: { name: subcategoryName } },
         },
         {
             // return only matched subcategory
-            "subCategories.$": 1,
+            "subcategories.$": 1,
         }
     ).exec();
     if (
         !targetCategory ||
-        !targetCategory.subCategories ||
-        targetCategory.subCategories.length === 0
+        !targetCategory.subcategories ||
+        targetCategory.subcategories.length === 0
     ) {
         throw new Error("Category not found");
     }
 
     console.log("targetCategory:", targetCategory);
-    const subCategoryId = targetCategory.subCategories[0]._id.toString();
+    const subcategoryId = targetCategory.subcategories[0]._id.toString();
 
-    console.log(subCategoryId);
+    console.log(subcategoryId);
 
     const session: ClientSession = await mongoose.startSession();
     const sqlTransaction = await sequelize.transaction();
@@ -405,22 +405,22 @@ export const deleteSubcategory = async (
         session.startTransaction();
 
         await Product.updateMany(
-            { subCategory: subCategoryId },
-            { $pull: { subCategory: subCategoryId } },
+            { subcategory: subcategoryId },
+            { $pull: { subcategory: subcategoryId } },
             { session }
         );
         // Delete from Mongo
         console.log("Deleting from mongo");
         const result = await Category.updateOne(
             { _id: targetCategory._id },
-            { $pull: { subCategories: { name: subcategoryName } } },
+            { $pull: { subcategories: { name: subcategoryName } } },
             { session }
         );
 
         // Delete from SQL
 
-        await sqlSubCategory.destroy({
-            where: { subCategoryName: subcategoryName },
+        await sqlSubcategory.destroy({
+            where: { subcategoryName: subcategoryName },
             transaction: sqlTransaction,
         });
 

@@ -17,7 +17,7 @@ const initialState: AVCatalogState = {
     filters: {
         search: null,
         category: null,
-        subCategory: null,
+        subcategory: null,
         tags: null,
         sort: "name-ascend",
         page: "1",

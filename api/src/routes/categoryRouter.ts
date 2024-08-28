@@ -4,7 +4,7 @@ import {
     getAllCategories,
     getCategoryByName,
     createCategory,
-    createSubCategory,
+    createSubcategory,
     updateCategoryName,
     updateSubcategoryName,
     deleteCategory,
@@ -56,7 +56,7 @@ categoryRouter.post(
     "/:categoryName/create-sub",
     authMiddleware,
     authorizeRoles(["admin"], ["full", "limited"]),
-    createSubCategory
+    createSubcategory
 );
 
 export default categoryRouter;

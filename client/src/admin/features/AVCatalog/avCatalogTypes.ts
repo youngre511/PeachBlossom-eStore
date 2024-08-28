@@ -37,7 +37,7 @@ export interface AVProduct {
     productNo: string;
     price: number;
     category: string;
-    subCategory: string;
+    subcategory: string;
     lastModified: string;
     createdAt: string;
     description: string;
@@ -73,7 +73,7 @@ export interface AVFullProduct {
 export interface AVFilters {
     search: string | null;
     category: string | null;
-    subCategory: string | null;
+    subcategory: string | null;
     tags: string[] | null;
     sort: string;
     page: string;

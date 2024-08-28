@@ -52,7 +52,7 @@ export const headCells: readonly HeadCell[] = [
         mobile: false,
     },
     {
-        id: "subCategory",
+        id: "subcategory",
         disablePadding: false,
         label: "SUBCATEGORY",
         sortable: false,

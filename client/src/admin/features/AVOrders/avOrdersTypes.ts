@@ -38,7 +38,7 @@ export interface IAVOrderItem {
         price: number;
         description: string;
         category_id: number;
-        subCategory_id?: number;
+        subcategory_id?: number;
         thumbnailUrl?: string;
         createdAt: Date;
         updatedAt: Date;

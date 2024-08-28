@@ -16,7 +16,7 @@ const initialState: CatalogState = {
     filters: {
         search: null,
         category: null,
-        subCategory: null,
+        subcategory: null,
         color: null,
         minPrice: null,
         maxPrice: null,
