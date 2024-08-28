@@ -37,8 +37,10 @@ export const createUser = async (req: CreateAccountRequest, res: Response) => {
         // Store refresh token in http-only cookie
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production", //Only use secure in production mode, not local dev mode
+            secure: true, //Only use secure in production mode, not local dev mode
             sameSite: "none",
+            path: "/",
+            domain: ".pb.ryanyoung.codes",
             maxAge: 7 * 24 * 60 * 60 * 1000, //7 days
         });
         res.status(201).json({ accessToken });
@@ -71,12 +73,6 @@ export const login = async (req: LoginRequest, res: Response) => {
             maxAge: 7 * 24 * 60 * 60 * 1000, //7 days
         });
 
-        // res.cookie("test", "value", {
-        //     path: "/",
-        //     domain: "localhost", // Or specify '.localhost' to cover all subdomains
-        //     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-        // });
-
         res.json({ accessToken });
     } catch (error) {
         if (error instanceof Error) {
@@ -107,8 +103,10 @@ export const refreshAccessToken = async (req: Request, res: Response) => {
 
         res.cookie("refreshToken", newRefreshToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production", //Only use secure in production mode, not local dev mode
+            secure: true, //Only use secure in production mode, not local dev mode
             sameSite: "none",
+            path: "/",
+            domain: ".pb.ryanyoung.codes",
             maxAge: 7 * 24 * 60 * 60 * 1000, //7 days
         });
         res.json({ newAccessToken });
@@ -135,8 +133,10 @@ export const revokeRefreshToken = async (req: Request, res: Response) => {
 
         res.cookie("refreshToken", "", {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production", //Only use secure in production mode, not local dev mode
+            secure: true, //Only use secure in production mode, not local dev mode
             sameSite: "none",
+            path: "/",
+            domain: ".pb.ryanyoung.codes",
             maxAge: 7 * 24 * 60 * 60 * 1000, //7 days
         });
         res.json({ success: true });
