@@ -4,7 +4,7 @@
 
 -   Minimal Front-End
     -   Browsable Catalog [COMPLETE]
-    -   Product Detail Pages
+    -   Product Detail Pages [COMPLETE]
     -   Search [COMPLETE]
     -   Filtering [COMPLETE]
     -   Customer Service Links
@@ -12,17 +12,24 @@
     -   Checkout [COMPLETE]
     -   Order Status [COMPLETE]
     -   Order Confirmation [COMPLETE]
--   Basic Back-End
+-   Minimal Back-End
     -   Databases
         -   SQL
             -   Orders [COMPLETE]
+            -   OrderItems [COMPLETE]
             -   Basic Product Info [COMPLETE]
-            -
-            -   Inventory
+            -   Carts [COMPLETE]
+            -   CartItems [COMPLETE]
+            -   Categories [COMPLETE]
+            -   Subcategories [COMPLETE]
+            -   Products [COMPLETE]
+            -   Promotions [COMPLETE]
+            -   ShippingAddresses [COMPLETE]
+            -   Inventory [COMPLETE]
         -   MongoDB
             -   Products [COMPLETE]
             -   Categories [COMPLETE]
-    -   CRUD Functionality for all of the above
+    -   CRUD Functionality for all of the above [COMPLETE]
     -   Infrastructure in place for promotions [COMPLETE]
 
 ### Phase 2: Basic Admin UI
@@ -34,13 +41,14 @@
     -   Discontinue Products [COMPLETE]
     -   Delete Products (Back-End Only for Data Integrity) [COMPLETE]
 -   Categories
-    -   Manage Categories and SubCategories [COMPLETE]
+    -   Manage Categories and Subcategories [COMPLETE]
 -   Inventory Management [COMPLETE]
 -   Order Management [COMPLETE]
 -   Dashboard
     -   Basic Sales Trends
 -   Admin User Accounts [COMPLETE]
 -   Admin User Management [COMPLETE]
+-   Admin Login/Logout [COMPLETE]
 
 ### Phase 3: Customer Accounts
 
