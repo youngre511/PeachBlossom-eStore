@@ -239,10 +239,23 @@ const AVProductDetails: React.FC = () => {
     const authContext = useContext(AuthContext);
     const accessLevel = authContext?.user?.accessLevel;
     const { previousRoute } = usePreviousRoute();
+    const [previous, setPrevious] = useState<string>("/products/manage");
+    const [lockedPrevious, setLockedPrevious] = useState<boolean>(false);
 
     useEffect(() => {
         console.log("imageUrls:", imageUrls + ", images:", images);
     }, [imageUrls, images]);
+
+    useEffect(() => {
+        if (previousRoute && !lockedPrevious) {
+            if (previousRoute.includes("product-details")) {
+                setPrevious("/products/manage");
+            } else {
+                setPrevious(previousRoute);
+            }
+            setLockedPrevious(true);
+        }
+    }, [previousRoute, lockedPrevious]);
 
     useEffect(() => {
         if (mustFetchData) {
@@ -385,18 +398,22 @@ const AVProductDetails: React.FC = () => {
                 formData.append("description", description);
             }
             console.log("saving2");
+
             if (images) {
                 images.forEach((image, index) => {
                     let newFileName = `${productName
                         .replace(/\s+/g, "_")
-                        .toLowerCase()}_${index + 1}`;
+                        .toLowerCase()}`;
                     let i = 1;
+                    newFileName = `${newFileName}_${i}`;
                     while (
                         currentDetails.images.includes(
-                            `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${newFileName}`
+                            `https://${process.env.REACT_APP_S3_BUCKET_NAME}.s3.${process.env.REACT_APP_AWS_REGION}.amazonaws.com/${newFileName}`
                         )
                     ) {
-                        newFileName = `${newFileName}a${i}`;
+                        newFileName = newFileName.replace(`_${i}`, `_${i + 1}`);
+                        console.log(newFileName);
+                        i++;
                     }
                     formData.append("images", image.file as File, newFileName);
                 });
@@ -884,9 +901,7 @@ const AVProductDetails: React.FC = () => {
                                 md: "auto",
                             },
                         }}
-                        onClick={() =>
-                            navigate(previousRoute || "/products/manage")
-                        }
+                        onClick={() => navigate(previous || "/products/manage")}
                     >
                         &lt; Back to product management
                     </Button>

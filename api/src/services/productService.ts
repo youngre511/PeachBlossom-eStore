@@ -1,4 +1,6 @@
 import Product, { ProductItem } from "../models/mongo/productModel.js";
+import sharp from "sharp";
+import { fileTypeFromBuffer } from "file-type";
 import Category, {
     CategoryItem,
     SubcategoryItem,
@@ -624,15 +626,60 @@ export const createProduct = async (
         const productNo = await generateProductNo(prefix);
 
         // Upload images to S3 and get URLs
+        const sizes = [140, 300, 450, 600, 960, 1024];
         const imageUrls = await Promise.all(
             images.map(async (image) => {
                 const { fileContent, fileName, mimeType } = image;
-                const uploadResult = await uploadFile(
-                    fileContent,
-                    fileName,
-                    mimeType
-                );
-                return uploadResult; // URL of the uploaded image
+                const fileType = await fileTypeFromBuffer(fileContent);
+                let extension: string;
+                let fileMimeType: string = mimeType;
+                if (fileType) {
+                    const { ext, mime } = fileType;
+                    extension = `.${ext}`;
+                    fileMimeType = mime;
+                } else {
+                    extension = "";
+                }
+                try {
+                    for (const size of sizes) {
+                        let processedImageBuffer;
+                        const metadata = await sharp(fileContent).metadata();
+                        if (
+                            fileMimeType !== "image/webp" &&
+                            metadata.width !== size
+                        ) {
+                            processedImageBuffer = await sharp(fileContent)
+                                .resize({ width: size })
+                                .toFormat("webp")
+                                .toBuffer();
+                        } else if (
+                            fileMimeType !== "image/webp" &&
+                            metadata.width === size
+                        ) {
+                            processedImageBuffer = await sharp(fileContent)
+                                .toFormat("webp")
+                                .toBuffer();
+                        } else if (
+                            fileMimeType === "image/webp" &&
+                            metadata.width !== size
+                        ) {
+                            processedImageBuffer = await sharp(fileContent)
+                                .resize({ width: size })
+                                .toBuffer();
+                        } else {
+                            processedImageBuffer = fileContent;
+                        }
+                        const specificFileName = `${fileName}_${size}${extension}`;
+                        await uploadFile(
+                            processedImageBuffer,
+                            specificFileName,
+                            "image/webp"
+                        );
+                    }
+                    return `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileName}`; // Base URL of the uploaded image
+                } catch (error) {
+                    console.error(`Error processing image: ${error}`);
+                }
             })
         );
 
@@ -829,15 +876,63 @@ export const updateProductDetails = async (
         let newImageUrls: string[] | null = null;
 
         if (images.length > 0) {
+            const sizes = [140, 300, 450, 600, 960, 1024];
             newImageUrls = await Promise.all(
                 images.map(async (image) => {
                     const { fileContent, fileName, mimeType } = image;
-                    const uploadResult = await uploadFile(
-                        fileContent,
-                        fileName,
-                        mimeType
-                    );
-                    return uploadResult; // URL of the uploaded image
+                    const fileType = await fileTypeFromBuffer(fileContent);
+                    let extension: string;
+                    let fileMimeType: string = mimeType;
+                    if (fileType) {
+                        const { ext, mime } = fileType;
+                        extension = `.${ext}`;
+                        fileMimeType = mime;
+                    } else {
+                        extension = "";
+                    }
+                    try {
+                        for (const size of sizes) {
+                            let processedImageBuffer;
+                            const metadata = await sharp(
+                                fileContent
+                            ).metadata();
+                            if (
+                                fileMimeType !== "image/webp" &&
+                                metadata.width !== size
+                            ) {
+                                processedImageBuffer = await sharp(fileContent)
+                                    .resize({ width: size })
+                                    .toFormat("webp")
+                                    .toBuffer();
+                            } else if (
+                                fileMimeType !== "image/webp" &&
+                                metadata.width === size
+                            ) {
+                                processedImageBuffer = await sharp(fileContent)
+                                    .toFormat("webp")
+                                    .toBuffer();
+                            } else if (
+                                fileMimeType === "image/webp" &&
+                                metadata.width !== size
+                            ) {
+                                processedImageBuffer = await sharp(fileContent)
+                                    .resize({ width: size })
+                                    .toBuffer();
+                            } else {
+                                processedImageBuffer = fileContent;
+                            }
+                            const specificFileName = `${fileName}_${size}${extension}`;
+                            await uploadFile(
+                                processedImageBuffer,
+                                specificFileName,
+                                "image/webp"
+                            );
+                        }
+                        return `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileName}`; // Base URL of the uploaded image
+                    } catch (error) {
+                        console.error(`Error processing image: ${error}`);
+                        return "";
+                    }
                 })
             );
         }

@@ -2,24 +2,19 @@ import {
     S3Client,
     PutObjectCommand,
     DeleteObjectCommand,
+    ListObjectsV2Command,
+    GetObjectCommand,
 } from "@aws-sdk/client-s3";
+import sharp from "sharp";
+import { fileTypeFromBuffer } from "file-type";
 import dotenv from "dotenv";
 dotenv.config();
 
-if (
-    // !process.env.AWS_ACCESS_KEY_ID ||
-    // !process.env.AWS_SECRET_ACCESS_KEY ||
-    !process.env.AWS_REGION ||
-    !process.env.S3_BUCKET_NAME
-) {
+if (!process.env.AWS_REGION || !process.env.S3_BUCKET_NAME) {
     throw new Error("Missing AWS environment variables");
 }
 
 const s3 = new S3Client({
-    // credentials: {
-    //     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    //     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-    // },
     region: process.env.AWS_REGION,
 });
 
@@ -47,16 +42,19 @@ export const uploadFile = async (
 };
 
 export const deleteFile = async (fileName: string): Promise<void> => {
-    const params = {
-        Bucket: process.env.S3_BUCKET_NAME as string,
-        Key: fileName,
-    };
-    const command = new DeleteObjectCommand(params);
-    try {
-        const response = await s3.send(command);
-        console.log("Delete response:", response);
-    } catch (error) {
-        console.error("Error deleting file:", error);
-        throw error;
+    const sizes = [140, 300, 450, 600, 960, 1024];
+    for (const size of sizes) {
+        const params = {
+            Bucket: process.env.S3_BUCKET_NAME as string,
+            Key: `${fileName}_${size}.webp`,
+        };
+        const command = new DeleteObjectCommand(params);
+        try {
+            const response = await s3.send(command);
+            console.log("Delete response:", response);
+        } catch (error) {
+            console.error("Error deleting file:", error);
+            throw error;
+        }
     }
 };
