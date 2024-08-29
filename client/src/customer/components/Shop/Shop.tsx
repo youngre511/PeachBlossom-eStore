@@ -56,6 +56,7 @@ const Shop = () => {
         backgroundColor: "var(--deep-peach)",
         color: "white",
     };
+    const [isInitialLoad, setIsInitialLoad] = useState<boolean>(true);
 
     useEffect(
         // Set up drawer animation
@@ -223,8 +224,11 @@ const Shop = () => {
                 existingFilters
             );
 
-            if (filtersChanged) {
-                console.log("params:", params);
+            // isInitialLoad ensures that fetchProducts runs on page load, when data has not been retrieved but slice may be storing identical filter data from previous loads.
+            if (filtersChanged || isInitialLoad) {
+                if (isInitialLoad) {
+                    setIsInitialLoad(false);
+                }
                 dispatch(fetchProducts(params as Filters));
             }
         }

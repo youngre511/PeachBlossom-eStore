@@ -603,6 +603,70 @@ const FilterOptions: React.FC<Props> = ({
                     </div>
                     <FormControl>
                         <div className="filters">
+                            {!existingFilters.subcategory && (
+                                <div className="filter-section">
+                                    <h2 className="filter-type">
+                                        {existingFilters.category
+                                            ? "Subcategory"
+                                            : "Category"}
+                                    </h2>
+
+                                    {existingFilters.category ? (
+                                        <div className="filter-subcategory-cont">
+                                            {categories
+                                                .filter(
+                                                    (category) =>
+                                                        category.categoryName ===
+                                                        existingFilters.category
+                                                )[0]
+                                                .Subcategory.map(
+                                                    (subcategory, index) => (
+                                                        <div
+                                                            className="filter-subcategory"
+                                                            key={index}
+                                                            onClick={() =>
+                                                                addSubcategory(
+                                                                    subcategory.subcategoryName
+                                                                )
+                                                            }
+                                                            role="button"
+                                                        >
+                                                            {
+                                                                subcategory.subcategoryName
+                                                            }
+                                                        </div>
+                                                    )
+                                                )}
+                                        </div>
+                                    ) : (
+                                        <div className="category-filters">
+                                            {categories &&
+                                                categories.map(
+                                                    (category, index) => (
+                                                        <div
+                                                            className="filter-category-cont"
+                                                            key={index}
+                                                        >
+                                                            <div
+                                                                className="filter-category"
+                                                                onClick={() =>
+                                                                    addCategory(
+                                                                        category.categoryName
+                                                                    )
+                                                                }
+                                                                role="button"
+                                                            >
+                                                                {
+                                                                    category.categoryName
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                    )
+                                                )}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                             <div className="filter-section">
                                 <h2 className="filter-type">Color</h2>
                                 <div className="color-filters">

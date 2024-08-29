@@ -53,27 +53,28 @@ const ShopNav: React.FC<Props> = ({
                                     >
                                         {category.categoryName}
                                     </Link>
-                                    {category.Subcategory.length > 0 && (
-                                        <ul className="shopnav-subcategory-list">
-                                            {category.Subcategory.map(
-                                                (subcategory, index) => (
-                                                    <li key={index}>
-                                                        <Link
-                                                            to={`/shop?category=${
-                                                                category.categoryName
-                                                            }&sub_category=${encodeURI(
-                                                                subcategory.subcategoryName
-                                                            )}`}
-                                                        >
-                                                            {
-                                                                subcategory.subcategoryName
-                                                            }
-                                                        </Link>
-                                                    </li>
-                                                )
-                                            )}
-                                        </ul>
-                                    )}
+                                    {category.Subcategory &&
+                                        category.Subcategory.length > 0 && (
+                                            <ul className="shopnav-subcategory-list">
+                                                {category.Subcategory.map(
+                                                    (subcategory, index) => (
+                                                        <li key={index}>
+                                                            <Link
+                                                                to={`/shop?category=${
+                                                                    category.categoryName
+                                                                }&sub_category=${encodeURI(
+                                                                    subcategory.subcategoryName
+                                                                )}`}
+                                                            >
+                                                                {
+                                                                    subcategory.subcategoryName
+                                                                }
+                                                            </Link>
+                                                        </li>
+                                                    )
+                                                )}
+                                            </ul>
+                                        )}
                                 </li>
                             );
                         })}
