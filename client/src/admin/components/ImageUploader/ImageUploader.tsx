@@ -167,9 +167,12 @@ const ImageUploader: React.FC<Props> = ({
                                     imageUrls.length === 1 && (
                                         <div>
                                             <img
-                                                src={imageUrls[0]}
+                                                src={`${imageUrls[0]}_960.webp`}
+                                                srcSet={`${imageUrls[0]}_300.webp 1x, ${imageUrls[0]}_600.webp 2x, ${imageUrls[0]}_960.webp 3x`}
                                                 className="thumbnail"
                                                 alt="product thumbnail"
+                                                width="300px"
+                                                height="300px"
                                             />
                                             {editMode && (
                                                 <div className="delete-button-container">
@@ -208,12 +211,15 @@ const ImageUploader: React.FC<Props> = ({
                                             imageUrls.map((imageUrl, index) => (
                                                 <div key={imageUrl}>
                                                     <img
-                                                        src={imageUrl}
+                                                        src={`${imageUrl}_960.webp`}
+                                                        srcSet={`${imageUrl}_300.webp 1x, ${imageUrl}_600.webp 2x, ${imageUrl}_960.webp 3x`}
                                                         className="thumbnail"
                                                         id={`existing-${index}`}
                                                         alt={`product thumbnail ${
                                                             index + 1
                                                         }`}
+                                                        width="300px"
+                                                        height="300px"
                                                     />
                                                     {editMode && (
                                                         <div className="delete-button-container imageUrl">

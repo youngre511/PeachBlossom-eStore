@@ -23,12 +23,6 @@
     display: none;
 }
 
-/* .product-details-thumbnail {
-    min-width: 300px;
-    height: 300px;
-    padding-right: 10px;
-} */
-
 .product-info {
     display: flex;
     flex-direction: column;
@@ -173,7 +167,7 @@
 
     .product-details-image {
         width: 100%;
-        aspect-ratio: 1;
+        height: auto;
     }
 
     .product-details-thumbnail {
@@ -213,7 +207,7 @@
 
     .product-details-image {
         width: 100%;
-        aspect-ratio: 1;
+        height: auto;
     }
 
     .product-details-thumbnail {

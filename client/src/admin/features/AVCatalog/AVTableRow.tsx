@@ -74,7 +74,7 @@ const AVTableRow: React.FC<Props> = ({
                     padding={width && width >= 800 ? "none" : undefined}
                 >
                     <img
-                        src={row.thumbnailUrl}
+                        src={`${row.thumbnailUrl}_140.webp`}
                         alt={row.name}
                         className={
                             row.status === "discontinued"

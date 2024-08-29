@@ -315,8 +315,8 @@ const MobileNav: React.FC<Props> = () => {
                             src={pbtext3x}
                             srcSet={`${pbtext1x} 1x, ${pbtext2x} 2x, ${pbtext3x} 3x`}
                             alt="peach blossom logo"
-                            width="158px"
-                            height="auto"
+                            width="150px"
+                            height="39.398px"
                         />
                     </div>
                 </div>

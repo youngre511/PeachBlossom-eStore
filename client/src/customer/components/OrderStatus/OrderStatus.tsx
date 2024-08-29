@@ -272,9 +272,11 @@ const OrderStatus: React.FC<Props> = ({ orderNumber }) => {
                                 >
                                     <TableCell>
                                         <img
-                                            src={item.Product.thumbnailUrl}
+                                            src={`${item.Product.thumbnailUrl}_140.webp`}
                                             alt={item.Product.productName}
                                             className="order-status-thumbnail"
+                                            width="40px"
+                                            height="40px"
                                         />
                                     </TableCell>
                                     <TableCell>{item.productNo}</TableCell>

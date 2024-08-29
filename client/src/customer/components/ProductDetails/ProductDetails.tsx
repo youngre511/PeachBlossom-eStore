@@ -131,7 +131,14 @@ const ProductDetails: React.FC<Props> = () => {
                                 >
                                     {product.images.map((imageUrl, index) => (
                                         <img
-                                            src={imageUrl}
+                                            src={`${imageUrl}_1024.webp`}
+                                            srcSet={`${imageUrl}_300.webp 300w, ${imageUrl}_600.webp 300w 2x, ${imageUrl}_960.webp 300w 3x, ${imageUrl}_450.webp 450w, ${imageUrl}_1024.webp 960w 2x, ${imageUrl}_1024.webp 1024w 3x, ${imageUrl}_140.webp 140w, ${imageUrl}_300.webp 140w 2x, ${imageUrl}_450.webp 140w 3x,`}
+                                            sizes="
+                                                (min-width: 1342px) 1024px,
+                                                (min-width: 1025px) 140px,
+                                                (min-width: 751) 450px,
+                                                300px
+                                            "
                                             className="product-details-thumbnail"
                                             alt={`${product.name} thumbnail ${
                                                 index + 1
@@ -146,9 +153,16 @@ const ProductDetails: React.FC<Props> = () => {
                             )}
                             <div className="product-details-image-cont">
                                 <img
-                                    src={currentImage}
+                                    src={`${currentImage}_1024.webp`}
+                                    srcSet={`${currentImage}_450.webp 450w, ${currentImage}_960.webp 450w 2x, ${currentImage}_1024.webp 450w 3x,${currentImage}_960.webp 640w, ${currentImage}_1024.webp 640w 2x, ${currentImage}_1024.webp 640w 3x`}
+                                    sizes="
+                                        (min-width: 1342px) 640px,
+                                        450px
+                                    "
                                     className="product-details-image"
                                     alt={`${product.name} thumbnail`}
+                                    width="450x"
+                                    height="450px"
                                 />
                             </div>
                         </div>

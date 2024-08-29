@@ -48,10 +48,17 @@ const CartItem: React.FC<Props> = ({ item }: Props) => {
         <div className="cart-item">
             <div className="thumbnail-remove">
                 <img
-                    src={item.thumbnailUrl}
+                    src={`${item.thumbnailUrl}_300.webp`}
+                    srcSet={
+                        cartView
+                            ? `${item.thumbnailUrl}_140.webp, ${item.thumbnailUrl}_140.webp 2x, ${item.thumbnailUrl}_300.webp 3x`
+                            : `${item.thumbnailUrl}_140.webp, ${item.thumbnailUrl}_140.webp 2x, ${item.thumbnailUrl}_140.webp 3x`
+                    }
                     alt={item.name}
                     className="cart-thumbnail"
                     onClick={() => navigate(item.productUrl)}
+                    height={cartView ? "70px" : "40px"}
+                    width={cartView ? "70px" : "40px"}
                 />
                 {cartView && (
                     <div
