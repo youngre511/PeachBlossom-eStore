@@ -7,8 +7,6 @@ applications:
           commands:
             - nvm use 20
             - npm ci
-            - echo "Before build:"
-            - ls -lh static/media/peachblossomlogo-2x*.webp
         build:
           commands:
             - npm run build
