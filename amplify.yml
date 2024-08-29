@@ -11,7 +11,7 @@ applications:
           commands:
             - npm run build
             - echo "After build:"
-            - ls -lh static/media/peachblossomlogo-2x*.webp
+            - ls -lh static/media
       artifacts:
         baseDirectory: build
         files:
