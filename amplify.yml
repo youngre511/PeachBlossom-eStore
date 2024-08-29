@@ -11,7 +11,7 @@ applications:
           commands:
             - npm run build
             - echo "After build:"
-            - ls -lh static/media
+            - ls -lh build/static/media
       artifacts:
         baseDirectory: build
         files:
