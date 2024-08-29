@@ -1,13 +1,15 @@
-customHeaders:
-        - pattern: '**/site.webmanifest'
-          headers:
-            - key: 'Content-Type'
-              value: 'application/manifest+json'
-            - key: 'Cache-Control'
-              value: 'no-cache, no-store, must-revalidate'
-        - pattern: '**/*.webp'
-          headers:
-           - key: 'Content-Type'
-             value: 'image/webp'
-           - key: 'Cache-Control'
-             value: 'public, max-age=31536000'
+applications:
+  - appRoot: client
+    customHeaders:
+      - pattern: '**/site.webmanifest'
+        headers:
+          - key: 'Content-Type'
+            value: 'application/manifest+json'
+          - key: 'Cache-Control'
+            value: 'no-cache, no-store, must-revalidate'
+      - pattern: '**/*.webp'
+        headers:
+          - key: 'Content-Type'
+            value: 'image/webp'
+          - key: 'Cache-Control'
+            value: 'public, max-age=31536000'
