@@ -63,7 +63,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     // Request new access token
     const requestAccessTokenRefresh = useCallback(async () => {
-        if (location.pathname.startsWith("admin")) {
+        if (window.location.hostname.startsWith("admin")) {
             if (location.pathname === "/login" || loggingOut) {
                 return;
             }
@@ -73,6 +73,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 const accessToken = localStorage.getItem("jwtToken");
                 let proceed: boolean = false;
                 if (!accessToken) {
+                    console.log("no access token");
                     if (!madeInitialCheck) {
                         proceed = true;
                         setMadeInitialCheck(true);
@@ -92,8 +93,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                         }
                     }
                 }
-
                 if (proceed && !isRefreshing) {
+                    console.log("proceeding");
                     setIsRefreshing(true);
                     const response = await axios.post(
                         `${process.env.REACT_APP_API_URL}/auth/refresh-access-token`,
@@ -136,6 +137,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                     console.error("An unknown error occurred");
                 }
                 if (isTokenExpired()) {
+                    console.log("running");
                     setUser(undefined);
                     localStorage.removeItem("jwtToken");
                     localStorage.removeItem("jwtExpiration");
