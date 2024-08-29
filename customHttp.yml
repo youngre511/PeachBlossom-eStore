@@ -11,5 +11,7 @@ applications:
         headers:
           - key: 'Content-Type'
             value: 'image/webp'
+          - key: "Content-Encoding"
+            value: "identity" 
           - key: 'Cache-Control'
             value: 'public, max-age=31536000'
