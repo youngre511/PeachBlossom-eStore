@@ -27,16 +27,20 @@ const Item: React.FC<Product> = ({
     // discountPrice = 20.99;
     return (
         <div className="item" id={productNo}>
-            <img
-                src={`${images[0]}_960.webp`}
-                srcSet={`${images[0]}_300.webp 150w, ${images[0]}_300.webp 300w, ${images[0]}_300.webp 150w 2x, ${images[0]}_600.webp 300w 2x, ${images[0]}_450.webp 150w 3x, ${images[0]}_960.webp 300w 3x`}
-                sizes="(min-width: 550px) 300px, 150px"
-                alt={name}
-                onClick={handleProductClick}
-                width={width && width >= 550 ? "300" : "150"}
-                height={width && width >= 550 ? "300" : "150"}
-                loading="lazy"
-            />
+            {width && (
+                <img
+                    src={`${images[0]}_960.webp`}
+                    srcSet={`${images[0]}_300.webp, ${images[0]}${
+                        width >= 550 ? 600 : 300
+                    }.webp 2x, ${images[0]}_${
+                        width >= 550 ? 960 : 450
+                    }.webp 3x`}
+                    alt={name}
+                    onClick={handleProductClick}
+                    width={width && width >= 550 ? "300" : "150"}
+                    height={width && width >= 550 ? "300" : "150"}
+                />
+            )}
             <div className="cat-prod-info">
                 <h2 className="cat-prod-name" onClick={handleProductClick}>
                     {name}
