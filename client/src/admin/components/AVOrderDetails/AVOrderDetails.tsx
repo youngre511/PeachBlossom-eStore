@@ -443,7 +443,7 @@ const AVOrderDetails: React.FC = () => {
             console.log("updateInfo:", updateInfo);
             try {
                 const response = await axios.put(
-                    `${process.env.REACT_APP_API_URL}/order/update`,
+                    `${import.meta.env.VITE_API_URL}/order/update`,
                     updateInfo,
                     {
                         headers: {

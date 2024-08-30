@@ -82,7 +82,7 @@ export const avFetchProducts = createAsyncThunk<
         const params = { ...filters };
         try {
             const response = await axios.get(
-                `${process.env.REACT_APP_API_URL}/product/admin`,
+                `${import.meta.env.VITE_API_URL}/product/admin`,
                 {
                     params: params,
                     headers: {
@@ -119,7 +119,7 @@ export const updateInventory = createAsyncThunk<
         const token = localStorage.getItem("jwtToken"); // Get the token from local storage
         try {
             const response = await axios.put(
-                `${process.env.REACT_APP_API_URL}/inventory/updateStockLevels`,
+                `${import.meta.env.VITE_API_URL}/inventory/updateStockLevels`,
                 {
                     updateData: updateData,
                     filters: filters,
@@ -157,7 +157,7 @@ export const updateProductStatus = createAsyncThunk<
         const token = localStorage.getItem("jwtToken"); // Get the token from local storage
         try {
             const response = await axios.put(
-                `${process.env.REACT_APP_API_URL}/product/update-status`,
+                `${import.meta.env.VITE_API_URL}/product/update-status`,
                 updateData,
                 {
                     headers: {

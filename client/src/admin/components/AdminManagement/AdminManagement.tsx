@@ -179,7 +179,7 @@ const AdminManagement: React.FC<Props> = () => {
         try {
             dispatch(changeAccessLevelOptimistic({ username, newAccessLevel }));
             await axios.put(
-                `${process.env.REACT_APP_API_URL}/user/accessLevel`,
+                `${import.meta.env.VITE_API_URL}/user/accessLevel`,
                 { username, newAccessLevel },
                 {
                     headers: {
@@ -218,7 +218,7 @@ const AdminManagement: React.FC<Props> = () => {
         const token = localStorage.getItem("jwtToken");
         try {
             await axios.post(
-                `${process.env.REACT_APP_API_URL}/auth/register`,
+                `${import.meta.env.VITE_API_URL}/auth/register`,
                 { username, password: "default", role: "admin", accessLevel },
                 {
                     headers: {

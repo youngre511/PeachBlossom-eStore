@@ -262,7 +262,7 @@ const AVProductDetails: React.FC = () => {
             const getProductDetails = async () => {
                 try {
                     const response = await axios.get(
-                        `${process.env.REACT_APP_API_URL}/product/${productNo}`
+                        `${import.meta.env.VITE_API_URL}/product/${productNo}`
                     );
                     const productDetails: OneProduct = response.data.payload;
                     setCurrentDetails(productDetails);
@@ -408,7 +408,9 @@ const AVProductDetails: React.FC = () => {
                     newFileName = `${newFileName}_${i}`;
                     while (
                         currentDetails.images.includes(
-                            `${process.env.REACT_APP_CLOUDFRONT_DOMAIN}/${newFileName}`
+                            `${
+                                import.meta.env.VITE_CLOUDFRONT_DOMAIN
+                            }/${newFileName}`
                         )
                     ) {
                         newFileName = newFileName.replace(`_${i}`, `_${i + 1}`);
@@ -464,7 +466,9 @@ const AVProductDetails: React.FC = () => {
                 const token = localStorage.getItem("jwtToken");
                 try {
                     const response = await axios.put(
-                        `${process.env.REACT_APP_API_URL}/product/update-details`,
+                        `${
+                            import.meta.env.VITE_API_URL
+                        }/product/update-details`,
                         formData,
                         {
                             headers: {

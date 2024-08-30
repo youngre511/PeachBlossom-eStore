@@ -83,7 +83,7 @@ export const addItemToCart = createAsyncThunk<
             };
             console.log("making api request");
             const response = await axios.put<CartResponse>(
-                `${process.env.REACT_APP_API_URL}/cart/add-to-cart`,
+                `${import.meta.env.VITE_API_URL}/cart/add-to-cart`,
                 actionData
             );
             console.log(response);
@@ -142,7 +142,7 @@ export const updateItemQuantity = createAsyncThunk<
                     quantity: newQuantity,
                 };
                 const response = await axios.put<CartResponse>(
-                    `${process.env.REACT_APP_API_URL}/cart/update-quantity`,
+                    `${import.meta.env.VITE_API_URL}/cart/update-quantity`,
                     actionData
                 );
                 console.log("cart response:", response.data);
@@ -155,7 +155,7 @@ export const updateItemQuantity = createAsyncThunk<
                     cartId: cartId,
                 };
                 const response = await axios.put<CartResponse>(
-                    `${process.env.REACT_APP_API_URL}/cart/delete-from-cart`,
+                    `${import.meta.env.VITE_API_URL}/cart/delete-from-cart`,
                     actionData
                 );
                 console.log("cart response", response.data);
@@ -184,7 +184,7 @@ export const syncCart = createAsyncThunk<
     try {
         const state = getState() as RootState;
         const response = await axios.get<CartResponse>(
-            `${process.env.REACT_APP_API_URL}/cart/cartId/${state.cart.cartId}`
+            `${import.meta.env.VITE_API_URL}/cart/cartId/${state.cart.cartId}`
         );
         return response.data.payload;
     } catch (error: any) {
@@ -208,7 +208,7 @@ export const mergeCart = createAsyncThunk<
                 cartId2: state.cart.cartId,
             };
             const response = await axios.put<CartResponse>(
-                `${process.env.REACT_APP_API_URL}/cart/merge-carts`,
+                `${import.meta.env.VITE_API_URL}/cart/merge-carts`,
                 actionData
             );
             return response.data.payload;

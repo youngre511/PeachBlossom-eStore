@@ -1,12 +1,13 @@
+/// <reference types="vite-plugin-svgr/client" />
 import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { ReactComponent as DashboardIcon } from "../../../assets/img/dashboard.svg";
-import { ReactComponent as CustomerIcon } from "../../../assets/img/customers.svg";
-import { ReactComponent as ProductsIcon } from "../../../assets/img/products.svg";
-import { ReactComponent as InventoryIcon } from "../../../assets/img/inventory.svg";
-import { ReactComponent as OrdersIcon } from "../../../assets/img/orders.svg";
-import { ReactComponent as AdminIcon } from "../../../assets/img/admin.svg";
-import { ReactComponent as SettingsIcon } from "../../../assets/img/settings.svg";
+import DashboardIcon from "../../../assets/img/dashboard.svg?react";
+import CustomerIcon from "../../../assets/img/customers.svg?react";
+import ProductsIcon from "../../../assets/img/products.svg?react";
+import InventoryIcon from "../../../assets/img/inventory.svg?react";
+import OrdersIcon from "../../../assets/img/orders.svg?react";
+import AdminIcon from "../../../assets/img/admin.svg?react";
+import SettingsIcon from "../../../assets/img/settings.svg?react";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Divider from "@mui/material/Divider";

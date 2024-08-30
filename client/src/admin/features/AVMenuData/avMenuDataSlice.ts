@@ -25,7 +25,7 @@ export const avFetchCategories = createAsyncThunk<
 >("avMenuData/avFetchCategories", async (_, { rejectWithValue }) => {
     try {
         const response = await axios.get<AVCategoryFetchResponse>(
-            `${process.env.REACT_APP_API_URL}/category`
+            `${import.meta.env.VITE_API_URL}/category`
         );
         console.log(response.data.payload);
         return response.data.payload;
@@ -43,7 +43,7 @@ export const avFetchSearchOptions = createAsyncThunk<
 >("avMenuData/avFetchSearchOptions", async (_, { rejectWithValue }) => {
     try {
         const response = await axios.get<AVSearchOptionFetchResponse>(
-            `${process.env.REACT_APP_API_URL}/product/search-options`
+            `${import.meta.env.VITE_API_URL}/product/search-options`
         );
         const options = response.data.payload;
         return options;

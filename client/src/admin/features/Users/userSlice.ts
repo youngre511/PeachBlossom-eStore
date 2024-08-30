@@ -39,7 +39,7 @@ export const fetchAdmins = createAsyncThunk<
         try {
             const accessLevelString = accessLevel.join(",");
             const response = await axios.get(
-                `${process.env.REACT_APP_API_URL}/user/admins`,
+                `${import.meta.env.VITE_API_URL}/user/admins`,
                 {
                     params: {
                         page,
@@ -78,7 +78,7 @@ export const fetchCustomers = createAsyncThunk<
         const token = localStorage.getItem("jwtToken");
         try {
             const response = await axios.get(
-                `${process.env.REACT_APP_API_URL}/user/admins`,
+                `${import.meta.env.VITE_API_URL}/user/admins`,
                 {
                     params: { page, usersPerPage, searchString },
                     headers: {
@@ -113,7 +113,7 @@ export const resetUserPassword = createAsyncThunk<
         const userState = getState().users;
         try {
             const response = await axios.put(
-                `${process.env.REACT_APP_API_URL}/user/resetPassword`,
+                `${import.meta.env.VITE_API_URL}/user/resetPassword`,
                 { user_id: user_id },
                 {
                     headers: {
@@ -153,7 +153,7 @@ export const deleteUser = createAsyncThunk<
         const userState = getState().users;
         try {
             const response = await axios.delete(
-                `${process.env.REACT_APP_API_URL}/user/delete/${user_id}`,
+                `${import.meta.env.VITE_API_URL}/user/delete/${user_id}`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`, // Include the token in the Authorization header

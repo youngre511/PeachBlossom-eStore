@@ -1,12 +1,13 @@
+/// <reference types="vite-plugin-svgr/client" />
 import React, { ChangeEvent } from "react";
 import "./mobile-nav.css";
 import { useEffect, useRef, useState } from "react";
 import { useAppSelector } from "../../hooks/reduxHooks";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { ReactComponent as SearchButton } from "../../../assets/img/search.svg";
-import { ReactComponent as CartButton } from "../../../assets/img/cart.svg";
-import { ReactComponent as RecentButton } from "../../../assets/img/recent.svg";
-import { ReactComponent as AccountButton } from "../../../assets/img/account.svg";
+import SearchButton from "../../../assets/img/search.svg?react";
+import CartButton from "../../../assets/img/cart.svg?react";
+import RecentButton from "../../../assets/img/recent.svg?react";
+import AccountButton from "../../../assets/img/account.svg?react";
 import pblogo from "../../../assets/img/peach-blossom-logo.png";
 import pbtext from "../../../assets/img/peachblossomtext.png";
 import ShopNav from "../ShopMenu/ShopNav";

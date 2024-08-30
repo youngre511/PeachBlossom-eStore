@@ -44,6 +44,7 @@ export const fetchProducts = createAsyncThunk<
 >(
     "catalog/fetchProducts",
     async (filters: Filters, { getState, rejectWithValue }) => {
+        console.log("fetching products");
         const state = getState() as RootState;
         const itemsPerPage = state.userPreferences.itemsPerPage;
         const existingFilters = state.catalog.filters;
@@ -86,15 +87,17 @@ export const fetchProducts = createAsyncThunk<
                 numberOfResults: state.catalog.numberOfResults,
             };
         }
-
+        console.log("still working");
+        console.log(import.meta.env.VITE_API_URL);
         const params = { ...filters, itemsPerPage: itemsPerPage.toString() };
         try {
             const response = await axios.get(
-                `${process.env.REACT_APP_API_URL}/product`,
+                `${import.meta.env.VITE_API_URL}/product`,
                 {
                     params: params,
                 }
             );
+            console.log("response:", response);
             return {
                 filters: filters,
                 products: response.data.payload.productRecords,
@@ -117,7 +120,7 @@ export const fetchOneProduct = createAsyncThunk<
     async (productNo: string, { getState, rejectWithValue }) => {
         try {
             const response = await axios.get(
-                `${process.env.REACT_APP_API_URL}/product/catalog/${productNo}`
+                `${import.meta.env.VITE_API_URL}/product/catalog/${productNo}`
             );
             return response.data.payload;
         } catch (error: any) {

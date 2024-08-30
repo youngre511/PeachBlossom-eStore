@@ -25,7 +25,7 @@ export const fetchSearchOptions = createAsyncThunk<
 >("searchOptions/fetchSearchOptions", async (_, { rejectWithValue }) => {
     try {
         const response = await axios.get<OptionsResponse>(
-            `${process.env.REACT_APP_API_URL}/product/search-options`
+            `${import.meta.env.VITE_API_URL}/product/search-options`
         );
         const options = response.data.payload;
 

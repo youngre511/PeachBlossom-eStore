@@ -184,7 +184,7 @@ const CategoryManagement: React.FC<Props> = () => {
         setIsSaving(true);
         try {
             await axios.post(
-                `${process.env.REACT_APP_API_URL}/category/create`,
+                `${import.meta.env.VITE_API_URL}/category/create`,
                 { name: popupInputValue },
                 {
                     headers: {
@@ -215,7 +215,9 @@ const CategoryManagement: React.FC<Props> = () => {
                 throw new Error("An unknown error occurred");
             }
             await axios.post(
-                `${process.env.REACT_APP_API_URL}/category/${selectedCategory.categoryName}/create-sub`,
+                `${import.meta.env.VITE_API_URL}/category/${
+                    selectedCategory.categoryName
+                }/create-sub`,
                 { subcategoryName: popupInputValue },
                 {
                     headers: {
@@ -246,7 +248,9 @@ const CategoryManagement: React.FC<Props> = () => {
                 throw new Error("An unknown error occurred");
             }
             await axios.delete(
-                `${process.env.REACT_APP_API_URL}/category/delete/${selectedCategory.categoryName}`,
+                `${import.meta.env.VITE_API_URL}/category/delete/${
+                    selectedCategory.categoryName
+                }`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`, // Include the token in the Authorization header
@@ -277,7 +281,7 @@ const CategoryManagement: React.FC<Props> = () => {
             }
             await axios.delete(
                 `${
-                    process.env.REACT_APP_API_URL
+                    import.meta.env.VITE_API_URL
                 }category/subcategory/delete/${selectedSubcategory.subcategoryName.replace(
                     " ",
                     "%20"
@@ -311,7 +315,7 @@ const CategoryManagement: React.FC<Props> = () => {
                 throw new Error("An unknown error occurred");
             }
             await axios.put(
-                `${process.env.REACT_APP_API_URL}/category/update`,
+                `${import.meta.env.VITE_API_URL}/category/update`,
                 {
                     oldName: selectedCategory.categoryName,
                     newName: popupInputValue,
@@ -345,7 +349,7 @@ const CategoryManagement: React.FC<Props> = () => {
                 throw new Error("An unknown error occurred");
             }
             await axios.put(
-                `${process.env.REACT_APP_API_URL}/category/subcategory/update`,
+                `${import.meta.env.VITE_API_URL}/category/subcategory/update`,
                 {
                     oldName: selectedSubcategory.subcategoryName,
                     newName: popupInputValue,

@@ -1,3 +1,4 @@
+/// <reference types="vite-plugin-svgr/client" />
 import React, { useRef, Dispatch, SetStateAction } from "react";
 import Slider, { Settings } from "react-slick";
 import "slick-carousel/slick/slick.css";
@@ -6,7 +7,7 @@ import { useEffect, useState } from "react";
 import "./image-uploader.css";
 import ImageUploading, { ImageListType } from "react-images-uploading";
 import { Button, IconButton, Tooltip } from "@mui/material";
-import { ReactComponent as CloseButton } from "../../../assets/img/close.svg";
+import CloseButton from "../../../assets/img/close.svg?react";
 import DeleteOutlineSharpIcon from "@mui/icons-material/DeleteOutlineSharp";
 import AddAPhotoSharpIcon from "@mui/icons-material/AddAPhotoSharp";
 import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
@@ -20,43 +21,6 @@ interface Props {
     productEditMode?: boolean;
 }
 
-const settings: Settings = {
-    swipe: true,
-    draggable: false,
-    dots: true,
-    infinite: true,
-    speed: 500,
-    cssEase: "ease-in-out",
-    arrows: false,
-    adaptiveHeight: true,
-    className: "carousel-container",
-    appendDots: (dots) => <ul className="custom-dot-list-style">{dots}</ul>,
-    responsive: [
-        {
-            breakpoint: 6000, // Max width for desktop
-            settings: {
-                slidesToShow: 1,
-                slidesToScroll: 1,
-                arrows: true,
-            },
-        },
-        {
-            breakpoint: 1024, // Max width for tablet
-            settings: {
-                slidesToShow: 1,
-                slidesToScroll: 1,
-            },
-        },
-        {
-            breakpoint: 464, // Max width for mobile
-            settings: {
-                slidesToShow: 1,
-                slidesToScroll: 1,
-            },
-        },
-    ],
-};
-
 const ImageUploader: React.FC<Props> = ({
     setImages,
     images,
@@ -68,6 +32,43 @@ const ImageUploader: React.FC<Props> = ({
     const [addMode, setAddMode] = useState<boolean>(true);
     const [editMode, setEditMode] = useState<boolean>(false);
     const { isTouchDevice } = useWindowSizeContext();
+
+    const settings: Settings = {
+        swipe: true,
+        draggable: false,
+        dots: true,
+        infinite: true,
+        speed: 500,
+        cssEase: "ease-in-out",
+        arrows: isTouchDevice ? false : true,
+        adaptiveHeight: true,
+        className: "carousel-container",
+        appendDots: (dots) => <ul className="custom-dot-list-style">{dots}</ul>,
+        responsive: [
+            {
+                breakpoint: 6000, // Max width for desktop
+                settings: {
+                    slidesToShow: 1,
+                    slidesToScroll: 1,
+                    arrows: true,
+                },
+            },
+            {
+                breakpoint: 1024, // Max width for tablet
+                settings: {
+                    slidesToShow: 1,
+                    slidesToScroll: 1,
+                },
+            },
+            {
+                breakpoint: 464, // Max width for mobile
+                settings: {
+                    slidesToShow: 1,
+                    slidesToScroll: 1,
+                },
+            },
+        ],
+    };
 
     const onChange = (
         imageList: ImageListType,

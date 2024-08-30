@@ -90,7 +90,7 @@ export const avFetchOrders = createAsyncThunk<
         const token = localStorage.getItem("jwtToken");
         try {
             const response = await axios.get(
-                `${process.env.REACT_APP_API_URL}/order`,
+                `${import.meta.env.VITE_API_URL}/order`,
                 {
                     params: params,
                     headers: {
@@ -136,7 +136,7 @@ export const avFetchOrderDetails = createAsyncThunk<
         const token = localStorage.getItem("jwtToken");
         try {
             const response = await axios.get(
-                `${process.env.REACT_APP_API_URL}/order/${orderNo}`,
+                `${import.meta.env.VITE_API_URL}/order/${orderNo}`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`, // Include the token in the Authorization header

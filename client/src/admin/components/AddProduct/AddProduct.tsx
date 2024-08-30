@@ -290,7 +290,7 @@ const AddProduct: React.FC = () => {
         console.log("token:", token);
         try {
             const response = await axios.post(
-                `${process.env.REACT_APP_API_URL}/product/create`,
+                `${import.meta.env.VITE_API_URL}/product/create`,
                 formData,
                 {
                     headers: {

@@ -97,7 +97,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                     console.log("proceeding");
                     setIsRefreshing(true);
                     const response = await axios.post(
-                        `${process.env.REACT_APP_API_URL}/auth/refresh-access-token`,
+                        `${
+                            import.meta.env.VITE_API_URL
+                        }/auth/refresh-access-token`,
                         {},
                         {
                             withCredentials: true,
@@ -200,7 +202,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const login = async (username: string, password: string) => {
         try {
             const response = await axios.post(
-                `${process.env.REACT_APP_API_URL}/auth/login`,
+                `${import.meta.env.VITE_API_URL}/auth/login`,
                 { username, password },
                 { withCredentials: true }
             );
@@ -236,7 +238,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setUser(undefined);
         try {
             await axios.put(
-                `${process.env.REACT_APP_API_URL}/auth/revoke-refresh-token`,
+                `${import.meta.env.VITE_API_URL}/auth/revoke-refresh-token`,
                 {},
                 {
                     withCredentials: true,

@@ -131,6 +131,15 @@ function AdminApp() {
                             }
                         />
                         <Route path="login" element={<AdminLogin />} />
+                        <Route
+                            path="*"
+                            element={
+                                <ProtectedRoute
+                                    component={HomeRedirect}
+                                    requiredRole="admin"
+                                />
+                            }
+                        />
                     </Routes>
                 </main>
             </div>
