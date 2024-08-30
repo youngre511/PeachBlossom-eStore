@@ -2,7 +2,7 @@ import React, { ChangeEvent } from "react";
 import "./nav.css";
 import { useEffect, useRef, useState } from "react";
 import { useAppSelector } from "../../hooks/reduxHooks";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { ReactComponent as SearchButton } from "../../../assets/img/search.svg";
 import { ReactComponent as CartButton } from "../../../assets/img/cart.svg";
 import { ReactComponent as RecentButton } from "../../../assets/img/recent.svg";
@@ -12,7 +12,7 @@ import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import CartDropDown from "../../features/Cart/CartDropDown";
 import { RootState } from "../../store/customerStore";
-import SearchField from "../../../common/components/Fields/SearchField";
+
 import {
     Autocomplete,
     Button,

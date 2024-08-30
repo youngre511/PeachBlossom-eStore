@@ -1,11 +1,18 @@
 // WindowDimensionsContext.tsx
-import React, { createContext, useContext, ReactNode } from "react";
+import React, {
+    createContext,
+    useContext,
+    ReactNode,
+    useState,
+    useEffect,
+} from "react";
 import useWindowDimensions from "../hooks/useWindowDimensions";
 
 interface WindowDimensions {
     width: number | null;
     height: number | null;
     isTouchDevice: boolean;
+    pixelDensity: number;
 }
 
 const WindowSizeContext = createContext<WindowDimensions | undefined>(
@@ -17,7 +24,12 @@ export const WindowSizeProvider: React.FC<{ children: ReactNode }> = ({
 }) => {
     const dimensions = useWindowDimensions();
     const isTouchDevice = window.matchMedia("(pointer: coarse)").matches;
-    const windowInfo = { ...dimensions, isTouchDevice };
+
+    // Determine pixel ratio and convert to pixel density for preloading images
+    const pixelDensity =
+        window.devicePixelRatio >= 3 ? 3 : window.devicePixelRatio >= 2 ? 2 : 1;
+
+    const windowInfo = { ...dimensions, isTouchDevice, pixelDensity };
 
     return (
         <WindowSizeContext.Provider value={windowInfo}>

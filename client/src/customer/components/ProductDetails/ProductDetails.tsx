@@ -22,26 +22,23 @@ const ProductDetails: React.FC<Props> = () => {
     const productState = useAppSelector(
         (state: RootState) => state.catalog.singleProduct
     );
-    const windowDimensions = useWindowSizeContext();
+    const { width, isTouchDevice } = useWindowSizeContext();
     const dispatch = useAppDispatch();
     const [isVertical, setIsVertical] = useState<boolean>(true);
 
     useEffect(() => {
-        if (windowDimensions.width && windowDimensions.width < 1342) {
+        if (width && width < 1342) {
             setIsVertical(false);
         } else {
             setIsVertical(true);
         }
-    }, [windowDimensions]);
+    }, [width]);
 
     const settings: Settings = {
         swipe: true,
         draggable: false,
         dots:
-            windowDimensions.width &&
-            windowDimensions.width <= 1024 &&
-            product &&
-            product.images.length > 1
+            width && width <= 1024 && product && product.images.length > 1
                 ? true
                 : false,
         infinite: false,
@@ -93,7 +90,7 @@ const ProductDetails: React.FC<Props> = () => {
                     slidesToScroll: 1,
                     arrows:
                         (product && product.images.length === 1) ||
-                        windowDimensions.isTouchDevice
+                        isTouchDevice
                             ? false
                             : true,
                 },
@@ -122,33 +119,50 @@ const ProductDetails: React.FC<Props> = () => {
                 <React.Fragment>
                     <div className="product-images-cont">
                         <div className="product-images">
-                            {((windowDimensions.width &&
-                                windowDimensions.width < 1025) ||
+                            {((width && width < 1025) ||
                                 product.images.length > 1) && (
-                                <Slider
-                                    {...settings}
-                                    key={windowDimensions.width}
-                                >
-                                    {product.images.map((imageUrl, index) => (
-                                        <img
-                                            src={`${imageUrl}_1024.webp`}
-                                            srcSet={`${imageUrl}_300.webp 300w, ${imageUrl}_600.webp 300w 2x, ${imageUrl}_960.webp 300w 3x, ${imageUrl}_450.webp 450w, ${imageUrl}_1024.webp 960w 2x, ${imageUrl}_1024.webp 1024w 3x, ${imageUrl}_140.webp 140w, ${imageUrl}_300.webp 140w 2x, ${imageUrl}_450.webp 140w 3x,`}
-                                            sizes="
+                                <Slider {...settings} key={width}>
+                                    {product.images.map((imageUrl, index) => {
+                                        let size1: number = 1024;
+                                        let size2: number = 1024;
+                                        let size3: number = 1024;
+                                        if (width) {
+                                            if (width >= 1024) {
+                                            } else if (width >= 1025) {
+                                                size1 = 140;
+                                                size2 = 300;
+                                                size3 = 450;
+                                            } else if (width >= 751) {
+                                                size1 = 450;
+                                                size2 = 1024;
+                                                size3 = 1024;
+                                            } else {
+                                                size1 = 300;
+                                                size2 = 600;
+                                                size3 = 960;
+                                            }
+                                        }
+                                        return (
+                                            <img
+                                                src={`${imageUrl}_1024.webp`}
+                                                srcSet={`${imageUrl}_${size1}.webp, ${imageUrl}_${size2}.webp 2x, ${imageUrl}_${size3}.webp 3x,`}
+                                                sizes="
                                                 (min-width: 1342px) 1024px,
                                                 (min-width: 1025px) 140px,
                                                 (min-width: 751) 450px,
                                                 300px
                                             "
-                                            className="product-details-thumbnail"
-                                            alt={`${product.name} thumbnail ${
-                                                index + 1
-                                            }`}
-                                            onClick={() =>
-                                                setCurrentImage(imageUrl)
-                                            }
-                                            key={imageUrl}
-                                        />
-                                    ))}
+                                                className="product-details-thumbnail"
+                                                alt={`${
+                                                    product.name
+                                                } thumbnail ${index + 1}`}
+                                                onClick={() =>
+                                                    setCurrentImage(imageUrl)
+                                                }
+                                                key={imageUrl}
+                                            />
+                                        );
+                                    })}
                                 </Slider>
                             )}
                             <div className="product-details-image-cont">
@@ -232,7 +246,7 @@ const ProductDetails: React.FC<Props> = () => {
                         <AddToCartButton
                             available={product.stock}
                             productNo={product.productNo}
-                            isTouchDevice={windowDimensions.isTouchDevice}
+                            isTouchDevice={isTouchDevice}
                         />
                     </div>
                 </React.Fragment>

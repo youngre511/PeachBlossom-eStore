@@ -23,6 +23,12 @@ import Cart from "./features/Cart/Cart";
 import Checkout from "./components/Checkout/Checkout";
 import MobileNav from "./components/MobileNav/MobileNav";
 import { useWindowSizeContext } from "../common/contexts/windowSizeContext";
+import pblogo1x from "../assets/peachblossomlogo-1x.webp";
+import pblogo2x from "../assets/peachblossomlogo-2x.webp";
+import pblogo3x from "../assets/peachblossomlogo-3x.webp";
+import pbtext1x from "../assets/peachblossomtext-1x.webp";
+import pbtext2x from "../assets/peachblossomtext-2x.webp";
+import pbtext3x from "../assets/peachblossomtext-3x.webp";
 
 const CustomerApp: React.FC = () => {
     const dispatch = useAppDispatch();
@@ -31,7 +37,27 @@ const CustomerApp: React.FC = () => {
         dispatch(fetchSearchOptions());
     }, [dispatch]);
 
-    const { width } = useWindowSizeContext();
+    const { width, pixelDensity } = useWindowSizeContext();
+
+    useEffect(() => {
+        const img = new Image();
+        const src =
+            pixelDensity === 3
+                ? pblogo3x
+                : pixelDensity === 1
+                ? pblogo1x
+                : pblogo2x;
+        img.src = src;
+
+        const img2 = new Image();
+        const src2 =
+            pixelDensity === 3
+                ? pbtext3x
+                : pixelDensity === 1
+                ? pbtext1x
+                : pbtext2x;
+        img2.src = src2;
+    }, []);
 
     return (
         <ThemeProvider theme={theme}>
