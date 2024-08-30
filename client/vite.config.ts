@@ -8,4 +8,17 @@ export default defineConfig({
     server: {
         port: 3000,
     },
+    build: {
+        rollupOptions: {
+            output: {
+                assetFileNames: (assetInfo) => {
+                    // If the asset is the webmanifest, do not include the hash
+                    if (assetInfo.name === "site.webmanifest") {
+                        return "[name][extname]";
+                    }
+                    return "[name]-[hash][extname]";
+                },
+            },
+        },
+    },
 });
