@@ -408,7 +408,7 @@ const AVProductDetails: React.FC = () => {
                     newFileName = `${newFileName}_${i}`;
                     while (
                         currentDetails.images.includes(
-                            `https://${process.env.REACT_APP_S3_BUCKET_NAME}.s3.${process.env.REACT_APP_AWS_REGION}.amazonaws.com/${newFileName}`
+                            `${process.env.REACT_APP_CLOUDFRONT_DOMAIN}/${newFileName}`
                         )
                     ) {
                         newFileName = newFileName.replace(`_${i}`, `_${i + 1}`);

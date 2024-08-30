@@ -676,7 +676,7 @@ export const createProduct = async (
                             "image/webp"
                         );
                     }
-                    return `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileName}`; // Base URL of the uploaded image
+                    return `${process.env.CLOUDFRONT_DOMAIN}/${fileName}`; // Base URL of the uploaded image
                 } catch (error) {
                     console.error(`Error processing image: ${error}`);
                 }
@@ -928,7 +928,7 @@ export const updateProductDetails = async (
                                 "image/webp"
                             );
                         }
-                        return `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileName}`; // Base URL of the uploaded image
+                        return `${process.env.CLOUDFRONT_DOMAIN}/${fileName}`; // Base URL of the uploaded image
                     } catch (error) {
                         console.error(`Error processing image: ${error}`);
                         return "";

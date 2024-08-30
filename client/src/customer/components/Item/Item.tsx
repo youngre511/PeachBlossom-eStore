@@ -30,7 +30,7 @@ const Item: React.FC<Product> = ({
             {width && (
                 <img
                     src={`${images[0]}_960.webp`}
-                    srcSet={`${images[0]}_300.webp, ${images[0]}${
+                    srcSet={`${images[0]}_300.webp, ${images[0]}_${
                         width >= 550 ? 600 : 300
                     }.webp 2x, ${images[0]}_${
                         width >= 550 ? 960 : 450
