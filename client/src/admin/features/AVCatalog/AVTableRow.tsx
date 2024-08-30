@@ -81,6 +81,7 @@ const AVTableRow: React.FC<Props> = ({
                                 ? "admin-catalog-thumbnail grayscale-thumbnail"
                                 : "admin-catalog-thumbnail"
                         }
+                        loading="lazy"
                     />
                 </TableCell>
                 <TableCell

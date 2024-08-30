@@ -277,6 +277,7 @@ const OrderStatus: React.FC<Props> = ({ orderNumber }) => {
                                             className="order-status-thumbnail"
                                             width="40px"
                                             height="40px"
+                                            loading="lazy"
                                         />
                                     </TableCell>
                                     <TableCell>{item.productNo}</TableCell>

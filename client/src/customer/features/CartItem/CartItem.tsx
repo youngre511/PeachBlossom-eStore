@@ -59,6 +59,7 @@ const CartItem: React.FC<Props> = ({ item }: Props) => {
                     onClick={() => navigate(item.productUrl)}
                     height={cartView ? "70px" : "40px"}
                     width={cartView ? "70px" : "40px"}
+                    loading="lazy"
                 />
                 {cartView && (
                     <div

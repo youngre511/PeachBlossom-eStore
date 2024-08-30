@@ -35,6 +35,7 @@ const Item: React.FC<Product> = ({
                 onClick={handleProductClick}
                 width={width && width >= 550 ? "300" : "150"}
                 height={width && width >= 550 ? "300" : "150"}
+                loading="lazy"
             />
             <div className="cat-prod-info">
                 <h2 className="cat-prod-name" onClick={handleProductClick}>
