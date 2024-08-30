@@ -20,7 +20,7 @@ const BlankPopup: React.FC<Props> = ({ children, className }) => {
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
-                zIndex: 30,
+                zIndex: 1230,
             }}
         >
             <div
