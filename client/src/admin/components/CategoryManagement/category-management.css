@@ -1,14 +1,32 @@
 .category-manage-content {
     display: flex;
     justify-content: space-around;
+    flex-direction: column;
     align-items: center;
     max-width: 800px;
+    margin-top: 40px;
 }
+
+.category-manage-content h2 {
+    font-size: 1.05rem;
+    height: 30px;
+    margin: 0 0 10px 0;
+}
+
+.catMan-categories,
+.catMan-subcategories {
+    position: relative;
+    margin-left: 60px;
+    margin-bottom: 30px;
+}
+
 .catMan-list {
     background-color: white;
-    width: 300px;
+    min-width: 260px;
+    width: 80vw;
     overflow: scroll;
-    height: 60vh;
+    height: 40vh;
+    box-shadow: 1px 1px 3px 0 rgba(0, 0, 0, 0.213);
 }
 
 .catMan-listItem {
@@ -21,4 +39,51 @@
 
 .selected-category {
     background-color: var(--peach-blush);
+}
+
+.catMan-buttons {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 40px;
+    left: -60px;
+}
+
+@media (min-width: 600px) {
+    .catMan-categories,
+    .catMan-subcategories {
+        margin-left: 65px;
+    }
+
+    .catMan-list {
+        width: 40vw;
+    }
+}
+
+@media (min-width: 700px) {
+    .catMan-categories,
+    .catMan-subcategories {
+        margin-left: 70px;
+    }
+
+    .catMan-list {
+        width: 50vw;
+    }
+}
+
+@media (min-width: 1000px) {
+    .category-manage-content {
+        flex-direction: row;
+    }
+
+    .catMan-categories,
+    .catMan-subcategories {
+        margin-left: 90px;
+        margin-bottom: 0;
+    }
+
+    .catMan-list {
+        width: 24vw;
+        height: 60vh;
+    }
 }
