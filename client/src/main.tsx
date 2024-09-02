@@ -17,12 +17,6 @@ import { WindowSizeProvider } from "./common/contexts/windowSizeContext";
 
 const isAdmin = window.location.hostname.startsWith("admin");
 
-if (!isAdmin) {
-    import("./customer/style/general.module.css");
-} else {
-    import("./admin/style/admin-general.module.css");
-}
-
 createRoot(document.getElementById("root")!).render(
     <StrictMode>
         {!isAdmin ? (
