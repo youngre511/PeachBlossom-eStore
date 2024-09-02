@@ -1,5 +1,4 @@
 import React, { useEffect, useContext } from "react";
-import "./style/admin-general.css";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import { ThemeProvider } from "@mui/material/styles";
 import theme from "../common/utils/materialUITheme";

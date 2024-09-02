@@ -29,7 +29,6 @@ import pblogo3x from "../assets/peachblossomlogo-3x.webp";
 import pbtext1x from "../assets/peachblossomtext-1x.webp";
 import pbtext2x from "../assets/peachblossomtext-2x.webp";
 import pbtext3x from "../assets/peachblossomtext-3x.webp";
-import "./style/general.css";
 
 const CustomerApp: React.FC = () => {
     const dispatch = useAppDispatch();
