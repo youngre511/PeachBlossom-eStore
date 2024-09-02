@@ -15,12 +15,13 @@ const BlankPopup: React.FC<Props> = ({ children, className }) => {
                 position: "fixed",
                 top: 0,
                 left: 0,
-                width: "100vw",
-                height: "100dvh",
+                width: "calc(100vw - 20px)",
+                height: "calc(100vh - 20px)",
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
                 zIndex: 1230,
+                margin: "10px",
             }}
         >
             <div

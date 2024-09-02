@@ -49,6 +49,18 @@
     left: -60px;
 }
 
+.catMan-popup-message {
+    margin-bottom: 10px;
+}
+
+.popup-button-group {
+    margin-top: 10px;
+    width: 200px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
 @media (min-width: 600px) {
     .catMan-categories,
     .catMan-subcategories {

@@ -556,7 +556,7 @@ const CategoryManagement: React.FC<Props> = () => {
             {popupVisible && popupType && (
                 <BlankPopup className={`${popupType}-popup`}>
                     {/* Conditional rendering of blank popup contents based on set popup type */}
-                    <span>{popupMessage}</span>
+                    <span className="catMan-popup-message">{popupMessage}</span>
                     {popupType !== "deleteCat" &&
                         popupType !== "deleteSubcat" && (
                             <TextField
@@ -565,6 +565,12 @@ const CategoryManagement: React.FC<Props> = () => {
                                 onChange={(e) =>
                                     setPopupInputValue(e.target.value)
                                 }
+                                sx={{
+                                    width: "200px",
+                                    "& .MuiInputBase-root": {
+                                        backgroundColor: "white",
+                                    },
+                                }}
                             />
                         )}
                     <div className="popup-button-group">
@@ -573,6 +579,7 @@ const CategoryManagement: React.FC<Props> = () => {
                                 variant="contained"
                                 onClick={handleAddCategory}
                                 disabled={!popupInputValue}
+                                sx={{ width: "90px" }}
                             >
                                 Add
                             </Button>
@@ -582,6 +589,7 @@ const CategoryManagement: React.FC<Props> = () => {
                                 variant="contained"
                                 onClick={handleAddSubcategory}
                                 disabled={!popupInputValue}
+                                sx={{ width: "90px" }}
                             >
                                 Add
                             </Button>
@@ -595,6 +603,7 @@ const CategoryManagement: React.FC<Props> = () => {
                                     popupInputValue ===
                                         selectedCategory.categoryName
                                 }
+                                sx={{ width: "90px" }}
                             >
                                 Save
                             </Button>
@@ -608,6 +617,7 @@ const CategoryManagement: React.FC<Props> = () => {
                                         selectedSubcategory.subcategoryName
                                 }
                                 onClick={handleEditSubcategory}
+                                sx={{ width: "90px" }}
                             >
                                 Save
                             </Button>
@@ -616,6 +626,7 @@ const CategoryManagement: React.FC<Props> = () => {
                             <Button
                                 variant="contained"
                                 onClick={handleDeleteCategory}
+                                sx={{ width: "90px" }}
                             >
                                 Yes
                             </Button>
@@ -624,11 +635,16 @@ const CategoryManagement: React.FC<Props> = () => {
                             <Button
                                 variant="contained"
                                 onClick={handleDeleteSubcategory}
+                                sx={{ width: "90px" }}
                             >
                                 Yes
                             </Button>
                         )}
-                        <Button variant="contained" onClick={handlePopupCancel}>
+                        <Button
+                            variant="contained"
+                            onClick={handlePopupCancel}
+                            sx={{ width: "90px" }}
+                        >
                             Cancel
                         </Button>
                     </div>
