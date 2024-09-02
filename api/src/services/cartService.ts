@@ -112,7 +112,6 @@ export const getCartById = async (cartId: number) => {
         let itemCount = 0;
 
         const itemsArr = updatedCart.CartItem.map((item: any) => {
-            console.log(item.Product);
             subTotal += item.finalPrice * item.quantity;
             itemCount += item.quantity;
             const discountPrice =
@@ -132,7 +131,7 @@ export const getCartById = async (cartId: number) => {
 
         const returnCartObj = {
             items: itemsArr,
-            subTotal: subTotal,
+            subTotal: subTotal.toFixed(),
             cartId: updatedCart.cart_id,
             numberOfItems: itemCount,
         };
