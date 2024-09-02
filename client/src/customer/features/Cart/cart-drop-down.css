@@ -2,6 +2,10 @@
     padding: 10px 20px;
 }
 
+.drop-cart-items h1 {
+    font-size: 1.2rem;
+}
+
 .drop-cart .cart-item {
     display: flex;
     justify-content: space-between;
