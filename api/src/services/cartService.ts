@@ -131,7 +131,7 @@ export const getCartById = async (cartId: number) => {
 
         const returnCartObj = {
             items: itemsArr,
-            subTotal: subTotal.toFixed(),
+            subTotal: subTotal.toFixed(2),
             cartId: updatedCart.cart_id,
             numberOfItems: itemCount,
         };
