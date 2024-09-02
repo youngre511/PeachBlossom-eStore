@@ -23,7 +23,7 @@ export class sqlCategory extends Model {
 
     @Index
     @Column({
-        type: DataType.STRING(20),
+        type: DataType.STRING(30),
         allowNull: false,
     })
     categoryName!: string;

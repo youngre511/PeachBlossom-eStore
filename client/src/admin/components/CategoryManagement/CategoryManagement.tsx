@@ -187,6 +187,14 @@ const CategoryManagement: React.FC<Props> = () => {
         }
     };
 
+    const handleChangePopupInput = (
+        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    ) => {
+        if (e.target.value.length <= 30) {
+            setPopupInputValue(e.target.value);
+        }
+    };
+
     // Here there be api fetch functions for action buttons
     const handleAddCategory = async () => {
         setPopupVisible(false);
@@ -562,9 +570,7 @@ const CategoryManagement: React.FC<Props> = () => {
                             <TextField
                                 variant="outlined"
                                 value={popupInputValue}
-                                onChange={(e) =>
-                                    setPopupInputValue(e.target.value)
-                                }
+                                onChange={(e) => handleChangePopupInput(e)}
                                 sx={{
                                     width: "200px",
                                     "& .MuiInputBase-root": {
