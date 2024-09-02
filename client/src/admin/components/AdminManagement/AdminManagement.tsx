@@ -35,11 +35,25 @@ import PeachButton from "../../../common/components/PeachButton";
 import StatusPopup from "../../../common/components/StatusPopup";
 import BlankPopup from "../../../common/components/BlankPopup";
 import { FormField } from "../../../common/components/Fields/FormField";
-import { inputStyle } from "../AddProduct/AddProduct";
 import AddAdminPopup from "./AddAdminPopup";
 import AdminList from "./AdminList";
 import AddCircleOutlineSharpIcon from "@mui/icons-material/AddCircleOutlineSharp";
 import VisibilitySharpIcon from "@mui/icons-material/VisibilitySharp";
+
+const inputStyle = {
+    "&.MuiInputBase-root": {
+        backgroundColor: "white",
+        "&.MuiFilledInput-root": {
+            backgroundColor: "white",
+            "&.Mui-disabled": {
+                backgroundColor: "peach.light",
+            },
+        },
+    },
+    "& .MuiInputBase-root.MuiOutlinedInput-root.MuiInputBase-colorPrimary": {
+        backgroundColor: "white",
+    },
+};
 
 interface FetchAdminParams {
     page: string;
@@ -265,6 +279,7 @@ const AdminManagement: React.FC<Props> = () => {
                     id="view"
                     label="View"
                     onChange={(event) => setAccessView(event.target.value)}
+                    sx={inputStyle}
                 >
                     <MenuItem value={"all"}>All</MenuItem>
                     <MenuItem value={"full"}>Full Access</MenuItem>

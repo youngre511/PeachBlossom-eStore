@@ -241,6 +241,7 @@ const AVProductDetails: React.FC = () => {
     const { previousRoute } = usePreviousRoute();
     const [previous, setPrevious] = useState<string>("/products/manage");
     const [lockedPrevious, setLockedPrevious] = useState<boolean>(false);
+    const [usedFilenames, setUsedFilenames] = useState<string[]>([]);
 
     useEffect(() => {
         console.log("imageUrls:", imageUrls + ", images:", images);
@@ -361,10 +362,9 @@ const AVProductDetails: React.FC = () => {
     }, [category, categories]);
 
     const handleSave = async () => {
-        console.log("saving...");
         setIsConfirming(false);
         setIsSaving(true);
-        console.log("starting submit process");
+
         type updateSubmission = {
             name: string;
             price: number;
@@ -377,9 +377,9 @@ const AVProductDetails: React.FC = () => {
             existingImageUrls: string[];
             images: ImageListType;
         };
-        console.log("saving1");
-        console.log("currentDetails:", currentDetails);
+
         if (currentDetails) {
+            setUsedFilenames(currentDetails.images);
             const formData = new FormData();
 
             if (productName !== currentDetails.name) {
@@ -397,7 +397,6 @@ const AVProductDetails: React.FC = () => {
             if (description !== currentDetails.description) {
                 formData.append("description", description);
             }
-            console.log("saving2");
 
             if (images) {
                 images.forEach((image, index) => {
@@ -407,20 +406,20 @@ const AVProductDetails: React.FC = () => {
                     let i = 1;
                     newFileName = `${newFileName}_${i}`;
                     while (
-                        currentDetails.images.includes(
+                        usedFilenames.includes(
                             `${
                                 import.meta.env.VITE_CLOUDFRONT_DOMAIN
                             }/${newFileName}`
                         )
                     ) {
                         newFileName = newFileName.replace(`_${i}`, `_${i + 1}`);
-                        console.log(newFileName);
                         i++;
                     }
+                    setUsedFilenames([...usedFilenames, newFileName]);
                     formData.append("images", image.file as File, newFileName);
                 });
             }
-            console.log("saving3");
+
             if (
                 color !== currentDetails.attributes.color ||
                 materials !== currentDetails.attributes.material ||
@@ -448,7 +447,7 @@ const AVProductDetails: React.FC = () => {
                 Array.from(formData.entries()).length !== 0 ||
                 imageUrls.length !== currentDetails.images.length ||
                 images.length !== 0;
-            console.log("saving4");
+
             if (areThereChanges) {
                 console.log("saving 4.5");
                 formData.append("productNo", currentDetails.productNo);
@@ -460,8 +459,6 @@ const AVProductDetails: React.FC = () => {
                         currentDetails.images.join(", ")
                     );
                 }
-                console.log("sending images:", imageUrls);
-                console.log("saving5");
 
                 const token = localStorage.getItem("jwtToken");
                 try {

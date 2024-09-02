@@ -21,15 +21,6 @@ interface AVOrderResponse {
 }
 
 const inputStyle = {
-    "&.MuiFilledInput-root": {
-        backgroundColor: "white",
-        "&.Mui-disabled": {
-            backgroundColor: "peach.light",
-        },
-    },
-    "&.MuiFilledInput-input": {
-        backgroundColor: "white",
-    },
     "&.MuiInputBase-root": {
         backgroundColor: "white",
         "&.MuiFilledInput-root": {
@@ -40,25 +31,6 @@ const inputStyle = {
         },
     },
     "& .MuiInputBase-root.MuiOutlinedInput-root.MuiInputBase-colorPrimary": {
-        backgroundColor: "white",
-    },
-    "& .MuiFormLabel-root.MuiInputLabel-root.MuiInputLabel-formControl.Mui-focused":
-        {
-            color: "rgba(0, 0, 0, 0.63)",
-        },
-
-    "& .MuiInputBase-input.MuiFilledInput-input:focus": {
-        backgroundColor: "white",
-    },
-    "& .MuiInputBase-root.MuiFilledInput-root.MuiFilledInput-underline.MuiInputBase-adornedStart":
-        {
-            backgroundColor: "white",
-        },
-    "& .MuiInputBase-root.MuiFilledInput-root.MuiFilledInput-underline.MuiInputBase-adornedEnd":
-        {
-            backgroundColor: "white",
-        },
-    "& .MuiInputBase-root.MuiFilledInput-root": {
         backgroundColor: "white",
     },
 };
