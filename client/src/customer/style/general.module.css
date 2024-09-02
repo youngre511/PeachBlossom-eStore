@@ -19,6 +19,7 @@ header {
 button {
     font-family: var(--Lato);
     font-size: 0.8rem;
+    color: black;
 }
 
 article {
