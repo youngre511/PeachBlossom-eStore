@@ -25,7 +25,7 @@ export class sqlSubcategory extends Model {
 
     @Index
     @Column({
-        type: DataType.STRING(30),
+        type: DataType.STRING(20),
         allowNull: false,
     })
     subcategoryName!: string;

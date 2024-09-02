@@ -190,7 +190,7 @@ const CategoryManagement: React.FC<Props> = () => {
     const handleChangePopupInput = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
     ) => {
-        if (e.target.value.length <= 30) {
+        if (e.target.value.length <= 20) {
             setPopupInputValue(e.target.value);
         }
     };
