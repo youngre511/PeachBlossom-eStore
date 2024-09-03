@@ -1,13 +1,8 @@
-import React, { useMemo } from "react";
+import React from "react";
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import UserList from "./AdminList";
 import axios, { AxiosError } from "axios";
 import "./admin-management.css";
-import {
-    IAVOrderFilters,
-    IAVOrder,
-} from "../../features/AVOrders/avOrdersTypes";
 import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
 import {
     changeAccessLevelOptimistic,
@@ -18,23 +13,9 @@ import {
     rollbackAccessLevel,
 } from "../../features/Users/userSlice";
 import { RootState } from "../../store/store";
-import {
-    Button,
-    FormControl,
-    FormControlLabel,
-    FormLabel,
-    Icon,
-    InputLabel,
-    MenuItem,
-    Radio,
-    RadioGroup,
-    Select,
-    TextField,
-} from "@mui/material";
+import { Button, Icon, InputLabel, MenuItem, Select } from "@mui/material";
 import PeachButton from "../../../common/components/PeachButton";
-import StatusPopup from "../../../common/components/StatusPopup";
 import BlankPopup from "../../../common/components/BlankPopup";
-import { FormField } from "../../../common/components/Fields/FormField";
 import AddAdminPopup from "./AddAdminPopup";
 import AdminList from "./AdminList";
 import AddCircleOutlineSharpIcon from "@mui/icons-material/AddCircleOutlineSharp";
@@ -55,14 +36,7 @@ const inputStyle = {
     },
 };
 
-interface FetchAdminParams {
-    page: string;
-    usersPerPage: string;
-    accessLevel: string[];
-}
-
-interface Props {}
-const AdminManagement: React.FC<Props> = () => {
+const AdminManagement: React.FC = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const search = searchParams.get("search");
     const page = searchParams.get("page") || "1";
@@ -89,6 +63,7 @@ const AdminManagement: React.FC<Props> = () => {
         setLoading(users.loading);
     }, [users.loading]);
 
+    // Fetch data on page load then set justLoaded state to false to prevent future automatic fetches.
     useEffect(() => {
         if (!loading && justLoaded) {
             fetchAdminData();
@@ -97,13 +72,14 @@ const AdminManagement: React.FC<Props> = () => {
     }, [loading, justLoaded]);
 
     useEffect(() => {
-        console.log("error:", users.error);
         if (users.error) {
             setIsError(true);
         }
         setErrorMessage(users.error);
+        console.error(users.error);
     }, [users.error]);
 
+    // Fetch data if access view selection changes
     useEffect(() => {
         if (accessView !== accessLevel) {
             setAccessView(accessLevel);
@@ -117,6 +93,7 @@ const AdminManagement: React.FC<Props> = () => {
         }
     }, [accessView]);
 
+    // Construct formatted params and dispatch fetch request to slice.
     const fetchAdminData = () => {
         const initialParams: Record<string, string> = {};
 

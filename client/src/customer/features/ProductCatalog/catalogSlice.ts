@@ -44,7 +44,6 @@ export const fetchProducts = createAsyncThunk<
 >(
     "catalog/fetchProducts",
     async (filters: Filters, { getState, rejectWithValue }) => {
-        console.log("fetching products");
         const state = getState() as RootState;
         const itemsPerPage = state.userPreferences.itemsPerPage;
         const existingFilters = state.catalog.filters;
@@ -77,7 +76,6 @@ export const fetchProducts = createAsyncThunk<
             }
         } else {
             filterUnchanged = false;
-            console.log("didn't change");
         }
 
         if (filterUnchanged) {
@@ -87,8 +85,7 @@ export const fetchProducts = createAsyncThunk<
                 numberOfResults: state.catalog.numberOfResults,
             };
         }
-        console.log("still working");
-        console.log(import.meta.env.VITE_API_URL);
+
         const params = { ...filters, itemsPerPage: itemsPerPage.toString() };
         try {
             const response = await axios.get(
@@ -97,7 +94,7 @@ export const fetchProducts = createAsyncThunk<
                     params: params,
                 }
             );
-            console.log("response:", response);
+
             return {
                 filters: filters,
                 products: response.data.payload.productRecords,

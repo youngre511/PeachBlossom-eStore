@@ -1,11 +1,9 @@
 import { sqlUser } from "../models/mysql/sqlUserModel.js";
 import argon2 from "argon2";
-import jwt from "jsonwebtoken";
 import sequelize from "../models/mysql/index.js";
 import { Model } from "sequelize";
 import { sqlCustomer } from "../models/mysql/sqlCustomerModel.js";
 import { sqlAdmin } from "../models/mysql/sqlAdminModel.js";
-import { generateToken } from "../utils/jwt.js";
 import { Op } from "sequelize";
 
 interface IUser extends Model {

@@ -4,7 +4,6 @@ import { useSearchParams } from "react-router-dom";
 import "./shop.css";
 
 import { RootState } from "../../store/customerStore";
-import { setItemsPerPage } from "../../features/UserPreferences/userPreferencesSlice";
 import { arraysEqual } from "../../../common/utils/arraysEqual";
 import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
 import { fetchProducts } from "../../features/ProductCatalog/catalogSlice";
@@ -13,13 +12,12 @@ import FilterOptions from "../../features/FilterOptions/FilterOptions";
 import SortMethodSelector from "../../features/SortMethodSelector/SortMethodSelector";
 import { Filters } from "../../features/ProductCatalog/CatalogTypes";
 import ItemsPerPageSelector from "./ItemsPerPageSelector";
-import { Button, IconButton } from "@mui/material";
 import FilterAltSharpIcon from "@mui/icons-material/FilterAltSharp";
 import SwapVertSharpIcon from "@mui/icons-material/SwapVertSharp";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
-import ArrowUpwardSharpIcon from "@mui/icons-material/ArrowUpwardSharp";
+import PageSelector from "./PageSelector";
 
 const Shop = () => {
     const dispatch = useAppDispatch();
@@ -439,6 +437,14 @@ const Shop = () => {
                     page={+page}
                     results={catalog.numberOfResults}
                 />
+                <div className="pagination">
+                    <PageSelector
+                        itemsPerPage={+itemsPerPage}
+                        numberOfResults={catalog.numberOfResults}
+                        currentPage={+page}
+                        updateSearchParams={updateSearchParams}
+                    />
+                </div>
             </div>
         </div>
     );

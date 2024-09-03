@@ -1,0 +1,39 @@
+.page-selector {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 40px;
+}
+
+.prev-page,
+.next-page,
+.page-button {
+    height: 48px;
+    border: none;
+    background-color: var(--deep-peach);
+    border-radius: 0;
+    cursor: pointer;
+}
+
+.prev-page {
+    width: 80px;
+}
+
+.next-page {
+    width: 80px;
+    border-left: 1px solid var(--peach-blush);
+}
+
+.page-button {
+    width: 48px;
+    border-left: 1px solid var(--peaches-blush);
+}
+
+.selected-page {
+    background-color: var(--peach-blush);
+}
+
+.disabled-page-btn {
+    color: var(--peach-blush);
+}

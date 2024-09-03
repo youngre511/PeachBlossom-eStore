@@ -1,12 +1,5 @@
 import React from "react";
-import {
-    TableCell,
-    TableHead,
-    TableRow,
-    Box,
-    TableSortLabel,
-} from "@mui/material";
-import { visuallyHidden } from "@mui/utils";
+import { TableCell, TableHead, TableRow } from "@mui/material";
 import { AdminUser } from "../../features/Users/userTypes";
 import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
 

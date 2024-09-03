@@ -13,19 +13,11 @@ interface Props {
     results: number;
 }
 const ProductCatalog: React.FC<Props> = ({ page, results }) => {
-    const dispatch = useAppDispatch();
     const { products, numberOfResults, loading, error } = useAppSelector(
         (state: RootState) => state.catalog
     );
-    const itemsPerPage = useAppSelector(
-        (state: RootState) => state.userPreferences.itemsPerPage
-    );
     const [productList, setProductList] = useState<Product[]>([]);
     const [preloading, setPreloading] = useState<boolean>(true);
-
-    // Find item range
-    const totalPages = Math.ceil(results / itemsPerPage);
-
     const [productGridWidth, setProductGridWidth] = useState(0);
     const [spacing, setSpacing] = useState<number | string>(0);
     const productGrid = useRef<HTMLDivElement | null>(null);
@@ -34,7 +26,6 @@ const ProductCatalog: React.FC<Props> = ({ page, results }) => {
 
     // Function to update the product grid width state
     const updateContWidth = () => {
-        console.log("updatingContWidth");
         if (productGrid.current) {
             const rect = productGrid.current.getBoundingClientRect();
 
@@ -184,7 +175,6 @@ const ProductCatalog: React.FC<Props> = ({ page, results }) => {
                                 />
                             ))}
                     </div>
-                    <div className="pagination"></div>
                 </React.Fragment>
             )}
         </div>

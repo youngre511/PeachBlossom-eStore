@@ -8,7 +8,6 @@ import {
     Tooltip,
 } from "@mui/material";
 import React from "react";
-import { useEffect, useState } from "react";
 import MoreVertSharpIcon from "@mui/icons-material/MoreVertSharp";
 import { Check } from "@mui/icons-material";
 import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";

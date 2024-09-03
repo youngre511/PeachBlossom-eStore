@@ -2,11 +2,7 @@ import {
     S3Client,
     PutObjectCommand,
     DeleteObjectCommand,
-    ListObjectsV2Command,
-    GetObjectCommand,
 } from "@aws-sdk/client-s3";
-import sharp from "sharp";
-import { fileTypeFromBuffer } from "file-type";
 import dotenv from "dotenv";
 dotenv.config();
 

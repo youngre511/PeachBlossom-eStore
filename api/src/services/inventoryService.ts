@@ -3,7 +3,6 @@ import { sqlCart } from "../models/mysql/sqlCartModel.js";
 import { sqlCartItem } from "../models/mysql/sqlCartItemModel.js";
 import { sqlProduct } from "../models/mysql/sqlProductModel.js";
 import Product from "../models/mongo/productModel.js";
-import { JoinReqCart } from "./cartService.js";
 import sequelize from "../models/mysql/index.js";
 import mongoose, { ClientSession } from "mongoose";
 import { Model } from "sequelize-typescript";
