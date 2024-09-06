@@ -320,7 +320,7 @@ const AddProduct: React.FC = () => {
 
     return (
         <Container>
-            <h1>Create a Product</h1>
+            <h1 className="create-header">Create a Product</h1>
             <Formik
                 initialValues={initialValues}
                 validate={validate}
