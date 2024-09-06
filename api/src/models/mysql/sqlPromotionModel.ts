@@ -20,65 +20,65 @@ export class sqlPromotion extends Model {
     @PrimaryKey
     @AutoIncrement
     @Column(DataType.BIGINT)
-    promo_data_id!: number;
+    declare promo_data_id: number;
 
     @Unique
     @Column({
         type: DataType.STRING(255),
         allowNull: false,
     })
-    promotionId!: string;
+    declare promotionId: string;
 
     @Index
     @Column({
         type: DataType.STRING(20),
         allowNull: true,
     })
-    promotionCode?: string;
+    declare promotionCode?: string;
 
     @Column({
         type: DataType.STRING(255),
         allowNull: false,
     })
-    promotionName!: string;
+    declare promotionName: string;
 
     @Column({
         type: DataType.TEXT,
         allowNull: true,
     })
-    promotionDescription!: string;
+    declare promotionDescription: string;
 
     @Column({
         type: DataType.ENUM("percentage", "fixed"),
         allowNull: false,
     })
-    discountType!: string;
+    declare discountType: string;
 
     @Column({
         type: DataType.DECIMAL(10, 2),
         allowNull: false,
     })
-    discountValue!: number;
+    declare discountValue: number;
 
     @Column({
         type: DataType.DATE,
         allowNull: false,
     })
-    startDate!: Date;
+    declare startDate: Date;
 
     @Column({
         type: DataType.DATE,
         allowNull: false,
     })
-    endDate!: Date;
+    declare endDate: Date;
 
     @Column({
         type: DataType.BOOLEAN,
         allowNull: false,
         defaultValue: 1,
     })
-    active!: boolean;
+    declare active: boolean;
 
     @BelongsToMany(() => sqlProduct, () => sqlProductPromotion)
-    productPromotions!: sqlProductPromotion[];
+    declare productPromotions: sqlProductPromotion[];
 }

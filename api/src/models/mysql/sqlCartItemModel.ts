@@ -21,7 +21,7 @@ export class sqlCartItem extends Model {
     @PrimaryKey
     @AutoIncrement
     @Column(DataType.BIGINT)
-    cart_item_id!: number;
+    declare cart_item_id: number;
 
     @Index
     @ForeignKey(() => sqlCart)
@@ -29,61 +29,61 @@ export class sqlCartItem extends Model {
         type: DataType.BIGINT,
         allowNull: false,
     })
-    cart_id!: number;
+    declare cart_id: number;
 
     @BelongsTo(() => sqlCart, {
         as: "Cart",
         foreignKey: "cart_id",
         targetKey: "cart_id",
     })
-    cart!: sqlCart;
+    declare cart: sqlCart;
 
     @ForeignKey(() => sqlProduct)
     @Column({
         type: DataType.STRING(20),
         allowNull: false,
     })
-    productNo!: string;
+    declare productNo: string;
 
     @BelongsTo(() => sqlProduct, {
         foreignKey: "productNo",
         targetKey: "productNo",
         as: "Product",
     })
-    product!: sqlProduct;
+    declare product: sqlProduct;
 
     @Column(DataType.STRING)
-    thumbnailUrl?: string;
+    declare thumbnailUrl?: string;
 
     @ForeignKey(() => sqlPromotion)
     @Column({
         type: DataType.STRING,
         allowNull: true,
     })
-    promotionId?: string;
+    declare promotionId?: string;
 
     @BelongsTo(() => sqlPromotion, {
         as: "Promotion",
         foreignKey: "promotionId",
         targetKey: "promotionId",
     })
-    promotion?: sqlPromotion;
+    declare promotion?: sqlPromotion;
 
     @Column({
         type: DataType.INTEGER,
         allowNull: false,
     })
-    quantity!: number;
+    declare quantity: number;
 
     @Column({
         type: DataType.DECIMAL(10, 2),
         allowNull: false,
     })
-    finalPrice!: number;
+    declare finalPrice: number;
 
     @Column({
         type: DataType.BOOLEAN,
         allowNull: true,
     })
-    reserved!: boolean;
+    declare reserved: boolean;
 }

@@ -19,18 +19,18 @@ export class sqlCategory extends Model {
     @PrimaryKey
     @AutoIncrement
     @Column(DataType.BIGINT)
-    category_id!: number;
+    declare category_id: number;
 
     @Index
     @Column({
         type: DataType.STRING(20),
         allowNull: false,
     })
-    categoryName!: string;
+    declare categoryName: string;
 
     @HasMany(() => sqlSubcategory, { as: "Subcategory" })
-    subcategory!: sqlSubcategory[];
+    declare subcategory: sqlSubcategory[];
 
     @HasMany(() => sqlProduct, { as: "Product" })
-    products!: sqlProduct[];
+    declare products: sqlProduct[];
 }

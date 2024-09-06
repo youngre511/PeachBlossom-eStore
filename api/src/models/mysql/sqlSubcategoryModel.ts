@@ -21,14 +21,14 @@ export class sqlSubcategory extends Model {
     @PrimaryKey
     @AutoIncrement
     @Column(DataType.BIGINT)
-    subcategory_id!: number;
+    declare subcategory_id: number;
 
     @Index
     @Column({
         type: DataType.STRING(20),
         allowNull: false,
     })
-    subcategoryName!: string;
+    declare subcategoryName: string;
 
     @Index
     @ForeignKey(() => sqlCategory)
@@ -36,11 +36,11 @@ export class sqlSubcategory extends Model {
         type: DataType.BIGINT,
         allowNull: false,
     })
-    category_id!: number;
+    declare category_id: number;
 
     @BelongsTo(() => sqlCategory, { as: "Category", foreignKey: "category_id" })
-    category!: sqlCategory[];
+    declare category: sqlCategory[];
 
     @HasMany(() => sqlProduct, { as: "Product" })
-    products!: sqlProduct[];
+    declare products: sqlProduct[];
 }

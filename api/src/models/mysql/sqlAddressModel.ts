@@ -7,9 +7,11 @@ import {
     ForeignKey,
     AutoIncrement,
     BelongsToMany,
+    HasMany,
 } from "sequelize-typescript";
 import { sqlCustomer } from "./sqlCustomerModel.js";
 import { sqlCustomerAddress } from "./sqlCustomerAddressModel.js";
+import { sqlOrder } from "./sqlOrderModel.js";
 
 @Table({
     tableName: "Addresses",
@@ -19,44 +21,47 @@ export class sqlAddress extends Model {
     @PrimaryKey
     @AutoIncrement
     @Column(DataType.BIGINT)
-    address_id!: number;
+    declare address_id: number;
 
     @Column({
         type: DataType.STRING(255),
         allowNull: true,
     })
-    nickname!: string;
+    declare nickname: string;
 
     @Column({
         type: DataType.STRING(255),
         allowNull: false,
     })
-    shippingAddress!: string;
+    declare shippingAddress: string;
 
     @Column({
         type: DataType.STRING(60),
         allowNull: false,
     })
-    city!: string;
+    declare city: string;
 
     @Column({
         type: DataType.CHAR(2),
         allowNull: false,
     })
-    stateAbbr!: string;
+    declare stateAbbr: string;
 
     @Column({
         type: DataType.CHAR(10),
         allowNull: false,
     })
-    zipCode!: string;
+    declare zipCode: string;
 
     @Column({
         type: DataType.STRING(15),
         allowNull: false,
     })
-    phoneNumber!: string;
+    declare phoneNumber: string;
 
     @BelongsToMany(() => sqlCustomer, () => sqlCustomerAddress)
-    customers!: sqlCustomer[];
+    declare customers: sqlCustomer[];
+
+    @HasMany(() => sqlOrder, { as: "Order", foreignKey: "address_id" })
+    declare order: sqlOrder;
 }

@@ -31,5 +31,5 @@ export class sqlAdmin extends Model {
     declare accessLevel: "full" | "limited";
 
     @BelongsTo(() => sqlUser, { as: "AdminUser" })
-    user!: sqlUser;
+    declare user: sqlUser;
 }

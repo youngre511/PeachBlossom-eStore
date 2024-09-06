@@ -15,9 +15,9 @@ import { sqlAddress } from "./sqlAddressModel.js";
 export class sqlCustomerAddress extends Model {
     @ForeignKey(() => sqlCustomer)
     @Column(DataType.BIGINT)
-    customer_id!: number;
+    declare customer_id: number;
 
     @ForeignKey(() => sqlAddress)
     @Column(DataType.BIGINT)
-    address_id!: number;
+    declare address_id: number;
 }

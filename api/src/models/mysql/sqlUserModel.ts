@@ -49,8 +49,8 @@ export class sqlUser extends Model {
     declare role: "customer" | "admin";
 
     @HasOne(() => sqlCustomer)
-    customer?: sqlCustomer;
+    declare customer?: sqlCustomer;
 
     @HasOne(() => sqlAdmin)
-    admin?: sqlAdmin;
+    declare admin?: sqlAdmin;
 }

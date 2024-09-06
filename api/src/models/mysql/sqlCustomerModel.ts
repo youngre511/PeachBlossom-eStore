@@ -23,25 +23,25 @@ export class sqlCustomer extends Model {
     @PrimaryKey
     @AutoIncrement
     @Column(DataType.BIGINT)
-    customer_id!: number;
+    declare customer_id: number;
 
     @ForeignKey(() => sqlUser)
     @Column(DataType.BIGINT)
-    user_id!: number;
+    declare user_id: number;
 
     @Column({
         type: DataType.STRING(254),
         allowNull: false,
         unique: true,
     })
-    email!: string;
+    declare email: string;
 
     @BelongsTo(() => sqlUser, { as: "CustomerUser" })
-    user!: sqlUser;
+    declare user: sqlUser;
 
     @BelongsToMany(() => sqlAddress, () => sqlCustomerAddress)
-    addresses!: sqlAddress[];
+    declare addresses: sqlAddress[];
 
     @HasMany(() => sqlOrder)
-    orders!: sqlOrder[];
+    declare orders: sqlOrder[];
 }

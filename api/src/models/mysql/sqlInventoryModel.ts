@@ -61,5 +61,5 @@ export class sqlInventory extends Model {
         foreignKey: "product_id",
         targetKey: "id",
     })
-    product!: sqlProduct;
+    declare product: sqlProduct;
 }

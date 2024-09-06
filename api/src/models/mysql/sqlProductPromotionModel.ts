@@ -22,9 +22,9 @@ import { sqlProduct } from "./sqlProductModel.js";
 export class sqlProductPromotion extends Model {
     @ForeignKey(() => sqlPromotion)
     @Column(DataType.STRING)
-    promotionId!: string;
+    declare promotionId: string;
 
     @ForeignKey(() => sqlProduct)
     @Column(DataType.STRING(20))
-    productNo!: string;
+    declare productNo: string;
 }

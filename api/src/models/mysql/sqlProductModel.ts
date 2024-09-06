@@ -104,14 +104,14 @@ export class sqlProduct extends Model {
     declare status: string;
 
     @BelongsToMany(() => sqlPromotion, () => sqlProductPromotion)
-    productPromotions!: sqlProductPromotion[];
+    declare productPromotions: sqlProductPromotion[];
 
     @HasMany(() => sqlCartItem, { as: "CartItem", foreignKey: "productNo" })
-    cartItem!: sqlCartItem;
+    declare cartItem: sqlCartItem;
 
     @HasMany(() => sqlOrderItem, { as: "OrderItem", foreignKey: "productNo" })
-    orderItem!: sqlOrderItem;
+    declare orderItem: sqlOrderItem;
 
     @HasOne(() => sqlInventory, { as: "Inventory", foreignKey: "product_id" })
-    inventory!: sqlInventory;
+    declare inventory: sqlInventory;
 }

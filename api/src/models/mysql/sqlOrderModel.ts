@@ -24,68 +24,68 @@ export class sqlOrder extends Model {
     @PrimaryKey
     @AutoIncrement
     @Column(DataType.BIGINT)
-    order_id!: number;
+    declare order_id: number;
 
     @ForeignKey(() => sqlCustomer)
     @Column({
         type: DataType.BIGINT,
         allowNull: true,
     })
-    customer_id!: number;
+    declare customer_id: number;
 
     @Unique
     @Column({
         type: DataType.STRING(50),
         allowNull: false,
     })
-    orderNo!: string;
+    declare orderNo: string;
 
     @Default(DataType.NOW)
     @Column({
         type: DataType.DATE,
         allowNull: false,
     })
-    orderDate!: Date;
+    declare orderDate: Date;
 
     @Column({
         type: DataType.DECIMAL(10, 2),
         allowNull: false,
     })
-    subTotal!: number;
+    declare subTotal: number;
 
     @Column({
         type: DataType.DECIMAL(10, 2),
         allowNull: false,
     })
-    shipping!: number;
+    declare shipping: number;
 
     @Column({
         type: DataType.DECIMAL(10, 2),
         allowNull: false,
     })
-    tax!: number;
+    declare tax: number;
 
     @Column({
         type: DataType.DECIMAL(10, 2),
         allowNull: false,
     })
-    totalAmount!: number;
+    declare totalAmount: number;
 
     @ForeignKey(() => sqlAddress)
     @Column({
         type: DataType.BIGINT,
         allowNull: false,
     })
-    address_id!: number;
+    declare address_id: number;
 
-    @BelongsTo(() => sqlAddress, { as: "Address" })
-    address!: sqlAddress;
+    @BelongsTo(() => sqlAddress, { as: "Address", foreignKey: "address_id" })
+    declare address: sqlAddress;
 
     @Column({
         type: DataType.STRING(254),
         allowNull: false,
     })
-    email!: string;
+    declare email: string;
 
     @Column({
         type: DataType.ENUM(
@@ -98,8 +98,8 @@ export class sqlOrder extends Model {
         ),
         allowNull: false,
     })
-    orderStatus!: string;
+    declare orderStatus: string;
 
     @HasMany(() => sqlOrderItem, { as: "OrderItem" })
-    orderItems!: sqlOrderItem[];
+    declare orderItems: sqlOrderItem[];
 }
