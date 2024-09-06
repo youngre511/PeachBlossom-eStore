@@ -78,7 +78,19 @@ type RegionMap = {
 };
 
 const regions: RegionMap = {
-    Northeast: ["CT", "ME", "MA", "NH", "RI", "VT", "NJ", "NY", "PA"],
+    Northeast: [
+        "CT",
+        "ME",
+        "MA",
+        "NH",
+        "RI",
+        "VT",
+        "NJ",
+        "NY",
+        "PA",
+        "DE",
+        "MD",
+    ],
     Southeast: [
         "AL",
         "AR",
@@ -93,7 +105,20 @@ const regions: RegionMap = {
         "VA",
         "WV",
     ],
-    Midwest: ["IL", "IN", "IA", "MI", "MN", "MO", "NE", "ND", "SD", "OH", "WI"],
+    Midwest: [
+        "IL",
+        "IN",
+        "IA",
+        "MI",
+        "MN",
+        "MO",
+        "NE",
+        "ND",
+        "SD",
+        "OH",
+        "WI",
+        "KS",
+    ],
     Southwest: ["AZ", "NM", "OK", "TX"],
     West: ["AK", "CA", "CO", "HI", "ID", "MT", "NV", "OR", "UT", "WA", "WY"],
 };
