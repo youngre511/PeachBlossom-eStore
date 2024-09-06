@@ -221,7 +221,7 @@ const AVProductCatalog: React.FC<AVCatProps> = ({
                 <TablePagination
                     rowsPerPageOptions={[24, 48, 96]}
                     component="div"
-                    count={rows.length}
+                    count={numberOfResults}
                     rowsPerPage={rowsPerPage}
                     page={page - 1}
                     onPageChange={handleChangePage}
