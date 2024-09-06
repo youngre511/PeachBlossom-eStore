@@ -49,7 +49,10 @@ const ShopNav: React.FC<Props> = ({
                             return (
                                 <li key={index}>
                                     <Link
-                                        to={`/shop?category=${category.categoryName}`}
+                                        to={`/shop?category=${category.categoryName.replace(
+                                            "&",
+                                            "%26"
+                                        )}`}
                                     >
                                         {category.categoryName}
                                     </Link>
@@ -60,10 +63,14 @@ const ShopNav: React.FC<Props> = ({
                                                     (subcategory, index) => (
                                                         <li key={index}>
                                                             <Link
-                                                                to={`/shop?category=${
-                                                                    category.categoryName
-                                                                }&sub_category=${encodeURI(
-                                                                    subcategory.subcategoryName
+                                                                to={`/shop?category=${category.categoryName.replace(
+                                                                    "&",
+                                                                    "%26"
+                                                                )}&sub_category=${encodeURI(
+                                                                    subcategory.subcategoryName.replace(
+                                                                        "&",
+                                                                        "%26"
+                                                                    )
                                                                 )}`}
                                                             >
                                                                 {
