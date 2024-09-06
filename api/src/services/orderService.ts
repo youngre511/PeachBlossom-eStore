@@ -132,7 +132,6 @@ export const placeOrder = async (orderData: OrderData) => {
             tax: orderDetails.tax,
             totalAmount: orderDetails.totalAmount,
             orderStatus: "in process",
-            orderDate: orderData.date,
         };
 
         await sqlOrder.create(newOrder, { transaction: sqlTransaction });
