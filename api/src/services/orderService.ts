@@ -9,7 +9,7 @@ import { sqlOrder } from "../models/mysql/sqlOrderModel.js";
 import { sqlOrderItem } from "../models/mysql/sqlOrderItemModel.js";
 import { generateOrderNo } from "../utils/generateOrderNo.js";
 import { sqlProduct } from "../models/mysql/sqlProductModel.js";
-import { Model, Op, Order, fn, col, literal } from "sequelize";
+import { Model, Op, Order } from "sequelize";
 import { JoinReqProduct } from "./cartService.js";
 import { sqlCartItem } from "../models/mysql/sqlCartItemModel.js";
 import { sqlCart } from "../models/mysql/sqlCartModel.js";
@@ -132,6 +132,7 @@ export const placeOrder = async (orderData: OrderData) => {
             tax: orderDetails.tax,
             totalAmount: orderDetails.totalAmount,
             orderStatus: "in process",
+            orderDate: orderData.date,
         };
 
         await sqlOrder.create(newOrder, { transaction: sqlTransaction });
@@ -148,6 +149,7 @@ export const placeOrder = async (orderData: OrderData) => {
         }
 
         for (const item of orderDetails.items) {
+            console.log(item);
             const orderItem = {
                 order_id: createdOrder.dataValues.order_id,
                 productNo: item.productNo,

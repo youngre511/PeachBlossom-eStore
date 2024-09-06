@@ -197,6 +197,7 @@ export const getProducts = async (filters: FilterObject) => {
 
     // Retrieve category and tag object ids if names are provided
     if (filters.category) {
+        console.log("filters.category:", filters.category);
         const cat = await Category.findOne({ name: filters.category }).exec();
         if (cat) {
             categoryId = cat._id;
