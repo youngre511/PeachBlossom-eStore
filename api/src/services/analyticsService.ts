@@ -196,22 +196,21 @@ export const getRevenueOverTime = async (
 ) => {
     try {
         // Dynamically construct attributes based on granularity input
-        const attributeClause: FindAttributeOptions = [];
+        const attributeClause: FindAttributeOptions = [
+            [fn("YEAR", col("orderDate")), "year"],
+        ];
         switch (granularity) {
             case "quarter":
                 attributeClause.push([
                     literal("QUARTER(orderDate)"),
                     "quarter",
                 ]);
-                attributeClause.push([fn("YEAR", col("orderDate")), "year"]);
                 break;
             case "month":
                 attributeClause.push([fn("MONTH", col("orderDate")), "month"]);
-                attributeClause.push([fn("YEAR", col("orderDate")), "year"]);
                 break;
             case "week":
                 attributeClause.push([fn("WEEK", col("orderDate")), "week"]);
-                attributeClause.push([fn("YEAR", col("orderDate")), "year"]);
                 break;
             default:
                 throw new Error("invalid time grouping");
@@ -295,7 +294,9 @@ export const getRevenueOverTime = async (
             );
         } else {
             // Rollback the transaction in case of any non-Error errors
-            throw new Error("An unknown error occurred while placing order");
+            throw new Error(
+                "An unknown error occurred while getting revenue over time"
+            );
         }
     }
 };
@@ -308,7 +309,8 @@ export const getRevenueByCategory = async (
     endDate: string | null,
     byState: boolean = false,
     byRegion: boolean = false,
-    bySubcategory: boolean = false
+    bySubcategory: boolean = false,
+    returnPercentage: boolean = false
 ) => {
     try {
         // Dynamically construct order attributes based on granularity input
@@ -422,6 +424,8 @@ export const getRevenueByCategory = async (
 
         const sortOrder: SortOrder[] = [];
         const groupClause: GroupOption = [];
+        const periodName: string[] = [];
+        const periodGroupClause: GroupOption = [];
         console.log("Adding state/region clauses");
         if (byRegion) {
             // Since sequelize does not support grouping or ordering by dynamically created fields in associated tables, in order to group/order by region, the RAW sql that created the column must be repeated in the group/order clause.
@@ -432,19 +436,28 @@ export const getRevenueByCategory = async (
             sortOrder.push("stateAbbr");
         }
 
-        groupClause.push("categoryName");
-        sortOrder.push("categoryName");
+        if (!returnPercentage) {
+            groupClause.push("categoryName");
+            sortOrder.push("categoryName");
 
-        if (bySubcategory) {
-            groupClause.push("subcategoryName");
-            sortOrder.push("subcategoryName");
+            if (bySubcategory) {
+                groupClause.push("subcategoryName");
+                sortOrder.push("subcategoryName");
+            }
         }
 
         if (["week", "month", "quarter", "year"].includes(granularity)) {
+            periodName.push("YEAR(orderDate)");
+            periodGroupClause.push(literal("YEAR(orderDate)"));
             groupClause.push(literal("YEAR(orderDate)"));
             sortOrder.push("year");
         }
         if (["week", "month", "quarter"].includes(granularity)) {
+            periodName.push(`'-${granularity.toUpperCase().substring(0, 1)}'`);
+            periodName.push(`${granularity.toUpperCase()}(orderDate)`);
+            periodGroupClause.push(
+                literal(`${granularity.toUpperCase()}(orderDate)`)
+            );
             groupClause.push(
                 literal(`${granularity.toUpperCase()}(orderDate)`)
             );
@@ -452,11 +465,51 @@ export const getRevenueByCategory = async (
             sortOrder.push(`${granularity}` as SortOrder);
         }
 
+        if (returnPercentage) {
+            groupClause.push("categoryName");
+            sortOrder.push("categoryName");
+
+            if (bySubcategory) {
+                groupClause.push("subcategoryName");
+                sortOrder.push("subcategoryName");
+            }
+        }
+
+        const totalRevenueByPeriod = await sqlOrderItem.findAll({
+            attributes: [
+                [literal(`SUM(quantity * priceWhenOrdered)`), "total_revenue"],
+                periodGroupClause && [
+                    literal(`CONCAT(${periodName.join(", ")})`),
+                    "period",
+                ],
+            ],
+            include: [
+                {
+                    model: sqlOrder,
+                    as: "Order",
+                    attributes: [],
+                    where: orderWhereClause,
+                },
+            ],
+            group: periodGroupClause,
+            raw: true,
+        });
+
+        const totalRevenueMap: Record<string, number> = {};
+        totalRevenueByPeriod.forEach((entry: any) => {
+            const periodKey = entry.period || "all";
+            totalRevenueMap[periodKey] = entry.total_revenue;
+        });
+
         const results = await sqlOrderItem.findAll({
             attributes: [
                 [
                     fn("SUM", literal("quantity * priceWhenOrdered")),
                     "total_revenue",
+                ],
+                periodGroupClause && [
+                    literal(`CONCAT(${periodName.join(", ")})`),
+                    "period",
                 ],
             ],
             include: includeClause,
@@ -464,24 +517,40 @@ export const getRevenueByCategory = async (
             order: ["total_revenue"],
             raw: true,
         });
-        const sortedResults = buildNestedDataArrays(sortOrder, results);
+        const resultsWithPercentage = results.map((result: any) => {
+            const periodKey = result.period; // Get the period from the SQL result
+            const totalRevenueForPeriod = totalRevenueMap[periodKey] || 1; // Use the map, or default to 1
+            const percentageOfTotal =
+                (result.total_revenue / totalRevenueForPeriod) * 100;
+
+            return {
+                ...result,
+                percentage_of_total: percentageOfTotal.toFixed(2), // Round to 2 decimal places
+            };
+        });
+        const sortedResults = buildNestedDataArrays(
+            sortOrder,
+            resultsWithPercentage
+        );
         return sortedResults;
     } catch (error) {
         if (error instanceof Error) {
             // Rollback the transaction in case of any errors
             throw new Error(
-                "Error getting revenue over time: " + error.message
+                "Error getting revenue by category: " + error.message
             );
         } else {
             // Rollback the transaction in case of any non-Error errors
-            throw new Error("An unknown error occurred while placing order");
+            throw new Error(
+                "An unknown error occurred while getting revenue by category"
+            );
         }
     }
 };
 
 // Get number transactions
 
-export const getTransactionStats = async (
+export const getTransactionsOverTime = async (
     granularity: "week" | "month" | "quarter" | "year" | "all",
     startDate: string | null,
     endDate: string | null,
@@ -594,11 +663,13 @@ export const getTransactionStats = async (
         if (error instanceof Error) {
             // Rollback the transaction in case of any errors
             throw new Error(
-                "Error getting revenue over time: " + error.message
+                "Error getting transactions over time: " + error.message
             );
         } else {
             // Rollback the transaction in case of any non-Error errors
-            throw new Error("An unknown error occurred while placing order");
+            throw new Error(
+                "An unknown error occurred while getting transactions over time"
+            );
         }
     }
 };
@@ -667,7 +738,7 @@ export const getItemsPerTransaction = async (
                 attributes: [
                     [
                         sequelize.literal(
-                            `SUM(quantity) / COUNT(DISTINCT OrderItem.order_id)`
+                            `ROUND((SUM(quantity) / COUNT(DISTINCT OrderItem.order_id)), 2)`
                         ),
                         "averageQuantityPerOrder",
                     ],
@@ -716,10 +787,298 @@ export const getItemsPerTransaction = async (
             attributes: attributeClause,
             include: includeClause,
             group: groupClause,
-            // order: ["averageQuantity"],
             raw: true,
         });
         const sortedResults = buildNestedDataArrays(sortOrder, results);
+        return sortedResults;
+    } catch (error) {
+        if (error instanceof Error) {
+            // Rollback the transaction in case of any errors
+            throw new Error(
+                "Error getting items per transaction: " + error.message
+            );
+        } else {
+            // Rollback the transaction in case of any non-Error errors
+            throw new Error(
+                "An unknown error occurred while getting items per transaction"
+            );
+        }
+    }
+};
+
+// Get Average Order Value (by region? by state?)
+export const getAverageOrderValue = async (
+    granularity: "week" | "month" | "quarter",
+    startDate: string | null,
+    endDate: string | null,
+    byState: boolean = false,
+    byRegion: boolean = false
+) => {
+    try {
+        // Dynamically construct attributes based on granularity input
+        const attributeClause: FindAttributeOptions = [
+            [fn("YEAR", col("orderDate")), "year"],
+        ];
+        switch (granularity) {
+            case "quarter":
+                attributeClause.push([
+                    literal("QUARTER(orderDate)"),
+                    "quarter",
+                ]);
+                attributeClause.push([fn("YEAR", col("orderDate")), "year"]);
+                break;
+            case "month":
+                attributeClause.push([fn("MONTH", col("orderDate")), "month"]);
+                attributeClause.push([fn("YEAR", col("orderDate")), "year"]);
+                break;
+            case "week":
+                attributeClause.push([fn("WEEK", col("orderDate")), "week"]);
+                attributeClause.push([fn("YEAR", col("orderDate")), "year"]);
+                break;
+            default:
+                throw new Error("invalid time grouping");
+        }
+
+        attributeClause.push([
+            sequelize.literal(`ROUND((SUM(subTotal) / COUNT(order_id)), 2)`),
+            "averageQuantityPerOrder",
+        ]);
+
+        // Dynamically add date restrictions based on input
+
+        let whereClause: WhereOptions | undefined = {};
+        if (startDate && endDate) {
+            whereClause["orderDate"] = {
+                [Op.between]: [startDate, endDate],
+            };
+        } else if (startDate && !endDate) {
+            whereClause["orderDate"] = {
+                [Op.gte]: startDate,
+            };
+        } else if (endDate) {
+            whereClause["orderDate"] = {
+                [Op.lte]: endDate,
+            };
+        } else {
+            whereClause = undefined;
+        }
+
+        // Dynamically create include parameter if sorting by state or region
+
+        let includeClause: IncludeOptions[] | undefined = [];
+        if (byState || byRegion) {
+            includeClause.push({
+                model: sqlAddress,
+                as: "Address",
+                attributes: [
+                    byState
+                        ? "stateAbbr"
+                        : [literal(regionCaseStatement), "region"],
+                ],
+            });
+        } else {
+            includeClause = undefined;
+        }
+
+        // Dynamically create group clause and order clause
+
+        const sortOrder: SortOrder[] = [];
+        const groupClause: GroupOption = [];
+        if (byRegion) {
+            // Since sequelize does not support grouping or ordering by dynamically created fields in associated tables, in order to group/order by region, the RAW sql that created the column must be repeated in the group/order clause.
+            groupClause.push(literal(regionCaseStatement));
+            sortOrder.push("region");
+        } else if (byState) {
+            groupClause.push("stateAbbr");
+            sortOrder.push("stateAbbr");
+        }
+
+        groupClause.push(literal("YEAR(orderDate)"));
+        sortOrder.push("year");
+
+        if (["week", "month", "quarter"].includes(granularity)) {
+            groupClause.push(
+                literal(`${granularity.toUpperCase()}(orderDate)`)
+            );
+            // SortOrder type must allow all granularity types except "all"
+            sortOrder.push(`${granularity}` as SortOrder);
+        }
+
+        const results = await sqlOrder.findAll({
+            where: whereClause,
+            attributes: attributeClause,
+            include: includeClause,
+            group: groupClause,
+            raw: true,
+        });
+        const sortedResults = buildNestedDataArrays(sortOrder, results);
+        return sortedResults;
+    } catch (error) {
+        if (error instanceof Error) {
+            // Rollback the transaction in case of any errors
+            throw new Error(
+                "Error getting items per transaction: " + error.message
+            );
+        } else {
+            // Rollback the transaction in case of any non-Error errors
+            throw new Error(
+                "An unknown error occurred while getting items per transaction"
+            );
+        }
+    }
+};
+
+// Get Region percentages
+
+export const getRegionRevenuePercentages = async (
+    granularity: "week" | "month" | "quarter",
+    startDate: string | null,
+    endDate: string | null,
+    byState: boolean = false,
+    byRegion: boolean = false
+) => {
+    try {
+        // Dynamically construct attributes based on granularity input
+        const attributeClause: FindAttributeOptions = [
+            [fn("YEAR", col("orderDate")), "year"],
+        ];
+        switch (granularity) {
+            case "quarter":
+                attributeClause.push([
+                    literal("QUARTER(orderDate)"),
+                    "quarter",
+                ]);
+                break;
+            case "month":
+                attributeClause.push([fn("MONTH", col("orderDate")), "month"]);
+                break;
+            case "week":
+                attributeClause.push([fn("WEEK", col("orderDate")), "week"]);
+                break;
+            default:
+                throw new Error("invalid time grouping");
+        }
+
+        // Add sum data to attributes
+        attributeClause.push([fn("SUM", col("subTotal")), "total_revenue"]);
+
+        // Dynamically add date restrictions based on input
+
+        let whereClause: WhereOptions | undefined = {};
+        if (startDate && endDate) {
+            whereClause["orderDate"] = {
+                [Op.between]: [startDate, endDate],
+            };
+        } else if (startDate && !endDate) {
+            whereClause["orderDate"] = {
+                [Op.gte]: startDate,
+            };
+        } else if (endDate) {
+            whereClause["orderDate"] = {
+                [Op.lte]: endDate,
+            };
+        } else {
+            whereClause = undefined;
+        }
+
+        // Dynamically create include parameter if sorting by state or region
+
+        let includeClause: IncludeOptions[] | undefined = undefined;
+        if (byState || byRegion) {
+            includeClause = [
+                {
+                    model: sqlAddress,
+                    as: "Address",
+                    attributes: [
+                        byState
+                            ? "stateAbbr"
+                            : [literal(regionCaseStatement), "region"],
+                    ],
+                },
+            ];
+        }
+
+        // Dynamically create group clause and order clause
+
+        const sortOrder: SortOrder[] = [];
+        const groupClause: GroupOption = [];
+        const periodGroupClause: GroupOption = [];
+        const periodName: string[] = [];
+
+        groupClause.push("year");
+        periodGroupClause.push(literal("YEAR(orderDate)"));
+        periodName.push("YEAR(orderDate)");
+        sortOrder.push("year");
+        if (["week", "month", "quarter"].includes(granularity)) {
+            periodName.push(`'-${granularity.toUpperCase().substring(0, 1)}'`);
+            periodName.push(`${granularity.toUpperCase()}(orderDate)`);
+            periodGroupClause.push(
+                literal(`${granularity.toUpperCase()}(orderDate)`)
+            );
+            // SortOrder type must allow all granularity types except "all"
+            sortOrder.push(`${granularity}` as SortOrder);
+        }
+
+        if (byRegion) {
+            // Since sequelize does not support grouping or ordering by dynamically created fields in associated tables, in order to group/order by region, the RAW sql that created the column must be repeated in the group/order clause.
+            groupClause.push(literal(regionCaseStatement));
+            sortOrder.push("region");
+        } else if (byState) {
+            groupClause.push("stateAbbr");
+            sortOrder.push("stateAbbr");
+        }
+
+        const totalRevenueByPeriod = await sqlOrder.findAll({
+            where: whereClause,
+            attributes: [
+                [fn("SUM", col("subTotal")), "total_revenue"],
+                periodGroupClause && [
+                    literal(`CONCAT(${periodName.join(", ")})`),
+                    "period",
+                ],
+            ],
+            include: includeClause,
+            group: periodGroupClause,
+            raw: true,
+        });
+
+        const totalRevenueMap: Record<string, number> = {};
+        totalRevenueByPeriod.forEach((entry: any) => {
+            const periodKey = entry.period || "all";
+            totalRevenueMap[periodKey] = entry.total_revenue;
+        });
+
+        const results = await sqlOrder.findAll({
+            where: whereClause,
+            attributes: [
+                ...attributeClause,
+                periodGroupClause && [
+                    literal(`CONCAT(${periodName.join(", ")})`),
+                    "period",
+                ],
+            ],
+            include: includeClause,
+            group: groupClause,
+            order: ["total_revenue"],
+            raw: true,
+        });
+
+        const resultsWithPercentage = results.map((result: any) => {
+            const periodKey = result.period; // Get the period from the SQL result
+            const totalRevenueForPeriod = totalRevenueMap[periodKey] || 1; // Use the map, or default to 1
+            const percentageOfTotal =
+                (result.total_revenue / totalRevenueForPeriod) * 100;
+
+            return {
+                ...result,
+                percentage_of_total: percentageOfTotal.toFixed(2), // Round to 2 decimal places
+            };
+        });
+
+        const sortedResults = buildNestedDataArrays(
+            sortOrder,
+            resultsWithPercentage
+        );
         return sortedResults;
     } catch (error) {
         if (error instanceof Error) {
@@ -729,13 +1088,9 @@ export const getItemsPerTransaction = async (
             );
         } else {
             // Rollback the transaction in case of any non-Error errors
-            throw new Error("An unknown error occurred while placing order");
+            throw new Error(
+                "An unknown error occurred while getting revenue over time"
+            );
         }
     }
 };
-
-// Get Average Order Value (by region? by state?)
-
-// Get Category Percentages
-
-// Get Region percentages

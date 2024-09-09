@@ -1,7 +1,7 @@
 import * as analyticsService from "../services/analyticsService.js";
 import { Request, Response } from "express";
 
-interface ROTRequest extends Request {
+interface OverTimeRequest extends Request {
     body: {
         granularity: "week" | "month" | "quarter";
         byState?: boolean;
@@ -11,7 +11,17 @@ interface ROTRequest extends Request {
     };
 }
 
-interface RBCRequest extends Request {
+interface OverTimeExtendedRequest extends Request {
+    body: {
+        granularity: "week" | "month" | "quarter" | "year" | "all";
+        byState?: boolean;
+        byRegion?: boolean;
+        startDate?: string;
+        endDate?: string;
+    };
+}
+
+interface ByCategoryRequest extends Request {
     body: {
         granularity: "week" | "month" | "quarter" | "year" | "all";
         byState?: boolean;
@@ -19,10 +29,14 @@ interface RBCRequest extends Request {
         bySubcategory?: boolean;
         startDate?: string;
         endDate?: string;
+        returnPercentage?: boolean;
     };
 }
 
-export const getRevenueOverTime = async (req: ROTRequest, res: Response) => {
+export const getRevenueOverTime = async (
+    req: OverTimeRequest,
+    res: Response
+) => {
     try {
         const {
             granularity,
@@ -52,7 +66,10 @@ export const getRevenueOverTime = async (req: ROTRequest, res: Response) => {
     }
 };
 
-export const getRevenueByCategory = async (req: RBCRequest, res: Response) => {
+export const getRevenueByCategory = async (
+    req: ByCategoryRequest,
+    res: Response
+) => {
     try {
         const {
             granularity,
@@ -61,6 +78,7 @@ export const getRevenueByCategory = async (req: RBCRequest, res: Response) => {
             byState = false,
             byRegion = false,
             bySubcategory = false,
+            returnPercentage = false,
         } = req.body;
         const result = await analyticsService.getRevenueByCategory(
             granularity,
@@ -68,7 +86,8 @@ export const getRevenueByCategory = async (req: RBCRequest, res: Response) => {
             endDate,
             byState,
             byRegion,
-            bySubcategory
+            bySubcategory,
+            returnPercentage
         );
 
         res.json(result);
@@ -84,7 +103,10 @@ export const getRevenueByCategory = async (req: RBCRequest, res: Response) => {
     }
 };
 
-export const getTransactionStats = async (req: ROTRequest, res: Response) => {
+export const getTransactionsOverTime = async (
+    req: OverTimeExtendedRequest,
+    res: Response
+) => {
     try {
         const {
             granularity,
@@ -93,7 +115,7 @@ export const getTransactionStats = async (req: ROTRequest, res: Response) => {
             byState = false,
             byRegion = false,
         } = req.body;
-        const result = await analyticsService.getTransactionStats(
+        const result = await analyticsService.getTransactionsOverTime(
             granularity,
             startDate,
             endDate,
@@ -104,7 +126,7 @@ export const getTransactionStats = async (req: ROTRequest, res: Response) => {
         res.json(result);
     } catch (error) {
         let errorObj = {
-            message: "get Revenue Over Time failure",
+            message: "get Transactions Over Time failure",
             payload: error,
         };
 
@@ -115,7 +137,7 @@ export const getTransactionStats = async (req: ROTRequest, res: Response) => {
 };
 
 export const getItemsPerTransaction = async (
-    req: ROTRequest,
+    req: OverTimeExtendedRequest,
     res: Response
 ) => {
     try {
@@ -127,6 +149,72 @@ export const getItemsPerTransaction = async (
             byRegion = false,
         } = req.body;
         const result = await analyticsService.getItemsPerTransaction(
+            granularity,
+            startDate,
+            endDate,
+            byState,
+            byRegion
+        );
+
+        res.json(result);
+    } catch (error) {
+        let errorObj = {
+            message: "get Items Per Transaction failure",
+            payload: error,
+        };
+
+        console.error(errorObj);
+
+        res.status(500).json(errorObj);
+    }
+};
+
+export const getAverageOrderValue = async (
+    req: OverTimeRequest,
+    res: Response
+) => {
+    try {
+        const {
+            granularity = "month",
+            startDate = null,
+            endDate = null,
+            byState = false,
+            byRegion = false,
+        } = req.body;
+        const result = await analyticsService.getAverageOrderValue(
+            granularity,
+            startDate,
+            endDate,
+            byState,
+            byRegion
+        );
+
+        res.json(result);
+    } catch (error) {
+        let errorObj = {
+            message: "get Items Per Transaction failure",
+            payload: error,
+        };
+
+        console.error(errorObj);
+
+        res.status(500).json(errorObj);
+    }
+};
+
+export const getRegionRevenuePercentages = async (
+    req: OverTimeRequest,
+    res: Response
+) => {
+    try {
+        const {
+            granularity,
+            startDate = null,
+            endDate = null,
+            byState = false,
+            byRegion = false,
+        } = req.body;
+        const result = await analyticsService.getRegionRevenuePercentages(
             granularity,
             startDate,
             endDate,

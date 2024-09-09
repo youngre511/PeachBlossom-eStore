@@ -1,8 +1,10 @@
 import {
+    getAverageOrderValue,
     getItemsPerTransaction,
+    getRegionRevenuePercentages,
     getRevenueByCategory,
     getRevenueOverTime,
-    getTransactionStats,
+    getTransactionsOverTime,
 } from "../controllers/analyticsController.js";
 import { Router } from "express";
 import { authMiddleware } from "../middleware/authMiddleware.js";
@@ -13,8 +15,12 @@ analyticsRouter.get("/rot", getRevenueOverTime);
 
 analyticsRouter.get("/rbc", getRevenueByCategory);
 
-analyticsRouter.get("/tot", getTransactionStats);
+analyticsRouter.get("/tot", getTransactionsOverTime);
 
 analyticsRouter.get("/ipt", getItemsPerTransaction);
+
+analyticsRouter.get("/aov", getAverageOrderValue);
+
+analyticsRouter.get("/rrp", getRegionRevenuePercentages);
 
 export default analyticsRouter;
