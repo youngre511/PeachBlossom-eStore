@@ -15,6 +15,7 @@ export interface CartState {
     numberOfItems: number;
     cartId: number | null;
     error: string | null;
+    expirationTime: string | null;
 }
 
 export interface ChangeQuantityRequest {

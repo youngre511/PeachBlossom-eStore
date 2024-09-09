@@ -99,9 +99,9 @@ export const holdStock = async (cartId: number) => {
                             "Unable to find inventory record or insufficient stock"
                         );
                     }
+                } else {
+                    throw new Error("product not found");
                 }
-            } else {
-                throw new Error("product not found");
             }
         }
         const cart = await sqlCart.findByPk(cartId);
@@ -111,7 +111,7 @@ export const holdStock = async (cartId: number) => {
 
         //Get the current time, the expiration time, and the expiration time minus 30 sec all in UTC for later comparison.
         //If cart.dataValues.checkoutExpiration is null, it will give the Unix epoch and not cause errors. This is fine, because these variables are used only if cart.dataValues.checkoutExpiration is not null (see below).
-        const recordedExpiration = new Date(cart.dataValues.checkoutExpiration);
+
         const recordedExpirationMinus30Sec = new Date(
             cart.dataValues.checkoutExpiration
         );
@@ -123,22 +123,31 @@ export const holdStock = async (cartId: number) => {
         // Issue a new cart expiration date if no expiration date exists or if the current time is within the 30 second grace period after the front-end 5min timer.
         // Expiration date is 30 seconds longer than the front-end countdown in order to prevent conflicts if checkout executes at the same moment that the lambda releaseHold function clears expiration dates and inventory holds.
         // Logic allows user to reinitiate expiration countdown immediately after front-end countdown ends without losing their inventory reservations
+        let expirationTime: string;
         if (
             !cart.dataValues.checkoutExpiration ||
-            (currentTime < recordedExpiration &&
-                currentTime >= recordedExpirationMinus30Sec)
+            currentTime >= recordedExpirationMinus30Sec
         ) {
             const expirationDate = new Date();
-            const utcExpirationDate = expirationDate.toISOString();
+
             expirationDate.setMinutes(expirationDate.getMinutes() + 5);
+
+            expirationTime = expirationDate.toISOString();
+
             expirationDate.setSeconds(expirationDate.getSeconds() + 30);
+            const utcExpirationDate = expirationDate.toISOString();
             await sqlCart.update(
                 { checkoutExpiration: utcExpirationDate },
                 { where: { cart_id: cartId }, transaction: sqlTransaction }
             );
+        } else {
+            const cartTime = new Date(cart.dataValues.checkoutExpiration);
+            cartTime.setSeconds(cartTime.getSeconds() - 30);
+            expirationTime = cartTime.toISOString();
         }
         await sqlTransaction.commit();
-        return true;
+
+        return expirationTime;
     } catch (error) {
         await sqlTransaction.rollback();
         if (error instanceof Error) {

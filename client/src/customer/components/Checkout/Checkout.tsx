@@ -25,9 +25,14 @@ import Review from "./Review";
 import { useAppSelector, useAppDispatch } from "../../hooks/reduxHooks";
 import { RootState } from "../../store/customerStore";
 import axios, { AxiosError } from "axios";
-import { syncCart, clearCart } from "../../features/Cart/cartSlice";
+import {
+    syncCart,
+    clearCart,
+    setExpirationTime,
+} from "../../features/Cart/cartSlice";
 import { CartState } from "../../features/Cart/CartTypes";
 import "./checkout.css";
+import { useCheckoutTimer } from "../../../common/contexts/checkoutTimerContext";
 
 export interface PaymentDetails {
     cardType: string;
@@ -107,6 +112,7 @@ const Checkout: React.FC = () => {
         useState<boolean>(false);
     const [canPlaceOrder, setCanPlaceOrder] = useState<boolean>(false);
     const [nextDisabled, setNextDisabled] = useState<boolean>(false);
+    const { timeLeft } = useCheckoutTimer();
 
     // Hold stock till checkout is complete or user navigates away from page.
     useEffect(() => {
@@ -117,9 +123,13 @@ const Checkout: React.FC = () => {
                 setCurrentCartItems([...cart.items]);
             }
             try {
-                await axios.put(
+                const response = await axios.put(
                     `${import.meta.env.VITE_API_URL}/inventory/holdStock`,
                     { cartId: currentCartId }
+                );
+                console.log(response.data.payload);
+                dispatch(
+                    setExpirationTime({ expiration: response.data.payload })
                 );
             } catch (error) {
                 if (error instanceof AxiosError) {
@@ -156,11 +166,6 @@ const Checkout: React.FC = () => {
 
         // Hold stock when component mounts
         holdStock();
-
-        // Clean up the listener and release stock if the component unmounts
-        return () => {
-            releaseStock();
-        };
     }, []);
 
     useEffect(() => {
@@ -374,6 +379,7 @@ const Checkout: React.FC = () => {
                         sx={{
                             display: "flex",
                             alignItems: "start",
+                            flexDirection: "column",
                             height: 60,
                         }}
                     >
@@ -385,6 +391,15 @@ const Checkout: React.FC = () => {
                         >
                             Back to cart
                         </Button>
+                        {timeLeft && (
+                            <Box>
+                                <Typography>Time to checkout:</Typography>
+                                <Typography>
+                                    {timeLeft.minutes}:
+                                    {String(timeLeft.seconds).padStart(2, "0")}
+                                </Typography>
+                            </Box>
+                        )}
                     </Box>
                     <Box
                         sx={{
@@ -449,6 +464,18 @@ const Checkout: React.FC = () => {
                             >
                                 Back to cart
                             </Button>
+                            {timeLeft && (
+                                <Box>
+                                    <Typography>Time to checkout:</Typography>
+                                    <Typography>
+                                        {timeLeft.minutes}:
+                                        {String(timeLeft.seconds).padStart(
+                                            2,
+                                            "0"
+                                        )}
+                                    </Typography>
+                                </Box>
+                            )}
                         </Box>
                         <Box
                             sx={{
@@ -471,8 +498,8 @@ const Checkout: React.FC = () => {
                                 {steps.map((label) => (
                                     <Step
                                         sx={{
-                                            ":first-child": { pl: 0 },
-                                            ":last-child": { pr: 0 },
+                                            ":first-of-type": { pl: 0 },
+                                            ":last-of-type": { pr: 0 },
                                         }}
                                         key={label}
                                     >
@@ -531,8 +558,8 @@ const Checkout: React.FC = () => {
                             {steps.map((label) => (
                                 <Step
                                     sx={{
-                                        ":first-child": { pl: 0 },
-                                        ":last-child": { pr: 0 },
+                                        ":first-of-type": { pl: 0 },
+                                        ":last-of-type": { pr: 0 },
                                         "& .MuiStepConnector-root": {
                                             top: { xs: 6, sm: 12 },
                                         },

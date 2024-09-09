@@ -20,6 +20,7 @@ const initialState: CartState = {
     numberOfItems: 0,
     cartId: null,
     error: null,
+    expirationTime: null,
 };
 
 //Thunks//
@@ -31,8 +32,6 @@ export const addItemToCart = createAsyncThunk<
 >(
     "cart/addItemToCart",
     async (productNo: string, { getState, dispatch, rejectWithValue }) => {
-        console.log("running add item to cart");
-        console.log(productNo);
         const state = getState() as RootState;
         const currentCartItems = [...state.cart.items];
         const currentNumberOfItems = state.cart.numberOfItems;
@@ -275,6 +274,12 @@ const cartSlice = createSlice({
         setCartId: (state, action: PayloadAction<{ cartId: number }>) => {
             state.cartId = action.payload.cartId;
         },
+        setExpirationTime: (
+            state,
+            action: PayloadAction<{ expiration: string }>
+        ) => {
+            state.expirationTime = action.payload.expiration;
+        },
         addCartPromo: (state, action: PayloadAction<string>) => {},
         removeCartPromo: (state, action: PayloadAction<string>) => {},
     },
@@ -344,5 +349,6 @@ export const {
     rollbackCartItems,
     clearCart,
     setCartId,
+    setExpirationTime,
 } = cartSlice.actions;
 export default cartSlice.reducer;

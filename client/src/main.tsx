@@ -14,6 +14,7 @@ import adminStore from "./admin/store/store";
 import { AuthProvider } from "./common/contexts/authContext";
 import { NavigationHistoryProvider } from "./common/contexts/navContext";
 import { WindowSizeProvider } from "./common/contexts/windowSizeContext";
+import { CheckoutTimerProvider } from "./common/contexts/checkoutTimerContext";
 
 const isAdmin = window.location.hostname.startsWith("admin");
 
@@ -51,7 +52,9 @@ if (isAdmin) {
                             <AuthProvider>
                                 <NavigationHistoryProvider>
                                     <WindowSizeProvider>
-                                        <CustomerApp />
+                                        <CheckoutTimerProvider>
+                                            <CustomerApp />
+                                        </CheckoutTimerProvider>
                                     </WindowSizeProvider>
                                 </NavigationHistoryProvider>
                             </AuthProvider>

@@ -18,7 +18,7 @@ export default function Info({ totalPrice, items }: InfoProps) {
                 Total
             </Typography>
             <Typography variant="h4" gutterBottom>
-                {`$${totalPrice.toFixed(2)}`}
+                {`$${Number(totalPrice).toFixed(2)}`}
             </Typography>
             <List disablePadding>
                 {items.map((item) => (

@@ -18,11 +18,11 @@ interface StockUpdateRequest extends Request {
 export const holdStock = async (req: CartIdRequest, res: Response) => {
     try {
         const { cartId } = req.body;
-        const result = await inventoryService.holdStock(cartId);
+        const expirationTime = await inventoryService.holdStock(cartId);
 
         res.json({
             message: "success",
-            payload: result,
+            payload: expirationTime,
         });
     } catch (error) {
         let errorObj = {
