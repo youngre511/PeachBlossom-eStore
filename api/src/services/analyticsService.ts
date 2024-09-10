@@ -16,6 +16,8 @@ import {
     GroupOption,
     Order,
 } from "sequelize";
+import { ChartType } from "../controllers/analyticsController.js";
+import buildChartObjects from "../utils/buildChartObjects.js";
 
 // Set up region case statement for creating region column in sql queries.
 type RegionMap = {
@@ -84,7 +86,7 @@ const buildRegionCase = () => {
 const regionCaseStatement = buildRegionCase();
 
 // SortOrder type must allow all granularity types except "all"
-type SortOrder =
+export type SortOrder =
     | "region"
     | "stateAbbr"
     | "year"
@@ -94,8 +96,24 @@ type SortOrder =
     | "categoryName"
     | "subcategoryName";
 
+export type YValue =
+    | "count"
+    | "total_revenue"
+    | "averageOrderValue"
+    | "averageQuantityPerOrder"
+    | "percentage_of_total";
+
 // Data Processing
-const buildNestedDataArrays = (groupOrder: SortOrder[], rawData: any) => {
+
+// Function to transform raw, flattened sql responses into nested, two-index data arrays. Accepts raw data and an array of sort parameters (result keys) of type SortOrder.
+// Each step transforms data into the following format: [sort parameter data, raw data minus sort parameter data].
+// E.g. groupOrder ["year", "month"] would return
+// dynamicSort function sorts data in ascending order at each step.
+const buildNestedDataArrays = (
+    groupOrder: SortOrder[],
+    rawData: any,
+    chartType: ChartType
+) => {
     let nestedDataArray = [];
 
     const dynamicSort = (a: any[], b: any[]) => {
@@ -142,6 +160,7 @@ const buildNestedDataArrays = (groupOrder: SortOrder[], rawData: any) => {
     let sortTypeLength = groupOrder.length;
     const nested1 = nestByType(rawData, groupOrder[0]);
 
+    // Logic includes a series of ternaries to add up to 5 levels of nesting.
     if (sortTypeLength > 1) {
         const nested2 = nested1.map((item) => [
             item[0],
@@ -188,11 +207,12 @@ const buildNestedDataArrays = (groupOrder: SortOrder[], rawData: any) => {
 // Get Revenue (by region?, by state?)
 
 export const getRevenueOverTime = async (
-    granularity: "week" | "month" | "quarter",
+    granularity: "week" | "month" | "quarter" | "year",
     startDate: string | null,
     endDate: string | null,
     byState: boolean = false,
-    byRegion: boolean = false
+    byRegion: boolean = false,
+    chartType: ChartType
 ) => {
     try {
         // Dynamically construct attributes based on granularity input
@@ -200,6 +220,8 @@ export const getRevenueOverTime = async (
             [fn("YEAR", col("orderDate")), "year"],
         ];
         switch (granularity) {
+            case "year":
+                break;
             case "quarter":
                 attributeClause.push([
                     literal("QUARTER(orderDate)"),
@@ -257,23 +279,28 @@ export const getRevenueOverTime = async (
 
         // Dynamically create group clause and order clause
 
-        const sortOrder: SortOrder[] = [];
+        const dataFormat = { y: "total_revenue" } as {
+            id: SortOrder;
+            x: SortOrder;
+            y: YValue;
+        };
         const groupClause: GroupOption = [];
         if (byRegion) {
             // Since sequelize does not support grouping or ordering by dynamically created fields in associated tables, in order to group/order by region, the RAW sql that created the column must be repeated in the group/order clause.
             groupClause.push(literal(regionCaseStatement));
-            sortOrder.push("region");
+            dataFormat["id"] = "region";
         } else if (byState) {
             groupClause.push("stateAbbr");
-            sortOrder.push("stateAbbr");
+            dataFormat["id"] = "stateAbbr";
+        } else {
+            dataFormat["id"] = "year";
         }
 
         groupClause.push("year");
-        sortOrder.push("year");
         if (["week", "month", "quarter"].includes(granularity)) {
             groupClause.push(`${granularity}`);
             // SortOrder type must allow all granularity types except "all"
-            sortOrder.push(`${granularity}` as SortOrder);
+            dataFormat["x"] = granularity as SortOrder;
         }
 
         const results = await sqlOrder.findAll({
@@ -284,8 +311,12 @@ export const getRevenueOverTime = async (
             order: ["total_revenue"],
             raw: true,
         });
-        const sortedResults = buildNestedDataArrays(sortOrder, results);
-        return sortedResults;
+        const processedResults = buildChartObjects(
+            results,
+            chartType,
+            dataFormat
+        );
+        return processedResults;
     } catch (error) {
         if (error instanceof Error) {
             // Rollback the transaction in case of any errors
@@ -310,7 +341,8 @@ export const getRevenueByCategory = async (
     byState: boolean = false,
     byRegion: boolean = false,
     bySubcategory: boolean = false,
-    returnPercentage: boolean = false
+    returnPercentage: boolean = false,
+    chartType: ChartType
 ) => {
     try {
         // Dynamically construct order attributes based on granularity input
@@ -530,7 +562,8 @@ export const getRevenueByCategory = async (
         });
         const sortedResults = buildNestedDataArrays(
             sortOrder,
-            resultsWithPercentage
+            resultsWithPercentage,
+            chartType
         );
         return sortedResults;
     } catch (error) {
@@ -555,7 +588,8 @@ export const getTransactionsOverTime = async (
     startDate: string | null,
     endDate: string | null,
     byState: boolean = false,
-    byRegion: boolean = false
+    byRegion: boolean = false,
+    chartType: ChartType
 ) => {
     try {
         // Dynamically construct attributes based on granularity input
@@ -657,7 +691,11 @@ export const getTransactionsOverTime = async (
             order: ["count"],
             raw: true,
         });
-        const sortedResults = buildNestedDataArrays(sortOrder, results);
+        const sortedResults = buildNestedDataArrays(
+            sortOrder,
+            results,
+            chartType
+        );
         return sortedResults;
     } catch (error) {
         if (error instanceof Error) {
@@ -680,7 +718,8 @@ export const getItemsPerTransaction = async (
     startDate: string | null,
     endDate: string | null,
     byState: boolean = false,
-    byRegion: boolean = false
+    byRegion: boolean = false,
+    chartType: ChartType
 ) => {
     try {
         // Dynamically construct attributes based on granularity input
@@ -789,7 +828,11 @@ export const getItemsPerTransaction = async (
             group: groupClause,
             raw: true,
         });
-        const sortedResults = buildNestedDataArrays(sortOrder, results);
+        const sortedResults = buildNestedDataArrays(
+            sortOrder,
+            results,
+            chartType
+        );
         return sortedResults;
     } catch (error) {
         if (error instanceof Error) {
@@ -812,7 +855,8 @@ export const getAverageOrderValue = async (
     startDate: string | null,
     endDate: string | null,
     byState: boolean = false,
-    byRegion: boolean = false
+    byRegion: boolean = false,
+    chartType: ChartType
 ) => {
     try {
         // Dynamically construct attributes based on granularity input
@@ -841,7 +885,7 @@ export const getAverageOrderValue = async (
 
         attributeClause.push([
             sequelize.literal(`ROUND((SUM(subTotal) / COUNT(order_id)), 2)`),
-            "averageQuantityPerOrder",
+            "averageOrderValue",
         ]);
 
         // Dynamically add date restrictions based on input
@@ -911,7 +955,11 @@ export const getAverageOrderValue = async (
             group: groupClause,
             raw: true,
         });
-        const sortedResults = buildNestedDataArrays(sortOrder, results);
+        const sortedResults = buildNestedDataArrays(
+            sortOrder,
+            results,
+            chartType
+        );
         return sortedResults;
     } catch (error) {
         if (error instanceof Error) {
@@ -935,7 +983,8 @@ export const getRegionRevenuePercentages = async (
     startDate: string | null,
     endDate: string | null,
     byState: boolean = false,
-    byRegion: boolean = false
+    byRegion: boolean = false,
+    chartType: ChartType
 ) => {
     try {
         // Dynamically construct attributes based on granularity input
@@ -1077,7 +1126,8 @@ export const getRegionRevenuePercentages = async (
 
         const sortedResults = buildNestedDataArrays(
             sortOrder,
-            resultsWithPercentage
+            resultsWithPercentage,
+            chartType
         );
         return sortedResults;
     } catch (error) {

@@ -3,6 +3,7 @@ import avCatalogReducer from "../features/AVCatalog/avCatalogSlice";
 import avMenuDataReducer from "../features/AVMenuData/avMenuDataSlice";
 import avOrderReducer from "../features/AVOrders/avOrdersSlice";
 import userReducer from "../features/Users/userSlice";
+import analyticsReducer from "../features/Analytics/analyticsSlice";
 
 export const adminStore = configureStore({
     reducer: {
@@ -10,6 +11,7 @@ export const adminStore = configureStore({
         avMenuData: avMenuDataReducer,
         avOrder: avOrderReducer,
         users: userReducer,
+        analytics: analyticsReducer,
     },
 });
 
