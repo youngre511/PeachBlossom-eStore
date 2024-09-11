@@ -77,10 +77,10 @@ export const fetchRevenueOverTime = createAsyncThunk<
                     },
                 }
             );
-            console.log("response:", response);
+
             return {
                 params: params,
-                data: response.data.payload,
+                data: response.data,
             };
         } catch (error: any) {
             return rejectWithValue(

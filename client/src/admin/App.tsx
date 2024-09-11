@@ -22,6 +22,7 @@ import { AuthContext } from "../common/contexts/authContext";
 import Sales from "./components/Sales/Sales";
 import HomeRedirect from "./components/HomeRedirect";
 import AdminManagement from "./components/AdminManagement/AdminManagement";
+import Dashboard from "./components/Dashboard/Dashboard";
 function AdminApp() {
     const dispatch = useAppDispatch();
     const authContext = useContext(AuthContext);
@@ -58,10 +59,10 @@ function AdminApp() {
                             }
                         />
                         <Route
-                            path="/dashboard/sales"
+                            path="/sales/dashboard"
                             element={
                                 <ProtectedRoute
-                                    component={Sales}
+                                    component={Dashboard}
                                     requiredRole="admin"
                                 />
                             }

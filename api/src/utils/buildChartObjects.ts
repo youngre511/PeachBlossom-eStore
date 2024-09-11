@@ -21,7 +21,7 @@ export type PieChartData = {
 const buildChartObjects = (
     rawData: any,
     chartType: ChartType,
-    dataFormat: { id: SortOrder; x: SortOrder; y: YValue }
+    dataFormat: { id: SortOrder; id2?: SortOrder; x: SortOrder; y: YValue }
 ) => {
     const monthArr = [
         "Jan",
@@ -38,19 +38,152 @@ const buildChartObjects = (
         "Dec",
     ];
 
+    // Function to strip any prefixes added in id construction, and then break compound values (such as those in 'Quarter Year' format) into parsed objects to facilitate sort comparison
+    const parseCompoundValues = (value: string) => {
+        let year = 0,
+            quarter = 0,
+            week = 0;
+
+        if (value.includes("Q")) {
+            const [q, y] = value.replace("Q", "").split(" ");
+            year = Number(y);
+            quarter = Number(q);
+        } else if (value.includes("Week")) {
+            const [_, w, y] = value.split(" ");
+            year = Number(y);
+            week = Number(w);
+        }
+
+        return { year, quarter, week };
+    };
+
     const dynamicSort = <R extends BarChartData | LineChartData | PieChartData>(
         a: R,
-        b: R
+        b: R,
+        idk2: boolean
     ) => {
-        if (typeof a.id === "number" && typeof b.id === "number") {
-            return (a.id as number) - (b.id as number);
+        // Make copies of ids
+        let aId = a.id;
+        let bId = b.id;
+        if (typeof aId === "number" && typeof bId === "number") {
+            return (aId as number) - (bId as number);
         } else {
-            if (a.id < b.id) {
-                return -1;
-            } else {
-                return 1;
+            // If aid and bid (which will always be of same type) are strings:
+            // First, use monthArr to replace month names with their indexes
+            for (let i = 0; i < monthArr.length; i++) {
+                if (aId.includes(monthArr[i])) {
+                    aId = aId.replace(monthArr[i], `${i}`);
+                }
+                if (bId.includes(monthArr[i])) {
+                    bId = bId.replace(monthArr[i], `${i}`);
+                }
             }
+
+            // Strip any prefixes added in id construction, and then
+            // create split versions of ids to be used in the case that there is a second id term
+            const aParsed = parseCompoundValues(aId);
+            const bParsed = parseCompoundValues(bId);
+
+            // Keep a before b if:
+            // There is no second term and
+            //    the id is not a number and aid comes earlier in the alphabet han bid
+            //    OR
+            //    the id is a number and aid is less than bid
+            // OR
+            // There is a second term and
+            //    the first term of a is less than the first term of b
+            //    AND
+            //    the year of a is less than or equal to the first term of b
+            // According to constructChart function code, if there is a second term, both first and second terms will always be numbers after being processed in the code above.
+            if (!idk2) {
+                if (
+                    (isNaN(Number(aId)) && aId < bId) ||
+                    (!isNaN(Number(aId)) && Number(aId) - Number(bId) < 0)
+                ) {
+                    return -1;
+                } else {
+                    return 1;
+                }
+            } else {
+                if (aParsed.year !== bParsed.year) {
+                    return aParsed.year - bParsed.year;
+                } else if (aParsed.quarter !== bParsed.quarter) {
+                    return aParsed.quarter - bParsed.quarter;
+                } else if (aParsed.week !== bParsed.week) {
+                    return aParsed.week - bParsed.week;
+                }
+            }
+            return 0;
         }
+    };
+
+    //lineSort performs the same logic as dynamicSort but at the level of X within the data properties of each LineData object
+    const lineSort = (rawData: LineChartData[], xk2: boolean) => {
+        const parseXKey = (xValue: string) => {
+            let year = 0,
+                quarter = 0,
+                week = 0;
+
+            if (xValue.includes("Q")) {
+                const [q, y] = xValue.replace("Q", "").split(" ");
+                year = Number(y);
+                quarter = Number(q);
+            } else if (xValue.includes("Week")) {
+                const [_, w, y] = xValue.split(" ");
+                year = Number(y);
+                week = Number(w);
+            }
+
+            return { year, quarter, week };
+        };
+
+        const data = [...rawData];
+        const sortedData = data.map((dataObj) => {
+            const dataObjCopy = { ...dataObj };
+            const dataObjXY = dataObjCopy.data;
+            const sortedXY = dataObjXY.sort(
+                (a: { x: string; y: number }, b: { x: string; y: number }) => {
+                    let aX = a.x;
+                    let bX = b.x;
+                    for (let i = 0; i < monthArr.length; i++) {
+                        if (aX.includes(monthArr[i])) {
+                            aX = aX.replace(monthArr[i], `${i}`);
+                        }
+                        if (bX.includes(monthArr[i])) {
+                            bX = bX.replace(monthArr[i], `${i}`);
+                        }
+                    }
+
+                    const aParsed = parseCompoundValues(a.x);
+                    const bParsed = parseCompoundValues(b.x);
+
+                    if (!xk2) {
+                        if (
+                            (isNaN(Number(aX)) && aX < bX) ||
+                            (!isNaN(Number(aX)) && Number(aX) - Number(bX) < 0)
+                        ) {
+                            return -1;
+                        } else {
+                            return 1;
+                        }
+                    } else {
+                        if (aParsed.year !== bParsed.year) {
+                            return aParsed.year - bParsed.year;
+                        } else if (aParsed.quarter !== bParsed.quarter) {
+                            return aParsed.quarter - bParsed.quarter;
+                        } else if (aParsed.week !== bParsed.week) {
+                            return aParsed.week - bParsed.week;
+                        }
+                    }
+                    return 0;
+                }
+            );
+
+            dataObjCopy.data = sortedXY;
+
+            return dataObjCopy;
+        });
+        return sortedData;
     };
 
     const constructChart = () => {
@@ -60,23 +193,31 @@ const buildChartObjects = (
         const idKey = Object.keys(rawData[0]).filter((key) =>
             String(key).endsWith(dataFormat.id)
         )[0];
+        const idKey2 = dataFormat.id2
+            ? Object.keys(rawData[0]).filter((key) =>
+                  String(key).endsWith(dataFormat.id2 as SortOrder)
+              )[0]
+            : null;
         const xKey = Object.keys(rawData[0]).filter((key) =>
             String(key).endsWith(dataFormat.x)
         )[0];
         const yKey = Object.keys(rawData[0]).filter((key) =>
             String(key).endsWith(dataFormat.y)
         )[0];
-
-        console.log(idKey, xKey, yKey);
+        let xKey2Exists: boolean = false;
 
         rawData.forEach((dataPoint: any) => {
             // Establish data values, converting month, if present, from number to abbr
             let idValue = dataPoint[idKey];
-            if (idKey === "month" && typeof idValue === "number") {
+
+            if (dataFormat.id === "month" && typeof idValue === "number") {
                 idValue = monthArr[idValue - 1];
-            } else if (idKey === "quarter") {
-                idValue = `Q${dataPoint[idKey]} / ${dataPoint["year"]}`;
+            } else if (dataFormat.id === "quarter") {
+                console.log("it's quarter");
+                idValue = `Q${dataPoint[idKey]}`;
             }
+
+            if (idKey2) idValue += ` ${dataPoint[idKey2]}`;
 
             let xValue = dataPoint[xKey];
             if (xKey === "month") {
@@ -87,6 +228,7 @@ const buildChartObjects = (
                     xValue = `${monthArr[Number(dataPoint[xKey]) - 1]} ${
                         dataPoint["year"]
                     }`;
+                    xKey2Exists = true;
                 } else {
                     xValue = monthArr[Number(dataPoint[xKey]) - 1];
                 }
@@ -95,7 +237,8 @@ const buildChartObjects = (
                     idKey !== "year" &&
                     Object.keys(dataPoint).includes("year")
                 ) {
-                    xValue = `Q${dataPoint[xKey]} / ${dataPoint["year"]}`;
+                    xValue = `Q${dataPoint[xKey]} ${dataPoint["year"]}`;
+                    xKey2Exists = true;
                 } else {
                     xValue = `Q${dataPoint[xKey]}`;
                 }
@@ -103,16 +246,11 @@ const buildChartObjects = (
                 xValue = `Week ${dataPoint[xKey] + 1}`;
             }
             let yValue = dataPoint[yKey];
-            console.log("still working");
+
             // Create objects in array if none exists for given id
-            console.log(
-                "usedIds:",
-                usedIds,
-                "dataPoint[idKey]:",
-                dataPoint[idKey]
-            );
-            if (!usedIds.includes(dataPoint[idKey])) {
-                usedIds.push(dataPoint[idKey]);
+
+            if (!usedIds.includes(idValue)) {
+                usedIds.push(idValue);
                 result.push(
                     chartType === "line"
                         ? { id: idValue, data: [] }
@@ -121,57 +259,39 @@ const buildChartObjects = (
             }
 
             // Find the index of the object with an id of idValue
-            console.log("result:", result);
+
             const idIndex = result.findIndex((item) => item.id === idValue);
-            console.log("idIndex:", idIndex);
+
             // Construct data object and push to that objects data array
             if (chartType === "line") {
-                console.log("result[idIndex]", result[idIndex]);
                 const dataObject = { x: xValue, y: yValue };
                 result[idIndex].data.push(dataObject);
-                console.log("constructing line");
-                for (const object of result) {
-                    if (xKey === "month") {
-                        object.data = object.data.sort(
-                            (
-                                a: { x: string; y: number },
-                                b: { x: string; y: number }
-                            ) =>
-                                monthArr.indexOf(a.x.split(" ")[0]) -
-                                monthArr.indexOf(b.x.split(" ")[0])
-                        );
-                    } else {
-                        object.data = object.data.sort(
-                            (
-                                a: { x: string; y: number },
-                                b: { x: string; y: number }
-                            ) => (a.x < b.x ? -1 : 1)
-                        );
-                    }
-                }
             } else if (chartType === "bar") {
                 result[idIndex][xValue] = Number(yValue);
             } else {
-                result[idIndex]["label"] = xValue;
+                // result[idIndex]["label"] = xValue;
                 result[idIndex]["value"] = yValue;
             }
         });
 
         if (chartType === "line") {
-            const sortedResult: LineChartData[] = result.sort((a, b) =>
-                dynamicSort<LineChartData>(a, b)
+            // Sort at level of id first and then at level of data (x)
+            const sortedResult: LineChartData[] = lineSort(
+                result.sort((a, b) =>
+                    dynamicSort<LineChartData>(a, b, idKey2 ? true : false)
+                ),
+                xKey2Exists
             );
-            console.log("sortedResult:", sortedResult);
             return sortedResult;
         } else if (chartType === "bar") {
             const sortedResult: BarChartData[] = result.sort((a, b) =>
-                dynamicSort<BarChartData>(a, b)
+                dynamicSort<BarChartData>(a, b, idKey2 ? true : false)
             );
-            console.log("sortedResult:", sortedResult);
+
             return sortedResult;
         } else {
             const sortedResult: PieChartData[] = result.sort((a, b) =>
-                dynamicSort<PieChartData>(a, b)
+                dynamicSort<PieChartData>(a, b, idKey2 ? true : false)
             );
             console.log("sortedResult:", sortedResult);
             return sortedResult;

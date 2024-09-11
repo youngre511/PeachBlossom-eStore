@@ -6,7 +6,7 @@ interface Props {}
 const HomeRedirect: React.FC<Props> = () => {
     const navigate = useNavigate();
     useEffect(() => {
-        navigate("/dashboard/sales");
+        navigate("/sales/dashboard");
     }, []);
     return <div></div>;
 };

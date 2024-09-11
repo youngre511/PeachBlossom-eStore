@@ -122,7 +122,7 @@ const AdminNav: React.FC<Props> = (props: Props) => {
                                 <ListItemIcon>
                                     <DashboardIcon className="menu-svg" />
                                 </ListItemIcon>
-                                <ListItemText primary={"Dashboard"} />
+                                <ListItemText primary={"Sales Analytics"} />
                             </AccordionSummary>
                             <AccordionDetails
                                 sx={{
@@ -132,9 +132,14 @@ const AdminNav: React.FC<Props> = (props: Props) => {
                             >
                                 <List sx={{ padding: 0 }}>
                                     <ListItem disablePadding>
-                                        <ListItemButton sx={{ paddingLeft: 2 }}>
+                                        <ListItemButton
+                                            sx={{ paddingLeft: 2 }}
+                                            onClick={() =>
+                                                navigate("/sales/dashboard")
+                                            }
+                                        >
                                             <ListItemText
-                                                secondary={"Sales Analytics"}
+                                                secondary={"Dashboard"}
                                             />
                                         </ListItemButton>
                                     </ListItem>

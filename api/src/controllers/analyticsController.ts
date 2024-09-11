@@ -53,8 +53,8 @@ interface OverTimeExtendedParams {
 interface ByCategoryRequest extends Request {
     query: {
         granularity: string;
-        byState?: string;
-        byRegion?: string;
+        stateAbbr?: string;
+        region?: string;
         bySubcategory?: string;
         startDate?: string;
         endDate?: string;
@@ -65,8 +65,8 @@ interface ByCategoryRequest extends Request {
 
 interface ByCategoryParams {
     granularity: GranularityExtended;
-    byState: boolean;
-    byRegion: boolean;
+    stateAbbr: string;
+    region: string;
     bySubcategory: boolean;
     startDate: string;
     endDate: string;
@@ -163,8 +163,8 @@ export const getRevenueByCategory = async (
             granularity,
             startDate = null,
             endDate = null,
-            byState = false,
-            byRegion = false,
+            stateAbbr = null,
+            region = null,
             bySubcategory = false,
             returnPercentage = false,
             chartType,
@@ -176,8 +176,8 @@ export const getRevenueByCategory = async (
             granularity,
             startDate,
             endDate,
-            byState,
-            byRegion,
+            stateAbbr,
+            region,
             bySubcategory,
             returnPercentage,
             chartType

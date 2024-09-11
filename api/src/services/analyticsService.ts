@@ -17,7 +17,11 @@ import {
     Order,
 } from "sequelize";
 import { ChartType } from "../controllers/analyticsController.js";
-import buildChartObjects from "../utils/buildChartObjects.js";
+import buildChartObjects, {
+    BarChartData,
+    LineChartData,
+    PieChartData,
+} from "../utils/buildChartObjects.js";
 
 // Set up region case statement for creating region column in sql queries.
 type RegionMap = {
@@ -109,11 +113,7 @@ export type YValue =
 // Each step transforms data into the following format: [sort parameter data, raw data minus sort parameter data].
 // E.g. groupOrder ["year", "month"] would return
 // dynamicSort function sorts data in ascending order at each step.
-const buildNestedDataArrays = (
-    groupOrder: SortOrder[],
-    rawData: any,
-    chartType: ChartType
-) => {
+const buildNestedDataArrays = (groupOrder: SortOrder[], rawData: any) => {
     let nestedDataArray = [];
 
     const dynamicSort = (a: any[], b: any[]) => {
@@ -128,27 +128,21 @@ const buildNestedDataArrays = (
         }
     };
 
-    const stripOfKey = (data: any, key: string) => {
-        if (typeof data === "object") {
-            delete data[key];
-        }
-        return data;
-    };
-
     const nestByType = (data: any, sortType: string) => {
         const nestedData: Array<any> = [];
         const key = Object.keys(data[0]).filter((key) =>
             String(key).endsWith(sortType)
         )[0];
+
         if (key) {
             for (const item of data) {
                 const foundIndex = nestedData.findIndex(
                     (arrayItem) => arrayItem[0] === item[key]
                 );
                 if (foundIndex === -1) {
-                    nestedData.push([item[key], [stripOfKey(item, key)]]);
+                    nestedData.push([item[key], [item]]);
                 } else {
-                    nestedData[foundIndex][1].push(stripOfKey(item, key));
+                    nestedData[foundIndex][1].push(item);
                 }
             }
         } else {
@@ -158,6 +152,7 @@ const buildNestedDataArrays = (
     };
 
     let sortTypeLength = groupOrder.length;
+
     const nested1 = nestByType(rawData, groupOrder[0]);
 
     // Logic includes a series of ternaries to add up to 5 levels of nesting.
@@ -338,8 +333,8 @@ export const getRevenueByCategory = async (
     granularity: "week" | "month" | "quarter" | "year" | "all",
     startDate: string | null,
     endDate: string | null,
-    byState: boolean = false,
-    byRegion: boolean = false,
+    stateAbbr: string | null,
+    region: string | null,
     bySubcategory: boolean = false,
     returnPercentage: boolean = false,
     chartType: ChartType
@@ -412,15 +407,14 @@ export const getRevenueByCategory = async (
         // Dynamically create order include parameter if sorting by state or region
 
         let orderIncludeClause: IncludeOptions[] = [];
-        if (byState || byRegion) {
+        if (stateAbbr || region) {
             orderIncludeClause.push({
                 model: sqlAddress,
                 as: "Address",
-                attributes: [
-                    byState
-                        ? "stateAbbr"
-                        : [literal(regionCaseStatement), "region"],
-                ],
+                attributes: ["stateAbbr"],
+                where: stateAbbr
+                    ? { stateAbbr: stateAbbr }
+                    : sequelize.where(literal(regionCaseStatement), region),
             });
         }
 
@@ -452,29 +446,50 @@ export const getRevenueByCategory = async (
             },
         ];
 
-        // Dynamically create group clause and order clause
+        // Dynamically create data format
 
-        const sortOrder: SortOrder[] = [];
+        const dataFormat = {
+            y: returnPercentage ? "percentage_of_total" : "total_revenue",
+        } as {
+            id: SortOrder;
+            id2?: SortOrder;
+            x: SortOrder;
+            y: YValue;
+        };
+
+        if (chartType === "pie") {
+            if (bySubcategory) {
+                dataFormat.id = "subcategoryName";
+                dataFormat.x = "subcategoryName";
+            } else {
+                dataFormat.id = "categoryName";
+                dataFormat.x = "categoryName";
+            }
+        } else {
+            if (granularity === "year") {
+                dataFormat.id = "year";
+            } else if (["week", "month", "quarter"].includes(granularity)) {
+                // SortOrder type must allow all granularity types except "all"
+                dataFormat.id = granularity as SortOrder;
+                dataFormat.id2 = "year";
+            }
+
+            if (bySubcategory) {
+                dataFormat.x = "subcategoryName";
+            } else {
+                dataFormat.x = "categoryName";
+            }
+        }
+
+        // Dynamically create group clause
         const groupClause: GroupOption = [];
         const periodName: string[] = [];
         const periodGroupClause: GroupOption = [];
-        console.log("Adding state/region clauses");
-        if (byRegion) {
-            // Since sequelize does not support grouping or ordering by dynamically created fields in associated tables, in order to group/order by region, the RAW sql that created the column must be repeated in the group/order clause.
-            groupClause.push(literal(regionCaseStatement));
-            sortOrder.push("region");
-        } else if (byState) {
-            groupClause.push("stateAbbr");
-            sortOrder.push("stateAbbr");
-        }
-
         if (!returnPercentage) {
-            groupClause.push("categoryName");
-            sortOrder.push("categoryName");
-
             if (bySubcategory) {
                 groupClause.push("subcategoryName");
-                sortOrder.push("subcategoryName");
+            } else {
+                groupClause.push("categoryName");
             }
         }
 
@@ -482,7 +497,6 @@ export const getRevenueByCategory = async (
             periodName.push("YEAR(orderDate)");
             periodGroupClause.push(literal("YEAR(orderDate)"));
             groupClause.push(literal("YEAR(orderDate)"));
-            sortOrder.push("year");
         }
         if (["week", "month", "quarter"].includes(granularity)) {
             periodName.push(`'-${granularity.toUpperCase().substring(0, 1)}'`);
@@ -493,17 +507,13 @@ export const getRevenueByCategory = async (
             groupClause.push(
                 literal(`${granularity.toUpperCase()}(orderDate)`)
             );
-            // SortOrder type must allow all granularity types except "all"
-            sortOrder.push(`${granularity}` as SortOrder);
         }
 
         if (returnPercentage) {
-            groupClause.push("categoryName");
-            sortOrder.push("categoryName");
-
             if (bySubcategory) {
                 groupClause.push("subcategoryName");
-                sortOrder.push("subcategoryName");
+            } else {
+                groupClause.push("categoryName");
             }
         }
 
@@ -549,6 +559,7 @@ export const getRevenueByCategory = async (
             order: ["total_revenue"],
             raw: true,
         });
+
         const resultsWithPercentage = results.map((result: any) => {
             const periodKey = result.period; // Get the period from the SQL result
             const totalRevenueForPeriod = totalRevenueMap[periodKey] || 1; // Use the map, or default to 1
@@ -560,12 +571,82 @@ export const getRevenueByCategory = async (
                 percentage_of_total: percentageOfTotal.toFixed(2), // Round to 2 decimal places
             };
         });
-        const sortedResults = buildNestedDataArrays(
-            sortOrder,
-            resultsWithPercentage,
-            chartType
-        );
-        return sortedResults;
+
+        // Package results to return to front end
+        type FormattedResultsType = Array<
+            | LineChartData
+            | BarChartData
+            | PieChartData
+            | Array<string | PieChartData[]>
+        >;
+
+        let formattedResults: FormattedResultsType = [];
+
+        // Pie charts necessarily can only consist of category/subcategory names and their associated values.
+        // To return results for multiple periods, one pie-chart dataset must be returned for each period.
+        // The code in if-block manages such cases by first using buildNestedDataArrays to sort by ascending period and then creating a pie-chart dataset for each.
+        if (chartType === "pie" && granularity !== "all") {
+            const sortedResults = buildNestedDataArrays(
+                ["year", `${granularity}`],
+                resultsWithPercentage
+            );
+            for (const year of sortedResults) {
+                for (const gran of year[1]) {
+                    const result = gran[1];
+                    let dateId = "";
+                    if (granularity === "week") {
+                        dateId += `Week ${result[0]["Order.week"]} `;
+                    }
+                    if (granularity === "month") {
+                        const monthArr = [
+                            "Jan",
+                            "Feb",
+                            "Mar",
+                            "Apr",
+                            "May",
+                            "Jun",
+                            "Jul",
+                            "Aug",
+                            "Sep",
+                            "Oct",
+                            "Nov",
+                            "Dec",
+                        ];
+                        dateId += `${monthArr[result[0]["Order.month"] - 1]} `;
+                    }
+                    if (granularity === "quarter") {
+                        dateId += `Q${result[0]["Order.quarter"]} `;
+                    }
+                    dateId += result[0]["Order.year"];
+                    formattedResults.push([
+                        dateId,
+                        buildChartObjects(
+                            result,
+                            "pie",
+                            dataFormat
+                        ) as PieChartData[],
+                    ]);
+                }
+            }
+        } else {
+            formattedResults = buildChartObjects(
+                resultsWithPercentage,
+                chartType,
+                dataFormat
+            );
+        }
+
+        const returnObject: Record<string, string | FormattedResultsType> = {
+            results: formattedResults,
+        };
+        if (stateAbbr) {
+            returnObject["state"] = stateAbbr;
+        }
+        if (region) {
+            returnObject["region"] = region;
+        }
+
+        return returnObject;
     } catch (error) {
         if (error instanceof Error) {
             // Rollback the transaction in case of any errors
@@ -691,11 +772,7 @@ export const getTransactionsOverTime = async (
             order: ["count"],
             raw: true,
         });
-        const sortedResults = buildNestedDataArrays(
-            sortOrder,
-            results,
-            chartType
-        );
+        const sortedResults = buildNestedDataArrays(sortOrder, results);
         return sortedResults;
     } catch (error) {
         if (error instanceof Error) {
@@ -828,11 +905,7 @@ export const getItemsPerTransaction = async (
             group: groupClause,
             raw: true,
         });
-        const sortedResults = buildNestedDataArrays(
-            sortOrder,
-            results,
-            chartType
-        );
+        const sortedResults = buildNestedDataArrays(sortOrder, results);
         return sortedResults;
     } catch (error) {
         if (error instanceof Error) {
@@ -955,11 +1028,7 @@ export const getAverageOrderValue = async (
             group: groupClause,
             raw: true,
         });
-        const sortedResults = buildNestedDataArrays(
-            sortOrder,
-            results,
-            chartType
-        );
+        const sortedResults = buildNestedDataArrays(sortOrder, results);
         return sortedResults;
     } catch (error) {
         if (error instanceof Error) {
@@ -1126,8 +1195,7 @@ export const getRegionRevenuePercentages = async (
 
         const sortedResults = buildNestedDataArrays(
             sortOrder,
-            resultsWithPercentage,
-            chartType
+            resultsWithPercentage
         );
         return sortedResults;
     } catch (error) {
