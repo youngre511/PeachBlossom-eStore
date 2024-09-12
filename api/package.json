@@ -8,8 +8,9 @@
         "build": "npx tsc",
         "test": "echo \"Error: no test specified\" && exit 1",
         "dev": "node src/index.ts",
+        "devbuild": "npx tsc -w",
+        "watch": "nodemon dist/index.js",
         "start": "node dist/index.js",
-        "prebuild": "tsc",
         "migrate": "npm run build && npx sequelize-cli db:migrate",
         "seed": "npm run build && npx sequelize-cli db:seed:all"
     },
@@ -47,7 +48,7 @@
         "@types/morgan": "^1.9.9",
         "@types/node": "^20.12.12",
         "@types/uuid": "^9.0.8",
-        "nodemon": "^3.1.0",
+        "nodemon": "^3.1.4",
         "typescript": "^5.4.5"
     }
 }
