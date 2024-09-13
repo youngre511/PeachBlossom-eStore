@@ -27,7 +27,6 @@ export const avFetchCategories = createAsyncThunk<
         const response = await axios.get<AVCategoryFetchResponse>(
             `${import.meta.env.VITE_API_URL}/category`
         );
-        console.log(response.data.payload);
         return response.data.payload;
     } catch (error: any) {
         return rejectWithValue(

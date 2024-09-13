@@ -13,6 +13,7 @@ import {
     RRPParams,
     TOTParams,
     BaseParams,
+    TopProduct,
 } from "./analyticsTypes";
 import { arraysEqual } from "../../../common/utils/arraysEqual";
 import { useNavigate } from "react-router-dom";
@@ -75,6 +76,12 @@ const initialState: AnalyticsState = {
         loading: false,
         error: null,
     },
+    topProducts: {
+        period: "30d",
+        products: [],
+        loading: false,
+        error: null,
+    },
 };
 
 //Thunks//
@@ -88,7 +95,13 @@ export const fetchRevenueOverTime = createAsyncThunk<
     async ({ params, force = false }, { getState, rejectWithValue }) => {
         const state = getState() as RootState;
         const rotState = state.analytics.revenueOverTime;
-        return await fetchROTData(params, force, rotState, rejectWithValue);
+        const rotData = await fetchROTData(
+            params,
+            force,
+            rotState,
+            rejectWithValue
+        );
+        return rotData;
     }
 );
 
@@ -101,7 +114,7 @@ export const fetchYTD = createAsyncThunk<
     const rotState = state.analytics.revenueOverTime;
     const totState = state.analytics.transactionsOverTime;
     const today = new Date();
-    const startDate = `01-01-${today.getFullYear}`;
+    const startDate = `01-01-${today.getFullYear()}`;
     try {
         const rotResponse = await fetchROTData(
             { granularity: "year", chartType: "pie", startDate: startDate },
@@ -115,10 +128,11 @@ export const fetchYTD = createAsyncThunk<
             totState,
             rejectWithValue
         );
+        console.log("totResponse", totResponse);
 
         return {
             ytdRevenue: rotResponse.data[0].value,
-            ytdTransactions: totResponse.data[0].count,
+            ytdTransactions: totResponse.data[0].data[0].y,
         };
     } catch (error) {
         if (error && typeof error === "object" && "response" in error) {
@@ -141,7 +155,13 @@ export const fetchRevenueByLocation = createAsyncThunk<
     async ({ params, force = false }, { getState, rejectWithValue }) => {
         const state = getState() as RootState;
         const rblState = state.analytics.revenueByLocation;
-        return await fetchROTData(params, force, rblState, rejectWithValue);
+        const rblData = await fetchROTData(
+            params,
+            force,
+            rblState,
+            rejectWithValue
+        );
+        return rblData;
     }
 );
 
@@ -386,6 +406,41 @@ export const fetchTransactionsOverTime = createAsyncThunk<
     }
 );
 
+export const fetchTopFiveProducts = createAsyncThunk<
+    { period: "7d" | "30d" | "6m" | "1y" | "allTime"; products: TopProduct[] },
+    { period: "7d" | "30d" | "6m" | "1y" | "allTime"; force?: boolean },
+    { state: RootState }
+>(
+    "analytics/fetchTopFiveProducts",
+    async ({ period, force = false }, { getState, rejectWithValue }) => {
+        const state = getState() as RootState;
+        const topProductState = state.analytics.topProducts;
+        const currentPeriod = topProductState.period;
+        const periodUnchanged = currentPeriod === period;
+
+        const token = localStorage.getItem("jwtToken"); // Get the token from local storage
+        try {
+            const response = await axios.get(
+                `${import.meta.env.VITE_API_URL}/analytics/tfp`,
+                {
+                    params: { period },
+                    headers: {
+                        Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+                    },
+                }
+            );
+            return {
+                period: period,
+                products: response.data,
+            };
+        } catch (error: any) {
+            return rejectWithValue(
+                error.response?.data || "Error fetching top products"
+            );
+        }
+    }
+);
+
 //Slice//
 const analyticsSlice = createSlice({
     name: "analytics",
@@ -549,6 +604,21 @@ const analyticsSlice = createSlice({
                 state.itemsPerTransaction.error =
                     action.error.message ||
                     "Failed to fetch items per transactions";
+            })
+            // TOP FIVE PRODUCTS
+            .addCase(fetchTopFiveProducts.pending, (state) => {
+                state.topProducts.loading = true;
+                state.topProducts.error = null;
+            })
+            .addCase(fetchTopFiveProducts.fulfilled, (state, action) => {
+                state.topProducts.period = action.payload.period;
+                state.topProducts.products = action.payload.products;
+                state.topProducts.loading = false;
+            })
+            .addCase(fetchTopFiveProducts.rejected, (state, action) => {
+                state.topProducts.loading = false;
+                state.topProducts.error =
+                    action.error.message || "Failed to fetch top five products";
             });
     },
 });

@@ -56,6 +56,17 @@ export interface RBCParams extends Omit<BaseParams, "byState" | "byRegion"> {
     returnPercentage?: boolean;
 }
 
+export interface TopProduct {
+    thumbnailUrl: string | null;
+    name: string;
+    productNo: string;
+    price: number;
+    category: string;
+    subcategory: string | null;
+    description: string;
+    totalQuantity: number;
+}
+
 export interface AnalyticsState {
     revenueByCategory: {
         rbcData: LineData[] | BarData[];
@@ -110,6 +121,12 @@ export interface AnalyticsState {
     salesSummary: {
         ytdRevenue: string;
         ytdTransactions: number;
+        loading: boolean;
+        error: string | null;
+    };
+    topProducts: {
+        period: "7d" | "30d" | "6m" | "1y" | "allTime";
+        products: TopProduct[];
         loading: boolean;
         error: string | null;
     };
