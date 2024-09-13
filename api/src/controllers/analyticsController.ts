@@ -348,7 +348,7 @@ export const getRegionRevenuePercentages = async (
         res.json(result);
     } catch (error) {
         let errorObj = {
-            message: "get Revenue Over Time failure",
+            message: "get Regional Revenue Percentages failure",
             payload: error,
         };
 

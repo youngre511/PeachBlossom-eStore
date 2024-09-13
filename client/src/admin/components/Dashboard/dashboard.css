@@ -1,0 +1,31 @@
+.dashboard-grid {
+    width: 100%;
+}
+
+.dashboard-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    height: 50vh;
+}
+
+.dashboard-revenue {
+    width: 70%;
+    min-height: 200px;
+    background-color: white;
+    flex-grow: 1;
+}
+
+.sales-summary {
+    background-color: white;
+    padding: 20px;
+    width: 300px;
+    flex-shrink: 0;
+}
+
+.top-products {
+    background-color: white;
+    padding: 20px;
+    width: 100%;
+    margin-top: 20px;
+}
