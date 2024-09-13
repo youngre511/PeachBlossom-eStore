@@ -20,142 +20,27 @@ import {
 import { sqlSubcategory } from "../models/mysql/sqlSubcategoryModel.js";
 import { BooleString } from "../../types/api_resp.js";
 import { Op } from "sequelize";
-import { JoinReqProduct } from "./cartService.js";
-import { Model } from "sequelize-typescript";
+
 import { Order } from "sequelize";
 import { sqlCartItem } from "../models/mysql/sqlCartItemModel.js";
 import { sqlOrderItem } from "../models/mysql/sqlOrderItemModel.js";
+import {
+    AdminCatalogResponse,
+    AdminFilterObj,
+    CatalogResponse,
+    FilterObject,
+    JoinReqCountAdminProduct,
+} from "./serviceTypes.js";
 
 ////// TYPES AND INTERFACES //////
-export type Color =
-    | "red"
-    | "orange"
-    | "yellow"
-    | "green"
-    | "blue"
-    | "purple"
-    | "pink"
-    | "gold"
-    | "silver"
-    | "white"
-    | "gray"
-    | "black"
-    | "brown"
-    | "cream"
-    | "beige"
-    | "multicolor"
-    | "clear";
-
-export type Material =
-    | "glass"
-    | "plastic"
-    | "ceramic"
-    | "metal"
-    | "wood"
-    | "fabric"
-    | "leather"
-    | "stone"
-    | "rubber"
-    | "resin"
-    | "natural fiber"
-    | "bamboo";
-
-interface FilterObject {
-    search?: string;
-    category?: string;
-    subcategory?: string;
-    tags?: string;
-    page: string;
-    color?: Color[];
-    material?: Material[];
-    minPrice?: string;
-    maxPrice?: string;
-    minWidth?: string;
-    maxWidth?: string;
-    minHeight?: string;
-    maxHeight?: string;
-    minDepth?: string;
-    maxDepth?: string;
-    sort: string;
-    itemsPerPage: string;
-}
-
-export interface AdminFilterObj {
-    search?: string;
-    category?: string;
-    subcategory?: string;
-    tags?: string;
-    page: string;
-    sort: string;
-    view: string;
-    itemsPerPage: string;
-}
-
-interface AdminCatalogResponse {
-    thumbnailUrl: string | null;
-    name: string;
-    productNo: string;
-    price: number;
-    category: string;
-    subcategory: string;
-    lastModified: string;
-    createdAt: string;
-    description: string;
-    stock: number;
-    reserved: number;
-    available: number;
-    status: string;
-}
-
-interface CatalogResponse {
-    productNo: string;
-    name: string;
-    description: string;
-    price: number;
-    discountPrice: number | null;
-    promotionDesc: string | null;
-    singleProdProm: boolean;
-    attributes: {
-        color: Color;
-        material: Material[];
-        // Dimensions in inches
-        weight: number;
-        dimensions: {
-            width: number;
-            height: number;
-            depth: number;
-        };
-    };
-    images: string[];
-    stock: number;
-}
-
-interface JoinReqCategory extends Model {
-    category_id: number;
-    categoryName: string;
-}
-
-interface JoinReqSubcategory extends Model {
-    subcategory_id: number;
-    subcategoryName: string;
-    category_id: number;
-}
-
-interface AdminProduct extends JoinReqProduct {
-    Subcategory: JoinReqSubcategory;
-    Category: JoinReqCategory;
-}
-
-interface JoinReqSQLProduct {
-    count: number;
-    rows: AdminProduct[];
-}
 
 ///////////////////////////////
 ////// SERVICE FUNCTIONS //////
 ///////////////////////////////
 
-export const extractSqlProductData = (productData: JoinReqSQLProduct) => {
+export const extractSqlProductData = (
+    productData: JoinReqCountAdminProduct
+) => {
     const products = productData.rows.map((product) => {
         const parsedProduct = product.get();
         if (parsedProduct.Category) {
@@ -365,7 +250,7 @@ export const getProducts = async (filters: FilterObject) => {
     return { totalCount, productRecords };
 };
 
-////// GET SORTED AND FILTERED ADMIN PRODUCTS ///////
+////// GET SORTED AND FILTERED ADMIN PRODUCTS //////
 
 export const getAdminProducts = async (filters: AdminFilterObj) => {
     if (!filters.sort) {
@@ -445,7 +330,7 @@ export const getAdminProducts = async (filters: AdminFilterObj) => {
         limit: +filters.itemsPerPage,
         offset: offset,
         nest: true,
-    })) as unknown as JoinReqSQLProduct;
+    })) as unknown as JoinReqCountAdminProduct;
 
     const totalCount = products.count;
     const parsedProducts = extractSqlProductData(products);

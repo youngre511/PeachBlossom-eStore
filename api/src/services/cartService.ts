@@ -6,55 +6,9 @@ import { sqlCart } from "../models/mysql/sqlCartModel.js";
 import { sqlCartItem } from "../models/mysql/sqlCartItemModel.js";
 import { sqlInventory } from "../models/mysql/sqlInventoryModel.js";
 import { Op } from "sequelize";
+import { JoinReqCart } from "./serviceTypes.js";
 
 // Types and Interfaces
-
-interface Inventory extends Model {
-    inventory_id: number;
-    product_id: number;
-    stock: number;
-    reserved: number;
-    available: number;
-}
-
-export interface JoinReqProduct extends Model {
-    id: number;
-    productNo: string;
-    productName: string;
-    price: number;
-    description: string;
-    category_id: number;
-    subcategory_id?: number;
-    thumbnailUrl?: string;
-    createdAt: Date;
-    updatedAt: Date;
-    status: string;
-    Inventory: Inventory;
-}
-
-interface JoinReqCartItem extends Model {
-    cart_item_id: number;
-    cart_id: number;
-    productNo: string;
-    Product: JoinReqProduct;
-    thumbnailUrl?: string;
-    promotionId?: string;
-    quantity: number;
-    finalPrice: number;
-    reserved: boolean;
-}
-
-export interface JoinReqCart extends Model {
-    cart_id: number;
-    customer_id?: number;
-    CartItem: JoinReqCartItem[];
-}
-
-interface JoinReqUpdateCart extends Model {
-    cart_id: number;
-    customer_id?: number;
-    CartItem: JoinReqCartItem[];
-}
 
 // Services
 
@@ -448,7 +402,7 @@ export const mergeCarts = async (cartId1: number, cartId2: number) => {
             where: { cart_id: cartId2 },
             include: [{ model: sqlCartItem, as: "CartItem" }],
             transaction: sqlTransaction,
-        })) as unknown as JoinReqUpdateCart;
+        })) as unknown as JoinReqCart;
         if (!cart2) {
             throw new Error("Invalid Cart Id");
         }

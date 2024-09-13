@@ -12,6 +12,7 @@ import {
     Attributes,
 } from "../models/mongo/productModel.js";
 import { Request, Response, RequestHandler } from "express";
+import { Color, Material } from "../services/serviceTypes.js";
 
 export interface CreateProduct {
     name: string;
@@ -80,8 +81,8 @@ interface ProductGetRequest extends Request {
         category?: string;
         tags?: string;
         page: string;
-        color?: productService.Color[];
-        material?: productService.Material[];
+        color?: Color[];
+        material?: Material[];
         minPrice?: string;
         maxPrice?: string;
         minWidth?: string;

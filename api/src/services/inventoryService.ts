@@ -6,9 +6,13 @@ import Product from "../models/mongo/productModel.js";
 import sequelize from "../models/mysql/index.js";
 import mongoose, { ClientSession } from "mongoose";
 import { Model } from "sequelize-typescript";
-import { AdminFilterObj, getAdminProducts } from "./productService.js";
+import { getAdminProducts } from "./productService.js";
+import { AdminFilterObj, JoinReqInventory } from "./serviceTypes.js";
 let syncInProgress = false;
 
+// Interfaces
+
+// Parsed version of BaseProduct that lacks the additional properties of a sequelize Model
 interface ParsedInventoryProduct {
     id: number;
     productNo: string;
@@ -22,29 +26,15 @@ interface ParsedInventoryProduct {
     updatedAt: Date;
 }
 
-interface JoinReqInventoryProduct extends Model {
-    id: number;
-    productNo: string;
-    productName: string;
-    price: number;
-    description: string;
-    category_id: number;
-    subcategory_id?: number;
-    thumbnailUrl?: string;
-    createdAt: Date;
-    updatedAt: Date;
-}
-
+// Parsed version of BaseInventory that lacks the additional properties of a sequelize Model but includes Product info
 interface ParsedInventory {
     inventory_id: number;
     product_id: number;
     stock: number;
     reserved: number;
     available: number;
-    Product: JoinReqInventoryProduct | ParsedInventoryProduct;
+    Product: ParsedInventoryProduct;
 }
-
-interface JoinReqInventory extends ParsedInventory, Model {}
 
 export const holdStock = async (cartId: number) => {
     const sqlTransaction = await sequelize.transaction();

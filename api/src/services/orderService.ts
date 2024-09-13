@@ -10,10 +10,10 @@ import { sqlOrderItem } from "../models/mysql/sqlOrderItemModel.js";
 import { generateOrderNo } from "../utils/generateOrderNo.js";
 import { sqlProduct } from "../models/mysql/sqlProductModel.js";
 import { Model, Op, Order } from "sequelize";
-import { JoinReqProduct } from "./cartService.js";
 import { sqlCartItem } from "../models/mysql/sqlCartItemModel.js";
 import { sqlCart } from "../models/mysql/sqlCartModel.js";
 import { sqlAddress } from "../models/mysql/sqlAddressModel.js";
+import { JoinReqProduct } from "./serviceTypes.js";
 
 interface JoinReqOrderItem extends Model {
     order_item_id: number;

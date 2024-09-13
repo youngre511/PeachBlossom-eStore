@@ -1,6 +1,6 @@
 import * as inventoryService from "../services/inventoryService.js";
 import { Request, Response } from "express";
-import { AdminFilterObj } from "../services/productService.js";
+import { AdminFilterObj } from "../services/serviceTypes.js";
 
 interface CartIdRequest extends Request {
     body: {
