@@ -22,6 +22,7 @@ import buildChartObjects, {
     LineChartData,
     PieChartData,
 } from "../utils/buildChartObjects.js";
+import { JoinReqTopProductRaw, TopProductResponse } from "./serviceTypes.js";
 
 // Set up region case statement for creating region column in sql queries.
 type RegionMap = {
@@ -214,6 +215,7 @@ export const getRevenueOverTime = async (
         const attributeClause: FindAttributeOptions = [
             [fn("YEAR", col("orderDate")), "year"],
         ];
+
         switch (granularity) {
             case "year":
                 break;
@@ -292,10 +294,11 @@ export const getRevenueOverTime = async (
         }
 
         groupClause.push("year");
+        // SortOrder type must allow all granularity types except "all"
+        dataFormat["x"] = granularity as SortOrder;
+
         if (["week", "month", "quarter"].includes(granularity)) {
             groupClause.push(`${granularity}`);
-            // SortOrder type must allow all granularity types except "all"
-            dataFormat["x"] = granularity as SortOrder;
         }
 
         const results = await sqlOrder.findAll({
@@ -517,14 +520,19 @@ export const getRevenueByCategory = async (
             }
         }
 
+        const attributesClause: FindAttributeOptions = [
+            [literal(`SUM(quantity * priceWhenOrdered)`), "total_revenue"],
+        ];
+
+        if (Array.isArray(periodName) && periodName.length > 0) {
+            attributesClause.push([
+                literal(`CONCAT(${periodName.join(", ")})`),
+                "period",
+            ]);
+        }
+
         const totalRevenueByPeriod = await sqlOrderItem.findAll({
-            attributes: [
-                [literal(`SUM(quantity * priceWhenOrdered)`), "total_revenue"],
-                periodGroupClause && [
-                    literal(`CONCAT(${periodName.join(", ")})`),
-                    "period",
-                ],
-            ],
+            attributes: attributesClause,
             include: [
                 {
                     model: sqlOrder,
@@ -544,16 +552,7 @@ export const getRevenueByCategory = async (
         });
 
         const results = await sqlOrderItem.findAll({
-            attributes: [
-                [
-                    fn("SUM", literal("quantity * priceWhenOrdered")),
-                    "total_revenue",
-                ],
-                periodGroupClause && [
-                    literal(`CONCAT(${periodName.join(", ")})`),
-                    "period",
-                ],
-            ],
+            attributes: attributesClause,
             include: includeClause,
             group: groupClause,
             order: ["total_revenue"],
@@ -561,7 +560,7 @@ export const getRevenueByCategory = async (
         });
 
         const resultsWithPercentage = results.map((result: any) => {
-            const periodKey = result.period; // Get the period from the SQL result
+            const periodKey = result.period || "all"; // Get the period from the SQL result
             const totalRevenueForPeriod = totalRevenueMap[periodKey] || 1; // Use the map, or default to 1
             const percentageOfTotal =
                 (result.total_revenue / totalRevenueForPeriod) * 100;
@@ -574,10 +573,7 @@ export const getRevenueByCategory = async (
 
         // Package results to return to front end
         type FormattedResultsType = Array<
-            | LineChartData
-            | BarChartData
-            | PieChartData
-            | Array<string | PieChartData[]>
+            LineChartData | BarChartData | Array<string | PieChartData[]>
         >;
 
         let formattedResults: FormattedResultsType = [];
@@ -585,55 +581,70 @@ export const getRevenueByCategory = async (
         // Pie charts necessarily can only consist of category/subcategory names and their associated values.
         // To return results for multiple periods, one pie-chart dataset must be returned for each period.
         // The code in if-block manages such cases by first using buildNestedDataArrays to sort by ascending period and then creating a pie-chart dataset for each.
-        if (chartType === "pie" && granularity !== "all") {
-            const sortedResults = buildNestedDataArrays(
-                ["year", `${granularity}`],
-                resultsWithPercentage
-            );
-            for (const year of sortedResults) {
-                for (const gran of year[1]) {
-                    const result = gran[1];
-                    let dateId = "";
-                    if (granularity === "week") {
-                        dateId += `Week ${result[0]["Order.week"]} `;
+        if (chartType === "pie") {
+            console.log("DATA FORMAT:", dataFormat);
+            if (granularity !== "all") {
+                const sortedResults = buildNestedDataArrays(
+                    ["year", `${granularity}`],
+                    resultsWithPercentage
+                );
+                for (const year of sortedResults) {
+                    for (const gran of year[1]) {
+                        const result = gran[1];
+                        let dateId = "";
+                        if (granularity === "week") {
+                            dateId += `Week ${result[0]["Order.week"]} `;
+                        }
+                        if (granularity === "month") {
+                            const monthArr = [
+                                "Jan",
+                                "Feb",
+                                "Mar",
+                                "Apr",
+                                "May",
+                                "Jun",
+                                "Jul",
+                                "Aug",
+                                "Sep",
+                                "Oct",
+                                "Nov",
+                                "Dec",
+                            ];
+                            dateId += `${
+                                monthArr[result[0]["Order.month"] - 1]
+                            } `;
+                        }
+                        if (granularity === "quarter") {
+                            dateId += `Q${result[0]["Order.quarter"]} `;
+                        }
+                        dateId += result[0]["Order.year"];
+
+                        formattedResults.push([
+                            dateId,
+                            buildChartObjects(
+                                result,
+                                "pie",
+                                dataFormat
+                            ) as PieChartData[],
+                        ]);
                     }
-                    if (granularity === "month") {
-                        const monthArr = [
-                            "Jan",
-                            "Feb",
-                            "Mar",
-                            "Apr",
-                            "May",
-                            "Jun",
-                            "Jul",
-                            "Aug",
-                            "Sep",
-                            "Oct",
-                            "Nov",
-                            "Dec",
-                        ];
-                        dateId += `${monthArr[result[0]["Order.month"] - 1]} `;
-                    }
-                    if (granularity === "quarter") {
-                        dateId += `Q${result[0]["Order.quarter"]} `;
-                    }
-                    dateId += result[0]["Order.year"];
-                    formattedResults.push([
-                        dateId,
-                        buildChartObjects(
-                            result,
-                            "pie",
-                            dataFormat
-                        ) as PieChartData[],
-                    ]);
                 }
+            } else {
+                formattedResults.push([
+                    "all",
+                    buildChartObjects(
+                        resultsWithPercentage,
+                        "pie",
+                        dataFormat
+                    ) as PieChartData[],
+                ]);
             }
         } else {
             formattedResults = buildChartObjects(
                 resultsWithPercentage,
                 chartType,
                 dataFormat
-            );
+            ) as LineChartData[] | BarChartData[];
         }
 
         const returnObject: Record<string, string | FormattedResultsType> = {
@@ -739,29 +750,35 @@ export const getTransactionsOverTime = async (
             ];
         }
 
-        // Dynamically create group clause and order clause
+        // Dynamically create data format and group clause
 
-        const sortOrder: SortOrder[] = [];
+        const dataFormat = { y: "count" } as {
+            id: SortOrder;
+            x: SortOrder;
+            y: YValue;
+        };
         const groupClause: GroupOption = [];
         if (byRegion) {
             // Since sequelize does not support grouping or ordering by dynamically created fields in associated tables, in order to group/order by region, the RAW sql that created the column must be repeated in the group/order clause.
             groupClause.push(literal(regionCaseStatement));
-            sortOrder.push("region");
+            dataFormat["id"] = "region";
         } else if (byState) {
             groupClause.push("stateAbbr");
-            sortOrder.push("stateAbbr");
+            dataFormat["id"] = "stateAbbr";
+        } else {
+            dataFormat["id"] = "year";
         }
+
+        // SortOrder type must allow all granularity types except "all"
+        dataFormat["x"] = granularity as SortOrder;
 
         if (["week", "month", "quarter", "year"].includes(granularity)) {
             groupClause.push(literal("YEAR(orderDate)"));
-            sortOrder.push("year");
         }
         if (["week", "month", "quarter"].includes(granularity)) {
             groupClause.push(
                 literal(`${granularity.toUpperCase()}(orderDate)`)
             );
-            // SortOrder type must allow all granularity types except "all"
-            sortOrder.push(`${granularity}` as SortOrder);
         }
 
         const results = await sqlOrder.findAll({
@@ -772,8 +789,16 @@ export const getTransactionsOverTime = async (
             order: ["count"],
             raw: true,
         });
-        const sortedResults = buildNestedDataArrays(sortOrder, results);
-        return sortedResults;
+        if (granularity !== "all") {
+            const processedResults = buildChartObjects(
+                results,
+                chartType,
+                dataFormat
+            );
+            return processedResults;
+        } else {
+            return results;
+        }
     } catch (error) {
         if (error instanceof Error) {
             // Rollback the transaction in case of any errors
@@ -791,7 +816,7 @@ export const getTransactionsOverTime = async (
 
 // Get items per transaction (by region? by state?)
 export const getItemsPerTransaction = async (
-    granularity: "week" | "month" | "quarter" | "year" | "all",
+    granularity: "week" | "month" | "quarter" | "year",
     startDate: string | null,
     endDate: string | null,
     byState: boolean = false,
@@ -802,8 +827,6 @@ export const getItemsPerTransaction = async (
         // Dynamically construct attributes based on granularity input
         const attributeClause: FindAttributeOptions = [];
         switch (granularity) {
-            case "all":
-                break;
             case "year":
                 attributeClause.push([fn("YEAR", col("orderDate")), "year"]);
                 break;
@@ -873,29 +896,35 @@ export const getItemsPerTransaction = async (
             });
         }
 
-        // Dynamically create group clause and order clause
+        // Dynamically create data format and group clause
 
-        const sortOrder: SortOrder[] = [];
+        const dataFormat = { y: "averageQuantityPerOrder" } as {
+            id: SortOrder;
+            x: SortOrder;
+            y: YValue;
+        };
         const groupClause: GroupOption = [];
         if (byRegion) {
             // Since sequelize does not support grouping or ordering by dynamically created fields in associated tables, in order to group/order by region, the RAW sql that created the column must be repeated in the group/order clause.
             groupClause.push(literal(regionCaseStatement));
-            sortOrder.push("region");
+            dataFormat["id"] = "region";
         } else if (byState) {
             groupClause.push("stateAbbr");
-            sortOrder.push("stateAbbr");
+            dataFormat["id"] = "stateAbbr";
+        } else {
+            dataFormat["id"] = "year";
         }
+
+        // SortOrder type must allow all granularity types except "all"
+        dataFormat["x"] = granularity as SortOrder;
 
         if (["week", "month", "quarter", "year"].includes(granularity)) {
             groupClause.push(literal("YEAR(orderDate)"));
-            sortOrder.push("year");
         }
         if (["week", "month", "quarter"].includes(granularity)) {
             groupClause.push(
                 literal(`${granularity.toUpperCase()}(orderDate)`)
             );
-            // SortOrder type must allow all granularity types except "all"
-            sortOrder.push(`${granularity}` as SortOrder);
         }
 
         const results = await sqlOrder.findAll({
@@ -905,8 +934,12 @@ export const getItemsPerTransaction = async (
             group: groupClause,
             raw: true,
         });
-        const sortedResults = buildNestedDataArrays(sortOrder, results);
-        return sortedResults;
+        const processedResults = buildChartObjects(
+            results,
+            chartType,
+            dataFormat
+        );
+        return processedResults;
     } catch (error) {
         if (error instanceof Error) {
             // Rollback the transaction in case of any errors
@@ -998,27 +1031,32 @@ export const getAverageOrderValue = async (
         }
 
         // Dynamically create group clause and order clause
-
-        const sortOrder: SortOrder[] = [];
+        const dataFormat = { y: "averageOrderValue" } as {
+            id: SortOrder;
+            x: SortOrder;
+            y: YValue;
+        };
         const groupClause: GroupOption = [];
         if (byRegion) {
             // Since sequelize does not support grouping or ordering by dynamically created fields in associated tables, in order to group/order by region, the RAW sql that created the column must be repeated in the group/order clause.
             groupClause.push(literal(regionCaseStatement));
-            sortOrder.push("region");
+            dataFormat["id"] = "region";
         } else if (byState) {
             groupClause.push("stateAbbr");
-            sortOrder.push("stateAbbr");
+            dataFormat["id"] = "stateAbbr";
+        } else {
+            dataFormat["id"] = "year";
         }
 
+        // SortOrder type must allow all granularity types except "all"
+        dataFormat["x"] = granularity as SortOrder;
+
         groupClause.push(literal("YEAR(orderDate)"));
-        sortOrder.push("year");
 
         if (["week", "month", "quarter"].includes(granularity)) {
             groupClause.push(
                 literal(`${granularity.toUpperCase()}(orderDate)`)
             );
-            // SortOrder type must allow all granularity types except "all"
-            sortOrder.push(`${granularity}` as SortOrder);
         }
 
         const results = await sqlOrder.findAll({
@@ -1028,18 +1066,22 @@ export const getAverageOrderValue = async (
             group: groupClause,
             raw: true,
         });
-        const sortedResults = buildNestedDataArrays(sortOrder, results);
-        return sortedResults;
+        const processedResults = buildChartObjects(
+            results,
+            chartType,
+            dataFormat
+        );
+        return processedResults;
     } catch (error) {
         if (error instanceof Error) {
             // Rollback the transaction in case of any errors
             throw new Error(
-                "Error getting items per transaction: " + error.message
+                "Error getting average order value: " + error.message
             );
         } else {
             // Rollback the transaction in case of any non-Error errors
             throw new Error(
-                "An unknown error occurred while getting items per transaction"
+                "An unknown error occurred while getting average order value"
             );
         }
     }
@@ -1048,7 +1090,7 @@ export const getAverageOrderValue = async (
 // Get Region percentages
 
 export const getRegionRevenuePercentages = async (
-    granularity: "week" | "month" | "quarter",
+    granularity: "week" | "month" | "quarter" | "year",
     startDate: string | null,
     endDate: string | null,
     byState: boolean = false,
@@ -1061,6 +1103,8 @@ export const getRegionRevenuePercentages = async (
             [fn("YEAR", col("orderDate")), "year"],
         ];
         switch (granularity) {
+            case "year":
+                break;
             case "quarter":
                 attributeClause.push([
                     literal("QUARTER(orderDate)"),
@@ -1118,7 +1162,11 @@ export const getRegionRevenuePercentages = async (
 
         // Dynamically create group clause and order clause
 
-        const sortOrder: SortOrder[] = [];
+        const dataFormat = { x: granularity, y: "percentage_of_total" } as {
+            id: SortOrder;
+            x: SortOrder;
+            y: YValue;
+        };
         const groupClause: GroupOption = [];
         const periodGroupClause: GroupOption = [];
         const periodName: string[] = [];
@@ -1126,24 +1174,25 @@ export const getRegionRevenuePercentages = async (
         groupClause.push("year");
         periodGroupClause.push(literal("YEAR(orderDate)"));
         periodName.push("YEAR(orderDate)");
-        sortOrder.push("year");
+
         if (["week", "month", "quarter"].includes(granularity)) {
             periodName.push(`'-${granularity.toUpperCase().substring(0, 1)}'`);
             periodName.push(`${granularity.toUpperCase()}(orderDate)`);
             periodGroupClause.push(
                 literal(`${granularity.toUpperCase()}(orderDate)`)
             );
-            // SortOrder type must allow all granularity types except "all"
-            sortOrder.push(`${granularity}` as SortOrder);
+            groupClause.push(
+                literal(`${granularity.toUpperCase()}(orderDate)`)
+            );
         }
 
         if (byRegion) {
             // Since sequelize does not support grouping or ordering by dynamically created fields in associated tables, in order to group/order by region, the RAW sql that created the column must be repeated in the group/order clause.
             groupClause.push(literal(regionCaseStatement));
-            sortOrder.push("region");
+            dataFormat.id = "region";
         } else if (byState) {
             groupClause.push("stateAbbr");
-            sortOrder.push("stateAbbr");
+            dataFormat.id = "stateAbbr";
         }
 
         const totalRevenueByPeriod = await sqlOrder.findAll({
@@ -1166,6 +1215,8 @@ export const getRegionRevenuePercentages = async (
             totalRevenueMap[periodKey] = entry.total_revenue;
         });
 
+        // console.log("totalRevenueMap:", totalRevenueMap);
+        console.log("groupClause:", groupClause);
         const results = await sqlOrder.findAll({
             where: whereClause,
             attributes: [
@@ -1184,6 +1235,7 @@ export const getRegionRevenuePercentages = async (
         const resultsWithPercentage = results.map((result: any) => {
             const periodKey = result.period; // Get the period from the SQL result
             const totalRevenueForPeriod = totalRevenueMap[periodKey] || 1; // Use the map, or default to 1
+            console.log(result.total_revenue);
             const percentageOfTotal =
                 (result.total_revenue / totalRevenueForPeriod) * 100;
 
@@ -1193,11 +1245,12 @@ export const getRegionRevenuePercentages = async (
             };
         });
 
-        const sortedResults = buildNestedDataArrays(
-            sortOrder,
-            resultsWithPercentage
+        const processedResults = buildChartObjects(
+            resultsWithPercentage,
+            chartType,
+            dataFormat
         );
-        return sortedResults;
+        return processedResults;
     } catch (error) {
         if (error instanceof Error) {
             // Rollback the transaction in case of any errors
@@ -1211,4 +1264,97 @@ export const getRegionRevenuePercentages = async (
             );
         }
     }
+};
+
+////// GET TOP 5 ADMIN PRODUCTS ///////
+
+export const getTopFiveProducts = async (
+    period: "7d" | "30d" | "6m" | "1y" | "allTime"
+) => {
+    const startDate = new Date();
+
+    switch (period) {
+        case "7d":
+            startDate.setDate(startDate.getDate() - 7);
+            break;
+        case "30d":
+            startDate.setDate(startDate.getDate() - 30);
+            break;
+        case "6m":
+            startDate.setMonth(startDate.getMonth() - 6);
+            break;
+        case "1y":
+            startDate.setFullYear(startDate.getFullYear() - 1);
+            break;
+        default:
+            break;
+    }
+
+    const utcStartDate = startDate.toISOString();
+
+    let whereClause: WhereOptions | undefined = {};
+    if (period !== "allTime") {
+        whereClause["orderDate"] = {
+            [Op.gte]: utcStartDate,
+        };
+    } else {
+        whereClause = undefined;
+    }
+
+    console.log("WhereClause:", whereClause);
+    const topProducts = (await sqlProduct.findAll({
+        include: [
+            {
+                model: sqlCategory,
+                as: "Category",
+            },
+            {
+                model: sqlSubcategory,
+                as: "Subcategory",
+            },
+            {
+                model: sqlOrderItem,
+                as: "OrderItem",
+                attributes: [
+                    "productNo",
+                    [fn("SUM", col("quantity")), "totalQuantity"],
+                ],
+                include: [
+                    {
+                        model: sqlOrder,
+                        as: "Order",
+                        attributes: [],
+                        where: whereClause,
+                    },
+                ],
+                required: true,
+            },
+        ],
+        group: ["sqlProduct.productNo"],
+        order: [
+            [fn("SUM", col("OrderItem.quantity")), "DESC"],
+            ["price", "DESC"],
+        ],
+        raw: true,
+    })) as unknown as JoinReqTopProductRaw[];
+
+    const top5 = topProducts.slice(0, 6);
+    console.log(top5);
+
+    //Format Data
+    const topProductRecords: Array<TopProductResponse> = top5.map((product) => {
+        const catObj = {
+            thumbnailUrl: product.thumbnailUrl,
+            name: product.productName,
+            productNo: product.productNo,
+            price: product.price,
+            category: product["Category.categoryName"],
+            subcategory: product["Subcategory.subcategoryName"],
+            description: product.description,
+            totalQuantity: product["OrderItem.totalQuantity"],
+        };
+        return catObj;
+    });
+
+    return topProductRecords;
 };

@@ -74,6 +74,12 @@ interface ByCategoryParams {
     chartType: ChartType;
 }
 
+interface TopProductsRequest {
+    query: {
+        period: string;
+    };
+}
+
 const convertParams = <
     T extends
         | ByCategoryParams
@@ -248,8 +254,8 @@ export const getItemsPerTransaction = async (
             byState = false,
             byRegion = false,
             chartType,
-        } = convertParams<OverTimeExtendedParams, GranularityExtended>(
-            granularityExtendedArr,
+        } = convertParams<OverTimePlusParams, GranularityPlus>(
+            granularityPlusArr,
             data
         );
         const result = await analyticsService.getItemsPerTransaction(
@@ -303,7 +309,7 @@ export const getAverageOrderValue = async (
         res.json(result);
     } catch (error) {
         let errorObj = {
-            message: "get Items Per Transaction failure",
+            message: "get average order value failure",
             payload: error,
         };
 
@@ -326,8 +332,8 @@ export const getRegionRevenuePercentages = async (
             byState = false,
             byRegion = false,
             chartType,
-        } = convertParams<OverTimeParams, BaseGranularity>(
-            baseGranularityArr,
+        } = convertParams<OverTimePlusParams, GranularityPlus>(
+            granularityPlusArr,
             data
         );
         const result = await analyticsService.getRegionRevenuePercentages(
@@ -343,6 +349,30 @@ export const getRegionRevenuePercentages = async (
     } catch (error) {
         let errorObj = {
             message: "get Revenue Over Time failure",
+            payload: error,
+        };
+
+        console.error(errorObj);
+
+        res.status(500).json(errorObj);
+    }
+};
+
+export const getTopFiveProducts = async (
+    req: TopProductsRequest,
+    res: Response
+) => {
+    try {
+        const { period } = req.query;
+
+        const result = await analyticsService.getTopFiveProducts(
+            period as "7d" | "30d" | "6m" | "1y" | "allTime"
+        );
+
+        res.json(result);
+    } catch (error) {
+        let errorObj = {
+            message: "get Top Five Products failure",
             payload: error,
         };
 
