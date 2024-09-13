@@ -109,7 +109,11 @@ export class sqlProduct extends Model {
     @HasMany(() => sqlCartItem, { as: "CartItem", foreignKey: "productNo" })
     declare cartItem: sqlCartItem;
 
-    @HasMany(() => sqlOrderItem, { as: "OrderItem", foreignKey: "productNo" })
+    @HasMany(() => sqlOrderItem, {
+        as: "OrderItem",
+        foreignKey: "productNo",
+        sourceKey: "productNo",
+    })
     declare orderItem: sqlOrderItem;
 
     @HasOne(() => sqlInventory, { as: "Inventory", foreignKey: "product_id" })

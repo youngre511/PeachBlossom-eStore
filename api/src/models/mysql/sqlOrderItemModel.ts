@@ -37,7 +37,7 @@ export class sqlOrderItem extends Model {
         targetKey: "order_id",
         as: "Order",
     })
-    declare order: sqlProduct;
+    declare order: sqlOrder;
 
     @ForeignKey(() => sqlProduct)
     @Column({
