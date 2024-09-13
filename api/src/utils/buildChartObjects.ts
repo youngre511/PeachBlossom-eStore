@@ -42,7 +42,8 @@ const buildChartObjects = (
     const parseCompoundValues = (value: string) => {
         let year = 0,
             quarter = 0,
-            week = 0;
+            week = 0,
+            month = 0;
 
         if (value.includes("Q")) {
             const [q, y] = value.replace("Q", "").split(" ");
@@ -52,9 +53,13 @@ const buildChartObjects = (
             const [_, w, y] = value.split(" ");
             year = Number(y);
             week = Number(w);
+        } else {
+            const [m, y] = value.split(" ");
+            year = Number(y);
+            month = Number(m);
         }
 
-        return { year, quarter, week };
+        return { year, quarter, week, month };
     };
 
     const dynamicSort = <R extends BarChartData | LineChartData | PieChartData>(
@@ -70,6 +75,7 @@ const buildChartObjects = (
         } else {
             // If aid and bid (which will always be of same type) are strings:
             // First, use monthArr to replace month names with their indexes
+
             for (let i = 0; i < monthArr.length; i++) {
                 if (aId.includes(monthArr[i])) {
                     aId = aId.replace(monthArr[i], `${i}`);
@@ -109,6 +115,8 @@ const buildChartObjects = (
                     return aParsed.year - bParsed.year;
                 } else if (aParsed.quarter !== bParsed.quarter) {
                     return aParsed.quarter - bParsed.quarter;
+                } else if (aParsed.month !== bParsed.month) {
+                    return aParsed.month - bParsed.month;
                 } else if (aParsed.week !== bParsed.week) {
                     return aParsed.week - bParsed.week;
                 }
@@ -119,32 +127,17 @@ const buildChartObjects = (
 
     //lineSort performs the same logic as dynamicSort but at the level of X within the data properties of each LineData object
     const lineSort = (rawData: LineChartData[], xk2: boolean) => {
-        const parseXKey = (xValue: string) => {
-            let year = 0,
-                quarter = 0,
-                week = 0;
-
-            if (xValue.includes("Q")) {
-                const [q, y] = xValue.replace("Q", "").split(" ");
-                year = Number(y);
-                quarter = Number(q);
-            } else if (xValue.includes("Week")) {
-                const [_, w, y] = xValue.split(" ");
-                year = Number(y);
-                week = Number(w);
-            }
-
-            return { year, quarter, week };
-        };
-
+        console.log("line sorting");
         const data = [...rawData];
         const sortedData = data.map((dataObj) => {
             const dataObjCopy = { ...dataObj };
+
             const dataObjXY = dataObjCopy.data;
             const sortedXY = dataObjXY.sort(
                 (a: { x: string; y: number }, b: { x: string; y: number }) => {
                     let aX = a.x;
                     let bX = b.x;
+
                     for (let i = 0; i < monthArr.length; i++) {
                         if (aX.includes(monthArr[i])) {
                             aX = aX.replace(monthArr[i], `${i}`);
@@ -154,8 +147,8 @@ const buildChartObjects = (
                         }
                     }
 
-                    const aParsed = parseCompoundValues(a.x);
-                    const bParsed = parseCompoundValues(b.x);
+                    const aParsed = parseCompoundValues(aX);
+                    const bParsed = parseCompoundValues(bX);
 
                     if (!xk2) {
                         if (
@@ -171,6 +164,8 @@ const buildChartObjects = (
                             return aParsed.year - bParsed.year;
                         } else if (aParsed.quarter !== bParsed.quarter) {
                             return aParsed.quarter - bParsed.quarter;
+                        } else if (aParsed.month !== bParsed.month) {
+                            return aParsed.month - bParsed.month;
                         } else if (aParsed.week !== bParsed.week) {
                             return aParsed.week - bParsed.week;
                         }
@@ -180,7 +175,6 @@ const buildChartObjects = (
             );
 
             dataObjCopy.data = sortedXY;
-
             return dataObjCopy;
         });
         return sortedData;
@@ -201,6 +195,7 @@ const buildChartObjects = (
         const xKey = Object.keys(rawData[0]).filter((key) =>
             String(key).endsWith(dataFormat.x)
         )[0];
+
         const yKey = Object.keys(rawData[0]).filter((key) =>
             String(key).endsWith(dataFormat.y)
         )[0];
@@ -213,7 +208,6 @@ const buildChartObjects = (
             if (dataFormat.id === "month" && typeof idValue === "number") {
                 idValue = monthArr[idValue - 1];
             } else if (dataFormat.id === "quarter") {
-                console.log("it's quarter");
                 idValue = `Q${dataPoint[idKey]}`;
             }
 
@@ -245,6 +239,7 @@ const buildChartObjects = (
             } else if (xKey === "week") {
                 xValue = `Week ${dataPoint[xKey] + 1}`;
             }
+            xValue = String(xValue);
             let yValue = dataPoint[yKey];
 
             // Create objects in array if none exists for given id
@@ -282,6 +277,7 @@ const buildChartObjects = (
                 ),
                 xKey2Exists
             );
+
             return sortedResult;
         } else if (chartType === "bar") {
             const sortedResult: BarChartData[] = result.sort((a, b) =>
@@ -293,10 +289,11 @@ const buildChartObjects = (
             const sortedResult: PieChartData[] = result.sort((a, b) =>
                 dynamicSort<PieChartData>(a, b, idKey2 ? true : false)
             );
-            console.log("sortedResult:", sortedResult);
+
             return sortedResult;
         }
     };
+
     return constructChart();
 };
 
