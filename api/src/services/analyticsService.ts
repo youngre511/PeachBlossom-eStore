@@ -278,7 +278,8 @@ export const getRevenueOverTime = async (
 
         const dataFormat = { y: "total_revenue" } as {
             id: SortOrder;
-            x: SortOrder;
+            id2?: "year";
+            x: SortOrder | null;
             y: YValue;
         };
         const groupClause: GroupOption = [];
@@ -289,13 +290,17 @@ export const getRevenueOverTime = async (
         } else if (byState) {
             groupClause.push("stateAbbr");
             dataFormat["id"] = "stateAbbr";
+        } else if (chartType === "bar") {
+            dataFormat["id"] = granularity;
+            dataFormat["id2"] = "year";
         } else {
             dataFormat["id"] = "year";
         }
 
         groupClause.push("year");
         // SortOrder type must allow all granularity types except "all"
-        dataFormat["x"] = granularity as SortOrder;
+        dataFormat["x"] =
+            chartType === "bar" ? null : (granularity as SortOrder);
 
         if (["week", "month", "quarter"].includes(granularity)) {
             groupClause.push(`${granularity}`);

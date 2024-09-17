@@ -12,18 +12,24 @@ import {
     PlusParams,
     RRPParams,
     TOTParams,
-    BaseParams,
+    AOVParams,
     TopProduct,
 } from "./analyticsTypes";
 import { arraysEqual } from "../../../common/utils/arraysEqual";
 import { useNavigate } from "react-router-dom";
-import { fetchRBCData, fetchROTData, fetchTOTData } from "./analyticsUtils";
+import {
+    fetchRBCData,
+    fetchROTData,
+    fetchTOTData,
+    generateExpirationTime,
+} from "./analyticsUtils";
 
 const initialState: AnalyticsState = {
     revenueByCategory: {
         rbcData: [],
         rbcParams: null,
         stateOrRegion: null,
+        expiration: null,
         loading: false,
         error: null,
     },
@@ -31,54 +37,63 @@ const initialState: AnalyticsState = {
         rotData: [],
         rotParams: null,
         loading: false,
+        expiration: null,
         error: null,
     },
     revenueByLocation: {
         rotData: [],
         rotParams: null,
         loading: false,
+        expiration: null,
         error: null,
     },
     categoryPercentages: {
         rbcData: [],
         rbcParams: null,
         stateOrRegion: null,
+        expiration: null,
         loading: false,
         error: null,
     },
     transactionsOverTime: {
         totData: [],
         totParams: null,
+        expiration: null,
         loading: false,
         error: null,
     },
     itemsPerTransaction: {
         iptData: [],
         iptParams: null,
+        expiration: null,
         loading: false,
         error: null,
     },
     averageOrderValue: {
         aovData: [],
         aovParams: null,
+        expiration: null,
         loading: false,
         error: null,
     },
     regionPercentages: {
         rpData: [],
         rpParams: null,
+        expiration: null,
         loading: false,
         error: null,
     },
     salesSummary: {
         ytdRevenue: "0.00",
         ytdTransactions: 0,
+        expiration: null,
         loading: false,
         error: null,
     },
     topProducts: {
         period: "30d",
         products: [],
+        expiration: null,
         loading: false,
         error: null,
     },
@@ -111,10 +126,21 @@ export const fetchYTD = createAsyncThunk<
     { state: RootState }
 >("analytics/fetchYTD", async (_, { getState, rejectWithValue }) => {
     const state = getState() as RootState;
+    const salesSummary = state.analytics.salesSummary;
     const rotState = state.analytics.revenueOverTime;
     const totState = state.analytics.transactionsOverTime;
     const today = new Date();
     const startDate = `01-01-${today.getFullYear()}`;
+    if (
+        salesSummary.ytdRevenue &&
+        salesSummary.ytdTransactions &&
+        (!salesSummary.expiration || Date.now() < salesSummary.expiration)
+    ) {
+        return {
+            ytdRevenue: salesSummary.ytdRevenue,
+            ytdTransactions: salesSummary.ytdTransactions,
+        };
+    }
     try {
         const rotResponse = await fetchROTData(
             { granularity: "year", chartType: "pie", startDate: startDate },
@@ -128,7 +154,6 @@ export const fetchYTD = createAsyncThunk<
             totState,
             rejectWithValue
         );
-        console.log("totResponse", totResponse);
 
         return {
             ytdRevenue: rotResponse.data[0].value,
@@ -199,7 +224,11 @@ export const fetchRegionPercentages = createAsyncThunk<
             paramsUnchanged = false;
         }
 
-        if (paramsUnchanged && !force) {
+        if (
+            paramsUnchanged &&
+            !force &&
+            (!rpState.expiration || Date.now() < rpState.expiration)
+        ) {
             return {
                 params,
                 data: rpState.rpData,
@@ -230,8 +259,8 @@ export const fetchRegionPercentages = createAsyncThunk<
 );
 
 export const fetchAverageOrderValue = createAsyncThunk<
-    { params: BaseParams; data: BarData[] | LineData[] },
-    { params: BaseParams; force?: boolean },
+    { params: AOVParams; data: BarData[] | LineData[] },
+    { params: AOVParams; force?: boolean },
     { state: RootState }
 >(
     "analytics/fetchAverageOrderValue",
@@ -263,7 +292,11 @@ export const fetchAverageOrderValue = createAsyncThunk<
             paramsUnchanged = false;
         }
 
-        if (paramsUnchanged && !force) {
+        if (
+            paramsUnchanged &&
+            !force &&
+            (!aovState.expiration || Date.now() < aovState.expiration)
+        ) {
             return {
                 params,
                 data: aovState.aovData,
@@ -327,7 +360,11 @@ export const fetchItemsPerTransaction = createAsyncThunk<
             paramsUnchanged = false;
         }
 
-        if (paramsUnchanged && !force) {
+        if (
+            paramsUnchanged &&
+            !force &&
+            (!iptState.expiration || Date.now() < iptState.expiration)
+        ) {
             return {
                 params,
                 data: iptState.iptData,
@@ -418,6 +455,19 @@ export const fetchTopFiveProducts = createAsyncThunk<
         const currentPeriod = topProductState.period;
         const periodUnchanged = currentPeriod === period;
 
+        if (
+            periodUnchanged &&
+            topProductState.products.length > 0 &&
+            topProductState.expiration &&
+            Date.now() < topProductState.expiration
+        ) {
+            console.log("meets criteria");
+            return {
+                period: topProductState.period,
+                products: topProductState.products,
+            };
+        }
+
         const token = localStorage.getItem("jwtToken"); // Get the token from local storage
         try {
             const response = await axios.get(
@@ -456,6 +506,7 @@ const analyticsSlice = createSlice({
             .addCase(fetchRevenueOverTime.fulfilled, (state, action) => {
                 state.revenueOverTime.rotParams = action.payload.params;
                 state.revenueOverTime.rotData = action.payload.data;
+                state.revenueOverTime.expiration = generateExpirationTime();
                 state.revenueOverTime.loading = false;
             })
             .addCase(fetchRevenueOverTime.rejected, (state, action) => {
@@ -471,6 +522,7 @@ const analyticsSlice = createSlice({
             .addCase(fetchRevenueByLocation.fulfilled, (state, action) => {
                 state.revenueByLocation.rotParams = action.payload.params;
                 state.revenueByLocation.rotData = action.payload.data;
+                state.revenueByLocation.expiration = generateExpirationTime();
                 state.revenueByLocation.loading = false;
             })
             .addCase(fetchRevenueByLocation.rejected, (state, action) => {
@@ -487,7 +539,8 @@ const analyticsSlice = createSlice({
             .addCase(fetchRegionPercentages.fulfilled, (state, action) => {
                 state.regionPercentages.rpParams = action.payload.params;
                 state.regionPercentages.rpData = action.payload.data;
-                state.revenueByLocation.loading = false;
+                state.regionPercentages.expiration = generateExpirationTime();
+                state.regionPercentages.loading = false;
             })
             .addCase(fetchRegionPercentages.rejected, (state, action) => {
                 state.regionPercentages.loading = false;
@@ -510,6 +563,7 @@ const analyticsSlice = createSlice({
                     state.revenueByCategory.stateOrRegion =
                         action.payload.data.region;
                 }
+                state.revenueByCategory.expiration = generateExpirationTime();
                 state.revenueByCategory.loading = false;
             })
             .addCase(fetchRevenueByCategory.rejected, (state, action) => {
@@ -533,11 +587,12 @@ const analyticsSlice = createSlice({
                     state.categoryPercentages.stateOrRegion =
                         action.payload.data.region;
                 }
+                state.categoryPercentages.expiration = generateExpirationTime();
                 state.categoryPercentages.loading = false;
             })
             .addCase(fetchCategoryPercentages.rejected, (state, action) => {
-                state.salesSummary.loading = false;
-                state.salesSummary.error =
+                state.categoryPercentages.loading = false;
+                state.categoryPercentages.error =
                     action.error.message ||
                     "Failed to fetch category percentages";
             })
@@ -550,6 +605,7 @@ const analyticsSlice = createSlice({
                 state.salesSummary.ytdRevenue = action.payload.ytdRevenue;
                 state.salesSummary.ytdTransactions =
                     action.payload.ytdTransactions;
+                state.salesSummary.expiration = generateExpirationTime();
                 state.salesSummary.loading = false;
             })
             .addCase(fetchYTD.rejected, (state, action) => {
@@ -565,6 +621,8 @@ const analyticsSlice = createSlice({
             .addCase(fetchTransactionsOverTime.fulfilled, (state, action) => {
                 state.transactionsOverTime.totParams = action.payload.params;
                 state.transactionsOverTime.totData = action.payload.data;
+                state.transactionsOverTime.expiration =
+                    generateExpirationTime();
                 state.transactionsOverTime.loading = false;
             })
             .addCase(fetchTransactionsOverTime.rejected, (state, action) => {
@@ -581,6 +639,7 @@ const analyticsSlice = createSlice({
             .addCase(fetchAverageOrderValue.fulfilled, (state, action) => {
                 state.averageOrderValue.aovParams = action.payload.params;
                 state.averageOrderValue.aovData = action.payload.data;
+                state.averageOrderValue.expiration = generateExpirationTime();
                 state.averageOrderValue.loading = false;
             })
             .addCase(fetchAverageOrderValue.rejected, (state, action) => {
@@ -597,6 +656,7 @@ const analyticsSlice = createSlice({
             .addCase(fetchItemsPerTransaction.fulfilled, (state, action) => {
                 state.itemsPerTransaction.iptParams = action.payload.params;
                 state.itemsPerTransaction.iptData = action.payload.data;
+                state.itemsPerTransaction.expiration = generateExpirationTime();
                 state.itemsPerTransaction.loading = false;
             })
             .addCase(fetchItemsPerTransaction.rejected, (state, action) => {
@@ -613,6 +673,7 @@ const analyticsSlice = createSlice({
             .addCase(fetchTopFiveProducts.fulfilled, (state, action) => {
                 state.topProducts.period = action.payload.period;
                 state.topProducts.products = action.payload.products;
+                state.topProducts.expiration = generateExpirationTime();
                 state.topProducts.loading = false;
             })
             .addCase(fetchTopFiveProducts.rejected, (state, action) => {

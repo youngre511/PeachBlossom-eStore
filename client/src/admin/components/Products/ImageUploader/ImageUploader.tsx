@@ -7,10 +7,10 @@ import { useEffect, useState } from "react";
 import "./image-uploader.css";
 import ImageUploading, { ImageListType } from "react-images-uploading";
 import { Button, IconButton, Tooltip } from "@mui/material";
-import CloseButton from "../../../assets/img/close.svg?react";
+import CloseButton from "../../../../assets/img/close.svg?react";
 import DeleteOutlineSharpIcon from "@mui/icons-material/DeleteOutlineSharp";
 import AddAPhotoSharpIcon from "@mui/icons-material/AddAPhotoSharp";
-import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
+import { useWindowSizeContext } from "../../../../common/contexts/windowSizeContext";
 
 interface Props {
     setImages: Dispatch<SetStateAction<ImageListType>>;

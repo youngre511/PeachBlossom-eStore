@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import React from "react";
 import { ReactNode } from "react";
-import { inputStyle } from "../AddProduct/AddProduct";
+import { inputStyle } from "../Products/AddProduct/AddProduct";
 
 interface Props {
     setAddingUser: React.Dispatch<React.SetStateAction<boolean>>;

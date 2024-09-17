@@ -1,12 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
 import { useEffect } from "react";
 import { ResponsiveLine } from "@nivo/line";
 import { nivoTheme } from "./chartThemes";
+import { useWindowSizeContext } from "../../../../common/contexts/windowSizeContext";
 
 interface Props {
     data: { id: string | number; data: { x: string; y: number }[] }[];
-    xLegend: string;
-    yLegend: string;
+    xLegend?: string;
+    yLegend?: string;
     idLegend?: boolean;
     margin?: {
         top: number;
@@ -14,6 +15,9 @@ interface Props {
         bottom: number;
         left: number;
     };
+    enableSlices?: "x" | "y";
+    yAxisFormat?: (value: number) => string;
+    yFormat?: string;
 }
 const CustomLineChart: React.FC<Props> = ({
     data,
@@ -21,7 +25,17 @@ const CustomLineChart: React.FC<Props> = ({
     yLegend,
     idLegend = true,
     margin,
+    enableSlices,
+    yAxisFormat,
+    yFormat,
 }) => {
+    const { width } = useWindowSizeContext();
+    const [mobile, setMobile] = useState<boolean>(true);
+
+    useEffect(() => {
+        setMobile(width && width >= 600 ? false : true);
+    }, [width]);
+
     return (
         <ResponsiveLine
             data={data as any}
@@ -34,21 +48,25 @@ const CustomLineChart: React.FC<Props> = ({
             axisLeft={{
                 legend: yLegend,
                 legendOffset: -80,
-                format: (value) => `$${value.toLocaleString("en-US")}`,
+                format: yAxisFormat,
             }}
+            pointSize={8}
+            enableTouchCrosshair={true}
             margin={margin || { top: 50, right: 110, bottom: 80, left: 100 }}
+            xScale={{ type: "point" }}
             yScale={{ type: "linear", stacked: true }}
-            yFormat=">-$,.2f"
-            enableSlices="x"
+            yFormat={yFormat}
+            useMesh={true}
+            enableSlices={enableSlices || false}
             legends={
                 idLegend
                     ? [
                           {
-                              anchor: "bottom-right",
-                              direction: "column",
+                              anchor: mobile ? "bottom" : "bottom-right",
+                              direction: mobile ? "row" : "column",
                               justify: false,
-                              translateX: 100,
-                              translateY: 0,
+                              translateX: mobile ? 0 : 100,
+                              translateY: mobile ? 90 : 0,
                               itemsSpacing: 0,
                               itemDirection: "left-to-right",
                               itemWidth: 80,

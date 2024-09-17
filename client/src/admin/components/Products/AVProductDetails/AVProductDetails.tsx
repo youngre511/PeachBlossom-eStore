@@ -21,15 +21,15 @@ import "./av-product-details.css";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import ImageUploader from "../ImageUploader/ImageUploader";
 import { ImageListType } from "react-images-uploading";
-import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
-import { RootState } from "../../store/store";
-import { avFetchCategories } from "../../features/AVMenuData/avMenuDataSlice";
-import { AVCategory } from "../../features/AVMenuData/avMenuDataTypes";
-import { SelectFieldNonFormik } from "../../../common/components/Fields/SelectFieldNonFormik";
-import BlankPopup from "../../../common/components/BlankPopup";
-import StatusPopup from "../../../common/components/StatusPopup";
-import { AuthContext } from "../../../common/contexts/authContext";
-import { usePreviousRoute } from "../../../common/contexts/navContext";
+import { useAppDispatch, useAppSelector } from "../../../hooks/reduxHooks";
+import { RootState } from "../../../store/store";
+import { avFetchCategories } from "../../../features/AVMenuData/avMenuDataSlice";
+import { AVCategory } from "../../../features/AVMenuData/avMenuDataTypes";
+import { SelectFieldNonFormik } from "../../../../common/components/Fields/SelectFieldNonFormik";
+import BlankPopup from "../../../../common/components/BlankPopup";
+import StatusPopup from "../../../../common/components/StatusPopup";
+import { AuthContext } from "../../../../common/contexts/authContext";
+import { usePreviousRoute } from "../../../../common/contexts/navContext";
 
 ///////////////////
 ///////TYPES///////

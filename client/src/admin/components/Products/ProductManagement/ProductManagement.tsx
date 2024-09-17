@@ -1,34 +1,31 @@
 import React, { useContext, useRef } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import AVProductCatalog from "../../features/AVCatalog/AVProductCatalog";
-import { AVFilters } from "../../features/AVCatalog/avCatalogTypes";
+import AVProductCatalog from "../../../features/AVCatalog/AVProductCatalog";
+import { AVFilters } from "../../../features/AVCatalog/avCatalogTypes";
 import {
     avFetchProducts,
     updateProductStatus,
-} from "../../features/AVCatalog/avCatalogSlice";
-import { arraysEqual } from "../../../common/utils/arraysEqual";
-import { RootState } from "../../store/store.js";
-import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
-import PeachButton from "../../../common/components/PeachButton";
+} from "../../../features/AVCatalog/avCatalogSlice";
+import { arraysEqual } from "../../../../common/utils/arraysEqual";
+import { RootState } from "../../../store/store.js";
+import { useAppDispatch, useAppSelector } from "../../../hooks/reduxHooks";
+import PeachButton from "../../../../common/components/PeachButton";
 import AddCircleOutlineSharpIcon from "@mui/icons-material/AddCircleOutlineSharp";
 import FilterAltSharpIcon from "@mui/icons-material/FilterAltSharp";
 import {
     Select,
-    SvgIcon,
     InputLabel,
     MenuItem,
     SelectChangeEvent,
     Icon,
 } from "@mui/material";
 import "./product-management.css";
-import SearchField from "../../../common/components/Fields/SearchField";
-import { AVCategory } from "../../features/AVMenuData/avMenuDataTypes";
-import { AuthContext } from "../../../common/contexts/authContext";
-import { usePreviousRoute } from "../../../common/contexts/navContext";
-import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
-import gsap from "gsap";
-import { useGSAP } from "@gsap/react";
+import SearchField from "../../../../common/components/Fields/SearchField";
+import { AVCategory } from "../../../features/AVMenuData/avMenuDataTypes";
+import { AuthContext } from "../../../../common/contexts/authContext";
+import { usePreviousRoute } from "../../../../common/contexts/navContext";
+import { useWindowSizeContext } from "../../../../common/contexts/windowSizeContext";
 
 const inputStyle = {
     "& .MuiInputBase-root.MuiOutlinedInput-root": {
@@ -59,12 +56,9 @@ const ProductManagement: React.FC<Props> = () => {
     const accessLevel = authContext?.user?.accessLevel;
     const { previousRoute } = usePreviousRoute();
     const { width } = useWindowSizeContext();
-    const filterAnimationRef = useRef<GSAPTimeline | null>(null);
     const [mobileFiltersExpanded, setMobileFiltersExpanded] =
         useState<boolean>(false);
     const productManagement = useRef<HTMLDivElement>(null);
-    const { contextSafe } = useGSAP({ scope: productManagement });
-
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -106,17 +100,6 @@ const ProductManagement: React.FC<Props> = () => {
             }
         }
     }, [avMenuData]);
-
-    // useEffect(
-    //     contextSafe(() => {
-    //         filterAnimationRef.current = gsap
-    //             .timeline({ paused: true })
-    //             .set(".pm-filters", { display: "flex" })
-    //             .to(".pm-filters", { duration: 0.3, height: "300px" });
-
-    //     }),
-    //     []
-    // );
 
     const fetchData = async (force = false) => {
         const changesNeeded: Record<string, string> = {};

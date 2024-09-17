@@ -1,7 +1,7 @@
 import { ResponsivePie } from "@nivo/pie";
 import React from "react";
 import { useEffect } from "react";
-import { PieData } from "../../features/Analytics/analyticsTypes";
+import { PieData } from "../../../features/Analytics/analyticsTypes";
 import { nivoTheme } from "./chartThemes";
 
 interface Props {

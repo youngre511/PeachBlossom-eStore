@@ -1,0 +1,116 @@
+.analytics-box {
+    box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.2);
+    border: 3px solid var(--peach-blush);
+    margin-top: 30px;
+}
+
+.box-header,
+.box-footer {
+    background-color: var(--peach-blush);
+    height: 52px;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+}
+
+.box-footer {
+    transition: all 0.3s ease-in-out;
+}
+
+.box-header h2 {
+    margin: 0;
+    font-size: 1.3rem;
+    line-height: 1.3rem;
+    font-weight: 400;
+}
+
+.chart-selection-btns {
+    display: flex;
+    flex-shrink: 0;
+}
+
+.chart {
+    padding: 20px 0;
+    height: 350px;
+}
+
+.date-picker {
+    background-color: var(--peach-blush);
+    position: absolute;
+    left: 10px;
+    top: 0;
+    width: 320px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    overflow-x: hidden;
+    z-index: 0;
+    transition: width 0.3s ease-in-out, z-index 0s 0.15s;
+}
+
+.date-pickers-cont {
+    display: flex;
+    min-width: 290px;
+}
+
+.granularity-select {
+    position: absolute;
+    right: 10px;
+}
+
+.granularity-button-set-cont {
+    overflow-x: hidden;
+    width: 320px;
+    transition: all 0.3s ease-in-out;
+}
+
+.granularity-button-set {
+    overflow-x: scroll;
+    background-color: var(--peach-blush);
+    display: flex;
+    justify-content: space-evenly;
+    scrollbar-width: none; /* Firefox */
+}
+
+.granularity-button-set::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, and Opera */
+}
+
+.granularity-button {
+    background-color: var(--peach-blush);
+    padding: 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: rgba(0, 0, 0, 0.54);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: color 0.2s ease-in-out;
+}
+
+.granularity-button-selected {
+    position: sticky;
+    right: 0;
+    left: 0;
+}
+
+.granularity-button:hover {
+    color: white;
+}
+
+.granularity-button:not(:first-of-type) {
+    border-left: none;
+}
+
+@media (min-width: 600) {
+    .box-header,
+    .box-footer {
+        padding: 20px;
+    }
+
+    .box-header h2 {
+        font-size: 1.5rem;
+        line-height: 1.5rem;
+    }
+}

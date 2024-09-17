@@ -3,26 +3,27 @@ import { Routes, Route, useNavigate } from "react-router-dom";
 import { ThemeProvider } from "@mui/material/styles";
 import theme from "../common/utils/materialUITheme";
 import AdminNav from "./components/AdminNav/AdminNav";
-import ProductManagement from "./components/ProductManagement/ProductManagement";
+import ProductManagement from "./components/Products/ProductManagement/ProductManagement";
 // import "./style/admin-general.css";
-import AddProduct from "./components/AddProduct/AddProduct";
+import AddProduct from "./components/Products/AddProduct/AddProduct";
 import InventoryManagement from "./components/InventoryManagement/InventoryManagement";
 import { useAppDispatch } from "./hooks/reduxHooks";
 import {
     avFetchCategories,
     avFetchSearchOptions,
 } from "./features/AVMenuData/avMenuDataSlice";
-import AVProductDetails from "./components/AVProductDetails/AVProductDetails";
+import AVProductDetails from "./components/Products/AVProductDetails/AVProductDetails";
 import OrderManagement from "./components/OrderManagement/OrderManagement";
 import AVOrderDetails from "./components/AVOrderDetails/AVOrderDetails";
 import CategoryManagement from "./components/CategoryManagement/CategoryManagement";
 import AdminLogin from "./components/Login/AdminLogin";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import { AuthContext } from "../common/contexts/authContext";
-import Sales from "./components/Sales/Sales";
+import Revenue from "./components/SalesAnalytics/Revenue/Revenue";
 import HomeRedirect from "./components/HomeRedirect";
 import AdminManagement from "./components/AdminManagement/AdminManagement";
-import Dashboard from "./components/Dashboard/Dashboard";
+import Dashboard from "./components/SalesAnalytics/Dashboard/Dashboard";
+import TransactionData from "./components/SalesAnalytics/TransactionData/TransactionData";
 function AdminApp() {
     const dispatch = useAppDispatch();
     const authContext = useContext(AuthContext);
@@ -63,6 +64,24 @@ function AdminApp() {
                             element={
                                 <ProtectedRoute
                                     component={Dashboard}
+                                    requiredRole="admin"
+                                />
+                            }
+                        />
+                        <Route
+                            path="/sales/transactions"
+                            element={
+                                <ProtectedRoute
+                                    component={TransactionData}
+                                    requiredRole="admin"
+                                />
+                            }
+                        />
+                        <Route
+                            path="/sales/revenue"
+                            element={
+                                <ProtectedRoute
+                                    component={Revenue}
                                     requiredRole="admin"
                                 />
                             }

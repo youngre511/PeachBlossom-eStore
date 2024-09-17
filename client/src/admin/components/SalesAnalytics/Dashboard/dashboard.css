@@ -1,19 +1,28 @@
 .dashboard-grid {
     width: 100%;
+    margin-top: 40px;
 }
 
 .dashboard-top {
     display: flex;
     justify-content: space-between;
     gap: 20px;
-    height: 50vh;
 }
 
 .dashboard-revenue {
     width: 70%;
-    min-height: 200px;
+    min-height: 400px;
+    height: 40vh;
     background-color: white;
     flex-grow: 1;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.dashboard-revenue-chart {
+    padding: 20px 0;
+    height: 350px;
 }
 
 .sales-summary {
@@ -21,6 +30,7 @@
     padding: 20px;
     width: 300px;
     flex-shrink: 0;
+    position: relative;
 }
 
 .top-products {
@@ -28,4 +38,5 @@
     padding: 20px;
     width: 100%;
     margin-top: 20px;
+    position: relative;
 }

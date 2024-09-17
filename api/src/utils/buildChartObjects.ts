@@ -21,7 +21,12 @@ export type PieChartData = {
 const buildChartObjects = (
     rawData: any,
     chartType: ChartType,
-    dataFormat: { id: SortOrder; id2?: SortOrder; x: SortOrder; y: YValue }
+    dataFormat: {
+        id: SortOrder;
+        id2?: SortOrder;
+        x: SortOrder | null;
+        y: YValue;
+    }
 ) => {
     const monthArr = [
         "Jan",
@@ -127,7 +132,6 @@ const buildChartObjects = (
 
     //lineSort performs the same logic as dynamicSort but at the level of X within the data properties of each LineData object
     const lineSort = (rawData: LineChartData[], xk2: boolean) => {
-        console.log("line sorting");
         const data = [...rawData];
         const sortedData = data.map((dataObj) => {
             const dataObjCopy = { ...dataObj };
@@ -150,10 +154,14 @@ const buildChartObjects = (
                     const aParsed = parseCompoundValues(aX);
                     const bParsed = parseCompoundValues(bX);
 
+                    const aXstripped = aX.replace("Week ", "").replace("Q", "");
+                    const bXstripped = bX.replace("Week ", "").replace("Q", "");
+
                     if (!xk2) {
                         if (
-                            (isNaN(Number(aX)) && aX < bX) ||
-                            (!isNaN(Number(aX)) && Number(aX) - Number(bX) < 0)
+                            (isNaN(Number(aXstripped)) && aX < bX) ||
+                            (!isNaN(Number(aXstripped)) &&
+                                Number(aXstripped) - Number(bXstripped) < 0)
                         ) {
                             return -1;
                         } else {
@@ -192,9 +200,11 @@ const buildChartObjects = (
                   String(key).endsWith(dataFormat.id2 as SortOrder)
               )[0]
             : null;
-        const xKey = Object.keys(rawData[0]).filter((key) =>
-            String(key).endsWith(dataFormat.x)
-        )[0];
+        const xKey = !dataFormat.x
+            ? null
+            : Object.keys(rawData[0]).filter((key) =>
+                  String(key).endsWith(dataFormat.x as string)
+              )[0];
 
         const yKey = Object.keys(rawData[0]).filter((key) =>
             String(key).endsWith(dataFormat.y)
@@ -213,7 +223,12 @@ const buildChartObjects = (
 
             if (idKey2) idValue += ` ${dataPoint[idKey2]}`;
 
-            let xValue = dataPoint[xKey];
+            let xValue;
+            if (!xKey) {
+                xValue = "Revenue";
+            } else {
+                xValue = dataPoint[xKey];
+            }
             if (xKey === "month") {
                 if (
                     idKey !== "year" &&

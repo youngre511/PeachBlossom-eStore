@@ -17,6 +17,7 @@ export const fetchROTData = async (
     stateSlice: {
         rotParams: PlusParams | null;
         rotData: LineData[] | BarData[];
+        expiration: number | null;
         loading: boolean;
         error: string | null;
     },
@@ -24,7 +25,7 @@ export const fetchROTData = async (
 ) => {
     const existingParams = stateSlice.rotParams;
     let paramsUnchanged = true;
-
+    console.log("existingParams:", existingParams);
     const keys = Object.keys(params) as Array<keyof PlusParams>;
     if (existingParams && stateSlice.rotData.length > 0) {
         for (let key of keys) {
@@ -43,8 +44,14 @@ export const fetchROTData = async (
     } else {
         paramsUnchanged = false;
     }
+    console.log("paramsUnchanged:", paramsUnchanged);
 
-    if (paramsUnchanged && !force) {
+    if (
+        paramsUnchanged &&
+        !force &&
+        (!stateSlice.expiration || Date.now() < stateSlice.expiration)
+    ) {
+        console.log("conditions met");
         return {
             params,
             data: stateSlice.rotData,
@@ -80,6 +87,7 @@ export const fetchRBCData = async <T>(
         rbcParams: RBCParams | null;
         rbcData: T;
         stateOrRegion: string | null;
+        expiration: number | null;
         loading: boolean;
         error: string | null;
     },
@@ -107,7 +115,11 @@ export const fetchRBCData = async <T>(
         paramsUnchanged = false;
     }
 
-    if (paramsUnchanged && !force) {
+    if (
+        paramsUnchanged &&
+        !force &&
+        (!stateSlice.expiration || Date.now() < stateSlice.expiration)
+    ) {
         return {
             params,
             data: stateSlice.rbcData,
@@ -143,6 +155,7 @@ export const fetchTOTData = async (
     stateSlice: {
         totParams: TOTParams | null;
         totData: LineData[] | BarData[];
+        expiration: number | null;
         loading: boolean;
         error: string | null;
     },
@@ -170,7 +183,11 @@ export const fetchTOTData = async (
         paramsUnchanged = false;
     }
 
-    if (paramsUnchanged && !force) {
+    if (
+        paramsUnchanged &&
+        !force &&
+        (!stateSlice.expiration || Date.now() < stateSlice.expiration)
+    ) {
         return {
             params,
             data: stateSlice.totData,
@@ -198,4 +215,11 @@ export const fetchTOTData = async (
             error.response?.data || "Error fetching transactions over time"
         );
     }
+};
+
+export const generateExpirationTime = () => {
+    const expirationTime = new Date();
+
+    expirationTime.setMinutes(expirationTime.getMinutes() + 10);
+    return expirationTime.getTime();
 };
