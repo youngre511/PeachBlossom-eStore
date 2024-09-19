@@ -12,51 +12,56 @@ import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { IconButton, SvgIcon } from "@mui/material";
 import DateRangeSharpIcon from "@mui/icons-material/DateRangeSharp";
 import dayjs from "dayjs";
+import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
 
 interface Props<
     T extends TOTParams | PlusParams | RBCParams | AOVParams | RRPParams
 > {
     paramsObj: T;
     setParams: React.Dispatch<React.SetStateAction<T>>;
-    mobile: boolean;
 }
 const DateSelector = <
     T extends TOTParams | PlusParams | RBCParams | AOVParams | RRPParams
 >({
     paramsObj,
     setParams,
-    mobile,
 }: Props<T>): JSX.Element => {
     const [pickDates, setPickDates] = useState<boolean>(false);
+    const { width } = useWindowSizeContext();
+    const [isNarrow, setIsNarrow] = useState<boolean>(true);
 
-    const style = {
-        "& .MuiInputBase-root.MuiOutlinedInput-root": {
-            backgroundColor: "white",
-        },
-        scale: 0.75,
-    };
+    useEffect(() => {
+        if (width && width >= 950 && isNarrow) {
+            setIsNarrow(false);
+            setPickDates(true);
+        } else if (width && width < 950 && !isNarrow) {
+            setIsNarrow(true);
+            setPickDates(false);
+        }
+    }, [width]);
 
     return (
         <div
             className="date-picker"
             style={
-                mobile
+                isNarrow
                     ? pickDates
                         ? { zIndex: 1 }
                         : { width: "40px" }
                     : undefined
             }
         >
-            <IconButton onClick={() => setPickDates(!pickDates)}>
-                <SvgIcon htmlColor="white">
-                    <DateRangeSharpIcon />
-                </SvgIcon>
-            </IconButton>
+            <div className="select-dates-btn">
+                <IconButton onClick={() => setPickDates(!pickDates)}>
+                    <SvgIcon htmlColor="white">
+                        <DateRangeSharpIcon />
+                    </SvgIcon>
+                </IconButton>
+            </div>
             <div className="date-pickers-cont">
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
                         label="Start Date"
-                        sx={style}
                         minDate={dayjs("1-1-22")}
                         maxDate={
                             paramsObj.endDate
@@ -74,15 +79,18 @@ const DateSelector = <
                                     ? ["clear", "accept"]
                                     : ["cancel", "accept"],
                             },
-                            field: { clearable: true },
+                            // field: { clearable: true },
                         }}
                         onAccept={(newValue) => {
-                            const newDate = new Date(String(newValue));
                             setParams({
                                 ...paramsObj,
                                 startDate:
-                                    String(newValue) !== String(dayjs("1-1-22"))
-                                        ? newDate
+                                    newValue &&
+                                    newValue.toISOString().substring(0, 10) !==
+                                        "2022-01-01"
+                                        ? newValue
+                                              .toISOString()
+                                              .substring(0, 10)
                                         : undefined,
                             });
                         }}
@@ -91,7 +99,6 @@ const DateSelector = <
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
                         label="End Date"
-                        sx={style}
                         minDate={
                             paramsObj.startDate
                                 ? dayjs(paramsObj.startDate)
@@ -109,15 +116,18 @@ const DateSelector = <
                                     ? ["clear", "accept"]
                                     : ["cancel", "accept"],
                             },
-                            field: { clearable: true },
+                            // field: { clearable: true },
                         }}
                         onAccept={(newValue) => {
-                            const newDate = new Date(String(newValue));
                             setParams({
                                 ...paramsObj,
                                 endDate:
-                                    String(newValue) !== String(dayjs())
-                                        ? newDate
+                                    newValue &&
+                                    newValue.toISOString().substring(0, 10) !==
+                                        dayjs().toISOString().substring(0, 10)
+                                        ? newValue
+                                              .toISOString()
+                                              .substring(0, 10)
                                         : undefined,
                             });
                         }}

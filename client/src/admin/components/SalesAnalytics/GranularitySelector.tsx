@@ -10,6 +10,7 @@ import {
     RRPParams,
     TOTParams,
 } from "../../features/Analytics/analyticsTypes";
+import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
 
 interface Props<
     T extends TOTParams | PlusParams | RBCParams | AOVParams | RRPParams,
@@ -18,7 +19,6 @@ interface Props<
     paramsObj: T;
     setParams: React.Dispatch<React.SetStateAction<T>>;
     granularityOptions: G[];
-    mobile: boolean;
 }
 const GranularitySelector = <
     T extends TOTParams | PlusParams | RBCParams | AOVParams | RRPParams,
@@ -27,12 +27,22 @@ const GranularitySelector = <
     paramsObj,
     setParams,
     granularityOptions,
-    mobile,
 }: Props<T, G>): JSX.Element => {
     const [isMenuOpen, setIsMenuOpen] = useState<boolean>(true);
     const [isScrollLocked, setIsScrollLocked] = useState(false);
     const containerRef = useRef<HTMLDivElement | null>(null);
     const scrollPosition = useRef(0);
+
+    const { width } = useWindowSizeContext();
+    const [isNarrow, setIsNarrow] = useState<boolean>(true);
+
+    useEffect(() => {
+        if (width && width >= 950 && isNarrow) {
+            setIsNarrow(false);
+        } else if (width && width < 950 && !isNarrow) {
+            setIsNarrow(true);
+        }
+    }, [width, setIsNarrow]);
 
     useEffect(() => {
         const container = containerRef.current;
@@ -67,7 +77,7 @@ const GranularitySelector = <
                 granularity: granularity as G,
             });
         }
-        if (mobile) {
+        if (isNarrow) {
             if (isMenuOpen) {
                 setTimeout(() => {
                     setIsScrollLocked(true);
@@ -80,7 +90,7 @@ const GranularitySelector = <
     };
 
     useEffect(() => {
-        if (mobile) {
+        if (isNarrow) {
             setIsMenuOpen(false);
             setTimeout(() => {
                 setIsScrollLocked(true);
@@ -89,7 +99,7 @@ const GranularitySelector = <
             setIsScrollLocked(false);
             setIsMenuOpen(true);
         }
-    }, [mobile]);
+    }, [isNarrow]);
 
     return (
         <div className="granularity-select">
@@ -98,10 +108,13 @@ const GranularitySelector = <
                 style={
                     !isMenuOpen
                         ? {
-                              width: ["year", "week"].includes(
+                              // Set width to 88px if granularity is "quarter", to 76px if granularity is month, and 70px otherwise
+                              width: ["year", "week", "all"].includes(
                                   paramsObj.granularity
                               )
                                   ? "70px"
+                                  : paramsObj.granularity === "month"
+                                  ? "76px"
                                   : "88px",
                           }
                         : undefined
@@ -124,7 +137,9 @@ const GranularitySelector = <
                                     : undefined
                             }
                         >
-                            {`${granularity}ly`.toUpperCase()}
+                            {`${granularity}${
+                                granularity === "all" ? " time" : "ly"
+                            }`.toUpperCase()}
                         </div>
                     ))}
                 </div>
