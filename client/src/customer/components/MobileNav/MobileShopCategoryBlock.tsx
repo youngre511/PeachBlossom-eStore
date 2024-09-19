@@ -47,7 +47,12 @@ const MobileShopCategoryBlock: React.FC<Props> = ({
                     className="m-shop-category-name"
                     onClick={() => {
                         handleCloseMenu();
-                        navigate(`/shop?category=${category.categoryName}`);
+                        navigate(
+                            `/shop?category=${category.categoryName.replace(
+                                "&",
+                                "%26"
+                            )}`
+                        );
                     }}
                 >
                     {category.categoryName}
@@ -82,10 +87,14 @@ const MobileShopCategoryBlock: React.FC<Props> = ({
                         onClick={() => {
                             handleCloseMenu();
                             navigate(
-                                `/shop?category=${
-                                    category.categoryName
-                                }&sub_category=${encodeURI(
-                                    subcategory.subcategoryName
+                                `/shop?category=${category.categoryName.replace(
+                                    "&",
+                                    "%26"
+                                )}&sub_category=${encodeURI(
+                                    subcategory.subcategoryName.replace(
+                                        "&",
+                                        "%26"
+                                    )
                                 )}`
                             );
                         }}
