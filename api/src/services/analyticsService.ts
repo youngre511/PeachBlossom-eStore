@@ -283,11 +283,11 @@ export const getRevenueOverTime = async (
             y: YValue;
         };
         const groupClause: GroupOption = [];
-        if (byRegion) {
+        if (byRegion && chartType !== "bar") {
             // Since sequelize does not support grouping or ordering by dynamically created fields in associated tables, in order to group/order by region, the RAW sql that created the column must be repeated in the group/order clause.
             groupClause.push(literal(regionCaseStatement));
             dataFormat["id"] = "region";
-        } else if (byState) {
+        } else if (byState && chartType !== "bar") {
             groupClause.push("stateAbbr");
             dataFormat["id"] = "stateAbbr";
         } else if (chartType === "bar") {
@@ -299,11 +299,28 @@ export const getRevenueOverTime = async (
 
         groupClause.push("year");
         // SortOrder type must allow all granularity types except "all"
-        dataFormat["x"] =
-            chartType === "bar" ? null : (granularity as SortOrder);
+        if (chartType === "bar") {
+            if (byRegion) {
+                dataFormat["x"] = "region";
+            } else if (byState) {
+                dataFormat["x"] = "stateAbbr";
+            } else {
+                dataFormat["x"] = null;
+            }
+        } else {
+            dataFormat["x"] = granularity as SortOrder;
+        }
 
         if (["week", "month", "quarter"].includes(granularity)) {
             groupClause.push(`${granularity}`);
+        }
+
+        if (chartType === "bar") {
+            if (byRegion) {
+                groupClause.push(literal(regionCaseStatement));
+            } else if (byState) {
+                groupClause.push("stateAbbr");
+            }
         }
 
         const results = await sqlOrder.findAll({
@@ -317,7 +334,8 @@ export const getRevenueOverTime = async (
         const processedResults = buildChartObjects(
             results,
             chartType,
-            dataFormat
+            dataFormat,
+            "Revenue"
         );
         return processedResults;
     } catch (error) {
@@ -759,7 +777,8 @@ export const getTransactionsOverTime = async (
 
         const dataFormat = { y: "count" } as {
             id: SortOrder;
-            x: SortOrder;
+            id2?: "year";
+            x: SortOrder | null;
             y: YValue;
         };
         const groupClause: GroupOption = [];
@@ -770,12 +789,16 @@ export const getTransactionsOverTime = async (
         } else if (byState) {
             groupClause.push("stateAbbr");
             dataFormat["id"] = "stateAbbr";
+        } else if (chartType === "bar") {
+            dataFormat["id"] = granularity as SortOrder;
+            dataFormat["id2"] = "year";
         } else {
             dataFormat["id"] = "year";
         }
 
         // SortOrder type must allow all granularity types except "all"
-        dataFormat["x"] = granularity as SortOrder;
+        dataFormat["x"] =
+            chartType === "bar" ? null : (granularity as SortOrder);
 
         if (["week", "month", "quarter", "year"].includes(granularity)) {
             groupClause.push(literal("YEAR(orderDate)"));
@@ -798,7 +821,8 @@ export const getTransactionsOverTime = async (
             const processedResults = buildChartObjects(
                 results,
                 chartType,
-                dataFormat
+                dataFormat,
+                "Transactions"
             );
             return processedResults;
         } else {
@@ -905,7 +929,8 @@ export const getItemsPerTransaction = async (
 
         const dataFormat = { y: "averageQuantityPerOrder" } as {
             id: SortOrder;
-            x: SortOrder;
+            id2?: "year";
+            x: SortOrder | null;
             y: YValue;
         };
         const groupClause: GroupOption = [];
@@ -916,12 +941,16 @@ export const getItemsPerTransaction = async (
         } else if (byState) {
             groupClause.push("stateAbbr");
             dataFormat["id"] = "stateAbbr";
+        } else if (chartType === "bar") {
+            dataFormat["id"] = granularity;
+            dataFormat["id2"] = "year";
         } else {
             dataFormat["id"] = "year";
         }
 
         // SortOrder type must allow all granularity types except "all"
-        dataFormat["x"] = granularity as SortOrder;
+        dataFormat["x"] =
+            chartType === "bar" ? null : (granularity as SortOrder);
 
         if (["week", "month", "quarter", "year"].includes(granularity)) {
             groupClause.push(literal("YEAR(orderDate)"));
@@ -942,7 +971,8 @@ export const getItemsPerTransaction = async (
         const processedResults = buildChartObjects(
             results,
             chartType,
-            dataFormat
+            dataFormat,
+            "Items"
         );
         return processedResults;
     } catch (error) {
@@ -1038,7 +1068,8 @@ export const getAverageOrderValue = async (
         // Dynamically create group clause and order clause
         const dataFormat = { y: "averageOrderValue" } as {
             id: SortOrder;
-            x: SortOrder;
+            id2?: "year";
+            x: SortOrder | null;
             y: YValue;
         };
         const groupClause: GroupOption = [];
@@ -1049,12 +1080,16 @@ export const getAverageOrderValue = async (
         } else if (byState) {
             groupClause.push("stateAbbr");
             dataFormat["id"] = "stateAbbr";
+        } else if (chartType === "bar") {
+            dataFormat["id"] = granularity;
+            dataFormat["id2"] = "year";
         } else {
             dataFormat["id"] = "year";
         }
 
         // SortOrder type must allow all granularity types except "all"
-        dataFormat["x"] = granularity as SortOrder;
+        dataFormat["x"] =
+            chartType === "bar" ? null : (granularity as SortOrder);
 
         groupClause.push(literal("YEAR(orderDate)"));
 
@@ -1074,7 +1109,8 @@ export const getAverageOrderValue = async (
         const processedResults = buildChartObjects(
             results,
             chartType,
-            dataFormat
+            dataFormat,
+            "Average Value"
         );
         return processedResults;
     } catch (error) {
@@ -1095,7 +1131,7 @@ export const getAverageOrderValue = async (
 // Get Region percentages
 
 export const getRegionRevenuePercentages = async (
-    granularity: "week" | "month" | "quarter" | "year",
+    granularity: "week" | "month" | "quarter" | "year" | "all",
     startDate: string | null,
     endDate: string | null,
     byState: boolean = false,
@@ -1108,6 +1144,8 @@ export const getRegionRevenuePercentages = async (
             [fn("YEAR", col("orderDate")), "year"],
         ];
         switch (granularity) {
+            case "all":
+                break;
             case "year":
                 break;
             case "quarter":
@@ -1176,9 +1214,11 @@ export const getRegionRevenuePercentages = async (
         const periodGroupClause: GroupOption = [];
         const periodName: string[] = [];
 
-        groupClause.push("year");
-        periodGroupClause.push(literal("YEAR(orderDate)"));
-        periodName.push("YEAR(orderDate)");
+        if (granularity !== "all") {
+            groupClause.push("year");
+            periodGroupClause.push(literal("YEAR(orderDate)"));
+            periodName.push("YEAR(orderDate)");
+        }
 
         if (["week", "month", "quarter"].includes(granularity)) {
             periodName.push(`'-${granularity.toUpperCase().substring(0, 1)}'`);
@@ -1200,15 +1240,23 @@ export const getRegionRevenuePercentages = async (
             dataFormat.id = "stateAbbr";
         }
 
+        const totalAttributeClause: FindAttributeOptions = [
+            [fn("SUM", col("subTotal")), "total_revenue"],
+        ];
+        if (periodGroupClause.length > 1) {
+            totalAttributeClause.push([
+                literal(`CONCAT(${periodName.join(", ")})`),
+                "period",
+            ]);
+            attributeClause.push([
+                literal(`CONCAT(${periodName.join(", ")})`),
+                "period",
+            ]);
+        }
+
         const totalRevenueByPeriod = await sqlOrder.findAll({
             where: whereClause,
-            attributes: [
-                [fn("SUM", col("subTotal")), "total_revenue"],
-                periodGroupClause && [
-                    literal(`CONCAT(${periodName.join(", ")})`),
-                    "period",
-                ],
-            ],
+            attributes: totalAttributeClause,
             include: includeClause,
             group: periodGroupClause,
             raw: true,
@@ -1220,17 +1268,10 @@ export const getRegionRevenuePercentages = async (
             totalRevenueMap[periodKey] = entry.total_revenue;
         });
 
-        // console.log("totalRevenueMap:", totalRevenueMap);
-        console.log("groupClause:", groupClause);
+        console.log("totalRevenueMap:", totalRevenueMap);
         const results = await sqlOrder.findAll({
             where: whereClause,
-            attributes: [
-                ...attributeClause,
-                periodGroupClause && [
-                    literal(`CONCAT(${periodName.join(", ")})`),
-                    "period",
-                ],
-            ],
+            attributes: attributeClause,
             include: includeClause,
             group: groupClause,
             order: ["total_revenue"],
@@ -1238,9 +1279,9 @@ export const getRegionRevenuePercentages = async (
         });
 
         const resultsWithPercentage = results.map((result: any) => {
-            const periodKey = result.period; // Get the period from the SQL result
+            const periodKey = result.period || "all"; // Get the period from the SQL result
             const totalRevenueForPeriod = totalRevenueMap[periodKey] || 1; // Use the map, or default to 1
-            console.log(result.total_revenue);
+
             const percentageOfTotal =
                 (result.total_revenue / totalRevenueForPeriod) * 100;
 
@@ -1260,12 +1301,12 @@ export const getRegionRevenuePercentages = async (
         if (error instanceof Error) {
             // Rollback the transaction in case of any errors
             throw new Error(
-                "Error getting revenue over time: " + error.message
+                "Error getting regional revenue percentages: " + error.message
             );
         } else {
             // Rollback the transaction in case of any non-Error errors
             throw new Error(
-                "An unknown error occurred while getting revenue over time"
+                "An unknown error occurred while getting regional revenue percentages"
             );
         }
     }
@@ -1273,8 +1314,10 @@ export const getRegionRevenuePercentages = async (
 
 ////// GET TOP 5 ADMIN PRODUCTS ///////
 
-export const getTopFiveProducts = async (
-    period: "7d" | "30d" | "6m" | "1y" | "allTime"
+export const getTopProducts = async (
+    period: "7d" | "30d" | "6m" | "1y" | "allTime",
+    worst: boolean = false,
+    number: number = 5
 ) => {
     const startDate = new Date();
 
@@ -1306,7 +1349,6 @@ export const getTopFiveProducts = async (
         whereClause = undefined;
     }
 
-    console.log("WhereClause:", whereClause);
     const topProducts = (await sqlProduct.findAll({
         include: [
             {
@@ -1337,17 +1379,16 @@ export const getTopFiveProducts = async (
         ],
         group: ["sqlProduct.productNo"],
         order: [
-            [fn("SUM", col("OrderItem.quantity")), "DESC"],
+            [fn("SUM", col("OrderItem.quantity")), worst ? "ASC" : "DESC"],
             ["price", "DESC"],
         ],
         raw: true,
     })) as unknown as JoinReqTopProductRaw[];
 
-    const top5 = topProducts.slice(0, 6);
-    console.log(top5);
+    const top = topProducts.slice(0, number);
 
     //Format Data
-    const topProductRecords: Array<TopProductResponse> = top5.map((product) => {
+    const topProductRecords: Array<TopProductResponse> = top.map((product) => {
         const catObj = {
             thumbnailUrl: product.thumbnailUrl,
             name: product.productName,

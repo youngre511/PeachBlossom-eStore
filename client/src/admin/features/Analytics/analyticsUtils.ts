@@ -8,6 +8,7 @@ import {
     RBCParams,
     PlusParams,
     TOTParams,
+    TopProduct,
 } from "./analyticsTypes";
 import { arraysEqual } from "../../../common/utils/arraysEqual";
 
@@ -25,7 +26,6 @@ export const fetchROTData = async (
 ) => {
     const existingParams = stateSlice.rotParams;
     let paramsUnchanged = true;
-    console.log("existingParams:", existingParams);
     const keys = Object.keys(params) as Array<keyof PlusParams>;
     if (existingParams && stateSlice.rotData.length > 0) {
         for (let key of keys) {
@@ -44,14 +44,12 @@ export const fetchROTData = async (
     } else {
         paramsUnchanged = false;
     }
-    console.log("paramsUnchanged:", paramsUnchanged);
 
     if (
         paramsUnchanged &&
         !force &&
         (!stateSlice.expiration || Date.now() < stateSlice.expiration)
     ) {
-        console.log("conditions met");
         return {
             params,
             data: stateSlice.rotData,
@@ -205,7 +203,6 @@ export const fetchTOTData = async (
                 },
             }
         );
-        console.log("response data:", response.data);
         return {
             params: params,
             data: response.data,
@@ -213,6 +210,58 @@ export const fetchTOTData = async (
     } catch (error: any) {
         return rejectWithValue(
             error.response?.data || "Error fetching transactions over time"
+        );
+    }
+};
+
+export const fetchTopProducts = async (
+    period: "7d" | "30d" | "6m" | "1y" | "allTime",
+    number: "5" | "10",
+    worstPerforming: boolean,
+    force: boolean,
+    stateSlice: {
+        period: "7d" | "30d" | "6m" | "1y" | "allTime";
+        products: TopProduct[];
+        expiration: number | null;
+        loading: boolean;
+        error: string | null;
+    },
+    rejectWithValue: any
+) => {
+    const currentPeriod = stateSlice.period;
+    const periodUnchanged = currentPeriod === period;
+
+    if (
+        periodUnchanged &&
+        stateSlice.products.length > 0 &&
+        stateSlice.expiration &&
+        Date.now() < stateSlice.expiration
+    ) {
+        console.log("meets criteria");
+        return {
+            period: stateSlice.period,
+            products: stateSlice.products,
+        };
+    }
+
+    const token = localStorage.getItem("jwtToken"); // Get the token from local storage
+    try {
+        const response = await axios.get(
+            `${import.meta.env.VITE_API_URL}/analytics/tfp`,
+            {
+                params: { period, worstPerforming, number: number },
+                headers: {
+                    Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+                },
+            }
+        );
+        return {
+            period: period,
+            products: response.data,
+        };
+    } catch (error: any) {
+        return rejectWithValue(
+            error.response?.data || "Error fetching top products"
         );
     }
 };

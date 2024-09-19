@@ -5,13 +5,15 @@ export type LineData = {
 
 export type BarData = { id: string } & { [key: string]: number };
 
-export type PieData = Array<
-    | string
-    | {
-          id: string;
-          value: number;
-      }
->;
+export type PieData = Array<{
+    id: string;
+    value: number;
+}>;
+
+export type PieDataArray = Array<{
+    period: string;
+    data: PieData;
+}>;
 
 export type RevenueByCategoryResponse = {
     results: LineData[] | BarData[];
@@ -129,7 +131,7 @@ export interface AnalyticsState {
         error: string | null;
     };
     regionPercentages: {
-        rpData: PieData[];
+        rpData: PieDataArray;
         rpParams: RRPParams | null;
         expiration: number | null;
         loading: boolean;
@@ -138,11 +140,27 @@ export interface AnalyticsState {
     salesSummary: {
         ytdRevenue: string;
         ytdTransactions: number;
+        mtdRevenue: string;
+        mtdTransactions: number;
         expiration: number | null;
         loading: boolean;
         error: string | null;
     };
-    topProducts: {
+    topFiveProducts: {
+        period: "7d" | "30d" | "6m" | "1y" | "allTime";
+        products: TopProduct[];
+        expiration: number | null;
+        loading: boolean;
+        error: string | null;
+    };
+    topTenProducts: {
+        period: "7d" | "30d" | "6m" | "1y" | "allTime";
+        products: TopProduct[];
+        expiration: number | null;
+        loading: boolean;
+        error: string | null;
+    };
+    topTenWorstProducts: {
         period: "7d" | "30d" | "6m" | "1y" | "allTime";
         products: TopProduct[];
         expiration: number | null;

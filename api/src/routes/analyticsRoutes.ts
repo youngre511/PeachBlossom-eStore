@@ -4,7 +4,7 @@ import {
     getRegionRevenuePercentages,
     getRevenueByCategory,
     getRevenueOverTime,
-    getTopFiveProducts,
+    getTopProducts,
     getTransactionsOverTime,
 } from "../controllers/analyticsController.js";
 import { Router } from "express";
@@ -24,6 +24,6 @@ analyticsRouter.get("/aov", getAverageOrderValue);
 
 analyticsRouter.get("/rrp", getRegionRevenuePercentages);
 
-analyticsRouter.get("/tfp", getTopFiveProducts);
+analyticsRouter.get("/tfp", getTopProducts);
 
 export default analyticsRouter;

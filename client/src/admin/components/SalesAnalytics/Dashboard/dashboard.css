@@ -27,6 +27,9 @@
 
 .sales-summary {
     background-color: white;
+}
+
+.summary-contents {
     padding: 20px;
     width: 300px;
     flex-shrink: 0;
@@ -35,8 +38,46 @@
 
 .top-products {
     background-color: white;
-    padding: 20px;
+}
+
+.top-products-contents {
     width: 100%;
-    margin-top: 20px;
     position: relative;
+}
+
+.top-products-contents > :nth-child(2n) {
+    background-color: var(--peach-blossom);
+}
+
+.top-products-contents > :not(:first-child) {
+    cursor: pointer;
+}
+
+.top-products-contents > :not(:first-child):hover {
+    background-color: var(--peaches-and-cream);
+}
+
+.top-products-header {
+    border-bottom: 1px solid lightgray;
+    padding-bottom: 0;
+}
+
+.analytics-product {
+    height: 70px;
+    padding: 10px 30px;
+    display: grid;
+    grid-template-columns: 1fr 3fr 6fr 9fr 3fr;
+}
+
+.analytics-product > * {
+    align-self: center;
+}
+
+.analytics-product > :last-child {
+    text-align: right;
+}
+
+.analytics-product-thumbnail {
+    height: 50px;
+    width: auto;
 }

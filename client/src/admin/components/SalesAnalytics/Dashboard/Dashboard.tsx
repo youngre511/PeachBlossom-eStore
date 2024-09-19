@@ -18,17 +18,18 @@ import RefreshSharpIcon from "@mui/icons-material/RefreshSharp";
 import BarChartSharpIcon from "@mui/icons-material/BarChartSharp";
 import ShowChartSharpIcon from "@mui/icons-material/ShowChartSharp";
 import LineAxisSharpIcon from "@mui/icons-material/LineAxisSharp";
-import StackedBarChartSharpIcon from "@mui/icons-material/StackedBarChartSharp";
+
 import PieChartOutlineSharpIcon from "@mui/icons-material/PieChartOutlineSharp";
 import CustomLineChart from "../CustomCharts/CustomLineChart";
 import { IconButton, SvgIcon, Typography } from "@mui/material";
 import CustomBarChart from "../CustomCharts/CustomBarChart";
 
+import TopProducts from "../Product Performance/TopProducts";
+
 const Dashboard: React.FC = () => {
     const dispatch = useAppDispatch();
     const analytics = useAppSelector((state: RootState) => state.analytics);
     const rotData = analytics.revenueOverTime.rotData;
-    const topProducts = analytics.topProducts;
     const salesSummary = analytics.salesSummary;
 
     const [rotChartType, setRotChartType] = useState<"bar" | "line">("line");
@@ -39,9 +40,6 @@ const Dashboard: React.FC = () => {
           }[]
         | null
     >(null);
-    const [topProductsPeriod, setTopProductsPeriod] = useState<
-        "7d" | "30d" | "6m" | "1y" | "allTime"
-    >(topProducts.period);
 
     const startDate = new Date();
     startDate.setFullYear(startDate.getFullYear() - 1);
@@ -59,7 +57,7 @@ const Dashboard: React.FC = () => {
                 },
             })
         );
-        if (rotChartType === "line") {
+        if (rotData.length > 0 && rotChartType === "line") {
             const compiledData: {
                 id: string;
                 data: { x: string; y: number }[];
@@ -89,17 +87,6 @@ const Dashboard: React.FC = () => {
             dispatch(fetchYTD());
         }
     }, [salesSummary]);
-
-    useEffect(() => {
-        if (topProducts && topProducts.products.length === 0) {
-            dispatch(
-                fetchTopFiveProducts({
-                    period: topProductsPeriod,
-                })
-            );
-        }
-        console.log(topProducts);
-    }, [topProducts, topProductsPeriod]);
 
     return (
         <div className="dashboard-grid">
@@ -152,7 +139,7 @@ const Dashboard: React.FC = () => {
                                 yFormat=">-$,.2f"
                             />
                         )}
-                        {rotData && rotChartType === "bar" && (
+                        {rotData.length > 0 && rotChartType === "bar" && (
                             <CustomBarChart
                                 data={rotData}
                                 stacked={false}
@@ -173,24 +160,41 @@ const Dashboard: React.FC = () => {
                     </div>
                 </div>
                 <div className="sales-summary analytics-box">
-                    <div>Total Revenue YTD</div>
-                    <div>
-                        {"$" + Number(salesSummary.ytdRevenue).toLocaleString()}
+                    <div className="box-header">
+                        <h2>Sales Summary</h2>
                     </div>
-                    <div>Number of Transactions YTD</div>
-                    <div>{salesSummary.ytdTransactions}</div>
+                    <div className="summary-contents">
+                        <div className="summary-label">YTD Revenue</div>
+                        <div className="summary-figure">
+                            {"$" +
+                                Number(
+                                    salesSummary.ytdRevenue
+                                ).toLocaleString()}
+                        </div>
+                        <div className="summary-label">
+                            Current Month Revenue
+                        </div>
+                        <div className="summary-figure">
+                            {"$" +
+                                Number(
+                                    salesSummary.mtdRevenue
+                                ).toLocaleString()}
+                        </div>
+                        <div className="summary-label">YTD Transactions</div>
+                        <div className="summary-figure">
+                            {salesSummary.ytdTransactions}
+                        </div>
+                        <div className="summary-label">
+                            Current Month Transactions YTD
+                        </div>
+                        <div className="summary-figure">
+                            {salesSummary.mtdTransactions}
+                        </div>
+                    </div>
                 </div>
             </div>
             <div className="top-products analytics-box">
-                {topProducts &&
-                    topProducts.products.map((product) => (
-                        <div
-                            className="product-container"
-                            key={product.productNo}
-                        >
-                            <div>{product.name}</div>
-                        </div>
-                    ))}
+                <TopProducts number="5" worst={false} />
             </div>
         </div>
     );

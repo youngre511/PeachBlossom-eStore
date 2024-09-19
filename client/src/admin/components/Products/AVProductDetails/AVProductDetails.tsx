@@ -239,15 +239,30 @@ const AVProductDetails: React.FC = () => {
     const authContext = useContext(AuthContext);
     const accessLevel = authContext?.user?.accessLevel;
     const { previousRoute } = usePreviousRoute();
-    const [previous, setPrevious] = useState<string>("/products/manage");
+    const [previous, setPrevious] = useState<{ path: string; name: string }>({
+        path: "/products/manage",
+        name: "Product Management",
+    });
     const [lockedPrevious, setLockedPrevious] = useState<boolean>(false);
 
     useEffect(() => {
-        if (previousRoute && !lockedPrevious) {
-            if (previousRoute.includes("product-details")) {
-                setPrevious("/products/manage");
+        if (
+            previousRoute &&
+            !lockedPrevious &&
+            !previousRoute.includes("product-details")
+        ) {
+            if (previousRoute.includes("products/manage")) {
+                setPrevious({
+                    path: "/products/manage",
+                    name: "Product Management",
+                });
+            } else if (
+                previousRoute.includes("dashboard") ||
+                previousRoute === "/"
+            ) {
+                setPrevious({ path: "/sales/dashboard", name: "Dashboard" });
             } else {
-                setPrevious(previousRoute);
+                setPrevious({ path: previousRoute, name: "Previous Page" });
             }
             setLockedPrevious(true);
         }
@@ -291,12 +306,9 @@ const AVProductDetails: React.FC = () => {
                             )
                         )
                     );
-                    console.log(
-                        "productDetails.images:",
-                        productDetails.images
-                    );
+
                     setImageUrls(productDetails.images);
-                    console.log("initialImageUrls:", imageUrls);
+
                     setLoading(false);
                 } catch (error) {
                     if (error instanceof AxiosError) {
@@ -902,9 +914,11 @@ const AVProductDetails: React.FC = () => {
                                 md: "auto",
                             },
                         }}
-                        onClick={() => navigate(previous || "/products/manage")}
+                        onClick={() =>
+                            navigate(previous.path || "/products/manage")
+                        }
                     >
-                        &lt; Back to product management
+                        &lt; Back to {previous.name}
                     </Button>
                     {editMode ? (
                         <Box

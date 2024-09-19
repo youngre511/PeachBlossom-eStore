@@ -77,6 +77,8 @@ interface ByCategoryParams {
 interface TopProductsRequest {
     query: {
         period: string;
+        number: string;
+        worstPerforming?: string;
     };
 }
 
@@ -332,7 +334,7 @@ export const getRegionRevenuePercentages = async (
             byState = false,
             byRegion = false,
             chartType,
-        } = convertParams<OverTimePlusParams, GranularityPlus>(
+        } = convertParams<OverTimePlusParams, GranularityExtended>(
             granularityPlusArr,
             data
         );
@@ -358,15 +360,17 @@ export const getRegionRevenuePercentages = async (
     }
 };
 
-export const getTopFiveProducts = async (
+export const getTopProducts = async (
     req: TopProductsRequest,
     res: Response
 ) => {
     try {
-        const { period } = req.query;
-
-        const result = await analyticsService.getTopFiveProducts(
-            period as "7d" | "30d" | "6m" | "1y" | "allTime"
+        const { period, worstPerforming, number } = req.query;
+        const worst = worstPerforming === "true";
+        const result = await analyticsService.getTopProducts(
+            period as "7d" | "30d" | "6m" | "1y" | "allTime",
+            worst,
+            Number(number)
         );
 
         res.json(result);

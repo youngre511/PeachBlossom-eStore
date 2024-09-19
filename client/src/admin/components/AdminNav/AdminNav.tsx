@@ -147,7 +147,7 @@ const AdminNav: React.FC<Props> = (props: Props) => {
                                         <ListItemButton
                                             sx={{ paddingLeft: 2 }}
                                             onClick={() =>
-                                                navigate("/sales/dashboard")
+                                                navigate("/sales/revenue")
                                             }
                                         >
                                             <ListItemText
@@ -164,6 +164,22 @@ const AdminNav: React.FC<Props> = (props: Props) => {
                                         >
                                             <ListItemText
                                                 secondary={"Transaction Data"}
+                                            />
+                                        </ListItemButton>
+                                    </ListItem>
+                                    <ListItem disablePadding>
+                                        <ListItemButton
+                                            sx={{ paddingLeft: 2 }}
+                                            onClick={() =>
+                                                navigate(
+                                                    "/sales/product-performance"
+                                                )
+                                            }
+                                        >
+                                            <ListItemText
+                                                secondary={
+                                                    "Product Performance"
+                                                }
                                             />
                                         </ListItemButton>
                                     </ListItem>
@@ -200,13 +216,6 @@ const AdminNav: React.FC<Props> = (props: Props) => {
                                 }}
                             >
                                 <List>
-                                    <ListItem disablePadding>
-                                        <ListItemButton sx={{ paddingLeft: 2 }}>
-                                            <ListItemText
-                                                secondary={"Top Products"}
-                                            />
-                                        </ListItemButton>
-                                    </ListItem>
                                     <ListItem disablePadding>
                                         <ListItemButton
                                             sx={{ paddingLeft: 2 }}

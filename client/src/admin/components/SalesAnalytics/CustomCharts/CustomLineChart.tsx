@@ -32,6 +32,7 @@ const CustomLineChart: React.FC<Props> = ({
     const { width } = useWindowSizeContext();
     const [mobile, setMobile] = useState<boolean>(true);
 
+    console.log("line data:", data);
     const xValues = data[0].data.map((point) => point.x);
     const skipValues =
         xValues.length > 0 ? xValues[0].startsWith("Week") : false;

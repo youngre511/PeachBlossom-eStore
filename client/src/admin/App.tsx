@@ -24,6 +24,7 @@ import HomeRedirect from "./components/HomeRedirect";
 import AdminManagement from "./components/AdminManagement/AdminManagement";
 import Dashboard from "./components/SalesAnalytics/Dashboard/Dashboard";
 import TransactionData from "./components/SalesAnalytics/TransactionData/TransactionData";
+import ProductPerformance from "./components/SalesAnalytics/Product Performance/ProductPerformance";
 function AdminApp() {
     const dispatch = useAppDispatch();
     const authContext = useContext(AuthContext);
@@ -82,6 +83,15 @@ function AdminApp() {
                             element={
                                 <ProtectedRoute
                                     component={Revenue}
+                                    requiredRole="admin"
+                                />
+                            }
+                        />
+                        <Route
+                            path="/sales/product-performance"
+                            element={
+                                <ProtectedRoute
+                                    component={ProductPerformance}
                                     requiredRole="admin"
                                 />
                             }
