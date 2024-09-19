@@ -17,6 +17,8 @@ interface Props {
     tiltLabels?: boolean;
     valueFormat?: string;
     yAxisFormat?: (value: number) => string;
+    enableLabel?: boolean;
+    legendPosition?: "bottom" | "bottom-right";
 }
 const CustomBarChart: React.FC<Props> = ({
     data,
@@ -26,6 +28,8 @@ const CustomBarChart: React.FC<Props> = ({
     valueFormat,
     tiltLabels = false,
     yAxisFormat,
+    enableLabel = true,
+    legendPosition = "bottom-right",
 }) => {
     // Create a list of keys minus "id" and sort
     const keys = Object.keys(data[0]);
@@ -42,16 +46,20 @@ const CustomBarChart: React.FC<Props> = ({
             valueFormat={valueFormat}
             axisBottom={tiltLabels ? { tickRotation: 45 } : undefined}
             axisLeft={{ format: yAxisFormat }}
+            enableLabel={enableLabel}
             legends={
                 includeLegend
                     ? [
                           {
                               dataFrom: "keys",
-                              anchor: "bottom-right",
-                              direction: "column",
+                              anchor: legendPosition,
+                              direction:
+                                  legendPosition === "bottom"
+                                      ? "row"
+                                      : "column",
                               justify: false,
-                              translateX: 120,
-                              translateY: 0,
+                              translateX: legendPosition === "bottom" ? 0 : 120,
+                              translateY: legendPosition === "bottom" ? 85 : 0,
                               itemsSpacing: 2,
                               itemWidth: 100,
                               itemHeight: 20,

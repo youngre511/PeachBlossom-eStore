@@ -32,18 +32,26 @@ const CustomLineChart: React.FC<Props> = ({
     const { width } = useWindowSizeContext();
     const [mobile, setMobile] = useState<boolean>(true);
 
+    const xValues = data[0].data.map((point) => point.x);
+    const skipValues =
+        xValues.length > 0 ? xValues[0].startsWith("Week") : false;
+
     useEffect(() => {
-        setMobile(width && width >= 600 ? false : true);
+        setMobile(width && width >= 800 ? false : true);
     }, [width]);
 
     return (
         <ResponsiveLine
             data={data as any}
             theme={nivoTheme}
+            animate={false}
             axisBottom={{
                 legend: xLegend,
                 legendOffset: 60,
                 tickRotation: 45,
+                tickValues: skipValues
+                    ? xValues.filter((_, index) => index % 3 === 0)
+                    : undefined,
             }}
             axisLeft={{
                 legend: yLegend,

@@ -4,8 +4,9 @@ export const nivoTheme = {
     textColor: "#333", // Set default text color
     legends: {
         text: {
-            fontSize: 12,
+            fontSize: 13,
             fontFamily: "var(--Playfair)",
+            fontWeight: 500,
         },
     },
     axis: {
