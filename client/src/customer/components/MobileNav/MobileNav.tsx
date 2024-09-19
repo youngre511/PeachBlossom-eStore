@@ -399,7 +399,10 @@ const MobileNav: React.FC<Props> = () => {
                             </li>
                             <li>
                                 <button
-                                    onClick={() => navigate("/order-status")}
+                                    onClick={() => {
+                                        navigate("/order-status");
+                                        handleCloseMenu();
+                                    }}
                                 >
                                     Order Status
                                 </button>
@@ -408,13 +411,21 @@ const MobileNav: React.FC<Props> = () => {
                                 <button>Support</button>
                             </li>
                             <li>
-                                <button onClick={() => navigate("/about")}>
+                                <button
+                                    onClick={() => {
+                                        navigate("/about");
+                                        handleCloseMenu();
+                                    }}
+                                >
                                     About
                                 </button>
                             </li>
                             <li>
                                 <button
-                                    onClick={() => navigate("/sustainability")}
+                                    onClick={() => {
+                                        navigate("/sustainability");
+                                        handleCloseMenu();
+                                    }}
                                 >
                                     Sustainability
                                 </button>
