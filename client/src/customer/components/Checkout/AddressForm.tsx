@@ -1,13 +1,12 @@
 import React, { useState } from "react";
 
-import Checkbox from "@mui/material/Checkbox";
-import FormControlLabel from "@mui/material/FormControlLabel";
 import FormLabel from "@mui/material/FormLabel";
 import Grid from "@mui/material/Grid";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import { styled } from "@mui/system";
 import { MuiTelInput } from "mui-tel-input";
 import { ShippingDetails } from "./Checkout";
+import { TextField } from "@mui/material";
 
 const FormGrid = styled(Grid)(() => ({
     display: "flex",
@@ -17,15 +16,30 @@ const FormGrid = styled(Grid)(() => ({
 interface AddressFormProps {
     setShippingDetails: React.Dispatch<React.SetStateAction<ShippingDetails>>;
     shippingDetails: ShippingDetails;
+    validStates: string[];
 }
 
 const AddressForm: React.FC<AddressFormProps> = ({
     setShippingDetails,
     shippingDetails,
+    validStates,
 }) => {
+    const [invalidStateAbbr, setInvalidStateAbbr] = useState<boolean>(false);
     const handleFieldChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const param = event.target.name as string;
-        const value = event.target.value || "";
+        let value = "";
+        if (event.target.value) {
+            if (param === "state") {
+                value = event.target.value.toUpperCase().substring(0, 2);
+                if (value.length > 1 && !validStates.includes(value)) {
+                    setInvalidStateAbbr(true);
+                } else {
+                    setInvalidStateAbbr(false);
+                }
+            } else {
+                value = event.target.value;
+            }
+        }
         setShippingDetails({ ...shippingDetails, [param]: value });
     };
 
@@ -34,6 +48,15 @@ const AddressForm: React.FC<AddressFormProps> = ({
             ...prevDetails,
             phoneNumber: value,
         }));
+    };
+
+    const handleStateAbbrBlur = (event: React.FocusEvent<HTMLInputElement>) => {
+        if (
+            event.target.value.length > 0 &&
+            !validStates.includes(event.target.value)
+        ) {
+            setInvalidStateAbbr(true);
+        }
     };
 
     return (
@@ -112,17 +135,19 @@ const AddressForm: React.FC<AddressFormProps> = ({
                 />
             </FormGrid>
             <FormGrid item xs={6}>
-                <FormLabel htmlFor="state" required>
+                <FormLabel htmlFor="state" required error={invalidStateAbbr}>
                     State
                 </FormLabel>
-                <OutlinedInput
+                <TextField
                     id="state"
                     name="state"
                     type="state"
                     placeholder="NY"
+                    error={invalidStateAbbr}
                     inputProps={{ maxLength: 10 }}
                     value={shippingDetails.state}
                     onChange={handleFieldChange}
+                    onBlur={handleStateAbbrBlur}
                     autoComplete="State"
                     required
                 />

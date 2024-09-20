@@ -73,6 +73,59 @@ interface OrderData {
 
 const steps = ["Shipping address", "Payment details", "Review your order"];
 
+const validStates = [
+    "AK",
+    "AL",
+    "AR",
+    "AZ",
+    "CA",
+    "CO",
+    "CT",
+    "DE",
+    "FL",
+    "GA",
+    "HI",
+    "IA",
+    "ID",
+    "IL",
+    "IN",
+    "KS",
+    "KY",
+    "LA",
+    "MA",
+    "MD",
+    "ME",
+    "MI",
+    "MN",
+    "MO",
+    "MS",
+    "MT",
+    "NC",
+    "ND",
+    "NE",
+    "NH",
+    "NJ",
+    "NM",
+    "NV",
+    "NY",
+    "OH",
+    "OK",
+    "OR",
+    "PA",
+    "RI",
+    "SC",
+    "SD",
+    "TN",
+    "TX",
+    "UT",
+    "VA",
+    "VT",
+    "WA",
+    "WI",
+    "WV",
+    "WY",
+];
+
 const Checkout: React.FC = () => {
     const dispatch = useAppDispatch();
     const [activeStep, setActiveStep] = useState(0);
@@ -113,6 +166,59 @@ const Checkout: React.FC = () => {
     const [canPlaceOrder, setCanPlaceOrder] = useState<boolean>(false);
     const [nextDisabled, setNextDisabled] = useState<boolean>(false);
     const { timeLeft } = useCheckoutTimer();
+
+    const validStates = [
+        "AK",
+        "AL",
+        "AR",
+        "AZ",
+        "CA",
+        "CO",
+        "CT",
+        "DE",
+        "FL",
+        "GA",
+        "HI",
+        "IA",
+        "ID",
+        "IL",
+        "IN",
+        "KS",
+        "KY",
+        "LA",
+        "MA",
+        "MD",
+        "ME",
+        "MI",
+        "MN",
+        "MO",
+        "MS",
+        "MT",
+        "NC",
+        "ND",
+        "NE",
+        "NH",
+        "NJ",
+        "NM",
+        "NV",
+        "NY",
+        "OH",
+        "OK",
+        "OR",
+        "PA",
+        "RI",
+        "SC",
+        "SD",
+        "TN",
+        "TX",
+        "UT",
+        "VA",
+        "VT",
+        "WA",
+        "WI",
+        "WV",
+        "WY",
+    ];
 
     // Hold stock till checkout is complete or user navigates away from page.
     useEffect(() => {
@@ -174,6 +280,12 @@ const Checkout: React.FC = () => {
             if (
                 key !== "shippingAddress2" &&
                 shippingDetails[key as keyof ShippingDetails] === ""
+            ) {
+                canProceed = false;
+                break;
+            } else if (
+                key === "state" &&
+                !validStates.includes(shippingDetails[key])
             ) {
                 canProceed = false;
                 break;
@@ -244,6 +356,7 @@ const Checkout: React.FC = () => {
                     <AddressForm
                         setShippingDetails={setShippingDetails}
                         shippingDetails={shippingDetails}
+                        validStates={validStates}
                     />
                 );
             case 1:
