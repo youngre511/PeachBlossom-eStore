@@ -141,7 +141,7 @@ const Dashboard: React.FC = () => {
                         )}
                         {rotData.length > 0 && rotChartType === "bar" && (
                             <CustomBarChart
-                                data={rotData}
+                                data={rotData as BarData[]}
                                 stacked={false}
                                 includeLegend={false}
                                 tiltLabels={true}
