@@ -27,9 +27,11 @@ import {
 import pblogo1x from "../../../assets/peachblossomlogo-1x.webp";
 import pblogo2x from "../../../assets/peachblossomlogo-2x.webp";
 import pblogo3x from "../../../assets/peachblossomlogo-3x.webp";
+import { useNavigationContext } from "../../../common/contexts/navContext";
 
 interface Props {}
 const Nav: React.FC<Props> = () => {
+    const { currentRoute } = useNavigationContext();
     const cart = useAppSelector((state: RootState) => state.cart);
     const [searchOptions, setSearchOptions] = useState<Array<string>>([]);
     const searchOptionsSlice = useAppSelector(
@@ -123,7 +125,6 @@ const Nav: React.FC<Props> = () => {
             " ",
             "%20"
         )}`;
-        setIsSearchBarVisible(false);
         navigate(path);
         setSearchQuery("");
     };
@@ -306,7 +307,23 @@ const Nav: React.FC<Props> = () => {
                             <Autocomplete
                                 freeSolo
                                 id="product-search"
-                                disableClearable
+                                onInputChange={(
+                                    e: React.SyntheticEvent,
+                                    value: string,
+                                    reason: string
+                                ) => {
+                                    if (reason === "clear") {
+                                        setSearchQuery("");
+                                        if (
+                                            currentRoute &&
+                                            currentRoute.includes("/shop")
+                                        ) {
+                                            navigate(
+                                                "/shop?sort=name-ascend&page=1"
+                                            );
+                                        }
+                                    }
+                                }}
                                 filterOptions={(searchOptions) => {
                                     const inputValue =
                                         searchQuery.toLowerCase();

@@ -6,15 +6,11 @@ import { useAppSelector } from "../../hooks/reduxHooks";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import SearchButton from "../../../assets/img/search.svg?react";
 import CartButton from "../../../assets/img/cart.svg?react";
-import RecentButton from "../../../assets/img/recent.svg?react";
+
 import AccountButton from "../../../assets/img/account.svg?react";
-import pblogo from "../../../assets/img/peach-blossom-logo.png";
-import pbtext from "../../../assets/img/peachblossomtext.png";
-import ShopNav from "../ShopMenu/ShopNav";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import CartDropDown from "../../features/Cart/CartDropDown";
 import { RootState } from "../../store/customerStore";
 import SearchField from "../../../common/components/Fields/SearchField";
 import MenuSharpIcon from "@mui/icons-material/MenuSharp";
@@ -39,11 +35,13 @@ import {
     TextField,
 } from "@mui/material";
 import MobileShopCategoryBlock from "./MobileShopCategoryBlock";
+import { useNavigationContext } from "../../../common/contexts/navContext";
 gsap.registerPlugin(ScrollTrigger);
 gsap.registerPlugin(useGSAP);
 
 interface Props {}
 const MobileNav: React.FC<Props> = () => {
+    const { currentRoute, previousRoute } = useNavigationContext();
     const cart = useAppSelector((state: RootState) => state.cart);
     const [searchOptions, setSearchOptions] = useState<Array<string>>([]);
     const searchOptionsSlice = useAppSelector(
@@ -68,6 +66,8 @@ const MobileNav: React.FC<Props> = () => {
     const [forceCollapse, setForceCollapse] = useState<boolean>(false);
     const [staggerDuration, setStaggerDuration] = useState<number>(0);
     const [menusExpanded, setMenusExpanded] = useState<Array<string>>([]);
+
+    // State tracks whether full logo should be visible based on scroll position
     const [showFullLogo, setShowFullLogo] = useState<boolean>(true);
 
     useEffect(() => {
@@ -76,11 +76,13 @@ const MobileNav: React.FC<Props> = () => {
         }
     }, [searchOptionsSlice]);
 
+    // Detect number of categories and set stagger duration for menu-to-shop-menu animation
     useEffect(() => {
         const numberOfElements = categories.length > 5 ? categories.length : 5;
         setStaggerDuration(0.2 + 0.1 * numberOfElements);
     }, [categories]);
 
+    // Navbar logo scroll-triggered animation
     useGSAP(() => {
         gsap.timeline({
             scrollTrigger: {
@@ -88,6 +90,7 @@ const MobileNav: React.FC<Props> = () => {
                 start: "top top+=25px",
                 end: "top+=25px top",
                 scrub: true,
+                // Hide full logo and show text-only logo when scrolling down
                 onEnter: () => {
                     gsap.timeline()
                         .to(".m-full-logo", {
@@ -102,14 +105,11 @@ const MobileNav: React.FC<Props> = () => {
                             },
                             "<"
                         )
-                        .to(
-                            ".m-nav-logo",
-                            { duration: 0.5, height: "111px" },
-                            "<"
-                        )
+                        .set(".m-nav-logo", { height: "111px" })
                         .set(".m-full-logo", { display: "none" });
                     setShowFullLogo(false);
                 },
+                // Hide text-only logo and show full logo when scrolling to top ONLY if search bar is not visible
                 onLeaveBack: () => {
                     if (!isSearchBarVisibleRef.current) {
                         gsap.to(".m-full-logo", { display: "block" });
@@ -132,6 +132,7 @@ const MobileNav: React.FC<Props> = () => {
         });
     }, []);
 
+    // Menu hide/show animation
     useEffect(
         contextSafe(() => {
             menuToggleRef.current = gsap
@@ -204,10 +205,13 @@ const MobileNav: React.FC<Props> = () => {
     const handleOpenMenu = () => {
         if (menuToggleRef.current) {
             menuToggleRef.current.play();
-            setIsSearchBarVisible(false);
+            if (currentRoute && !currentRoute.includes("/shop")) {
+                setIsSearchBarVisible(false);
+            }
         }
     };
 
+    // Play or reverse shop menu hide/show animation based on value of shopAnimationRef.current
     useEffect(() => {
         if (shopAnimationRef.current) {
             if (isShopMenuVisible) {
@@ -226,16 +230,40 @@ const MobileNav: React.FC<Props> = () => {
         }
     }, [isShopMenuVisible]);
 
+    useEffect(() => {
+        if (currentRoute) {
+            if (
+                currentRoute.includes("/shop") &&
+                (!previousRoute || !previousRoute.includes("/shop"))
+            ) {
+                setIsSearchBarVisible(true);
+            }
+        }
+    }, [currentRoute, previousRoute]);
+
+    // Show/hide search bar animations
     useEffect(
         contextSafe(() => {
             if (isSearchBarVisible) {
+                // If full logo is visible, hide full logo and show text-only logo when opening search bar
                 if (showFullLogo) {
-                    gsap.to(".m-full-logo", {
-                        opacity: 0,
-                    });
-                    gsap.to(".m-text-only-logo", {
-                        opacity: 1,
-                    });
+                    gsap.timeline()
+                        .to(".m-full-logo", {
+                            opacity: 0,
+                        })
+                        .to(
+                            ".m-text-only-logo",
+                            {
+                                opacity: 1,
+                            },
+                            "<"
+                        )
+                        .to(
+                            ".m-nav-logo",
+                            { duration: 0.5, height: "111px" },
+                            "<"
+                        )
+                        .set(".m-full-logo", { display: "none" });
                 }
                 gsap.timeline()
                     .set(".m-search-tab-container", { display: "block" })
@@ -243,7 +271,12 @@ const MobileNav: React.FC<Props> = () => {
 
                 isSearchBarVisibleRef.current = true;
             } else {
+                // Hide text-only logo and show full logo when closing search menu ONLY if full logo would be shown at current scroll position.
                 if (showFullLogo) {
+                    gsap.set(".m-full-logo", {
+                        display: "block",
+                        height: "158px",
+                    });
                     gsap.to(".m-full-logo", {
                         opacity: 1,
                     });
@@ -267,7 +300,6 @@ const MobileNav: React.FC<Props> = () => {
             " ",
             "%20"
         )}`;
-        setIsSearchBarVisible(false);
         navigate(path);
         setSearchQuery("");
     };
@@ -492,7 +524,7 @@ const MobileNav: React.FC<Props> = () => {
                             <Autocomplete
                                 freeSolo
                                 id="product-search"
-                                disableClearable
+                                // disableClearable
                                 filterOptions={(searchOptions) => {
                                     const inputValue =
                                         searchQuery.toLowerCase();
@@ -503,6 +535,23 @@ const MobileNav: React.FC<Props> = () => {
                                                   .includes(inputValue)
                                           )
                                         : [];
+                                }}
+                                onInputChange={(
+                                    e: React.SyntheticEvent,
+                                    value: string,
+                                    reason: string
+                                ) => {
+                                    if (reason === "clear") {
+                                        setSearchQuery("");
+                                        if (
+                                            currentRoute &&
+                                            currentRoute.includes("/shop")
+                                        ) {
+                                            navigate(
+                                                "/shop?sort=name-ascend&page=1"
+                                            );
+                                        }
+                                    }
                                 }}
                                 options={searchOptions}
                                 renderInput={(params) => (

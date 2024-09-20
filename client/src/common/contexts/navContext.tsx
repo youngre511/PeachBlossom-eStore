@@ -9,17 +9,18 @@ import { useLocation } from "react-router-dom";
 
 interface NavigationHistoryContextType {
     previousRoute: string | null;
+    currentRoute: string | null;
 }
 
 const NavigationHistoryContext = createContext<
     NavigationHistoryContextType | undefined
 >(undefined);
 
-export const usePreviousRoute = (): NavigationHistoryContextType => {
+export const useNavigationContext = (): NavigationHistoryContextType => {
     const context = useContext(NavigationHistoryContext);
     if (!context) {
         throw new Error(
-            "usePreviousRoute must be used within a NavigationHistoryProvider"
+            "useNavigationContext must be used within a NavigationHistoryProvider"
         );
     }
     return context;
@@ -34,13 +35,17 @@ export const NavigationHistoryProvider: React.FC<
 > = ({ children }) => {
     const location = useLocation();
     const [previousRoute, setPreviousRoute] = useState<string | null>(null);
+    const [currentRoute, setCurrentRoute] = useState<string | null>(null);
 
     useEffect(() => {
+        setCurrentRoute(location.pathname + location.search);
         return () => setPreviousRoute(location.pathname + location.search);
     }, [location]);
 
     return (
-        <NavigationHistoryContext.Provider value={{ previousRoute }}>
+        <NavigationHistoryContext.Provider
+            value={{ previousRoute, currentRoute }}
+        >
             {children}
         </NavigationHistoryContext.Provider>
     );
