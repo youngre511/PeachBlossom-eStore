@@ -345,8 +345,15 @@ const Checkout: React.FC = () => {
     };
 
     const updateTotal = () => {
+        console.log(
+            Number(subTotal) +
+                Number(shippingRate) +
+                (Number(subTotal) + Number(shippingRate)) * Number(taxRate)
+        );
         setOrderTotal(
-            subTotal + shippingRate + (subTotal + shippingRate) * taxRate
+            Number(subTotal) +
+                Number(shippingRate) +
+                (Number(subTotal) + Number(shippingRate)) * Number(taxRate)
         );
     };
 

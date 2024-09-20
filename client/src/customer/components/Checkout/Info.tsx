@@ -12,6 +12,8 @@ interface InfoProps {
 }
 
 export default function Info({ totalPrice, items }: InfoProps) {
+    console.log(totalPrice);
+    console.log(typeof totalPrice);
     return (
         <React.Fragment>
             <Typography variant="subtitle2" color="text.secondary">

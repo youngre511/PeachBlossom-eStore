@@ -54,7 +54,7 @@ const Review: React.FC<ReviewProps> = ({
                         primary="Items"
                         secondary={`Qty ${cart.numberOfItems}`}
                     />
-                    <Typography variant="body2">{cart.subTotal}</Typography>
+                    <Typography variant="body2">{`$${cart.subTotal}`}</Typography>
                 </ListItem>
                 <ListItem sx={{ py: 1, px: 0 }}>
                     <ListItemText primary="Shipping" />
@@ -66,7 +66,11 @@ const Review: React.FC<ReviewProps> = ({
                         secondary={`${taxRate * 100}%`}
                     />
                     <Typography variant="body2">
-                        ${((cart.subTotal + shipping) * taxRate).toFixed(2)}
+                        $
+                        {(
+                            (Number(cart.subTotal) + Number(shipping)) *
+                            Number(taxRate)
+                        ).toFixed(2)}
                     </Typography>
                 </ListItem>
                 <ListItem sx={{ py: 1, px: 0 }}>

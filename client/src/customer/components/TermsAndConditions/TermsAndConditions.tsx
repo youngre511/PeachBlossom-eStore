@@ -13,13 +13,13 @@ const TermsAndConditions: React.FC<Props> = () => {
                         Welcome to Peach Blossom! These terms and conditions
                         outline the rules and regulations for the use of Peach
                         Blossom's Website, located at
-                        https://peachblossom.fakedomain.
+                        https://pb.ryanyoung.codes.
                     </p>
                     <p>
                         By accessing this website we assume you accept these
                         terms and conditions. Do not continue to use
-                        peachblossom.fakedomain if you do not agree to take all
-                        of the terms and conditions stated on this page.
+                        pb.ryanyoung.codes if you do not agree to take all of
+                        the terms and conditions stated on this page.
                     </p>
                 </li>
                 <li>

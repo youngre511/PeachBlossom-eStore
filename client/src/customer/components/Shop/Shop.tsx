@@ -32,14 +32,14 @@ const Shop = () => {
     const subcategory = searchParams.get("sub_category");
     const page = searchParams.get("page") || "1";
     const color = searchParams.get("color")?.split(",") || null;
-    const minPrice = searchParams.get("min_price");
-    const maxPrice = searchParams.get("max_price");
-    const minWidth = searchParams.get("min_width");
-    const maxWidth = searchParams.get("max_width");
-    const minHeight = searchParams.get("min_Height");
-    const maxHeight = searchParams.get("max_Height");
-    const minDepth = searchParams.get("min_Depth");
-    const maxDepth = searchParams.get("max_Depth");
+    const minPrice = searchParams.get("minPrice");
+    const maxPrice = searchParams.get("maxPrice");
+    const minWidth = searchParams.get("minWidth");
+    const maxWidth = searchParams.get("maxWidth");
+    const minHeight = searchParams.get("minHeight");
+    const maxHeight = searchParams.get("maxHeight");
+    const minDepth = searchParams.get("minDepth");
+    const maxDepth = searchParams.get("maxDepth");
     const tags = searchParams.get("tags")?.split(",") || null;
     const sort = searchParams.get("sort") || "name-ascend";
     const material = searchParams.get("material")?.split(",") || null;
@@ -55,6 +55,10 @@ const Shop = () => {
         color: "white",
     };
     const [isInitialLoad, setIsInitialLoad] = useState<boolean>(true);
+
+    useEffect(() => {
+        console.log("itemsPerPage:", itemsPerPage);
+    }, [itemsPerPage]);
 
     useEffect(
         // Set up drawer animation
@@ -233,6 +237,7 @@ const Shop = () => {
     };
 
     useEffect(() => {
+        console.log("fetching");
         fetchData();
     }, [
         search,

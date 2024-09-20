@@ -4,14 +4,16 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../../hooks/reduxHooks";
 import { RootState } from "../../store/customerStore";
 import { updateItemQuantity } from "../Cart/cartSlice";
+import "./cart-item.css";
 
 interface Props {
     item: item;
 }
 const CartItem: React.FC<Props> = ({ item }: Props) => {
     const [quantity, setQuantity] = useState<string>(String(item.quantity));
-    const totalPrice =
-        item.quantity * (item.discountPrice ? item.discountPrice : item.price);
+    const totalPrice = (
+        item.quantity * (item.discountPrice ? item.discountPrice : item.price)
+    ).toFixed(2);
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
 

@@ -82,7 +82,6 @@ export const getProducts = async (filters: FilterObject) => {
 
     // Retrieve category and tag object ids if names are provided
     if (filters.category) {
-        console.log("filters.category:", filters.category);
         const cat = await Category.findOne({ name: filters.category }).exec();
         if (cat) {
             categoryId = cat._id;
@@ -152,13 +151,16 @@ export const getProducts = async (filters: FilterObject) => {
     // Define and iterate through all min-max parameters and add query params asneeded
     const minMaxParams = ["price", "width", "height", "depth"];
     for (const param of minMaxParams) {
-        const minParam = `min${
+        const minParam = `${
+            param === "price" ? "" : "attributes.dimensions."
+        }min${
             param.charAt(0).toUpperCase() + param.slice(1)
         }` as keyof FilterObject;
-        const maxParam = `max${
+        const maxParam = `${
+            param === "price" ? "" : "attributes.dimensions."
+        }max${
             param.charAt(0).toUpperCase() + param.slice(1)
         }` as keyof FilterObject;
-
         if (filters[minParam]) {
             query = query
                 .where(param)
@@ -177,14 +179,13 @@ export const getProducts = async (filters: FilterObject) => {
         "name-ascend",
         "name-descend",
     ];
-
     // Add sort parameters
     if (validSortMethods.includes(filters.sort)) {
         const sortParams = filters.sort.split("-");
         const sortOrder = sortParams[1] === "ascend" ? 1 : -1;
         query = query.sort({ [sortParams[0]]: sortOrder });
     }
-    console.log("sort", query.getOptions().sort);
+    console.log("query", query.getOptions());
     //Get number of total results
     const totalCount = await Product.countDocuments(query.getQuery());
 

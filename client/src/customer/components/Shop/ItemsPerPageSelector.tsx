@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { InputLabel, Select, SelectChangeEvent, MenuItem } from "@mui/material";
-import { useAppSelector } from "../../hooks/reduxHooks";
+import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
 import { RootState } from "../../store/customerStore";
 import { setItemsPerPage } from "../../features/UserPreferences/userPreferencesSlice";
 
@@ -17,6 +17,7 @@ const inputStyle = {
 };
 
 const ItemsPerPageSelector: React.FC = () => {
+    const dispatch = useAppDispatch();
     const itemsPerPage = useAppSelector(
         (state: RootState) => state.userPreferences.itemsPerPage
     );
@@ -25,7 +26,7 @@ const ItemsPerPageSelector: React.FC = () => {
     const handleChange = (event: SelectChangeEvent<string>) => {
         const newItemsPerPage = +event.target.value;
         setCurrentItemsPerPage(event.target.value);
-        setItemsPerPage(newItemsPerPage as 24 | 48 | 96);
+        dispatch(setItemsPerPage(newItemsPerPage as 24 | 48 | 96));
     };
 
     useEffect(() => {
