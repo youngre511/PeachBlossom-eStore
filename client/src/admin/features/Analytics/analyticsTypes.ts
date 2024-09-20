@@ -22,7 +22,7 @@ export type RevenueByCategoryResponse = {
 };
 
 export type CategoryPercentagesResponse = {
-    results: PieData[];
+    results: PieDataArray;
     stateAbbr?: string;
     region?: string;
 };
@@ -102,7 +102,7 @@ export interface AnalyticsState {
         error: string | null;
     };
     categoryPercentages: {
-        rbcData: PieData[];
+        rbcData: PieDataArray;
         rbcParams: RBCParams | null;
         stateOrRegion: string | null;
         expiration: number | null;

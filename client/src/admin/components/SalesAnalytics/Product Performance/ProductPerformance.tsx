@@ -9,9 +9,13 @@ import {
     BarData,
     ExpandedGranularity,
     LineData,
+    PieDataArray,
     RBCParams,
 } from "../../../features/Analytics/analyticsTypes";
-import { fetchRevenueByCategory } from "../../../features/Analytics/analyticsSlice";
+import {
+    fetchCategoryPercentages,
+    fetchRevenueByCategory,
+} from "../../../features/Analytics/analyticsSlice";
 import { CircularProgress, IconButton, SvgIcon } from "@mui/material";
 import ShowChartSharpIcon from "@mui/icons-material/ShowChartSharp";
 import BarChartSharpIcon from "@mui/icons-material/BarChartSharp";
@@ -20,6 +24,7 @@ import CustomBarChart from "../CustomCharts/CustomBarChart";
 import DateSelector from "../DateSelector";
 import GranularitySelector from "../GranularitySelector";
 import { useWindowSizeContext } from "../../../../common/contexts/windowSizeContext";
+import CustomPieChart from "../CustomCharts/CustomPieChart";
 
 interface Props {}
 const ProductPerformance: React.FC<Props> = () => {
@@ -39,12 +44,15 @@ const ProductPerformance: React.FC<Props> = () => {
     // Maintain local state to track loading state.
     // Fixes problem of delay between chartType being changed in local params and redux slice loading state updating that was causing nivo charts to enter error state by attempting to render data of wrong type.
     const [rbcLoading, setRbcLoading] = useState<boolean>(true);
-    const rbcGranularityOptions: ExpandedGranularity[] = [
-        "week",
+    const rbcBarGranularityOptions: ExpandedGranularity[] = [
         "month",
         "quarter",
         "year",
         "all",
+    ];
+    const rbcLineGranularityOptions: ExpandedGranularity[] = [
+        "month",
+        "quarter",
     ];
     const [rbcParams, setRbcParams] = useState<RBCParams>({
         startDate: undefined,
@@ -54,12 +62,23 @@ const ProductPerformance: React.FC<Props> = () => {
     });
 
     useEffect(() => {
-        console.log("dispatching");
-        dispatch(
-            fetchRevenueByCategory({
-                params: rbcParams,
-            })
-        );
+        if (
+            rbcParams.chartType === "line" &&
+            !rbcLineGranularityOptions.includes(rbcParams.granularity)
+        ) {
+            setRbcParams({ ...rbcParams, granularity: "quarter" });
+            dispatch(
+                fetchRevenueByCategory({
+                    params: { ...rbcParams, granularity: "quarter" },
+                })
+            );
+        } else {
+            dispatch(
+                fetchRevenueByCategory({
+                    params: rbcParams,
+                })
+            );
+        }
     }, [rbcParams]);
 
     useEffect(() => {
@@ -75,6 +94,46 @@ const ProductPerformance: React.FC<Props> = () => {
             setRbcData(rbc.rbcData);
         }
     }, [rbc.rbcData]);
+
+    const [cpData, setCpData] = useState<PieDataArray>([]);
+
+    const cp = analytics.categoryPercentages;
+    const [cpLoading, setCpLoading] = useState<boolean>(true);
+    const cpGranularityOptions: ExpandedGranularity[] = [
+        "month",
+        "quarter",
+        "year",
+        "all",
+    ];
+    const [cpParams, setCpParams] = useState<RBCParams>({
+        startDate: undefined,
+        endDate: undefined,
+        chartType: "pie",
+        granularity: "month",
+        returnPercentage: true,
+    });
+
+    useEffect(() => {
+        dispatch(
+            fetchCategoryPercentages({
+                params: cpParams,
+            })
+        );
+    }, [cpParams]);
+
+    useEffect(() => {
+        if (cp.loading) {
+            setCpLoading(true);
+        } else {
+            setCpLoading(false);
+        }
+    }, [cp.loading]);
+
+    useEffect(() => {
+        if (cp.rbcData) {
+            setCpData(cp.rbcData);
+        }
+    }, [cp.rbcData]);
 
     return (
         <div className="product-performance-data">
@@ -155,18 +214,26 @@ const ProductPerformance: React.FC<Props> = () => {
                             <CustomBarChart
                                 data={rbcData as BarData[]}
                                 stacked={false}
-                                includeLegend={false}
-                                tiltLabels={true}
-                                valueFormat=">-,"
+                                includeLegend={!mobile}
+                                tiltLabels={
+                                    mobile && rbcParams.granularity === "all"
+                                }
+                                legendPosition="bottom-right"
+                                valueFormat=">-$,.2f"
                                 margin={{
                                     top: 10,
-                                    right: 60,
-                                    bottom: 80,
+                                    right: mobile ? 40 : 180,
+                                    bottom:
+                                        mobile &&
+                                        rbcParams.granularity === "all"
+                                            ? 120
+                                            : 80,
                                     left: 100,
                                 }}
                                 yAxisFormat={(value: number) =>
-                                    `${value.toLocaleString("en-US")}`
+                                    `$${value.toLocaleString("en-US")}`
                                 }
+                                enableLabel={false}
                             />
                         )}
                 </div>
@@ -178,7 +245,48 @@ const ProductPerformance: React.FC<Props> = () => {
                     <GranularitySelector<RBCParams, ExpandedGranularity>
                         paramsObj={rbcParams}
                         setParams={setRbcParams}
-                        granularityOptions={rbcGranularityOptions}
+                        granularityOptions={
+                            rbcParams.chartType === "bar"
+                                ? rbcBarGranularityOptions
+                                : rbcLineGranularityOptions
+                        }
+                    />
+                </div>
+            </div>
+            <div className="revenue-by-category-chart analytics-box">
+                <div className="box-header">
+                    <h2>Category Revenue Percentages</h2>
+                </div>
+                <div className="pie-chart-cont chart">
+                    {cpLoading && (
+                        <div className="chart-loading">
+                            <CircularProgress />
+                        </div>
+                    )}
+                    {cpData && cpData.length > 0 && !cpLoading && (
+                        <CustomPieChart
+                            data={cpData}
+                            margin={{
+                                top: 20,
+                                right: mobile ? 40 : 100,
+                                bottom: mobile ? 100 : 30,
+                                left: mobile ? 40 : 100,
+                            }}
+                            enableArcLinkLabels={mobile ? false : true}
+                            enableLegend={mobile ? true : false}
+                            innerRadius={0.5}
+                        />
+                    )}
+                </div>
+                <div className="box-footer">
+                    <DateSelector
+                        paramsObj={cpParams}
+                        setParams={setCpParams}
+                    />
+                    <GranularitySelector<RBCParams, ExpandedGranularity>
+                        paramsObj={cpParams}
+                        setParams={setCpParams}
+                        granularityOptions={cpGranularityOptions}
                     />
                 </div>
             </div>

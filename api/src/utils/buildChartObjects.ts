@@ -27,7 +27,7 @@ const buildChartObjects = (
     dataFormat: {
         id: SortOrder;
         id2?: SortOrder;
-        x: SortOrder | null;
+        x: SortOrder | "all" | null;
         y: YValue;
     },
     altXValue?: string
@@ -251,29 +251,27 @@ const buildChartObjects = (
             } else {
                 xValue = dataPoint[xKey];
             }
-            if (xKey === "month") {
-                if (
-                    idKey !== "year" &&
-                    Object.keys(dataPoint).includes("year")
-                ) {
+            const yearKey =
+                Object.keys(rawData[0]).filter((key) =>
+                    String(key).endsWith("year")
+                )[0] || null;
+            if (xKey && dataFormat.x === "month") {
+                if (dataFormat.id !== "year" && yearKey) {
                     xValue = `${monthArr[Number(dataPoint[xKey]) - 1]} ${
-                        dataPoint["year"]
+                        dataPoint[yearKey]
                     }`;
                     xKey2Exists = true;
                 } else {
                     xValue = monthArr[Number(dataPoint[xKey]) - 1];
                 }
-            } else if (xKey === "quarter") {
-                if (
-                    idKey !== "year" &&
-                    Object.keys(dataPoint).includes("year")
-                ) {
-                    xValue = `Q${dataPoint[xKey]} ${dataPoint["year"]}`;
+            } else if (xKey && dataFormat.x === "quarter") {
+                if (dataFormat.id !== "year" && yearKey) {
+                    xValue = `Q${dataPoint[xKey]} ${dataPoint[yearKey]}`;
                     xKey2Exists = true;
                 } else {
                     xValue = `Q${dataPoint[xKey]}`;
                 }
-            } else if (xKey === "week") {
+            } else if (xKey && dataFormat.x === "week") {
                 xValue = `Week ${dataPoint[xKey] + 1}`;
             }
             xValue = String(xValue);

@@ -471,7 +471,7 @@ export const fetchCategoryPercentages = createAsyncThunk<
     async ({ params, force = false }, { getState, rejectWithValue }) => {
         const state = getState() as RootState;
         const cpState = state.analytics.categoryPercentages;
-        return await fetchRBCData<PieData[]>(
+        return await fetchRBCData<PieDataArray>(
             params,
             force,
             cpState,
@@ -637,6 +637,8 @@ const analyticsSlice = createSlice({
                 state.revenueByCategory.error = null;
             })
             .addCase(fetchRevenueByCategory.fulfilled, (state, action) => {
+                console.log("fulfilled!");
+                console.log(action.payload.data.results);
                 state.revenueByCategory.rbcParams = action.payload.params;
                 state.revenueByCategory.rbcData = action.payload.data.results;
                 if (action.payload.data.stateAbbr) {

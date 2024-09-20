@@ -331,6 +331,7 @@ export const getRevenueOverTime = async (
             order: ["total_revenue"],
             raw: true,
         });
+
         const processedResults = buildChartObjects(
             results,
             chartType,
@@ -479,31 +480,28 @@ export const getRevenueByCategory = async (
         } as {
             id: SortOrder;
             id2?: SortOrder;
-            x: SortOrder;
+            x: SortOrder | "all";
             y: YValue;
         };
 
-        if (chartType === "pie") {
+        if (chartType === "bar" && granularity !== "all") {
             if (bySubcategory) {
-                dataFormat.id = "subcategoryName";
                 dataFormat.x = "subcategoryName";
             } else {
-                dataFormat.id = "categoryName";
                 dataFormat.x = "categoryName";
-            }
-        } else {
-            if (granularity === "year") {
-                dataFormat.id = "year";
-            } else if (["week", "month", "quarter"].includes(granularity)) {
-                // SortOrder type must allow all granularity types except "all"
-                dataFormat.id = granularity as SortOrder;
-                dataFormat.id2 = "year";
             }
 
+            dataFormat.id = granularity;
+            if (granularity !== "year") {
+                dataFormat.id2 = "year";
+            }
+        } else {
             if (bySubcategory) {
-                dataFormat.x = "subcategoryName";
+                dataFormat.id = "subcategoryName";
+                dataFormat.x = granularity;
             } else {
-                dataFormat.x = "categoryName";
+                dataFormat.id = "categoryName";
+                dataFormat.x = granularity;
             }
         }
 
@@ -519,7 +517,7 @@ export const getRevenueByCategory = async (
             }
         }
 
-        if (["week", "month", "quarter", "year"].includes(granularity)) {
+        if (granularity !== "all") {
             periodName.push("YEAR(orderDate)");
             periodGroupClause.push(literal("YEAR(orderDate)"));
             groupClause.push(literal("YEAR(orderDate)"));
@@ -568,6 +566,8 @@ export const getRevenueByCategory = async (
             raw: true,
         });
 
+        console.log(totalRevenueByPeriod);
+
         const totalRevenueMap: Record<string, number> = {};
         totalRevenueByPeriod.forEach((entry: any) => {
             const periodKey = entry.period || "all";
@@ -594,84 +594,19 @@ export const getRevenueByCategory = async (
             };
         });
 
-        // Package results to return to front end
-        type FormattedResultsType = Array<
-            LineChartData | BarChartData | Array<string | PieChartData[]>
-        >;
+        console.log(resultsWithPercentage);
 
-        let formattedResults: FormattedResultsType = [];
+        const processedResults = buildChartObjects(
+            resultsWithPercentage,
+            chartType,
+            dataFormat
+        );
 
-        // Pie charts necessarily can only consist of category/subcategory names and their associated values.
-        // To return results for multiple periods, one pie-chart dataset must be returned for each period.
-        // The code in if-block manages such cases by first using buildNestedDataArrays to sort by ascending period and then creating a pie-chart dataset for each.
-        if (chartType === "pie") {
-            console.log("DATA FORMAT:", dataFormat);
-            if (granularity !== "all") {
-                const sortedResults = buildNestedDataArrays(
-                    ["year", `${granularity}`],
-                    resultsWithPercentage
-                );
-                for (const year of sortedResults) {
-                    for (const gran of year[1]) {
-                        const result = gran[1];
-                        let dateId = "";
-                        if (granularity === "week") {
-                            dateId += `Week ${result[0]["Order.week"]} `;
-                        }
-                        if (granularity === "month") {
-                            const monthArr = [
-                                "Jan",
-                                "Feb",
-                                "Mar",
-                                "Apr",
-                                "May",
-                                "Jun",
-                                "Jul",
-                                "Aug",
-                                "Sep",
-                                "Oct",
-                                "Nov",
-                                "Dec",
-                            ];
-                            dateId += `${
-                                monthArr[result[0]["Order.month"] - 1]
-                            } `;
-                        }
-                        if (granularity === "quarter") {
-                            dateId += `Q${result[0]["Order.quarter"]} `;
-                        }
-                        dateId += result[0]["Order.year"];
-
-                        formattedResults.push([
-                            dateId,
-                            buildChartObjects(
-                                result,
-                                "pie",
-                                dataFormat
-                            ) as PieChartData[],
-                        ]);
-                    }
-                }
-            } else {
-                formattedResults.push([
-                    "all",
-                    buildChartObjects(
-                        resultsWithPercentage,
-                        "pie",
-                        dataFormat
-                    ) as PieChartData[],
-                ]);
-            }
-        } else {
-            formattedResults = buildChartObjects(
-                resultsWithPercentage,
-                chartType,
-                dataFormat
-            ) as LineChartData[] | BarChartData[];
-        }
-
-        const returnObject: Record<string, string | FormattedResultsType> = {
-            results: formattedResults,
+        const returnObject: Record<
+            string,
+            string | LineChartData[] | PieChartData[] | BarChartData[]
+        > = {
+            results: processedResults,
         };
         if (stateAbbr) {
             returnObject["state"] = stateAbbr;
@@ -1268,7 +1203,6 @@ export const getRegionRevenuePercentages = async (
             totalRevenueMap[periodKey] = entry.total_revenue;
         });
 
-        console.log("totalRevenueMap:", totalRevenueMap);
         const results = await sqlOrder.findAll({
             where: whereClause,
             attributes: attributeClause,
