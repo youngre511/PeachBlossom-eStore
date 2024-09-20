@@ -24,7 +24,7 @@ import "./product-management.css";
 import SearchField from "../../../../common/components/Fields/SearchField";
 import { AVCategory } from "../../../features/AVMenuData/avMenuDataTypes";
 import { AuthContext } from "../../../../common/contexts/authContext";
-import { usePreviousRoute } from "../../../../common/contexts/navContext";
+import { useNavigationContext } from "../../../../common/contexts/navContext";
 import { useWindowSizeContext } from "../../../../common/contexts/windowSizeContext";
 
 const inputStyle = {
@@ -54,7 +54,7 @@ const ProductManagement: React.FC<Props> = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const authContext = useContext(AuthContext);
     const accessLevel = authContext?.user?.accessLevel;
-    const { previousRoute } = usePreviousRoute();
+    const { previousRoute } = useNavigationContext();
     const { width } = useWindowSizeContext();
     const [mobileFiltersExpanded, setMobileFiltersExpanded] =
         useState<boolean>(false);

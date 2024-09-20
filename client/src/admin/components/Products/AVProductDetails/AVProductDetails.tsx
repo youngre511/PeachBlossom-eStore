@@ -29,7 +29,7 @@ import { SelectFieldNonFormik } from "../../../../common/components/Fields/Selec
 import BlankPopup from "../../../../common/components/BlankPopup";
 import StatusPopup from "../../../../common/components/StatusPopup";
 import { AuthContext } from "../../../../common/contexts/authContext";
-import { usePreviousRoute } from "../../../../common/contexts/navContext";
+import { useNavigationContext } from "../../../../common/contexts/navContext";
 
 ///////////////////
 ///////TYPES///////
@@ -238,7 +238,7 @@ const AVProductDetails: React.FC = () => {
     const [mustFetchData, setMustFetchData] = useState<boolean>(true);
     const authContext = useContext(AuthContext);
     const accessLevel = authContext?.user?.accessLevel;
-    const { previousRoute } = usePreviousRoute();
+    const { previousRoute } = useNavigationContext();
     const [previous, setPrevious] = useState<{ path: string; name: string }>({
         path: "/products/manage",
         name: "Product Management",
