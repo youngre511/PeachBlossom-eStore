@@ -170,7 +170,7 @@ const Shop = () => {
         itemsPerPage,
     ]);
 
-    const fetchData = async () => {
+    const fetchData = async (force: boolean = false) => {
         //Establish params object and add any of the required params that are missing
         const initialParams: Record<string, string> = {};
         if (!searchParams.get("sort")) {
@@ -227,17 +227,16 @@ const Shop = () => {
             );
 
             // isInitialLoad ensures that fetchProducts runs on page load, when data has not been retrieved but slice may be storing identical filter data from previous loads.
-            if (filtersChanged || isInitialLoad) {
+            if (filtersChanged || isInitialLoad || force) {
                 if (isInitialLoad) {
                     setIsInitialLoad(false);
                 }
-                dispatch(fetchProducts(params as Filters));
+                dispatch(fetchProducts({ filters: params as Filters, force }));
             }
         }
     };
 
     useEffect(() => {
-        console.log("fetching");
         fetchData();
     }, [
         search,
@@ -256,10 +255,14 @@ const Shop = () => {
         tags,
         sort,
         material,
-        itemsPerPage,
         searchParams,
         setSearchParams,
     ]);
+
+    useEffect(() => {
+        console.log("forcing");
+        fetchData(true);
+    }, [itemsPerPage]);
 
     const updateSearchParams = (newFilters: Record<string, string>): void => {
         Object.keys(newFilters).forEach((key) => {

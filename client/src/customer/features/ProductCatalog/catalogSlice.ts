@@ -39,13 +39,14 @@ const initialState: CatalogState = {
 
 export const fetchProducts = createAsyncThunk<
     FetchProductsResponse,
-    Filters,
+    { filters: Filters; force?: boolean },
     { state: RootState }
 >(
     "catalog/fetchProducts",
-    async (filters: Filters, { getState, rejectWithValue }) => {
+    async ({ filters, force = false }, { getState, rejectWithValue }) => {
         const state = getState() as RootState;
         const itemsPerPage = state.userPreferences.itemsPerPage;
+        console.log("itemsPerPage:", itemsPerPage);
         const existingFilters = state.catalog.filters;
         let filterUnchanged = true;
 
@@ -78,7 +79,7 @@ export const fetchProducts = createAsyncThunk<
             filterUnchanged = false;
         }
 
-        if (filterUnchanged) {
+        if (filterUnchanged && !force) {
             return {
                 filters,
                 products: state.catalog.products,
