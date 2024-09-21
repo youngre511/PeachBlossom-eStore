@@ -92,12 +92,18 @@ export const createCategory = async (
     const session: ClientSession = await mongoose.startSession();
     session.startTransaction();
     const sqlTransaction = await sequelize.transaction();
+    const newName = categoryName.trim();
+    const newNameArr = newName.split(" ");
+    const capitalized = newNameArr.map((item) =>
+        item.length > 1 ? `${item[0].toUpperCase()}${item.substring(1)}` : item
+    );
+    const formattedName = capitalized.join(" ");
 
     try {
         await Category.create(
             [
                 {
-                    name: categoryName,
+                    name: formattedName,
                 },
             ],
             { session }
@@ -105,7 +111,7 @@ export const createCategory = async (
 
         //SQL create category
         await sqlCategory.create(
-            { categoryName: categoryName },
+            { categoryName: formattedName },
             { transaction: sqlTransaction }
         );
 
@@ -137,6 +143,13 @@ export const createSubcategory = async (
     session.startTransaction();
     const sqlTransaction = await sequelize.transaction();
 
+    const newName = subcategoryName.trim();
+    const newNameArr = newName.split(" ");
+    const capitalized = newNameArr.map((item) =>
+        item.length > 1 ? `${item[0].toUpperCase()}${item.substring(1)}` : item
+    );
+    const formattedName = capitalized.join(" ");
+
     try {
         // Get category subcategory belongs to
         const categoryDoc = await Category.findOne({ name: categoryName });
@@ -147,7 +160,7 @@ export const createSubcategory = async (
         // construct subcategory in required format
         const subcategory: SubcategoryItem = {
             _id: new mongoose.Types.ObjectId(),
-            name: subcategoryName,
+            name: formattedName,
         };
 
         categoryDoc.subcategories.push(subcategory);
@@ -163,7 +176,7 @@ export const createSubcategory = async (
         }
 
         await sqlSubcategory.create({
-            subcategoryName: subcategoryName,
+            subcategoryName: formattedName,
             category_id: sqlCatRec.dataValues.category_id,
         });
 
@@ -191,6 +204,13 @@ export const updateCategoryName = async (
     oldName: string,
     newName: string
 ): Promise<BooleString> => {
+    const newCatName = newName.trim();
+    const newNameArr = newCatName.split(" ");
+    const capitalized = newNameArr.map((item) =>
+        item.length > 1 ? `${item[0].toUpperCase()}${item.substring(1)}` : item
+    );
+    const formattedName = capitalized.join(" ");
+
     const targetCategory = await Category.findOne({ name: oldName });
 
     if (!targetCategory) {
@@ -204,7 +224,7 @@ export const updateCategoryName = async (
     try {
         // avoid inputting undefined values
         let updatedData = {
-            name: newName ? newName : targetCategory.name,
+            name: formattedName ? formattedName : targetCategory.name,
         };
 
         const updatedCategory = await Category.findOneAndUpdate(
@@ -224,7 +244,7 @@ export const updateCategoryName = async (
         }
 
         await sqlCategory.update(
-            { categoryName: newName },
+            { categoryName: formattedName },
             { where: { categoryName: oldName }, transaction: sqlTransaction }
         );
 
@@ -232,7 +252,7 @@ export const updateCategoryName = async (
         await sqlTransaction.commit();
         return {
             success: true,
-            message: `The name of the category ${oldName} has been changed to ${newName}`,
+            message: `The name of the category ${oldName} has been changed to ${formattedName}`,
         };
     } catch (error) {
         await session.abortTransaction();
@@ -260,9 +280,18 @@ export const updateSubcategoryName = async (
     const sqlTransaction = await sequelize.transaction();
 
     try {
+        const newSubName = newName.trim();
+        const newNameArr = newSubName.split(" ");
+        const capitalized = newNameArr.map((item) =>
+            item.length > 1
+                ? `${item[0].toUpperCase()}${item.substring(1)}`
+                : item
+        );
+        const formattedName = capitalized.join(" ");
+
         await Category.findOneAndUpdate(
             { "subcategories.name": oldName },
-            { $set: { "subcategories.$[elem].name": newName } },
+            { $set: { "subcategories.$[elem].name": formattedName } },
             { arrayFilters: [{ "elem.name": oldName }], session }
         );
 
@@ -276,7 +305,7 @@ export const updateSubcategoryName = async (
             throw new Error("Old subcategory name not found in sql database");
         }
         await sqlSubcategory.update(
-            { subcategoryName: newName },
+            { subcategoryName: formattedName },
             {
                 where: { subcategoryName: oldName },
                 transaction: sqlTransaction,
@@ -287,7 +316,7 @@ export const updateSubcategoryName = async (
         await sqlTransaction.commit();
         return {
             success: true,
-            message: `The name of the subcategory ${oldName} has been changed to ${newName}`,
+            message: `The name of the subcategory ${oldName} has been changed to ${formattedName}`,
         };
     } catch (error) {
         await session.abortTransaction();
@@ -308,6 +337,7 @@ export const updateSubcategoryName = async (
 export const deleteCategory = async (
     categoryName: string
 ): Promise<{ success: boolean }> => {
+    console.log("categoryName:", categoryName);
     const targetCategory: CategoryItem | null = await Category.findOne({
         name: categoryName,
     });
