@@ -1,6 +1,7 @@
 // Import mongoose, setup .env use
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import Category from "../models/mongo/categoryModel.js";
 dotenv.config();
 mongoose.set("strictQuery", false);
 

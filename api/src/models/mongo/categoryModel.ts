@@ -16,7 +16,6 @@ const SubcategorySchema: Schema = new Schema({
     _id: { type: Schema.Types.ObjectId, auto: false },
     name: {
         type: String,
-        unique: true,
         required: true,
     },
 });
@@ -31,6 +30,14 @@ const CategorySchema: Schema = new Schema(
         subcategories: [SubcategorySchema],
     },
     { timestamps: true }
+);
+
+CategorySchema.index(
+    { "subcategories.name": 1 },
+    {
+        unique: true,
+        partialFilterExpression: { "subcategories.name": { $exists: true } },
+    }
 );
 
 const Category = model<CategoryItem>("Category", CategorySchema);
