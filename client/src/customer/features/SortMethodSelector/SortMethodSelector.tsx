@@ -24,7 +24,7 @@ const SortMethodSelector: React.FC<Props> = ({
     const [currentSortMethod, setCurrentSortMethod] =
         useState<string>(sortMethod);
     const handleChange = (event: SelectChangeEvent<string>) => {
-        updateSearchParams({ sort: event.target.value as string });
+        updateSearchParams({ sort: event.target.value as string, page: "1" });
         setCurrentSortMethod(event.target.value as string);
     };
 

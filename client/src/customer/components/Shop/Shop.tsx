@@ -262,7 +262,6 @@ const Shop = () => {
     ]);
 
     useEffect(() => {
-        console.log("forcing");
         fetchData(true);
     }, [itemsPerPage]);
 
@@ -270,6 +269,7 @@ const Shop = () => {
         Object.keys(newFilters).forEach((key) => {
             const value = newFilters[key];
             if (value) {
+                console.log("key:", key, "value:", value);
                 searchParams.set(key, value as string);
             } else {
                 searchParams.delete(key);
@@ -285,7 +285,7 @@ const Shop = () => {
             | "price-ascend"
             | "price-descend"
     ) => {
-        updateSearchParams({ sort: newOrder });
+        updateSearchParams({ sort: newOrder, page: "1" });
     };
 
     const removeSubcategory = (): void => {
