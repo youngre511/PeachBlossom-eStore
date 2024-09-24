@@ -312,6 +312,8 @@ export const syncStockLevels = async () => {
             const result = await Product.bulkWrite(bulkUpdates, { session });
             console.log("Bulk update result:", result);
 
+            await session.commitTransaction();
+
             return {
                 statusCode: 200,
                 body: JSON.stringify({ status: "Complete" }),
