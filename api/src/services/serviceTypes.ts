@@ -1,4 +1,5 @@
 import { Model } from "sequelize-typescript";
+import { ProductItem } from "../models/mongo/productModel.js";
 
 export type Color =
     | "red"
@@ -231,4 +232,9 @@ export interface TopProductResponse {
     subcategory: string | null;
     description: string;
     totalQuantity: number;
+}
+
+// Aggregate Interface
+export interface AggregateProduct extends ProductItem {
+    stockZero: 0 | 1;
 }

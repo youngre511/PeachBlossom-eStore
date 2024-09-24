@@ -27,6 +27,7 @@ import { sqlOrderItem } from "../models/mysql/sqlOrderItemModel.js";
 import {
     AdminCatalogResponse,
     AdminFilterObj,
+    AggregateProduct,
     CatalogResponse,
     FilterObject,
     JoinReqCountAdminProduct,
@@ -67,7 +68,7 @@ export const getSearchOptions = async () => {
     return results;
 };
 
-////// GET SORTED AND FILTERED PRODUCTS //////
+////// GET SORTED AND FILTERED PRODUCTS WITH OUT OF STOCK PRODUCTS LISTED LAST//////
 
 export const getProducts = async (filters: FilterObject) => {
     if (!filters.page) {
@@ -110,42 +111,41 @@ export const getProducts = async (filters: FilterObject) => {
         }
     }
 
-    //Begin Query Chain
-    let query = Product.find();
-    query = query.where({ status: "active" });
+    //Begin setting match conditions
+    const matchConditions: { [key: string]: any } = { status: "active" };
 
     // Narrow by user-input search params
     if (filters.search) {
         const searchRegex = new RegExp(filters.search, "i");
         const productNoRegex = new RegExp(`^${filters.search}$`, "i");
-        query = query.or([
+        matchConditions.$or = [
             { name: { $regex: searchRegex } },
             { productNo: { $regex: productNoRegex } },
-        ]);
+        ];
     }
 
     // Narrow by category
     if (subcategoryId) {
-        query = query.where({ subcategory: subcategoryId });
+        matchConditions.subcategory = subcategoryId;
     } else if (categoryId) {
-        query = query.where({ category: categoryId });
+        matchConditions.category = categoryId;
     }
 
     // Narrow by tag
     if (tagIds) {
-        query = query.where({ tag: { $in: tagIds } });
+        matchConditions.tag = { $in: tagIds };
     }
 
     // Narrow by color
     if (filters.color) {
-        query = query.where({ "attributes.color": { $in: filters.color } });
+        matchConditions["attributes.color"] = { $in: filters.color };
     }
 
     // Narrow by material
     if (filters.material) {
-        query = query.where({
-            "attributes.material": { $elemMatch: { $in: filters.material } },
-        });
+        matchConditions["attributes.material"] = {
+            $elemMatch: { $in: filters.material },
+        };
     }
 
     // Define and iterate through all min-max parameters and add query params asneeded
@@ -162,14 +162,16 @@ export const getProducts = async (filters: FilterObject) => {
             param.charAt(0).toUpperCase() + param.slice(1)
         }` as keyof FilterObject;
         if (filters[minParam]) {
-            query = query
-                .where(param)
-                .gte(filters[minParam] as unknown as number);
+            matchConditions[param] = {
+                ...matchConditions[param],
+                $gte: filters[minParam] as unknown as number,
+            };
         }
-        if (filters[maxParam]) {
-            query = query
-                .where(param)
-                .lte(filters[maxParam] as unknown as number);
+        if (filters[minParam]) {
+            matchConditions[param] = {
+                ...matchConditions[param],
+                $lte: filters[maxParam] as unknown as number,
+            };
         }
     }
 
@@ -180,21 +182,40 @@ export const getProducts = async (filters: FilterObject) => {
         "name-descend",
     ];
     // Add sort parameters
+    let sortFields: Record<string, 1 | -1> = {};
     if (validSortMethods.includes(filters.sort)) {
         const sortParams = filters.sort.split("-");
-        const sortOrder = sortParams[1] === "ascend" ? 1 : -1;
-        query = query.sort({ [sortParams[0]]: sortOrder });
+        const sortOrder: 1 | -1 = sortParams[1] === "ascend" ? 1 : -1;
+        sortFields[sortParams[0]] = sortOrder;
     }
-    console.log("query", query.getOptions());
-    //Get number of total results
-    const totalCount = await Product.countDocuments(query.getQuery());
 
-    // Get results with number limited and page of results specified
-    const products: Array<ProductItem> = await query
-        .skip(skip)
-        .limit(parseInt(filters.itemsPerPage))
-        .exec();
-    // Find active promotions and calculate discount price if necessary
+    const sortStage: Record<string, 1 | -1> = { stockZero: 1, ...sortFields };
+
+    const aggregationPipeline = [
+        { $match: matchConditions },
+        // Add a field to indicate if stock is zero (1) or greater than zero (0)
+        {
+            $addFields: {
+                stockZero: { $cond: [{ $eq: ["$stock", 0] }, 1, 0] },
+            },
+        },
+        // Sort by stockZero first, then by your sortFields
+        { $sort: sortStage },
+        // Use $facet to get total count and paginated data
+        {
+            $facet: {
+                metadata: [{ $count: "total" }],
+                data: [{ $skip: skip }, { $limit: +filters.itemsPerPage }],
+            },
+        },
+    ];
+
+    const pipelineResult = await Product.aggregate(aggregationPipeline).exec();
+    console.log(pipelineResult);
+    // //Get number of total results
+    const totalCount = pipelineResult[0].metadata[0].total;
+    const products: Array<AggregateProduct> = pipelineResult[0].data;
+
     const productRecords: Array<CatalogResponse> = products.map((product) => {
         let discountPrice: number | null = null;
         const activePromos = product.promotions.filter((promotion) => {
