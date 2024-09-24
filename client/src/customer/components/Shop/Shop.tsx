@@ -90,7 +90,7 @@ const Shop = () => {
                 ((width >= 550 && currentWidth < 550) ||
                     (width < 550 && currentWidth >= 550))
             ) {
-                fetchData();
+                fetchData(true);
             }
             //Set the current width so that resized widths can be compared to it.
             setCurrentWidth(width);
@@ -225,13 +225,15 @@ const Shop = () => {
                 currentFilters,
                 existingFilters
             );
-
             // isInitialLoad ensures that fetchProducts runs on page load, when data has not been retrieved but slice may be storing identical filter data from previous loads.
             if (filtersChanged || isInitialLoad || force) {
                 if (isInitialLoad) {
                     setIsInitialLoad(false);
                 }
-                dispatch(fetchProducts({ filters: params as Filters, force }));
+                const mobile = width && width < 550 ? true : false;
+                dispatch(
+                    fetchProducts({ filters: params as Filters, force, mobile })
+                );
             }
         }
     };
@@ -384,9 +386,10 @@ const Shop = () => {
                                                 ? selectedBtnStyle
                                                 : undefined
                                         }
-                                        onClick={() =>
-                                            changeSortOrder("name-ascend")
-                                        }
+                                        onClick={() => {
+                                            changeSortOrder("name-ascend");
+                                            setSortMenuVisible(false);
+                                        }}
                                     >
                                         A&ndash;Z
                                     </button>
@@ -397,9 +400,10 @@ const Shop = () => {
                                                 ? selectedBtnStyle
                                                 : undefined
                                         }
-                                        onClick={() =>
-                                            changeSortOrder("name-descend")
-                                        }
+                                        onClick={() => {
+                                            changeSortOrder("name-descend");
+                                            setSortMenuVisible(false);
+                                        }}
                                     >
                                         Z&ndash;A
                                     </button>
@@ -410,9 +414,10 @@ const Shop = () => {
                                                 ? selectedBtnStyle
                                                 : undefined
                                         }
-                                        onClick={() =>
-                                            changeSortOrder("price-ascend")
-                                        }
+                                        onClick={() => {
+                                            changeSortOrder("price-ascend");
+                                            setSortMenuVisible(false);
+                                        }}
                                     >
                                         $&ndash;$$$
                                     </button>
@@ -423,9 +428,10 @@ const Shop = () => {
                                                 ? selectedBtnStyle
                                                 : undefined
                                         }
-                                        onClick={() =>
-                                            changeSortOrder("price-descend")
-                                        }
+                                        onClick={() => {
+                                            changeSortOrder("price-descend");
+                                            setSortMenuVisible(false);
+                                        }}
                                     >
                                         $$$&ndash;$
                                     </button>

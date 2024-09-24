@@ -39,11 +39,14 @@ const initialState: CatalogState = {
 
 export const fetchProducts = createAsyncThunk<
     FetchProductsResponse,
-    { filters: Filters; force?: boolean },
+    { filters: Filters; force?: boolean; mobile?: boolean },
     { state: RootState }
 >(
     "catalog/fetchProducts",
-    async ({ filters, force = false }, { getState, rejectWithValue }) => {
+    async (
+        { filters, force = false, mobile = false },
+        { getState, rejectWithValue }
+    ) => {
         const state = getState() as RootState;
         const itemsPerPage = state.userPreferences.itemsPerPage;
         console.log("itemsPerPage:", itemsPerPage);
@@ -87,7 +90,10 @@ export const fetchProducts = createAsyncThunk<
             };
         }
 
-        const params = { ...filters, itemsPerPage: itemsPerPage.toString() };
+        const params = {
+            ...filters,
+            itemsPerPage: mobile ? "24" : itemsPerPage.toString(),
+        };
         try {
             const response = await axios.get(
                 `${import.meta.env.VITE_API_URL}/product`,
