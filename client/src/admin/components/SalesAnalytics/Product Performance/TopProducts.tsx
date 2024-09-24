@@ -10,6 +10,7 @@ import {
     fetchTopTenWorstProducts,
 } from "../../../features/Analytics/analyticsSlice";
 import { useNavigate } from "react-router-dom";
+import { useWindowSizeContext } from "../../../../common/contexts/windowSizeContext";
 
 interface Props {
     number: "5" | "10";
@@ -19,6 +20,7 @@ const TopProducts: React.FC<Props> = ({ number, worst }) => {
     const dispatch = useAppDispatch();
     const analytics = useAppSelector((state: RootState) => state.analytics);
     const navigate = useNavigate();
+    const { width } = useWindowSizeContext();
     const [period, setPeriod] = useState<
         "7d" | "30d" | "6m" | "1y" | "allTime"
     >("30d");
@@ -75,8 +77,16 @@ const TopProducts: React.FC<Props> = ({ number, worst }) => {
                 <div className="analytics-product top-products-header">
                     <div />
                     <div />
-                    <div>Product No.</div>
-                    <div>Product Name</div>
+                    {width &&
+                    (width >= 750 || (width >= 500 && width < 600)) ? (
+                        <React.Fragment>
+                            <div>Product No.</div>
+                            <div>Product Name</div>
+                        </React.Fragment>
+                    ) : (
+                        <div>Product</div>
+                    )}
+
                     <div>Quantity Sold</div>
                 </div>
                 {topProducts &&
@@ -99,8 +109,19 @@ const TopProducts: React.FC<Props> = ({ number, worst }) => {
                                     loading="lazy"
                                 />
                             </div>
-                            <div>{product.productNo}</div>
-                            <div>{product.name}</div>
+                            {width &&
+                            (width >= 750 || (width >= 500 && width < 600)) ? (
+                                <React.Fragment>
+                                    <div>{product.productNo}</div>
+                                    <div>{product.name}</div>
+                                </React.Fragment>
+                            ) : (
+                                <div>
+                                    <div>{product.name}</div>
+                                    <div>#{product.productNo}</div>
+                                </div>
+                            )}
+
                             <div>{product.totalQuantity}</div>
                         </div>
                     ))}
