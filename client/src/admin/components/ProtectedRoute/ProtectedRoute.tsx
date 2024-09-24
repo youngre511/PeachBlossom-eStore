@@ -58,6 +58,13 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
         return <Navigate to="/login" />;
     }
 
+    if (
+        authContext.user.defaultPassword &&
+        !window.location.pathname.includes("reset")
+    ) {
+        return <Navigate to="/account/password-reset" />;
+    }
+
     if (requiredRole && authContext.user.role !== requiredRole) {
         // If the user does not have the required role, redirect to unauthorized page
         return <Navigate to="/unauthorized" />;

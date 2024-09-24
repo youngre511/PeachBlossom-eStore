@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
     changeAdminAccessLevel,
+    changePassword,
     deleteUser,
     getAdmins,
     getCustomers,
@@ -37,6 +38,8 @@ router.put(
     authorizeRoles(["admin"], ["full"]),
     resetPassword
 );
+
+router.put("/changePassword", authMiddleware, changePassword);
 
 router.delete(
     "/delete/:userId",

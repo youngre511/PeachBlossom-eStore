@@ -8,6 +8,7 @@ interface CreateAccountRequest extends Request {
         role: "customer" | "admin";
         accessLevel?: "full" | "limited";
         email?: string;
+        defaultPassword?: boolean;
     };
 }
 
@@ -26,13 +27,15 @@ export const createUser = async (req: CreateAccountRequest, res: Response) => {
             role,
             accessLevel = null,
             email = null,
+            defaultPassword = false,
         } = req.body;
         const { accessToken, refreshToken } = await authService.createUser(
             username,
             password,
             role,
             accessLevel,
-            email
+            email,
+            defaultPassword
         );
         // Store refresh token in http-only cookie
         res.cookie("refreshToken", refreshToken, {

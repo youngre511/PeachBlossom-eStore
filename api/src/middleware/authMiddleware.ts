@@ -1,5 +1,10 @@
 import { Request, Response, NextFunction } from "express";
-import { verifyToken } from "../utils/jwt.js";
+import { UserPayload, verifyToken } from "../utils/jwt.js";
+
+export interface ReceivedUser extends UserPayload {
+    iat?: number;
+    exp?: number;
+}
 
 export const authMiddleware = (
     req: Request,
@@ -7,14 +12,15 @@ export const authMiddleware = (
     next: NextFunction
 ) => {
     const token = req.headers.authorization?.split(" ")[1];
+    console.log("token:", token);
     if (!token) {
         return res
             .status(401)
             .json({ message: "Access denied, no token provided." });
     }
-
+    console.log("token:", token);
     try {
-        const decoded = verifyToken(token);
+        const decoded = verifyToken(token) as ReceivedUser;
         if (
             typeof decoded === "object" &&
             "username" in decoded &&

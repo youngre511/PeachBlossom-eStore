@@ -14,6 +14,7 @@ interface IUser extends Model {
     username: string;
     password: string;
     role: "customer" | "admin";
+    defaultPassword: boolean;
 }
 
 export const createUser = async (
@@ -21,7 +22,8 @@ export const createUser = async (
     password: string,
     role: "customer" | "admin",
     accessLevel: "full" | "limited" | "view only" | null,
-    email: string | null
+    email: string | null,
+    defaultPassword: boolean
 ) => {
     const sqlTransaction = await sequelize.transaction();
     const sqlTransaction2 = await sequelize.transaction();
@@ -62,6 +64,7 @@ export const createUser = async (
                 username: username,
                 password: hashedPassword,
                 role: role,
+                defaultPassword,
             },
             { transaction: sqlTransaction }
         );
@@ -108,6 +111,7 @@ export const createUser = async (
             customer_id: customer?.customer_id,
             admin_id: admin?.admin_id,
             accessLevel: admin?.accessLevel,
+            defaultPassword: userData.defaultPassword,
         };
 
         const jti = uuidv4();
@@ -176,6 +180,7 @@ export const login = async (username: string, password: string) => {
             customer_id: customer?.customer_id,
             admin_id: admin?.admin_id,
             accessLevel: admin?.accessLevel,
+            defaultPassword: user.defaultPassword,
         };
 
         const jti = uuidv4();

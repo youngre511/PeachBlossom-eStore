@@ -25,6 +25,7 @@ import AdminManagement from "./components/AdminManagement/AdminManagement";
 import Dashboard from "./components/SalesAnalytics/Dashboard/Dashboard";
 import TransactionData from "./components/SalesAnalytics/TransactionData/TransactionData";
 import ProductPerformance from "./components/SalesAnalytics/Product Performance/ProductPerformance";
+import ChangePassword from "./components/ChangePassword/ChangePassword";
 function AdminApp() {
     const dispatch = useAppDispatch();
     const authContext = useContext(AuthContext);
@@ -160,7 +161,25 @@ function AdminApp() {
                                 />
                             }
                         />
-                        <Route path="login" element={<AdminLogin />} />
+                        <Route path="/login" element={<AdminLogin />} />
+                        <Route
+                            path="/account/password"
+                            element={
+                                <ProtectedRoute
+                                    component={ChangePassword}
+                                    requiredRole="admin"
+                                />
+                            }
+                        />
+                        <Route
+                            path="/account/password-reset"
+                            element={
+                                <ProtectedRoute
+                                    component={ChangePassword}
+                                    requiredRole="admin"
+                                />
+                            }
+                        />
                         <Route
                             path="*"
                             element={

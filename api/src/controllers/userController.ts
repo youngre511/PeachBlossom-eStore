@@ -14,6 +14,14 @@ interface ResetPasswordRequest extends Request {
     };
 }
 
+interface ChangePasswordRequest extends Request {
+    body: {
+        user_id: number;
+        oldPassword: string;
+        newPassword: string;
+    };
+}
+
 interface UserIdParamsRequest extends Request {
     params: {
         userId: string;
@@ -125,6 +133,41 @@ export const resetPassword = async (
     } catch (error) {
         let errorObj = {
             message: "change admin access level failure",
+            payload: error,
+        };
+
+        console.error(errorObj);
+
+        res.status(500).json(errorObj);
+    }
+};
+
+export const changePassword = async (
+    req: ChangePasswordRequest,
+    res: Response
+) => {
+    try {
+        const { oldPassword, newPassword } = req.body;
+        if (!req.user) {
+            throw new Error("No user token");
+        }
+
+        const accessToken = await userService.changePassword(
+            req.user,
+            oldPassword,
+            newPassword
+        );
+
+        if (!accessToken) {
+            res.status(403).json({ message: "Invalid password." });
+        }
+
+        res.json({
+            accessToken,
+        });
+    } catch (error) {
+        let errorObj = {
+            message: "change password failure",
             payload: error,
         };
 

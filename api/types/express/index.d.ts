@@ -6,6 +6,9 @@ declare namespace Express {
             customer_id?: number;
             admin_id?: number;
             accessLevel?: "full" | "limited" | "view only";
+            defaultPassword: boolean;
+            iat?: number;
+            exp?: number;
         };
         refreshToken?: {
             user_id: number;

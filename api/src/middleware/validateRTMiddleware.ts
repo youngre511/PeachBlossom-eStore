@@ -7,8 +7,6 @@ export const validateRT = async (
     res: Response,
     next: NextFunction
 ) => {
-    console.log("validating token");
-    console.log(req.cookies);
     const refreshToken = req.cookies.refreshToken;
     if (!refreshToken) {
         return res
@@ -34,7 +32,7 @@ export const validateRT = async (
             ) {
                 return res.status(401).json({
                     message:
-                        "Operation denied,  invalid or expired refresh token.",
+                        "Operation denied, invalid or expired refresh token.",
                 });
             }
             req.refreshToken = decoded;

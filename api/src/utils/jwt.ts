@@ -2,12 +2,13 @@ import jwt from "jsonwebtoken";
 
 const secret = process.env.JWT_SECRET as string;
 
-interface UserPayload {
+export interface UserPayload {
     username: string;
     role: "customer" | "admin";
     customer_id?: number;
     admin_id?: number;
     accessLevel?: "full" | "limited" | "view only";
+    defaultPassword: boolean;
 }
 
 interface RefreshTokenPayload {
@@ -17,10 +18,13 @@ interface RefreshTokenPayload {
 }
 
 export const generateToken = (payload: object, expiresIn: string) => {
+    console.log("payload:", payload);
+    console.log("returning:", jwt.sign(payload, secret, { expiresIn }));
     return jwt.sign(payload, secret, { expiresIn });
 };
 
 export const generateAccessToken = (payload: object) => {
+    console.log("generating:");
     return generateToken(payload, "1h");
 };
 

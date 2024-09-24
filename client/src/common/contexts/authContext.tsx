@@ -16,6 +16,7 @@ interface IUserToken {
     admin_id?: number;
     accessLevel?: "full" | "limited" | "view only";
     exp: number;
+    defaultPassword: boolean;
 }
 
 interface AuthContextProps {
@@ -24,6 +25,10 @@ interface AuthContextProps {
     logout: () => void;
     isTokenExpired: () => boolean;
     requestAccessTokenRefresh: () => void;
+    changePassword: (
+        oldPassword: string,
+        newPassword: string
+    ) => Promise<string | undefined>;
     error: string;
 }
 
@@ -139,7 +144,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                     console.error("An unknown error occurred");
                 }
                 if (isTokenExpired()) {
-                    console.log("running");
                     setUser(undefined);
                     localStorage.removeItem("jwtToken");
                     localStorage.removeItem("jwtExpiration");
@@ -206,7 +210,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 { username, password },
                 { withCredentials: true }
             );
-            console.log(response);
+
             const { accessToken } = response.data;
             const decodedToken = jwtDecode<IUserToken>(accessToken);
             if (!decodedToken.exp) {
@@ -257,6 +261,55 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         navigate("/login"); // Redirect to the login page
     };
 
+    const changePassword = async (
+        oldPassword: string,
+        newPassword: string
+    ): Promise<string | undefined> => {
+        const token = localStorage.getItem("jwtToken");
+        try {
+            const response = await axios.put(
+                `${import.meta.env.VITE_API_URL}/user/changePassword`,
+                {
+                    oldPassword,
+                    newPassword,
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+                    },
+                    withCredentials: true,
+                }
+            );
+
+            console.log("changeResponse:", response);
+
+            const { accessToken } = response.data;
+            const decodedToken = jwtDecode<IUserToken>(accessToken);
+            if (!decodedToken.exp) {
+                throw new Error("Token does not have an expiration date");
+            }
+            const expirationTime = decodedToken.exp * 1000;
+
+            localStorage.setItem("jwtToken", accessToken);
+            localStorage.setItem("jwtExpiration", expirationTime.toString());
+
+            setUser(decodedToken);
+            return "Success";
+        } catch (error) {
+            if (error instanceof AxiosError) {
+                console.error(error.message);
+                if (error.status === 404) {
+                    return "Invalid";
+                }
+            } else {
+                console.error(
+                    "An unknown error occurred while attempting to change password"
+                );
+                return "An unknown error occurred while attempting to change password";
+            }
+        }
+    };
+
     return (
         <AuthContext.Provider
             value={{
@@ -265,6 +318,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 logout,
                 isTokenExpired,
                 requestAccessTokenRefresh,
+                changePassword,
                 error,
             }}
         >

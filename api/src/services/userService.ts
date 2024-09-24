@@ -5,6 +5,9 @@ import { Model } from "sequelize";
 import { sqlCustomer } from "../models/mysql/sqlCustomerModel.js";
 import { sqlAdmin } from "../models/mysql/sqlAdminModel.js";
 import { Op } from "sequelize";
+import { generateAccessToken, UserPayload } from "../utils/jwt.js";
+import { sqlRefreshToken } from "../models/mysql/sqlRefreshTokenModel.js";
+import { ReceivedUser } from "../middleware/authMiddleware.js";
 
 interface IUser extends Model {
     user_id: number;
@@ -223,6 +226,61 @@ export const resetPassword = async (user_id: number) => {
     }
 };
 
+export const changePassword = async (
+    user: ReceivedUser,
+    oldPassword: string,
+    newPassword: string
+) => {
+    const sqlTransaction = await sequelize.transaction();
+    try {
+        const foundUser = await sqlUser.findOne({
+            where: { username: user.username },
+        });
+        if (!foundUser) {
+            throw new Error(`User does not exist`);
+        }
+
+        if (await argon2.verify(foundUser.password, oldPassword)) {
+            console.log("Old password verified");
+        } else {
+            return false;
+        }
+
+        const hashedPassword = await argon2.hash(newPassword);
+
+        const [affectedCount] = await sqlUser.update(
+            { defaultPassword: false, password: hashedPassword },
+            {
+                where: { username: user.username },
+                transaction: sqlTransaction,
+            }
+        );
+        if (!affectedCount) {
+            throw new Error(
+                "Something went wrong when changing password. Unable to update sqlUser table."
+            );
+        }
+        await sqlTransaction.commit();
+        const newTokenPayload: any = { ...user, defaultPassword: false };
+        delete newTokenPayload.iat;
+        delete newTokenPayload.exp;
+        const updatedAccessToken = generateAccessToken(
+            newTokenPayload as UserPayload
+        );
+
+        return updatedAccessToken;
+    } catch (error) {
+        await sqlTransaction.rollback();
+        if (error instanceof Error) {
+            throw new Error("Error changing password: " + error.message);
+        } else {
+            throw new Error(
+                "An unknown error occurred while changing password"
+            );
+        }
+    }
+};
+
 export const deleteUser = async (
     userId: string,
     accessLevel: "full" | "limited" | "view only" | undefined
@@ -261,6 +319,11 @@ export const deleteUser = async (
                 `Something went wrong when deleting user account: unable to delete user from ${foundUser.role} table.`
             );
         }
+
+        await sqlRefreshToken.destroy({
+            where: { user_id: userId },
+            transaction: sqlTransaction,
+        });
 
         const userDeleteCount = await sqlUser.destroy({
             where: { user_id: userId },
