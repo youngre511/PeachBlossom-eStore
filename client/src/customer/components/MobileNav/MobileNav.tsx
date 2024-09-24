@@ -234,12 +234,15 @@ const MobileNav: React.FC<Props> = () => {
         if (currentRoute) {
             if (
                 currentRoute.includes("/shop") &&
+                !currentRoute.includes("cart") &&
                 (!previousRoute || !previousRoute.includes("/shop"))
             ) {
                 setIsSearchBarVisible(true);
             } else if (
                 !currentRoute.includes("/shop") &&
-                (!previousRoute || previousRoute.includes("/shop"))
+                (!previousRoute ||
+                    (previousRoute.includes("/shop") &&
+                        !previousRoute.includes("cart")))
             ) {
                 setIsSearchBarVisible(false);
             }
