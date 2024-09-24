@@ -247,7 +247,7 @@ export const getProducts = async (filters: FilterObject) => {
         };
         return catObj;
     });
-    console.log("productRecords:", productRecords);
+
     return { totalCount, productRecords };
 };
 

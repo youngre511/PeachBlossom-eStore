@@ -65,7 +65,6 @@ export const addItemToCart = createAsyncThunk<
                 discountPrice: productToAdd.discountPrice,
                 quantity: 1,
                 thumbnailUrl: productThumbnail,
-                productUrl: `/shop/product/${productToAdd.productNo}`,
                 maxAvailable: productToAdd.stock,
             };
             console.log("adding optimistic");

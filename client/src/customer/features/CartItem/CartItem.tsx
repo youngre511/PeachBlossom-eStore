@@ -18,10 +18,17 @@ const CartItem: React.FC<Props> = ({ item }: Props) => {
     const navigate = useNavigate();
 
     const handleUpdateQuantity = () => {
+        let updateQuantity = +quantity;
+
+        if (updateQuantity > item.maxAvailable) {
+            updateQuantity = item.maxAvailable;
+            setQuantity(String(item.maxAvailable));
+        }
+
         dispatch(
             updateItemQuantity({
                 productNo: item.productNo,
-                newQuantity: +quantity,
+                newQuantity: updateQuantity,
             })
         );
     };
@@ -34,7 +41,13 @@ const CartItem: React.FC<Props> = ({ item }: Props) => {
         event: React.ChangeEvent<HTMLInputElement>
     ) => {
         const newQuantity: string = event.target.value;
-        setQuantity(newQuantity);
+        const regex = /\D/;
+        if (regex.test(newQuantity)) {
+            const sanitizedQuantity = newQuantity.replace(/\D/, "");
+            event.target.value = sanitizedQuantity;
+        } else {
+            setQuantity(newQuantity);
+        }
     };
 
     const handleRemoveProduct = () => {
@@ -58,7 +71,7 @@ const CartItem: React.FC<Props> = ({ item }: Props) => {
                     }
                     alt={item.name}
                     className="cart-thumbnail"
-                    onClick={() => navigate(item.productUrl)}
+                    onClick={() => navigate(`/product?pn=${item.productNo}`)}
                     height={cartView ? "70px" : "40px"}
                     width={cartView ? "70px" : "40px"}
                     loading="lazy"
@@ -75,7 +88,7 @@ const CartItem: React.FC<Props> = ({ item }: Props) => {
             </div>
             <div className="cartItemDetails">
                 <div className="cart-name-and-number">
-                    <Link to={item.productUrl}>
+                    <Link to={`/product?pn=${item.productNo}`}>
                         <h2 className="cart-item-name">{item.name}</h2>
                     </Link>
                     <div className="cart-productNo">#{item.productNo}</div>

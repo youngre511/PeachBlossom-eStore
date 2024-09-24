@@ -5,7 +5,6 @@ export interface CartItem {
     discountPrice: number | null;
     quantity: number;
     thumbnailUrl: string;
-    productUrl: string;
     maxAvailable: number;
 }
 
