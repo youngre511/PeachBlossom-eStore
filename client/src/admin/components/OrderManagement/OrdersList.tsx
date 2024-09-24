@@ -97,7 +97,7 @@ const OrdersList: React.FC<AVCatProps> = ({
     const handleChangeRowsPerPage = (
         event: React.ChangeEvent<HTMLInputElement>
     ) => {
-        setRowsPerPage(parseInt(event.target.value, 24));
+        setRowsPerPage(+event.target.value);
         updateSearchParams({ page: "1", itemsPerPage: event.target.value });
     };
 

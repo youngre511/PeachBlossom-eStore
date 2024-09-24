@@ -106,7 +106,7 @@ const InventoryCatalog: React.FC<AVCatProps> = ({
     const handleChangeRowsPerPage = (
         event: React.ChangeEvent<HTMLInputElement>
     ) => {
-        setRowsPerPage(parseInt(event.target.value, 24));
+        setRowsPerPage(+event.target.value);
         updateSearchParams({ page: "1", itemsPerPage: event.target.value });
     };
 
@@ -166,7 +166,7 @@ const InventoryCatalog: React.FC<AVCatProps> = ({
                 <TablePagination
                     rowsPerPageOptions={[24, 48, 96]}
                     component="div"
-                    count={rows.length}
+                    count={numberOfResults}
                     rowsPerPage={rowsPerPage}
                     page={page - 1}
                     onPageChange={handleChangePage}

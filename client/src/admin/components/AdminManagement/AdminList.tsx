@@ -68,7 +68,7 @@ const AdminList: React.FC<AdminListProps> = ({
     const handleChangeRowsPerPage = (
         event: React.ChangeEvent<HTMLInputElement>
     ) => {
-        setRowsPerPage(parseInt(event.target.value, 24));
+        setRowsPerPage(+event.target.value);
         updateSearchParams({
             page: "1",
             itemsPerPage: String(event.target.value),
