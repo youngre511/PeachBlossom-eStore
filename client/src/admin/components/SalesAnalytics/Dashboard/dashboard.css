@@ -7,22 +7,24 @@
     display: flex;
     justify-content: space-between;
     gap: 20px;
+    flex-direction: column;
 }
 
 .dashboard-revenue {
-    width: 70%;
     min-height: 400px;
-    height: 40vh;
+    height: 100%;
     background-color: white;
     flex-grow: 1;
     position: relative;
     display: flex;
     flex-direction: column;
+    flex-shrink: 1;
 }
 
 .dashboard-revenue-chart {
     padding: 20px 0;
-    height: 350px;
+    height: 380px;
+    width: 100%;
 }
 
 .sales-summary {
@@ -31,53 +33,45 @@
 
 .summary-contents {
     padding: 20px;
-    width: 300px;
+    min-width: 300px;
+    width: 100%;
     flex-shrink: 0;
     position: relative;
 }
 
-.top-products {
-    background-color: white;
+.summary-label {
+    text-align: center;
 }
 
-.top-products-contents {
-    width: 100%;
-    position: relative;
+.summary-figure {
+    text-align: center;
+    font-weight: 600;
+    font-size: 2rem;
+    margin-top: 5px;
+    margin-bottom: 20px;
 }
 
-.top-products-contents > :nth-child(2n) {
-    background-color: var(--peach-blossom);
+@media (min-width: 750px) {
+    .summary-contents {
+        display: grid;
+        width: 100%;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
 }
 
-.top-products-contents > :not(:first-child) {
-    cursor: pointer;
-}
-
-.top-products-contents > :not(:first-child):hover {
-    background-color: var(--peaches-and-cream);
-}
-
-.top-products-header {
-    border-bottom: 1px solid lightgray;
-    padding-bottom: 0;
-}
-
-.analytics-product {
-    height: 70px;
-    padding: 10px 30px;
-    display: grid;
-    grid-template-columns: 1fr 3fr 6fr 9fr 3fr;
-}
-
-.analytics-product > * {
-    align-self: center;
-}
-
-.analytics-product > :last-child {
-    text-align: right;
-}
-
-.analytics-product-thumbnail {
-    height: 50px;
-    width: auto;
+@media (min-width: 1100px) {
+    .dashboard-top {
+        flex-direction: row;
+    }
+    .dashboard-revenue {
+        width: auto;
+        flex-shrink: 1;
+        flex-basis: 70%;
+        min-width: 500px;
+    }
+    .summary-contents {
+        display: block;
+        height: 380px;
+    }
 }

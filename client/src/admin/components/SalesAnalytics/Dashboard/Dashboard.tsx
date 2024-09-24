@@ -147,14 +147,15 @@ const Dashboard: React.FC = () => {
                                 tiltLabels={true}
                                 valueFormat=">-$,.2r"
                                 margin={{
-                                    top: 10,
+                                    top: 0,
                                     right: 60,
-                                    bottom: 80,
+                                    bottom: 120,
                                     left: 100,
                                 }}
                                 yAxisFormat={(value: number) =>
                                     `$${value.toLocaleString("en-US")}`
                                 }
+                                enableLabel={false}
                             />
                         )}
                     </div>
@@ -164,31 +165,41 @@ const Dashboard: React.FC = () => {
                         <h2>Sales Summary</h2>
                     </div>
                     <div className="summary-contents">
-                        <div className="summary-label">YTD Revenue</div>
-                        <div className="summary-figure">
-                            {"$" +
-                                Number(
-                                    salesSummary.ytdRevenue
-                                ).toLocaleString()}
+                        <div className="summary-datum">
+                            <div className="summary-label">YTD Revenue</div>
+                            <div className="summary-figure">
+                                {"$" +
+                                    Number(
+                                        salesSummary.ytdRevenue
+                                    ).toLocaleString()}
+                            </div>
                         </div>
-                        <div className="summary-label">
-                            Current Month Revenue
+                        <div className="summary-datum">
+                            <div className="summary-label">
+                                Current Month Revenue
+                            </div>
+                            <div className="summary-figure">
+                                {"$" +
+                                    Number(
+                                        salesSummary.mtdRevenue
+                                    ).toLocaleString()}
+                            </div>
                         </div>
-                        <div className="summary-figure">
-                            {"$" +
-                                Number(
-                                    salesSummary.mtdRevenue
-                                ).toLocaleString()}
+                        <div className="summary-datum">
+                            <div className="summary-label">
+                                YTD Transactions
+                            </div>
+                            <div className="summary-figure">
+                                {salesSummary.ytdTransactions}
+                            </div>
                         </div>
-                        <div className="summary-label">YTD Transactions</div>
-                        <div className="summary-figure">
-                            {salesSummary.ytdTransactions}
-                        </div>
-                        <div className="summary-label">
-                            Current Month Transactions YTD
-                        </div>
-                        <div className="summary-figure">
-                            {salesSummary.mtdTransactions}
+                        <div className="summary-datum">
+                            <div className="summary-label">
+                                Current Month Transactions
+                            </div>
+                            <div className="summary-figure">
+                                {salesSummary.mtdTransactions}
+                            </div>
                         </div>
                     </div>
                 </div>

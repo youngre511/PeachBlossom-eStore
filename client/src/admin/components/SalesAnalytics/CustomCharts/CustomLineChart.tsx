@@ -36,9 +36,12 @@ const CustomLineChart: React.FC<Props> = ({
         xValues.length > 0 ? xValues[0].startsWith("Week") : false;
 
     useEffect(() => {
-        setMobile(width && width >= 800 ? false : true);
+        if (width) {
+            setMobile(width < 800);
+        }
     }, [width]);
 
+    console.log("rendering");
     return (
         <ResponsiveLine
             data={data as any}
