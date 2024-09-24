@@ -29,15 +29,28 @@ import pblogo3x from "../assets/peachblossomlogo-3x.webp";
 import pbtext1x from "../assets/peachblossomtext-1x.webp";
 import pbtext2x from "../assets/peachblossomtext-2x.webp";
 import pbtext3x from "../assets/peachblossomtext-3x.webp";
+import { useNavigationContext } from "../common/contexts/navContext";
 
 const CustomerApp: React.FC = () => {
     const dispatch = useAppDispatch();
+    const { currentRoute, previousRoute } = useNavigationContext();
     useEffect(() => {
         dispatch(fetchCategories());
         dispatch(fetchSearchOptions());
     }, [dispatch]);
 
     const { width, pixelDensity } = useWindowSizeContext();
+
+    // Code to ensure that navigating to a new root path loads the new component with the window scrolled to the top of window.
+    useEffect(() => {
+        if (currentRoute && previousRoute) {
+            const currentRouteRootPath = currentRoute.split("?")[0];
+            const previousRouteRootPath = previousRoute.split("?")[0];
+            if (currentRouteRootPath !== previousRouteRootPath) {
+                window.scrollTo(0, 0);
+            }
+        }
+    }, [currentRoute, previousRoute]);
 
     useEffect(() => {
         const img = new Image();
