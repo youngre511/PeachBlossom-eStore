@@ -152,6 +152,66 @@ export const holdStock = async (cartId: number) => {
     }
 };
 
+export const extendHold = async (cartId: number) => {
+    const sqlTransaction = await sequelize.transaction();
+    try {
+        const cart = await sqlCart.findByPk(cartId);
+        if (!cart) {
+            throw new Error("Unable to retrieve cart to set expiration");
+        }
+
+        //Get the current time, the expiration time, and the expiration time minus 60 sec all in UTC for later comparison.
+        //If cart.dataValues.checkoutExpiration is null, it will give the Unix epoch and not cause errors. This is fine, because these variables are used only if cart.dataValues.checkoutExpiration is not null (see below).
+
+        const recordedExpirationMinus60Sec = new Date(
+            cart.dataValues.checkoutExpiration
+        );
+        const recordedExpiration = new Date(cart.dataValues.checkoutExpiration);
+        recordedExpirationMinus60Sec.setSeconds(
+            recordedExpirationMinus60Sec.getSeconds() - 60
+        );
+
+        const currentTime = new Date();
+
+        // Issue a new cart expiration date if the current time is within the period from 30 seconds before the front-end 5 min timer expires to the end of the 30 second grace period after the front-end timer.
+        // Expiration date is 30 seconds longer than the front-end countdown in order to prevent conflicts if checkout executes at the same moment that the lambda releaseHold function clears expiration dates and inventory holds.
+        let expirationTime: string;
+        if (
+            currentTime < recordedExpiration &&
+            currentTime >= recordedExpirationMinus60Sec
+        ) {
+            const expirationDate = new Date();
+
+            expirationDate.setMinutes(expirationDate.getMinutes() + 5);
+
+            expirationTime = expirationDate.toISOString();
+
+            expirationDate.setSeconds(expirationDate.getSeconds() + 30);
+            const utcExpirationDate = expirationDate.toISOString();
+            await sqlCart.update(
+                { checkoutExpiration: utcExpirationDate },
+                { where: { cart_id: cartId }, transaction: sqlTransaction }
+            );
+        } else {
+            expirationTime = recordedExpiration.toISOString();
+        }
+        await sqlTransaction.commit();
+
+        return expirationTime;
+    } catch (error) {
+        await sqlTransaction.rollback();
+        if (error instanceof Error) {
+            // Rollback the transaction in case of any errors
+            throw new Error("Error extending hold: " + error.message);
+        } else {
+            // Rollback the transaction in case of any non-Error errors
+            throw new Error(
+                "An unknown error occurred while extending hold on stock"
+            );
+        }
+    }
+};
+
 export const releaseStock = async (cartId: number) => {
     const sqlTransaction = await sequelize.transaction();
     try {

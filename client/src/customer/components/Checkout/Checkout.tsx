@@ -33,6 +33,7 @@ import {
 import { CartState } from "../../features/Cart/CartTypes";
 import "./checkout.css";
 import { useCheckoutTimer } from "../../../common/contexts/checkoutTimerContext";
+import BlankPopup from "../../../common/components/BlankPopup";
 
 export interface PaymentDetails {
     cardType: string;
@@ -166,6 +167,9 @@ const Checkout: React.FC = () => {
     const [canPlaceOrder, setCanPlaceOrder] = useState<boolean>(false);
     const [nextDisabled, setNextDisabled] = useState<boolean>(false);
     const { timeLeft } = useCheckoutTimer();
+    const [showRenewDialogue, setShowRenewDialogue] = useState<boolean>(false);
+    const [dismissedRenewDialogue, setDismissedRenewDialogue] =
+        useState<boolean>(false);
 
     const validStates = [
         "AK",
@@ -233,7 +237,6 @@ const Checkout: React.FC = () => {
                     `${import.meta.env.VITE_API_URL}/inventory/holdStock`,
                     { cartId: currentCartId }
                 );
-                console.log(response.data.payload);
                 dispatch(
                     setExpirationTime({ expiration: response.data.payload })
                 );
@@ -468,6 +471,41 @@ const Checkout: React.FC = () => {
                 Number(shippingRate) +
                 (Number(subTotal) + Number(shippingRate)) * Number(taxRate)
         );
+    };
+
+    useEffect(() => {
+        if (timeLeft) {
+            if (timeLeft.minutes === 0 && timeLeft.seconds === 0) {
+                navigate("/shoppingcart");
+            } else if (
+                timeLeft.minutes === 0 &&
+                timeLeft.seconds < 16 &&
+                !dismissedRenewDialogue
+            ) {
+                setShowRenewDialogue(true);
+            }
+        }
+    }, [timeLeft]);
+
+    const handleExtendSession = async () => {
+        try {
+            const response = await axios.put(
+                `${import.meta.env.VITE_API_URL}/inventory/extendHold`,
+                { cartId: currentCartId }
+            );
+            dispatch(setExpirationTime({ expiration: response.data.payload }));
+        } catch (error) {
+            if (error instanceof AxiosError) {
+                console.error("Error extending hold", error);
+            } else {
+                console.error(
+                    "An unknown error has ocurred while extending hold on stock"
+                );
+            }
+        } finally {
+            setShowRenewDialogue(false);
+            setDismissedRenewDialogue(false);
+        }
     };
 
     return (
@@ -829,6 +867,28 @@ const Checkout: React.FC = () => {
                     </Box>
                 </Grid>
             </Grid>
+            {timeLeft && showRenewDialogue && (
+                <BlankPopup>
+                    <div>
+                        Checkout will expire in {timeLeft.seconds}s. Extend
+                        session?
+                    </div>
+                    <div className="extend-btns">
+                        <Button
+                            variant="contained"
+                            onClick={handleExtendSession}
+                        >
+                            Yes
+                        </Button>
+                        <Button
+                            variant="contained"
+                            onClick={() => setDismissedRenewDialogue(true)}
+                        >
+                            No
+                        </Button>
+                    </div>
+                </BlankPopup>
+            )}
         </React.Fragment>
     );
 };

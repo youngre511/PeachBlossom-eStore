@@ -36,6 +36,27 @@ export const holdStock = async (req: CartIdRequest, res: Response) => {
     }
 };
 
+export const extendHold = async (req: CartIdRequest, res: Response) => {
+    try {
+        const { cartId } = req.body;
+        const expirationTime = await inventoryService.extendHold(cartId);
+
+        res.json({
+            message: "success",
+            payload: expirationTime,
+        });
+    } catch (error) {
+        let errorObj = {
+            message: "hold stock failure",
+            payload: error,
+        };
+
+        console.error(errorObj);
+
+        res.status(500).json(errorObj);
+    }
+};
+
 export const releaseStock = async (req: CartIdRequest, res: Response) => {
     try {
         const { cartId } = req.body;
