@@ -59,6 +59,13 @@
     align-items: center;
 }
 
+.confirm-buttons {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-top: 20px;
+}
+
 @media (min-width: 600px) {
     .am-mobile-buttons {
         width: calc(100%);

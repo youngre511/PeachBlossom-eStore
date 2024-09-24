@@ -74,9 +74,9 @@ const AdminManagement: React.FC = () => {
     useEffect(() => {
         if (users.error) {
             setIsError(true);
+            console.error(users.error);
         }
         setErrorMessage(users.error);
-        console.error(users.error);
     }, [users.error]);
 
     // Fetch data if access view selection changes
@@ -210,7 +210,13 @@ const AdminManagement: React.FC = () => {
         try {
             await axios.post(
                 `${import.meta.env.VITE_API_URL}/auth/register`,
-                { username, password: "default", role: "admin", accessLevel },
+                {
+                    username,
+                    password: "default",
+                    role: "admin",
+                    accessLevel,
+                    defaultPassword: true,
+                },
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -342,7 +348,7 @@ const AdminManagement: React.FC = () => {
             />
             {showConfirm && (
                 <BlankPopup>
-                    <span>Delete user {deleteId}?</span>
+                    <div>Delete user {deleteId}?</div>
                     <div className="confirm-buttons">
                         <Button
                             onClick={() => {
@@ -358,6 +364,7 @@ const AdminManagement: React.FC = () => {
                                 setDeleteId(null);
                                 setShowConfirm(false);
                             }}
+                            sx={{ marginLeft: "10px" }}
                             variant="outlined"
                         >
                             No, wait!

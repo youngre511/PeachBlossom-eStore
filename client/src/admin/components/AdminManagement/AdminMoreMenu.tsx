@@ -114,7 +114,7 @@ const AdminMoreMenu: React.FC<Props> = ({
                         handleResetPassword(user_id);
                         handleClose();
                     }}
-                    disabled={!isDefaultPassword}
+                    disabled={isDefaultPassword}
                 >
                     Reset Password
                 </MenuItem>
