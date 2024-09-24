@@ -1,9 +1,12 @@
+.product-details {
+    margin: 100px auto 0 auto;
+    max-width: 90rem;
+    width: 90vw;
+}
 .product-details-container {
     display: flex;
     gap: 30px;
-    max-width: 90rem;
-    width: 90vw;
-    margin: 100px auto 0 auto;
+    margin-top: 30px;
     flex-direction: column;
     justify-content: center;
     align-items: center;
@@ -139,7 +142,7 @@
 }
 
 @media (min-width: 810px) {
-    .product-details-container {
+    .product-details {
         margin-top: 200px;
     }
 }

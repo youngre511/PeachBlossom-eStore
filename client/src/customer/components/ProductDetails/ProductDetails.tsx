@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Product } from "../../features/ProductCatalog/CatalogTypes";
 import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
 import { fetchOneProduct } from "../../features/ProductCatalog/catalogSlice";
@@ -12,9 +12,12 @@ import "slick-carousel/slick/slick-theme.css";
 import "./product-details.css";
 import AddToCartButton from "../AddToCartButton/AddToCartButton";
 import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
+import { useNavigationContext } from "../../../common/contexts/navContext";
+import { Button } from "@mui/material";
 
 interface Props {}
 const ProductDetails: React.FC<Props> = () => {
+    const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
     const productNo = searchParams.get("pn");
     const [product, setProduct] = useState<Product | null>(null);
@@ -23,16 +26,37 @@ const ProductDetails: React.FC<Props> = () => {
         (state: RootState) => state.catalog.singleProduct
     );
     const { width, isTouchDevice } = useWindowSizeContext();
+    const { previousRoute } = useNavigationContext();
+    const [prevPageName, setPrevPageName] = useState<string>("");
     const dispatch = useAppDispatch();
     const [isVertical, setIsVertical] = useState<boolean>(true);
+    const [imageSizes, setImageSizes] = useState<{
+        size1: number;
+        size2: number;
+        size3: number;
+    }>({ size1: 960, size2: 1024, size3: 1024 });
 
     useEffect(() => {
         if (width && width < 1342) {
             setIsVertical(false);
+            setImageSizes({ size1: 960, size2: 1024, size3: 1024 });
         } else {
             setIsVertical(true);
+            setImageSizes({ size1: 450, size2: 960, size3: 1024 });
         }
     }, [width]);
+
+    useEffect(() => {
+        if (previousRoute) {
+            if (previousRoute.startsWith("/shoppingcart")) {
+                setPrevPageName(" to Cart");
+            } else if (previousRoute.startsWith("/shop")) {
+                setPrevPageName(" to Product Catalogue");
+            } else {
+                setPrevPageName("");
+            }
+        }
+    }, [previousRoute]);
 
     const settings: Settings = {
         swipe: true,
@@ -114,143 +138,158 @@ const ProductDetails: React.FC<Props> = () => {
     }, [productNo]);
 
     return (
-        <div className="product-details-container">
-            {product && (
-                <React.Fragment>
-                    <div className="product-images-cont">
-                        <div className="product-images">
-                            {((width && width < 1025) ||
-                                product.images.length > 1) && (
-                                <Slider {...settings} key={width}>
-                                    {product.images.map((imageUrl, index) => {
-                                        let size1: number = 1024;
-                                        let size2: number = 1024;
-                                        let size3: number = 1024;
-                                        if (width) {
-                                            if (width >= 1024) {
-                                            } else if (width >= 1025) {
-                                                size1 = 140;
-                                                size2 = 300;
-                                                size3 = 450;
-                                            } else if (width >= 751) {
-                                                size1 = 450;
-                                                size2 = 1024;
-                                                size3 = 1024;
-                                            } else {
-                                                size1 = 300;
-                                                size2 = 600;
-                                                size3 = 960;
-                                            }
-                                        }
-                                        return (
-                                            <img
-                                                src={`${imageUrl}_1024.webp`}
-                                                srcSet={`${imageUrl}_${size1}.webp, ${imageUrl}_${size2}.webp 2x, ${imageUrl}_${size3}.webp 3x,`}
-                                                sizes="
-                                                (min-width: 1342px) 1024px,
-                                                (min-width: 1025px) 140px,
-                                                (min-width: 751) 450px,
-                                                300px
-                                            "
-                                                className="product-details-thumbnail"
-                                                alt={`${
-                                                    product.name
-                                                } thumbnail ${index + 1}`}
-                                                onClick={() =>
-                                                    setCurrentImage(imageUrl)
+        <div className="product-details">
+            <div className="pd-back-btn">
+                {previousRoute && (
+                    <Button
+                        variant="outlined"
+                        onClick={() => navigate(previousRoute)}
+                    >
+                        &lt; Back{prevPageName}
+                    </Button>
+                )}
+            </div>
+            <div className="product-details-container">
+                {product && (
+                    <React.Fragment>
+                        <div className="product-images-cont">
+                            <div className="product-images">
+                                {((width && width < 1025) ||
+                                    product.images.length > 1) && (
+                                    <Slider {...settings} key={width}>
+                                        {product.images.map(
+                                            (imageUrl, index) => {
+                                                let size1: number = 1024;
+                                                let size2: number = 1024;
+                                                let size3: number = 1024;
+                                                if (width) {
+                                                    if (width >= 1024) {
+                                                    } else if (width >= 1025) {
+                                                        size1 = 140;
+                                                        size2 = 300;
+                                                        size3 = 450;
+                                                    } else if (width >= 751) {
+                                                        size1 = 450;
+                                                        size2 = 1024;
+                                                        size3 = 1024;
+                                                    } else {
+                                                        size1 = 300;
+                                                        size2 = 600;
+                                                        size3 = 960;
+                                                    }
                                                 }
-                                                key={imageUrl}
-                                            />
-                                        );
-                                    })}
-                                </Slider>
-                            )}
-                            <div className="product-details-image-cont">
-                                <img
-                                    src={`${currentImage}_1024.webp`}
-                                    srcSet={`${currentImage}_450.webp 450w, ${currentImage}_960.webp 450w 2x, ${currentImage}_1024.webp 450w 3x,${currentImage}_960.webp 640w, ${currentImage}_1024.webp 640w 2x, ${currentImage}_1024.webp 640w 3x`}
-                                    sizes="
-                                        (min-width: 1342px) 640px,
-                                        450px
-                                    "
-                                    className="product-details-image"
-                                    alt={`${product.name} thumbnail`}
-                                    width="450x"
-                                    height="450px"
-                                />
-                            </div>
-                        </div>
-                    </div>
-                    <div className="product-info">
-                        <div className="pd-top">
-                            <div className="pd-header">
-                                {product.discountPrice && (
-                                    <div className="pd-sale-label">SALE</div>
+                                                return (
+                                                    <img
+                                                        src={`${imageUrl}_1024.webp`}
+                                                        srcSet={`${imageUrl}_${size1}.webp, ${imageUrl}_${size2}.webp 2x, ${imageUrl}_${size3}.webp 3x,`}
+                                                        className="product-details-thumbnail"
+                                                        alt={`${
+                                                            product.name
+                                                        } thumbnail ${
+                                                            index + 1
+                                                        }`}
+                                                        onClick={() =>
+                                                            setCurrentImage(
+                                                                imageUrl
+                                                            )
+                                                        }
+                                                        key={imageUrl}
+                                                    />
+                                                );
+                                            }
+                                        )}
+                                    </Slider>
                                 )}
-                                <h1 className="pd-product-name">
-                                    {product.name}
-                                </h1>
-                                <div className="pd-price-cont">
-                                    <span
-                                        className="pd-discount-price"
-                                        style={{
-                                            display: product.discountPrice
-                                                ? undefined
-                                                : "none",
-                                        }}
-                                    >
-                                        ${product.discountPrice}
-                                    </span>
-                                    <span
-                                        className="pd-price"
-                                        style={{
-                                            textDecoration:
-                                                product.discountPrice
-                                                    ? "line-through"
-                                                    : "none",
-                                        }}
-                                    >
-                                        ${product.price}
-                                    </span>
+                                <div className="product-details-image-cont">
+                                    <img
+                                        src={`${currentImage}_1024.webp`}
+                                        srcSet={`${currentImage}_${imageSizes.size1}.webp, ${currentImage}_${imageSizes.size2}.webp 2x, ${currentImage}_${imageSizes.size3}.webp 3x`}
+                                        className="product-details-image"
+                                        alt={`${product.name} thumbnail`}
+                                        width="450x"
+                                        height="450px"
+                                    />
                                 </div>
                             </div>
-                            <p className="pd-description">
-                                {product.description}
-                            </p>
                         </div>
-                        <div className="pd-attributes-cont">
-                            <h2 className="pd-details-header">
-                                Product Details
-                            </h2>
-                            <dl className="pd-attributes">
-                                <dt>Color</dt>
-                                <dd>{product.attributes.color}</dd>
-                                <dt>Material</dt>
-                                <dd>
-                                    {product.attributes.material.join(", ")}
-                                </dd>
-                                <dt>Weight</dt>
-                                <dd>{product.attributes.weight} lbs.</dd>
-                                <dt>Dimensions</dt>
-                                <dd>
-                                    {product.attributes.dimensions.height} in. h
-                                    &times;
-                                    {product.attributes.dimensions.width} in. w
-                                    &times;
-                                    {product.attributes.dimensions.depth} in. d
-                                </dd>
-                                <dt>Product No.</dt>
-                                <dd>{product.productNo}</dd>
-                            </dl>
+                        <div className="product-info">
+                            <div className="pd-top">
+                                <div className="pd-header">
+                                    {product.discountPrice && (
+                                        <div className="pd-sale-label">
+                                            SALE
+                                        </div>
+                                    )}
+                                    <h1 className="pd-product-name">
+                                        {product.name}
+                                    </h1>
+                                    <div className="pd-price-cont">
+                                        <span
+                                            className="pd-discount-price"
+                                            style={{
+                                                display: product.discountPrice
+                                                    ? undefined
+                                                    : "none",
+                                            }}
+                                        >
+                                            ${product.discountPrice}
+                                        </span>
+                                        <span
+                                            className="pd-price"
+                                            style={{
+                                                textDecoration:
+                                                    product.discountPrice
+                                                        ? "line-through"
+                                                        : "none",
+                                            }}
+                                        >
+                                            ${product.price}
+                                        </span>
+                                    </div>
+                                </div>
+                                <p className="pd-description">
+                                    {product.description}
+                                </p>
+                            </div>
+                            <div className="pd-attributes-cont">
+                                <h2 className="pd-details-header">
+                                    Product Details
+                                </h2>
+                                <dl className="pd-attributes">
+                                    <dt>Color</dt>
+                                    <dd>{product.attributes.color}</dd>
+                                    <dt>Material</dt>
+                                    <dd>
+                                        {product.attributes.material.join(", ")}
+                                    </dd>
+                                    <dt>Weight</dt>
+                                    <dd>{product.attributes.weight} lbs.</dd>
+                                    <dt>Dimensions</dt>
+                                    <dd>
+                                        {product.attributes.dimensions.height}{" "}
+                                        in. h &times;
+                                        {
+                                            product.attributes.dimensions.width
+                                        }{" "}
+                                        in. w &times;
+                                        {
+                                            product.attributes.dimensions.depth
+                                        }{" "}
+                                        in. d
+                                    </dd>
+                                    <dt>Product No.</dt>
+                                    <dd>{product.productNo}</dd>
+                                </dl>
+                            </div>
+                            <AddToCartButton
+                                available={product.stock}
+                                productNo={product.productNo}
+                                isTouchDevice={isTouchDevice}
+                            />
                         </div>
-                        <AddToCartButton
-                            available={product.stock}
-                            productNo={product.productNo}
-                            isTouchDevice={isTouchDevice}
-                        />
-                    </div>
-                </React.Fragment>
-            )}
+                    </React.Fragment>
+                )}
+            </div>
         </div>
     );
 };
