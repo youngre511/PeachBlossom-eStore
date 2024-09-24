@@ -237,6 +237,11 @@ const MobileNav: React.FC<Props> = () => {
                 (!previousRoute || !previousRoute.includes("/shop"))
             ) {
                 setIsSearchBarVisible(true);
+            } else if (
+                !currentRoute.includes("/shop") &&
+                (!previousRoute || previousRoute.includes("/shop"))
+            ) {
+                setIsSearchBarVisible(false);
             }
         }
     }, [currentRoute, previousRoute]);
@@ -340,8 +345,15 @@ const MobileNav: React.FC<Props> = () => {
                             width="158px"
                             height="158px"
                         />
+                        <div
+                            className="logo-clickable"
+                            onClick={() => navigate("/")}
+                        ></div>
                     </div>
-                    <div className="m-text-only-logo">
+                    <div
+                        className="m-text-only-logo"
+                        onClick={() => navigate("/")}
+                    >
                         <img
                             src={pbtext3x}
                             srcSet={`${pbtext1x} 1x, ${pbtext2x} 2x, ${pbtext3x} 3x`}

@@ -1,7 +1,7 @@
 @media (max-width: 810px) {
     header {
         position: sticky;
-        top: -50px;
+        top: -51px;
     }
 }
 
@@ -143,6 +143,14 @@
     position: relative;
 }
 
+.logo-clickable {
+    position: absolute;
+    width: 120px;
+    height: 120px;
+    top: 19px;
+    left: 19px;
+}
+
 .m-text-only-logo {
     position: absolute;
     top: 47px;
@@ -197,7 +205,7 @@
 
 .m-search-tab-container {
     position: absolute;
-    top: 114px;
+    top: 112px;
     left: 0;
     width: 100vw;
     height: 64px;

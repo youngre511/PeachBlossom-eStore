@@ -376,6 +376,10 @@ const Nav: React.FC<Props> = () => {
                         width="158px"
                         height="158px"
                     />
+                    <div
+                        className="logo-clickable"
+                        onClick={() => navigate("/")}
+                    ></div>
                 </div>
                 <ShopNav
                     isShopMenuVisible={isShopMenuVisible}

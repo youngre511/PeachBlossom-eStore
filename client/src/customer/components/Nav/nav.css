@@ -170,6 +170,14 @@
     left: 4px;
 }
 
+.logo-clickable {
+    position: absolute;
+    width: 120px;
+    height: 120px;
+    top: 19px;
+    left: 19px;
+}
+
 /***** Search Tab *****/
 
 .search-tab {
