@@ -211,9 +211,12 @@ export const getProducts = async (filters: FilterObject) => {
     ];
 
     const pipelineResult = await Product.aggregate(aggregationPipeline).exec();
-    console.log(pipelineResult);
+    console.log("Pipeline result:", pipelineResult);
     // //Get number of total results
-    const totalCount = pipelineResult[0].metadata[0].total;
+    const totalCount =
+        pipelineResult[0].metadata.length > 0
+            ? pipelineResult[0].metadata[0].total
+            : 0;
     const products: Array<AggregateProduct> = pipelineResult[0].data;
 
     const productRecords: Array<CatalogResponse> = products.map((product) => {
