@@ -318,6 +318,7 @@
     display: none;
     opacity: 0;
     scale: 0.6;
+    z-index: 4;
 }
 
 .drop-cart-bkg {
