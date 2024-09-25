@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { CartItem as item } from "../Cart/CartTypes";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../../hooks/reduxHooks";
@@ -32,6 +32,10 @@ const CartItem: React.FC<Props> = ({ item }: Props) => {
             })
         );
     };
+
+    useEffect(() => {
+        console.log("quantity:", quantity);
+    }, [quantity]);
 
     const location = useLocation();
 

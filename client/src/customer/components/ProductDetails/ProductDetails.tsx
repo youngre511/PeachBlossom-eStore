@@ -51,7 +51,7 @@ const ProductDetails: React.FC<Props> = () => {
             if (previousRoute.startsWith("/shoppingcart")) {
                 setPrevPageName(" to Cart");
             } else if (previousRoute.startsWith("/shop")) {
-                setPrevPageName(" to Product Catalogue");
+                setPrevPageName(" to Product Catalog");
             } else {
                 setPrevPageName("");
             }
