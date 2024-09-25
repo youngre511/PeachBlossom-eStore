@@ -40,6 +40,7 @@ const CartItem: React.FC<Props> = ({ item }: Props) => {
     const updateLocalQuantity = (
         event: React.ChangeEvent<HTMLInputElement>
     ) => {
+        console.log("sanitizing input");
         const newQuantity: string = event.target.value;
         const regex = /\D/;
         if (regex.test(newQuantity)) {
