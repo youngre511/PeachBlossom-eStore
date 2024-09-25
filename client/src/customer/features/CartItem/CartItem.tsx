@@ -5,6 +5,7 @@ import { useAppDispatch } from "../../hooks/reduxHooks";
 import { RootState } from "../../store/customerStore";
 import { updateItemQuantity } from "../Cart/cartSlice";
 import "./cart-item.css";
+import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
 
 interface Props {
     item: item;
@@ -16,6 +17,7 @@ const CartItem: React.FC<Props> = ({ item }: Props) => {
     ).toFixed(2);
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
+    const { isTouchDevice } = useWindowSizeContext();
 
     const handleUpdateQuantity = () => {
         let updateQuantity = +quantity;
@@ -45,7 +47,7 @@ const CartItem: React.FC<Props> = ({ item }: Props) => {
         event: React.ChangeEvent<HTMLInputElement>
     ) => {
         const newQuantity: string = event.target.value;
-        const sanitizedQuantity = newQuantity.replace(/\D/, "");
+        const sanitizedQuantity = newQuantity.replace(/\D/g, "");
         setQuantity(sanitizedQuantity);
     };
 
@@ -116,7 +118,8 @@ const CartItem: React.FC<Props> = ({ item }: Props) => {
                             <div>
                                 Qty.
                                 <input
-                                    type="number"
+                                    type="text"
+                                    inputMode="numeric"
                                     value={quantity}
                                     onChange={updateLocalQuantity}
                                     max={item.maxAvailable}
