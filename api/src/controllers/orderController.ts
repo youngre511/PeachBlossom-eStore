@@ -138,9 +138,9 @@ export const getOneOrder = async (req: GetOneOrderRequest, res: Response) => {
     } catch (error) {
         let errorObj = {
             message: "get one order failure",
-            payload: error,
+            reason: error instanceof Error ? error.message : String(error),
         };
-
+        console.log(errorObj);
         console.error(errorObj);
 
         res.status(500).json(errorObj);

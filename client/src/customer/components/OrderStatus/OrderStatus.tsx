@@ -114,7 +114,11 @@ const OrderStatus: React.FC<Props> = ({ orderNumber }) => {
             console.log(response.data);
         } catch (error) {
             if (error instanceof AxiosError) {
-                setError(error.message);
+                console.log(error.response?.data.reason);
+                setError(
+                    error.response?.data.reason ||
+                        "Unable to find specified order."
+                );
                 console.error("Error fetching order:", error);
             } else {
                 setError(
@@ -182,7 +186,7 @@ const OrderStatus: React.FC<Props> = ({ orderNumber }) => {
     ];
 
     return (
-        <div>
+        <div className="track-order">
             {!orderDetails && (
                 <div className="enter-order-number-dialog">
                     <div className="track-order-text">
@@ -196,7 +200,7 @@ const OrderStatus: React.FC<Props> = ({ orderNumber }) => {
                         {error && <p style={{ color: "red" }}>{error}</p>}
                     </div>
                     <form onSubmit={handleSubmit}>
-                        <FormControl>
+                        <FormControl className="enter-order-number-form">
                             <div className="enter-orderNo">
                                 <TextField
                                     required
@@ -237,17 +241,26 @@ const OrderStatus: React.FC<Props> = ({ orderNumber }) => {
                             {steps[activeStep].description}
                         </p>
                         <div className="shipping-billing-details">
-                            <span>{splitShippingAddress[0]}</span>
-                            {splitShippingAddress[1] !== "" && (
-                                <span>{splitShippingAddress[1]}</span>
-                            )}
-                            <span>
+                            <div className="os-shipping-label">
+                                Shipping Address
+                            </div>
+                            <div>
+                                {splitShippingAddress[0]}
+                                {splitShippingAddress[1] !== "" && (
+                                    <span>{splitShippingAddress[1]}</span>
+                                )}
+                            </div>
+                            <div>
                                 {orderDetails.city}, {orderDetails.stateAbbr}
-                            </span>
-                            <span>{orderDetails.zipCode}</span>
+                            </div>
+                            <div>{orderDetails.zipCode}</div>
                         </div>
                     </div>
-                    <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                    <Table
+                        sx={{ minWidth: 650 }}
+                        aria-label="simple table"
+                        className="order-item-list"
+                    >
                         <TableHead>
                             <TableRow>
                                 <TableCell></TableCell>

@@ -338,7 +338,7 @@ export const getOneOrder = async (
     } catch (error) {
         await sqlTransaction.rollback();
         if (error instanceof Error) {
-            throw new Error("Error placing order: " + error.message);
+            throw new Error("Error retrieving order: " + error.message);
         } else {
             throw new Error("An unknown error occurred while placing order");
         }

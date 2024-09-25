@@ -250,6 +250,10 @@ const InventoryManagement: React.FC<Props> = () => {
                     </div>
                 </div>
             </div>
+            <div className="inventory-note">
+                Note: It will take up to three minutes for changes in inventory
+                to propagate to the customer-facing catalog.
+            </div>
             <InventoryCatalog
                 page={+page}
                 results={avCatalog.numberOfResults}
