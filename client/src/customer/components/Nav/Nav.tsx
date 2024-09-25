@@ -31,7 +31,7 @@ import { useNavigationContext } from "../../../common/contexts/navContext";
 
 interface Props {}
 const Nav: React.FC<Props> = () => {
-    const { currentRoute } = useNavigationContext();
+    const { currentRoute, previousRoute } = useNavigationContext();
     const cart = useAppSelector((state: RootState) => state.cart);
     const [searchOptions, setSearchOptions] = useState<Array<string>>([]);
     const searchOptionsSlice = useAppSelector(
@@ -174,11 +174,31 @@ const Nav: React.FC<Props> = () => {
     };
 
     useEffect(() => {
-        if (location.pathname === "/shoppingcart") {
-            handleCartMouseLeave();
-            setCartDropdownVisible(false);
+        if (currentRoute) {
+            if (currentRoute === "/shoppingcart") {
+                handleCartMouseLeave();
+                setCartDropdownVisible(false);
+            }
+            if (
+                currentRoute.startsWith("/shop") &&
+                !currentRoute.includes("cart")
+            ) {
+                if (previousRoute) {
+                    if (
+                        !previousRoute.startsWith("/shop") ||
+                        (previousRoute.startsWith("/shop") &&
+                            !previousRoute.includes("cart"))
+                    ) {
+                        setIsSearchBarVisible(true);
+                    }
+                } else {
+                    setIsSearchBarVisible(true);
+                }
+            } else {
+                setIsSearchBarVisible(false);
+            }
         }
-    }, [location.pathname]);
+    }, [currentRoute, previousRoute]);
 
     return (
         <header ref={header}>
