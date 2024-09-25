@@ -33,6 +33,7 @@ const Cart: React.FC = () => {
                     </div>
                     <PeachButton
                         onClick={() => navigate("/checkout")}
+                        disabled={cart.numberOfItems === 0}
                         text="PROCEED TO CHECKOUT"
                         width="100%"
                     />

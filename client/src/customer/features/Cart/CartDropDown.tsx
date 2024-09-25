@@ -68,6 +68,7 @@ const CartDropDown: React.FC<Props> = ({
                         <PeachButton
                             text="CHECKOUT"
                             width="110px"
+                            disabled={cart.numberOfItems === 0}
                             onClick={() => navigate("/checkout")}
                         />
                     </div>
