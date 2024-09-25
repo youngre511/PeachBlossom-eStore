@@ -211,7 +211,7 @@ export const getProducts = async (filters: FilterObject) => {
     ];
 
     const pipelineResult = await Product.aggregate(aggregationPipeline).exec();
-    console.log("Pipeline result:", pipelineResult);
+
     // //Get number of total results
     const totalCount =
         pipelineResult[0].metadata.length > 0
@@ -535,7 +535,11 @@ export const createProduct = async (
             tags = null,
         } = productData;
         const productNo = await generateProductNo(prefix);
-
+        const nameStrippedArr = name.trim().split(" ");
+        const capitalizedNameArr = nameStrippedArr.map(
+            (word) => `${word[0].toUpperCase()}${word.substring(1)}`
+        );
+        const sanitizedName = capitalizedNameArr.join(" ");
         // Upload images to S3 and get URLs
         const sizes = [140, 300, 450, 600, 960, 1024];
         const imageUrls = await Promise.all(
@@ -630,7 +634,7 @@ export const createProduct = async (
         const thumbnailUrl = imageUrls[0] ? imageUrls[0] : null;
         const newSQLProduct = {
             productNo: productNo,
-            productName: name,
+            productName: sanitizedName,
             price: price,
             status: "active",
             description: abbrDesc,
@@ -701,7 +705,7 @@ export const createProduct = async (
             [
                 {
                     productNo: productNo,
-                    name: name,
+                    name: sanitizedName,
                     category: categoryId,
                     subcategory: subcategoryId,
                     description: description,
