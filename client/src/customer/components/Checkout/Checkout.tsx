@@ -687,7 +687,7 @@ const Checkout: React.FC = () => {
                                     Selected products
                                 </Typography>
                                 <Typography variant="body1">
-                                    {activeStep >= 2 ? "$144.97" : "$134.98"}
+                                    {`$${Number(orderTotal).toFixed(2)}`}
                                 </Typography>
                             </div>
                             <InfoMobile
