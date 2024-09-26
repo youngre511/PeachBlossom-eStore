@@ -127,6 +127,20 @@ export interface BaseCart extends Model {
     customer_id: number | null;
 }
 
+export interface BaseProductRaw {
+    id: number;
+    productNo: string;
+    productName: string;
+    price: number;
+    description: string;
+    category_id: number;
+    subcategory_id: number | null;
+    thumbnailUrl: string | null;
+    createdAt: Date;
+    updatedAt: Date;
+    status: string;
+}
+
 export interface BaseProduct extends Model {
     id: number;
     productNo: string;
@@ -146,6 +160,15 @@ export interface BaseProduct extends Model {
 // Product table query with included Inventory table
 export interface JoinReqProduct extends BaseProduct {
     Inventory: BaseInventory;
+}
+
+// Flattened product table query with included Inventory table data
+export interface RawJoinReqProduct extends BaseProductRaw {
+    "Inventory.inventory_id": number;
+    "Inventory.product_id": number;
+    "Inventory.stock": number;
+    "Inventory.reserved": number;
+    "Inventory.available": number;
 }
 
 // Inventory table query with included Product table

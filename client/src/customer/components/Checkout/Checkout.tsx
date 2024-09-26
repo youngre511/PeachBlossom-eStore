@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Box from "@mui/material/Box";
@@ -34,6 +34,7 @@ import { CartState } from "../../features/Cart/CartTypes";
 import "./checkout.css";
 import { useCheckoutTimer } from "../../../common/contexts/checkoutTimerContext";
 import BlankPopup from "../../../common/components/BlankPopup";
+import { AuthContext } from "../../../common/contexts/authContext";
 
 export interface PaymentDetails {
     cardType: string;
@@ -129,6 +130,7 @@ const validStates = [
 
 const Checkout: React.FC = () => {
     const dispatch = useAppDispatch();
+    const auth = useContext(AuthContext);
     const [activeStep, setActiveStep] = useState(0);
     const [paymentDetails, setPaymentDetails] = useState<PaymentDetails>({
         cardType: "Visa",
@@ -382,7 +384,6 @@ const Checkout: React.FC = () => {
                         setEmail={setEmail}
                     />
                 );
-            // paymentDetails={paymentDetails} onPlaceOrder={handlePlaceOrder}
             default:
                 throw new Error("Unknown step");
         }
@@ -420,17 +421,19 @@ const Checkout: React.FC = () => {
             shipping: shippingDetails,
             email: email,
             orderDetails: {
-                subTotal: currentCart.subTotal,
-                shipping: shippingRate,
-                tax: (currentCart.subTotal + shippingRate) * taxRate,
-                totalAmount: orderTotal,
+                subTotal: Number(currentCart.subTotal),
+                shipping: Number(shippingRate),
+                tax:
+                    (Number(currentCart.subTotal) + Number(shippingRate)) *
+                    Number(taxRate),
+                totalAmount: Number(orderTotal),
                 items: currentCartItems.map((item) => {
                     const returnItem = {
                         productNo: item.productNo,
-                        quantity: item.quantity,
+                        quantity: Number(item.quantity),
                         priceAtCheckout: item.discountPrice
-                            ? item.discountPrice
-                            : item.price,
+                            ? Number(item.discountPrice)
+                            : Number(item.price),
                     };
                     return returnItem;
                 }),
@@ -445,13 +448,14 @@ const Checkout: React.FC = () => {
             if (response.data.orderNo) {
                 setOrderPlaced(true);
                 dispatch(clearCart());
+                dispatch(setExpirationTime({ expiration: null }));
                 return response.data.orderNo;
             } else {
                 throw new Error("no orderNo returned");
             }
         } catch (error) {
             if (error instanceof AxiosError) {
-                console.error("Error releasing stock", error);
+                console.error("Error placing order", error);
             } else {
                 console.error(
                     "An unknown error has ocurred while releasing hold on stock"
@@ -549,7 +553,7 @@ const Checkout: React.FC = () => {
                         >
                             Back to cart
                         </Button>
-                        {timeLeft && (
+                        {timeLeft && activeStep !== steps.length && (
                             <Box>
                                 <Typography>Time to checkout:</Typography>
                                 <Typography>
@@ -750,32 +754,35 @@ const Checkout: React.FC = () => {
                                         color="text.secondary"
                                     >
                                         Your order number is
-                                        <strong>&nbsp;#140396</strong>. We have
+                                        <strong>&nbsp;#140396</strong>.
+                                        {/* We have
                                         emailed your order confirmation and will
-                                        update you once its shipped.
+                                        update you once its shipped. */}
                                     </Typography>
-                                    <Button
-                                        variant="contained"
-                                        sx={{
-                                            alignSelf: "start",
-                                            width: { xs: "100%", sm: "auto" },
-                                        }}
-                                    >
-                                        Go to my orders
-                                    </Button>
+                                    {auth && auth.user && (
+                                        <Button
+                                            variant="contained"
+                                            sx={{
+                                                alignSelf: "start",
+                                                width: {
+                                                    xs: "100%",
+                                                    sm: "auto",
+                                                },
+                                            }}
+                                        >
+                                            Go to my orders
+                                        </Button>
+                                    )}
                                 </Stack>
                             ) : (
                                 <Stack spacing={2} useFlexGap>
-                                    <Typography variant="h1">📦</Typography>
-                                    <Typography variant="h5">
-                                        Thank you for your order!
-                                    </Typography>
+                                    <Typography variant="h5">Oops!</Typography>
                                     <Typography
                                         variant="body1"
                                         color="text.secondary"
                                     >
-                                        Oops! Something went wrong when placing
-                                        your order.
+                                        Something went wrong when placing your
+                                        order. Please try again.
                                     </Typography>
                                     <Button
                                         variant="contained"
@@ -783,8 +790,11 @@ const Checkout: React.FC = () => {
                                             alignSelf: "start",
                                             width: { xs: "100%", sm: "auto" },
                                         }}
+                                        onClick={() =>
+                                            navigate("/shoppingcart")
+                                        }
                                     >
-                                        Go to my orders
+                                        Back to Cart
                                     </Button>
                                 </Stack>
                             )

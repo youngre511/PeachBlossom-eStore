@@ -13,7 +13,8 @@ import { Model, Op, Order } from "sequelize";
 import { sqlCartItem } from "../models/mysql/sqlCartItemModel.js";
 import { sqlCart } from "../models/mysql/sqlCartModel.js";
 import { sqlAddress } from "../models/mysql/sqlAddressModel.js";
-import { JoinReqProduct } from "./serviceTypes.js";
+import { JoinReqProduct, RawJoinReqProduct } from "./serviceTypes.js";
+import { sqlInventory } from "../models/mysql/sqlInventoryModel.js";
 
 interface JoinReqOrderItem extends Model {
     order_item_id: number;
@@ -148,13 +149,29 @@ export const placeOrder = async (orderData: OrderData) => {
         }
 
         for (const item of orderDetails.items) {
-            console.log(item);
+            const inventoryRecord = (await sqlProduct.findOne({
+                where: { productNo: item.productNo },
+                include: [
+                    {
+                        model: sqlInventory,
+                        as: "Inventory",
+                    },
+                ],
+                raw: true,
+            })) as unknown as RawJoinReqProduct;
+            if (!inventoryRecord) {
+                throw new Error("Inventory record not found.");
+            }
+            const inStock =
+                inventoryRecord["Inventory.stock"] -
+                    inventoryRecord["Inventory.reserved"] >=
+                item.quantity;
             const orderItem = {
                 order_id: createdOrder.dataValues.order_id,
                 productNo: item.productNo,
                 quantity: item.quantity,
                 priceWhenOrdered: item.priceAtCheckout,
-                fulfillmentStatus: "unfulfilled",
+                fulfillmentStatus: inStock ? "unfulfilled" : "back ordered",
             };
             await sqlOrderItem.create(orderItem, {
                 transaction: sqlTransaction,
@@ -417,3 +434,10 @@ export const updateOrder = async (updateInfo: UpdateOrder) => {
         }
     }
 };
+
+const inventoryRecord = await sqlProduct.findOne({
+    where: { productNo: "pl-7943b209" },
+    include: [{ model: sqlInventory, as: "Inventory" }],
+    raw: true,
+});
+console.log("inventoryRecord:", inventoryRecord);

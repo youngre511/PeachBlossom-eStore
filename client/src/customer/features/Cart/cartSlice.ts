@@ -47,7 +47,6 @@ export const addItemToCart = createAsyncThunk<
                     adjustmentAmount: 1,
                 })
             );
-            console.log("running changeQuantity");
         } else {
             const productToAdd = state.catalog.products.find(
                 (p: any) => p.productNo === productNo
@@ -55,7 +54,7 @@ export const addItemToCart = createAsyncThunk<
             if (!productToAdd) {
                 return rejectWithValue("Product not found");
             }
-            console.log("product to add", productToAdd);
+
             productThumbnail = productToAdd.images[0];
 
             const productObj: CartItem = {
@@ -67,24 +66,23 @@ export const addItemToCart = createAsyncThunk<
                 thumbnailUrl: productThumbnail,
                 maxAvailable: productToAdd.stock,
             };
-            console.log("adding optimistic");
+
             dispatch(addItemOptimistic(productObj));
         }
 
         try {
-            console.log("api product no", productNo);
             const actionData: AddActionData = {
                 productNo: productNo,
                 cartId: state.cart.cartId,
                 quantity: 1,
                 thumbnailUrl: productThumbnail,
             };
-            console.log("making api request");
+
             const response = await axios.put<CartResponse>(
                 `${import.meta.env.VITE_API_URL}/cart/add-to-cart`,
                 actionData
             );
-            console.log(response);
+
             if (!response.data.payload.cart) {
                 throw new Error(response.data.message);
             }
@@ -143,7 +141,7 @@ export const updateItemQuantity = createAsyncThunk<
                     `${import.meta.env.VITE_API_URL}/cart/update-quantity`,
                     actionData
                 );
-                console.log("cart response:", response.data);
+
                 return response.data.payload;
             } else {
                 dispatch(deleteItemOptimistic(productNo));
@@ -156,7 +154,7 @@ export const updateItemQuantity = createAsyncThunk<
                     `${import.meta.env.VITE_API_URL}/cart/delete-from-cart`,
                     actionData
                 );
-                console.log("cart response", response.data);
+
                 return response.data.payload;
             }
         } catch (error: any) {
@@ -275,7 +273,7 @@ const cartSlice = createSlice({
         },
         setExpirationTime: (
             state,
-            action: PayloadAction<{ expiration: string }>
+            action: PayloadAction<{ expiration: string | null }>
         ) => {
             state.expirationTime = action.payload.expiration;
         },
