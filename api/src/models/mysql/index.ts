@@ -45,6 +45,12 @@ const sequelize = new Sequelize({
         sqlRefreshToken,
     ],
     logging: console.log,
+    pool: {
+        max: 10,
+        min: 0,
+        acquire: 30000,
+        idle: 10000,
+    },
 });
 
 sequelize

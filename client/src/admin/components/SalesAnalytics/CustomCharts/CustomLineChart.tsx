@@ -41,7 +41,6 @@ const CustomLineChart: React.FC<Props> = ({
         }
     }, [width]);
 
-    console.log("rendering");
     return (
         <ResponsiveLine
             data={data as any}
