@@ -440,8 +440,6 @@ const Checkout: React.FC = () => {
             },
         };
 
-        console.log("orderData:", orderData);
-
         try {
             const response = await axios.post(
                 `${import.meta.env.VITE_API_URL}/order/create`,
@@ -709,7 +707,6 @@ const Checkout: React.FC = () => {
                             flexGrow: 1,
                             width: "100%",
                             maxWidth: { sm: "100%", md: 600 },
-                            // maxHeight: "px",
                             gap: { xs: 5, md: "none" },
                         }}
                     >
@@ -756,7 +753,7 @@ const Checkout: React.FC = () => {
                                         color="text.secondary"
                                     >
                                         Your order number is
-                                        <strong>&nbsp;#140396</strong>.
+                                        <strong>&nbsp;#{orderNumber}</strong>.
                                         {/* We have
                                         emailed your order confirmation and will
                                         update you once its shipped. */}

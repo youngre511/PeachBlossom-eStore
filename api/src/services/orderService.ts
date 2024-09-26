@@ -88,7 +88,6 @@ const extractOrderData = (
 };
 
 export const placeOrder = async (orderData: OrderData) => {
-    console.log("Backend Order Data:", orderData);
     const sqlTransaction = await sequelize.transaction();
 
     try {
