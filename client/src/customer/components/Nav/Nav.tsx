@@ -14,14 +14,7 @@ import { useGSAP } from "@gsap/react";
 import CartDropDown from "../../features/Cart/CartDropDown";
 import { RootState } from "../../store/customerStore";
 
-import {
-    Autocomplete,
-    Button,
-    InputAdornment,
-    SvgIcon,
-    TextField,
-    Tooltip,
-} from "@mui/material";
+import { Autocomplete, Button, TextField, Tooltip } from "@mui/material";
 
 //logo imports
 import pblogo1x from "../../../assets/peachblossomlogo-1x.webp";
@@ -268,7 +261,10 @@ const Nav: React.FC<Props> = () => {
                         </div>
                     </li>
                     <li>
-                        <Tooltip title="Coming Soon!">
+                        <Tooltip
+                            title="Feature coming soon!"
+                            enterTouchDelay={100}
+                        >
                             <div
                                 className="nav-icon"
                                 id="account"
@@ -281,7 +277,10 @@ const Nav: React.FC<Props> = () => {
                         </Tooltip>
                     </li>
                     <li>
-                        <Tooltip title="Coming Soon!">
+                        <Tooltip
+                            title="Feature coming soon!"
+                            enterTouchDelay={100}
+                        >
                             <div
                                 className="nav-icon"
                                 id="recents"

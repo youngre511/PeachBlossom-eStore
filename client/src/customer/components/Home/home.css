@@ -1,0 +1,85 @@
+.home-splash-screen {
+    height: 90vh;
+    height: 90dvh;
+    width: 100vw;
+    margin: -180px -10px -60px -10px;
+    background-size: cover;
+    background-position: 70% 50%;
+    padding-top: 140px;
+    background-image: url("../../../assets/blossom_800.webp");
+}
+
+.splash-screen-cont {
+    height: 100%;
+    width: 100vw;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.splash-text-cont {
+    background-color: #fbeee591;
+    background-color: #f3d9c890;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    padding: 30px 10px;
+}
+
+.home-splash-screen h1 {
+    font-size: 3rem;
+    font-weight: 200;
+    margin: 0;
+}
+
+.home-splash-screen p {
+    font-weight: 600;
+}
+
+.splash-btn-set {
+    display: flex;
+    width: 355px;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 50px;
+}
+
+@media (min-width: 600px) {
+    .home-splash-screen {
+        background-image: url("../../../assets/blossom_1200.webp");
+    }
+    .home-splash-screen h1 {
+        font-size: 4rem;
+    }
+
+    .home-splash-screen p {
+        font-size: 1.25rem;
+    }
+}
+
+@media (min-width: 810px) {
+    .home-splash-screen {
+        margin: -180px -20px -60px -20px;
+    }
+}
+
+@media (min-width: 1000px) {
+    .home-splash-screen {
+        background-image: url("../../../assets/blossom_2000.webp");
+    }
+}
+
+@media (min-width: 1500px) {
+    .home-splash-screen {
+        background-image: url("../../../assets/blossom_3000.webp");
+    }
+}
+
+@media (min-width: 2000px) {
+    .home-splash-screen {
+        background-image: url("../../../assets/blossom_4000.webp");
+    }
+}
