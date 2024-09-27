@@ -48,6 +48,7 @@
 .chart {
     padding: 20px 0;
     height: 400px;
+    overflow: hidden;
 }
 
 .pie-chart-cont {
@@ -212,7 +213,7 @@
         min-width: calc(100vw - 339px);
     }
 
-    .granularity-button-set-cont {
+    .granularity-button-set {
         width: calc(100vw - 299px);
     }
 
@@ -270,7 +271,7 @@
         padding-top: 2px;
     }
 
-    .granularity-button-set-cont {
+    .granularity-button-set {
         position: static;
         width: auto;
         background-color: transparent;

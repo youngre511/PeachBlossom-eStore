@@ -257,7 +257,7 @@ const Revenue: React.FC<Props> = () => {
                             margin={{
                                 top: 0,
                                 right: mobile ? 40 : 100,
-                                bottom: mobile ? 100 : 30,
+                                bottom: mobile ? 110 : 30,
                                 left: mobile ? 40 : 100,
                             }}
                             enableArcLinkLabels={mobile ? false : true}
@@ -325,7 +325,7 @@ const Revenue: React.FC<Props> = () => {
                                 margin={{
                                     top: 10,
                                     right: mobile ? 40 : 60,
-                                    bottom: mobile ? 50 : 85,
+                                    bottom: mobile ? 80 : 85,
                                     left: mobile ? 80 : 100,
                                 }}
                                 yAxisFormat={(value: number) =>

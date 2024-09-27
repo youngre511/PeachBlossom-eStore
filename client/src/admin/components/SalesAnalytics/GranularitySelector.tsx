@@ -95,6 +95,12 @@ const GranularitySelector = <
             setTimeout(() => {
                 setIsScrollLocked(true);
             }, 301);
+            if (paramsObj.granularity === "week") {
+                setParams({
+                    ...paramsObj,
+                    granularity: "month",
+                });
+            }
         } else {
             setIsScrollLocked(false);
             setIsMenuOpen(true);
@@ -143,27 +149,31 @@ const GranularitySelector = <
                         : undefined
                 }
             >
-                {granularityOptions.map((granularity) => (
-                    <div
-                        key={granularity}
-                        role="button"
-                        className="granularity-button"
-                        onClick={() => handleClick(granularity)}
-                        style={
-                            granularity === paramsObj.granularity
-                                ? {
-                                      color: "white",
-                                      position: "sticky",
-                                      right: 0,
-                                  }
-                                : undefined
-                        }
-                    >
-                        {`${granularity}${
-                            granularity === "all" ? " time" : "ly"
-                        }`.toUpperCase()}
-                    </div>
-                ))}
+                {granularityOptions.map((granularity) => {
+                    if (!isNarrow || granularity !== "week") {
+                        return (
+                            <div
+                                key={granularity}
+                                role="button"
+                                className="granularity-button"
+                                onClick={() => handleClick(granularity)}
+                                style={
+                                    granularity === paramsObj.granularity
+                                        ? {
+                                              color: "white",
+                                              position: "sticky",
+                                              right: 0,
+                                          }
+                                        : undefined
+                                }
+                            >
+                                {`${granularity}${
+                                    granularity === "all" ? " time" : "ly"
+                                }`.toUpperCase()}
+                            </div>
+                        );
+                    }
+                })}
             </div>
         </div>
     );

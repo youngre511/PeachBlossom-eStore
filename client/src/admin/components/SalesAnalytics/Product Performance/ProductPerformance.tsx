@@ -193,18 +193,18 @@ const ProductPerformance: React.FC<Props> = () => {
                         rbcParams.chartType === "line" && (
                             <CustomLineChart
                                 data={rbcData as LineData[]}
-                                idLegend={true}
+                                idLegend={!mobile}
                                 enableSlices="x"
                                 margin={{
                                     top: 10,
-                                    right: mobile ? 40 : 100,
-                                    bottom: mobile ? 100 : 46,
-                                    left: mobile ? 60 : 70,
+                                    right: mobile ? 40 : 160,
+                                    bottom: 50,
+                                    left: 70,
                                 }}
                                 yAxisFormat={(value: number) =>
-                                    `${value.toLocaleString("en-US")}`
+                                    `$${value.toLocaleString("en-US")}`
                                 }
-                                yFormat=">-,"
+                                yFormat=">-$,.2f"
                             />
                         )}
                     {rbcData &&
@@ -268,8 +268,8 @@ const ProductPerformance: React.FC<Props> = () => {
                             data={cpData}
                             margin={{
                                 top: 20,
-                                right: mobile ? 40 : 100,
-                                bottom: mobile ? 100 : 30,
+                                right: mobile ? 80 : 100,
+                                bottom: mobile ? 110 : 30,
                                 left: mobile ? 40 : 100,
                             }}
                             enableArcLinkLabels={mobile ? false : true}

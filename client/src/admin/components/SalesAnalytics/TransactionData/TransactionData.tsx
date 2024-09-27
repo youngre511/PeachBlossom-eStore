@@ -230,9 +230,9 @@ const TransactionData: React.FC<Props> = () => {
                                 valueFormat=">-,"
                                 margin={{
                                     top: 10,
-                                    right: 60,
-                                    bottom: 80,
-                                    left: 100,
+                                    right: mobile ? 25 : 60,
+                                    bottom: mobile ? 100 : 90,
+                                    left: mobile ? 40 : 60,
                                 }}
                                 yAxisFormat={(value: number) =>
                                     `${value.toLocaleString("en-US")}`
@@ -327,14 +327,17 @@ const TransactionData: React.FC<Props> = () => {
                             <CustomBarChart
                                 data={aovData as BarData[]}
                                 stacked={false}
+                                enableLabel={
+                                    width && width > 1100 ? true : false
+                                }
                                 includeLegend={false}
                                 tiltLabels={true}
                                 valueFormat=">-$,.2f"
                                 margin={{
                                     top: 10,
-                                    right: 60,
-                                    bottom: 80,
-                                    left: 100,
+                                    right: mobile ? 25 : 60,
+                                    bottom: mobile ? 100 : 90,
+                                    left: mobile ? 50 : 60,
                                 }}
                                 yAxisFormat={(value: number) =>
                                     `$${value.toLocaleString("en-US")}`
@@ -432,12 +435,15 @@ const TransactionData: React.FC<Props> = () => {
                                     stacked={false}
                                     includeLegend={false}
                                     tiltLabels={true}
+                                    enableLabel={
+                                        width && width > 800 ? true : false
+                                    }
                                     valueFormat=">-,"
                                     margin={{
                                         top: 10,
-                                        right: 60,
-                                        bottom: 80,
-                                        left: 100,
+                                        right: mobile ? 25 : 60,
+                                        bottom: mobile ? 100 : 90,
+                                        left: mobile ? 40 : 60,
                                     }}
                                     yAxisFormat={(value: number) =>
                                         `${value.toLocaleString("en-US")}`

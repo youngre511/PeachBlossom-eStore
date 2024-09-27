@@ -43,6 +43,9 @@ const CustomBarChart: React.FC<Props> = ({
         Array<{ period: string; data: BarData[] }>
     >([]);
     const [maxValue, setMaxValue] = useState<number | "auto">("auto");
+    const [stackedMaxValue, setStackedMaxValue] = useState<number | "auto">(
+        "auto"
+    );
     // Create a list of keys minus "id" and sort
     const keys = Object.keys(data[0]);
     keys.splice(keys.indexOf("id"), 1);
@@ -68,11 +71,13 @@ const CustomBarChart: React.FC<Props> = ({
                     [];
                 // Max tracks the maximum value in dataset. It is used to set the maxValue of the chart when viewing data by period to avoid major layout shifts.
                 let max: number = 0;
+                let stackedMax: number = 0;
                 setViewByYear(true);
                 data.forEach((dataPoint) => {
                     const pointCopy = { ...dataPoint };
                     const year = pointCopy.id.split(" ")[1];
                     pointCopy.id = pointCopy.id.split(" ")[0];
+                    console.log("pointCopy:", pointCopy);
                     const periodIndex = newDataArray.findIndex(
                         (item) => item.period === year
                     );
@@ -81,12 +86,33 @@ const CustomBarChart: React.FC<Props> = ({
                     } else {
                         newDataArray[periodIndex].data.push(pointCopy);
                     }
+                    // Calculate the max value of any unstacked bar across all data
                     sortedKeys.forEach((key) => {
                         if (dataPoint[key] > max) {
                             max = dataPoint[key];
                         }
                     });
                 });
+
+                // Determine the maximum value of any stacked bar by calculating the total value for each month in each year
+                newDataArray.forEach((yearDatum) => {
+                    let total: number = 0;
+                    yearDatum.data.forEach((monthDatum) => {
+                        let monthTotal: number = 0;
+                        Object.keys(monthDatum).forEach((key) => {
+                            if (key !== "id") {
+                                monthTotal = monthTotal + monthDatum[key];
+                            }
+                        });
+                        if (monthTotal > total) {
+                            total = monthTotal;
+                        }
+                    });
+                    if (total > stackedMax) {
+                        stackedMax = total;
+                    }
+                });
+
                 newDataArray.sort(
                     (
                         a: { period: string; data: any },
@@ -111,6 +137,7 @@ const CustomBarChart: React.FC<Props> = ({
                 }
                 setDataArray(newDataArray);
                 setMaxValue(max);
+                setStackedMaxValue(stackedMax);
                 setLoading(false);
             }
         }
@@ -133,7 +160,9 @@ const CustomBarChart: React.FC<Props> = ({
                     data={dataArray[currentIdx].data}
                     keys={sortedKeys}
                     theme={nivoTheme}
-                    maxValue={maxValue || "auto"}
+                    maxValue={
+                        stacked ? stackedMaxValue || "auto" : maxValue || "auto"
+                    }
                     margin={
                         margin || { top: 50, right: 150, bottom: 80, left: 100 }
                     }

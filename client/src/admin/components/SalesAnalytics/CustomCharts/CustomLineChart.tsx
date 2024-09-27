@@ -19,6 +19,7 @@ interface Props {
     yAxisFormat?: (value: number) => string;
     yFormat?: string;
 }
+
 const CustomLineChart: React.FC<Props> = ({
     data,
     xLegend,
@@ -33,7 +34,10 @@ const CustomLineChart: React.FC<Props> = ({
     const [mobile, setMobile] = useState<boolean>(true);
     const xValues = data[0].data.map((point) => point.x);
     const skipValues =
-        xValues.length > 0 ? xValues[0].startsWith("Week") : false;
+        xValues.length > 0
+            ? xValues[0].startsWith("Week") ||
+              (mobile && !xValues[0].startsWith("Q"))
+            : false;
 
     useEffect(() => {
         if (width) {
