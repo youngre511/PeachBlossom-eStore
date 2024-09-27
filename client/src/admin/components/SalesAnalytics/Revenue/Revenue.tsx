@@ -219,7 +219,7 @@ const Revenue: React.FC<Props> = () => {
                                 margin={{
                                     top: 10,
                                     right: mobile ? 40 : 60,
-                                    bottom: mobile ? 50 : 80,
+                                    bottom: 80,
                                     left: mobile ? 80 : 100,
                                 }}
                                 yAxisFormat={(value: number) =>

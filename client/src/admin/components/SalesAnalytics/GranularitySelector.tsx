@@ -29,9 +29,9 @@ const GranularitySelector = <
     granularityOptions,
 }: Props<T, G>): JSX.Element => {
     const [isMenuOpen, setIsMenuOpen] = useState<boolean>(true);
-    const [isScrollLocked, setIsScrollLocked] = useState(false);
+
     const containerRef = useRef<HTMLDivElement | null>(null);
-    const scrollPosition = useRef(0);
+
     const [optionWidth, setOptionWidth] = useState<string>("0");
     const { width } = useWindowSizeContext();
     const [isNarrow, setIsNarrow] = useState<boolean>(true);
@@ -62,7 +62,7 @@ const GranularitySelector = <
                 container.removeEventListener("scroll", handleScroll);
             }
         };
-    }, [isScrollLocked, containerRef]);
+    }, [containerRef]);
 
     const handleClick = (granularity: G) => {
         if (isMenuOpen) {
@@ -72,13 +72,6 @@ const GranularitySelector = <
             });
         }
         if (isNarrow) {
-            if (isMenuOpen) {
-                setTimeout(() => {
-                    setIsScrollLocked(true);
-                }, 301);
-            } else {
-                setIsScrollLocked(false);
-            }
             setIsMenuOpen(!isMenuOpen);
         }
     };
@@ -86,9 +79,6 @@ const GranularitySelector = <
     useEffect(() => {
         if (isNarrow) {
             setIsMenuOpen(false);
-            setTimeout(() => {
-                setIsScrollLocked(true);
-            }, 301);
             if (paramsObj.granularity === "week") {
                 setParams({
                     ...paramsObj,
@@ -96,7 +86,6 @@ const GranularitySelector = <
                 });
             }
         } else {
-            setIsScrollLocked(false);
             setIsMenuOpen(true);
         }
     }, [isNarrow]);

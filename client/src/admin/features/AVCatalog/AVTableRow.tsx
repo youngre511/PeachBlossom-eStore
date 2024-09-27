@@ -76,6 +76,8 @@ const AVTableRow: React.FC<Props> = ({
                     <img
                         src={`${row.thumbnailUrl}_140.webp`}
                         alt={row.name}
+                        width="40px"
+                        height="40px"
                         className={
                             row.status === "discontinued"
                                 ? "admin-catalog-thumbnail grayscale-thumbnail"

@@ -9,7 +9,7 @@
     justify-content: space-between;
     align-items: center;
     position: sticky;
-    top: -18.5px;
+    top: -19.5px;
     z-index: 10;
 }
 
@@ -83,6 +83,7 @@
     height: 100vh;
     height: 100dvh;
     background-color: white;
+    box-shadow: -2px -2px 20px 0 rgba(0, 0, 0, 0.4);
     display: none;
     transform: translateX(320px);
     padding: 20px;
