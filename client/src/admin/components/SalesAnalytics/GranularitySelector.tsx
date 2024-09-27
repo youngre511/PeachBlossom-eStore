@@ -32,7 +32,7 @@ const GranularitySelector = <
     const [isScrollLocked, setIsScrollLocked] = useState(false);
     const containerRef = useRef<HTMLDivElement | null>(null);
     const scrollPosition = useRef(0);
-
+    const [optionWidth, setOptionWidth] = useState<string>("0");
     const { width } = useWindowSizeContext();
     const [isNarrow, setIsNarrow] = useState<boolean>(true);
 
@@ -81,7 +81,7 @@ const GranularitySelector = <
             if (isMenuOpen) {
                 setTimeout(() => {
                     setIsScrollLocked(true);
-                }, 300);
+                }, 301);
             } else {
                 setIsScrollLocked(false);
             }
@@ -94,55 +94,76 @@ const GranularitySelector = <
             setIsMenuOpen(false);
             setTimeout(() => {
                 setIsScrollLocked(true);
-            }, 300);
+            }, 301);
         } else {
             setIsScrollLocked(false);
             setIsMenuOpen(true);
         }
     }, [isNarrow]);
 
+    useEffect(() => {
+        switch (paramsObj.granularity) {
+            case "all": {
+                setOptionWidth("72.19px");
+                break;
+            }
+            case "year": {
+                setOptionWidth("63.81px");
+                break;
+            }
+            case "quarter": {
+                setOptionWidth("88.64px");
+                break;
+            }
+            case "month": {
+                setOptionWidth("78.73px");
+                break;
+            }
+            case "week": {
+                setOptionWidth("67.38px");
+                break;
+            }
+            default: {
+                setOptionWidth("70px");
+            }
+        }
+    }, [paramsObj.granularity]);
+
     return (
         <div className="granularity-select">
             <div
-                className="granularity-button-set-cont"
+                className="granularity-button-set"
+                ref={containerRef}
                 style={
                     !isMenuOpen
                         ? {
                               // Set width to 88px if granularity is "quarter", to 76px if granularity is month, and 70px otherwise
-                              width: ["year", "week", "all"].includes(
-                                  paramsObj.granularity
-                              )
-                                  ? "70px"
-                                  : paramsObj.granularity === "month"
-                                  ? "76px"
-                                  : "88px",
+                              width: optionWidth,
                           }
                         : undefined
                 }
             >
-                <div className="granularity-button-set" ref={containerRef}>
-                    {granularityOptions.map((granularity) => (
-                        <div
-                            key={granularity}
-                            role="button"
-                            className="granularity-button"
-                            onClick={() => handleClick(granularity)}
-                            style={
-                                granularity === paramsObj.granularity
-                                    ? {
-                                          color: "white",
-                                          position: "sticky",
-                                          right: 0,
-                                      }
-                                    : undefined
-                            }
-                        >
-                            {`${granularity}${
-                                granularity === "all" ? " time" : "ly"
-                            }`.toUpperCase()}
-                        </div>
-                    ))}
-                </div>
+                {granularityOptions.map((granularity) => (
+                    <div
+                        key={granularity}
+                        role="button"
+                        className="granularity-button"
+                        onClick={() => handleClick(granularity)}
+                        style={
+                            granularity === paramsObj.granularity
+                                ? {
+                                      color: "white",
+                                      position: "sticky",
+                                      right: 0,
+                                  }
+                                : undefined
+                        }
+                    >
+                        {`${granularity}${
+                            granularity === "all" ? " time" : "ly"
+                        }`.toUpperCase()}
+                    </div>
+                ))}
             </div>
         </div>
     );
