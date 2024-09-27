@@ -49,13 +49,7 @@ const GranularitySelector = <
 
         const handleScroll = () => {
             if (container) {
-                if (isScrollLocked) {
-                    // Lock the horizontal scroll position by setting scrollLeft back to the saved position
-                    container.scrollLeft = scrollPosition.current;
-                } else {
-                    // Save the current horizontal scroll position when the lock is not active
-                    scrollPosition.current = container.scrollLeft;
-                }
+                container.scrollLeft = 0;
             }
         };
 
