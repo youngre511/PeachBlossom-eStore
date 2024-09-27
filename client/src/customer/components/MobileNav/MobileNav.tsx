@@ -79,7 +79,7 @@ const MobileNav: React.FC<Props> = () => {
     // Detect number of categories and set stagger duration for menu-to-shop-menu animation
     useEffect(() => {
         const numberOfElements = categories.length > 5 ? categories.length : 5;
-        setStaggerDuration(0.2 + 0.1 * numberOfElements);
+        setStaggerDuration(0.5 + 0.1 * numberOfElements);
     }, [categories]);
 
     // Navbar logo scroll-triggered animation
