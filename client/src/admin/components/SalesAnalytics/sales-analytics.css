@@ -112,14 +112,20 @@
     right: 10px;
 }
 
-.granularity-button-set {
+.granularity-button-set-cont {
     overflow-x: scroll;
+    background-color: var(--peach-blush);
+    scrollbar-width: none; /* Firefox */
+    width: calc(100vw - 40px);
+    transition: all 0.4s ease-in-out;
+}
+
+.granularity-button-set {
     background-color: var(--peach-blush);
     display: flex;
     justify-content: space-evenly;
     scrollbar-width: none; /* Firefox */
     width: calc(100vw - 40px);
-    transition: all 0.4s ease-in-out;
 }
 
 .granularity-button-set::-webkit-scrollbar {
@@ -213,6 +219,10 @@
         min-width: calc(100vw - 339px);
     }
 
+    .granularity-button-set-cont {
+        width: calc(100vw - 299px);
+    }
+
     .granularity-button-set {
         width: calc(100vw - 299px);
     }
@@ -269,6 +279,12 @@
 
     .date-pickers-cont .MuiFormLabel-root.MuiInputLabel-root {
         padding-top: 2px;
+    }
+
+    .granularity-button-set-cont {
+        position: static;
+        width: auto;
+        background-color: transparent;
     }
 
     .granularity-button-set {

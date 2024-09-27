@@ -132,7 +132,7 @@ const GranularitySelector = <
     return (
         <div className="granularity-select">
             <div
-                className="granularity-button-set"
+                className="granularity-button-set-cont"
                 ref={containerRef}
                 style={
                     !isMenuOpen
@@ -143,31 +143,33 @@ const GranularitySelector = <
                         : undefined
                 }
             >
-                {granularityOptions.map((granularity) => {
-                    if (!isNarrow || granularity !== "week") {
-                        return (
-                            <div
-                                key={granularity}
-                                role="button"
-                                className="granularity-button"
-                                onClick={() => handleClick(granularity)}
-                                style={
-                                    granularity === paramsObj.granularity
-                                        ? {
-                                              color: "white",
-                                              position: "sticky",
-                                              right: 0,
-                                          }
-                                        : undefined
-                                }
-                            >
-                                {`${granularity}${
-                                    granularity === "all" ? " time" : "ly"
-                                }`.toUpperCase()}
-                            </div>
-                        );
-                    }
-                })}
+                <div className="granularity-button-set">
+                    {granularityOptions.map((granularity) => {
+                        if (!isNarrow || granularity !== "week") {
+                            return (
+                                <div
+                                    key={granularity}
+                                    role="button"
+                                    className="granularity-button"
+                                    onClick={() => handleClick(granularity)}
+                                    style={
+                                        granularity === paramsObj.granularity
+                                            ? {
+                                                  color: "white",
+                                                  position: "sticky",
+                                                  right: 0,
+                                              }
+                                            : undefined
+                                    }
+                                >
+                                    {`${granularity}${
+                                        granularity === "all" ? " time" : "ly"
+                                    }`.toUpperCase()}
+                                </div>
+                            );
+                        }
+                    })}
+                </div>
             </div>
         </div>
     );
