@@ -6,7 +6,7 @@
     background-size: cover;
     background-position: 70% 50%;
     padding-top: 140px;
-    background-image: url("../../../assets/blossom_800.webp");
+    background-image: url("https://d1xcoz7nfocye6.cloudfront.net/blossom_800.webp");
 }
 
 .splash-screen-cont {
@@ -49,7 +49,7 @@
 
 @media (min-width: 600px) {
     .home-splash-screen {
-        background-image: url("../../../assets/blossom_1200.webp");
+        background-image: url("https://d1xcoz7nfocye6.cloudfront.net/blossom_1200.webp");
     }
     .home-splash-screen h1 {
         font-size: 4rem;
@@ -68,18 +68,18 @@
 
 @media (min-width: 1000px) {
     .home-splash-screen {
-        background-image: url("../../../assets/blossom_2000.webp");
+        background-image: url("https://d1xcoz7nfocye6.cloudfront.net/blossom_2000.webp");
     }
 }
 
 @media (min-width: 1500px) {
     .home-splash-screen {
-        background-image: url("../../../assets/blossom_3000.webp");
+        background-image: url("https://d1xcoz7nfocye6.cloudfront.net/blossom_3000.webp");
     }
 }
 
 @media (min-width: 2000px) {
     .home-splash-screen {
-        background-image: url("../../../assets/blossom_4000.webp");
+        background-image: url("https://d1xcoz7nfocye6.cloudfront.net/blossom_4000.webp");
     }
 }
