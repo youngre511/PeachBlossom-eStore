@@ -1,5 +1,4 @@
 import React from "react";
-import { useEffect } from "react";
 
 interface Props {}
 const Sustainability: React.FC<Props> = () => {

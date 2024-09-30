@@ -1,11 +1,10 @@
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import "./transaction-data.css";
 import "../sales-analytics.css";
 import { useEffect } from "react";
-import { Button, CircularProgress, IconButton, SvgIcon } from "@mui/material";
+import { CircularProgress, IconButton, SvgIcon } from "@mui/material";
 import BarChartSharpIcon from "@mui/icons-material/BarChartSharp";
 import ShowChartSharpIcon from "@mui/icons-material/ShowChartSharp";
-import DateRangeSharpIcon from "@mui/icons-material/DateRangeSharp";
 import CustomBarChart from "../CustomCharts/CustomBarChart";
 import CustomLineChart from "../CustomCharts/CustomLineChart";
 import {
@@ -27,9 +26,6 @@ import {
 } from "../../../features/Analytics/analyticsSlice";
 import { useWindowSizeContext } from "../../../../common/contexts/windowSizeContext";
 import GranularitySelector from "../GranularitySelector";
-import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import dayjs from "dayjs";
 import DateSelector from "../DateSelector";
 
 interface Props {}

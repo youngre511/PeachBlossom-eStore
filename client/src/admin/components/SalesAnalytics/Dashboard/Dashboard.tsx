@@ -4,22 +4,13 @@ import { useAppDispatch, useAppSelector } from "../../../hooks/reduxHooks";
 import { RootState } from "../../../store/store";
 import {
     fetchRevenueOverTime,
-    fetchTopFiveProducts,
     fetchYTD,
 } from "../../../features/Analytics/analyticsSlice";
 import "./dashboard.css";
 import "../sales-analytics.css";
-import {
-    BarData,
-    PieData,
-    PlusParams,
-} from "../../../features/Analytics/analyticsTypes";
-import RefreshSharpIcon from "@mui/icons-material/RefreshSharp";
+import { BarData } from "../../../features/Analytics/analyticsTypes";
 import BarChartSharpIcon from "@mui/icons-material/BarChartSharp";
 import ShowChartSharpIcon from "@mui/icons-material/ShowChartSharp";
-import LineAxisSharpIcon from "@mui/icons-material/LineAxisSharp";
-
-import PieChartOutlineSharpIcon from "@mui/icons-material/PieChartOutlineSharp";
 import CustomLineChart from "../CustomCharts/CustomLineChart";
 import { IconButton, SvgIcon, Typography } from "@mui/material";
 import CustomBarChart from "../CustomCharts/CustomBarChart";

@@ -1,7 +1,6 @@
 import { ArrowLeftSharp, ArrowRightSharp } from "@mui/icons-material";
 import { IconButton, SvgIcon } from "@mui/material";
 import React, { SetStateAction } from "react";
-import { useEffect } from "react";
 
 interface Props {
     currentIdx: number;

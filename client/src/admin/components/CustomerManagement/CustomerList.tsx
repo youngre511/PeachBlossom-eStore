@@ -1,29 +1,19 @@
 import React from "react";
-import { useEffect } from "react";
-import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
-import { RootState } from "../../store/store";
+
 import {
-    styled,
     Paper,
     Table,
     TableBody,
     TableCell,
-    tableCellClasses,
     TableContainer,
     TablePagination,
     TableRow,
     Box,
-    Checkbox,
-    Tooltip,
-    IconButton,
 } from "@mui/material";
 
 import CustomerListHead from "./CustomerListHead";
 import { useNavigate } from "react-router-dom";
 import { CustomerUser } from "../../features/Users/userTypes";
-import CustomerMoreMenu from "./customerMoreMenu";
-import { deleteUser, resetUserPassword } from "../../features/Users/userSlice";
-import axios from "axios";
 
 interface AdminListProps {
     page: number;

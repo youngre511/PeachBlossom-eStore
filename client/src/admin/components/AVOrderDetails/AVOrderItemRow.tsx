@@ -5,19 +5,15 @@ import {
     IconButton,
     TableCell,
     TableRow,
-    Tooltip,
     Typography,
 } from "@mui/material";
 import React, { useState } from "react";
-import { useEffect } from "react";
-import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
-import { Link, useNavigate } from "react-router-dom";
-// import MoreMenu from "./MoreMenu";
 
-import ModeEditSharpIcon from "@mui/icons-material/ModeEditSharp";
+import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
+import { useNavigate } from "react-router-dom";
+
 import KeyboardArrowUpSharpIcon from "@mui/icons-material/KeyboardArrowUpSharp";
 import KeyboardArrowDownSharpIcon from "@mui/icons-material/KeyboardArrowDownSharp";
-import dayjs from "dayjs";
 import { OrderItemRow } from "./AVOrderItemList";
 import AVOrderItemStatus from "./AVOrderItemStatus";
 import AVOrderItemQuantity from "./AVOrderItemQuantity";

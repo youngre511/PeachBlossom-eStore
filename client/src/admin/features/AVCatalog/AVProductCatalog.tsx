@@ -1,32 +1,21 @@
-import React, { useState } from "react";
+import React from "react";
 import { useEffect } from "react";
-import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
+import { useAppSelector } from "../../hooks/reduxHooks";
 import { RootState } from "../../store/store";
 import {
-    styled,
     Paper,
     Table,
     TableBody,
     TableCell,
-    tableCellClasses,
     TableContainer,
     TablePagination,
     TableRow,
     Box,
-    Checkbox,
-    Tooltip,
-    IconButton,
 } from "@mui/material";
 
-import MoreVertSharpIcon from "@mui/icons-material/MoreVertSharp";
-import ImageSharpIcon from "@mui/icons-material/ImageSharp";
-import ModeEditSharpIcon from "@mui/icons-material/ModeEditSharp";
-import KeyboardArrowUpSharpIcon from "@mui/icons-material/KeyboardArrowUpSharp";
-import KeyboardArrowDownSharpIcon from "@mui/icons-material/KeyboardArrowDownSharp";
 import AVCatalogHead from "./AVCatalogHead";
 import AVProductTableToolbar from "./AVProductTableToolbar";
 import { AVProduct } from "./avCatalogTypes";
-import MoreMenu from "./MoreMenu";
 import { useNavigate, Link } from "react-router-dom";
 import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
 import AVTableRow from "./AVTableRow";

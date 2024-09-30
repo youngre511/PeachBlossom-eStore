@@ -9,7 +9,6 @@ import {
     Typography,
 } from "@mui/material";
 import React, { useState } from "react";
-import { useEffect } from "react";
 import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
 import { Link, useNavigate } from "react-router-dom";
 import MoreMenu from "./MoreMenu";

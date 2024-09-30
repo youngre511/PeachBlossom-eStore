@@ -1,6 +1,5 @@
 import React from "react";
 import { alpha, Toolbar, Typography, IconButton, Tooltip } from "@mui/material";
-import DeleteSharpIcon from "@mui/icons-material/DeleteSharp";
 import ArchiveSharpIcon from "@mui/icons-material/ArchiveSharp";
 import UnarchiveSharpIcon from "@mui/icons-material/UnarchiveSharp";
 

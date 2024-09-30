@@ -3,17 +3,7 @@ import { useState, useEffect } from "react";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs, { Dayjs } from "dayjs";
-import {
-    Select,
-    SvgIcon,
-    InputLabel,
-    MenuItem,
-    SelectChangeEvent,
-    styled,
-    IconButton,
-    Box,
-    Icon,
-} from "@mui/material";
+import { Icon } from "@mui/material";
 import { CSSProperties } from "@mui/material/styles/createTypography";
 import SearchField from "../../../common/components/Fields/SearchField";
 import { SelectFieldNonFormik } from "../../../common/components/Fields/SelectFieldNonFormik";

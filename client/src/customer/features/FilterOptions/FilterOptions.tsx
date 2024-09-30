@@ -1,6 +1,6 @@
-import React, { SetStateAction } from "react";
-import { Formik } from "formik";
-import { useEffect, useState, useRef } from "react";
+import React from "react";
+
+import { useEffect, useState } from "react";
 import { RootState } from "../../store/customerStore";
 import { useAppSelector } from "../../hooks/reduxHooks";
 import {
@@ -8,19 +8,15 @@ import {
     FormControlLabel,
     FormGroup,
     Checkbox,
-    Button,
-    InputAdornment,
     Accordion,
     AccordionSummary,
     AccordionDetails,
-    Card,
-    Paper,
     IconButton,
 } from "@mui/material";
 import { Filters } from "../ProductCatalog/CatalogTypes";
 import DecimalField from "../../../common/components/Fields/DecimalField";
 import { Category } from "../Categories/CategoriesTypes";
-import { useTheme, styled } from "@mui/material/styles";
+import { useTheme } from "@mui/material/styles";
 import PeachButton from "../../../common/components/PeachButton";
 import CloseSharpIcon from "@mui/icons-material/CloseSharp";
 

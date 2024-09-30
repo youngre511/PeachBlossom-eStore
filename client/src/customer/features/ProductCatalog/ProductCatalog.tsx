@@ -1,6 +1,6 @@
 import React from "react";
 import { useEffect, useState, useRef } from "react";
-import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
+import { useAppSelector } from "../../hooks/reduxHooks";
 import { RootState } from "../../store/customerStore";
 import Item from "../../components/Item/Item";
 import { Product } from "./CatalogTypes";

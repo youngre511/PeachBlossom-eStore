@@ -1,5 +1,4 @@
 import React from "react";
-import { useEffect } from "react";
 
 interface Props {}
 const TermsAndConditions: React.FC<Props> = () => {

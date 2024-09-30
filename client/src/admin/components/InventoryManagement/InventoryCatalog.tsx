@@ -3,28 +3,19 @@ import { useEffect } from "react";
 import { useAppSelector } from "../../hooks/reduxHooks";
 import { RootState } from "../../store/store";
 import {
-    styled,
     Paper,
     Table,
     TableBody,
     TableCell,
-    tableCellClasses,
     TableContainer,
     TablePagination,
     TableRow,
     Box,
-    Checkbox,
-    Tooltip,
-    IconButton,
 } from "@mui/material";
 
-import MoreVertSharpIcon from "@mui/icons-material/MoreVertSharp";
-import ImageSharpIcon from "@mui/icons-material/ImageSharp";
-import ModeEditSharpIcon from "@mui/icons-material/ModeEditSharp";
-import AddAPhotoSharpIcon from "@mui/icons-material/AddAPhotoSharp";
 import AVCatalogHead from "./InventoryCatalogHead";
 import { AVProduct } from "../../features/AVCatalog/avCatalogTypes";
-import StockField from "./StockField";
+
 import InventoryTableRow from "./InventoryTableRow";
 import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
 

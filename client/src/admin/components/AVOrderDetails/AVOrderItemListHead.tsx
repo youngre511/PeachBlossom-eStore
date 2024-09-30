@@ -1,13 +1,5 @@
 import React, { useEffect } from "react";
-import {
-    TableCell,
-    TableHead,
-    TableRow,
-    Box,
-    Checkbox,
-    TableSortLabel,
-    Icon,
-} from "@mui/material";
+import { TableCell, TableHead, TableRow, Checkbox } from "@mui/material";
 import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
 
 interface HeadCell {

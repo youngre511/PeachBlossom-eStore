@@ -1,6 +1,5 @@
 import { IconButton, Menu, MenuItem, Tooltip } from "@mui/material";
 import React from "react";
-import { useEffect, useState } from "react";
 import MoreVertSharpIcon from "@mui/icons-material/MoreVertSharp";
 import { useNavigate } from "react-router-dom";
 import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";

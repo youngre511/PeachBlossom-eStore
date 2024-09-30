@@ -10,24 +10,16 @@ import {
     Grid,
     Container,
     InputAdornment,
-    Paper,
     TextField,
-    Box,
     Button,
 } from "@mui/material";
-import {
-    Formik,
-    Form,
-    ErrorMessage,
-    FormikHelpers,
-    useFormikContext,
-} from "formik";
+import { Formik, Form, FormikHelpers, useFormikContext } from "formik";
 import { FormField } from "../../../../common/components/Fields/FormField";
 import { SelectField } from "../../../../common/components/Fields/SelectField";
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import "./add-product.css";
-import PeachButton from "../../../../common/components/PeachButton";
-import { Link, useNavigate } from "react-router-dom";
+
+import { useNavigate } from "react-router-dom";
 import ImageUploader from "../ImageUploader/ImageUploader";
 import { ImageListType } from "react-images-uploading";
 import { useAppDispatch, useAppSelector } from "../../../hooks/reduxHooks";

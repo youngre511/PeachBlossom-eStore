@@ -1,23 +1,18 @@
 import * as React from "react";
 
-import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import CardActionArea from "@mui/material/CardActionArea";
 import CardContent from "@mui/material/CardContent";
-import Checkbox from "@mui/material/Checkbox";
 import FormControl from "@mui/material/FormControl";
-import FormControlLabel from "@mui/material/FormControlLabel";
 import FormLabel from "@mui/material/FormLabel";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import RadioGroup from "@mui/material/RadioGroup";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 
-import AccountBalanceRoundedIcon from "@mui/icons-material/AccountBalanceRounded";
 import CreditCardRoundedIcon from "@mui/icons-material/CreditCardRounded";
 import SimCardRoundedIcon from "@mui/icons-material/SimCardRounded";
-import WarningRoundedIcon from "@mui/icons-material/WarningRounded";
 
 import { styled } from "@mui/system";
 import { PaymentDetails } from "./Checkout";

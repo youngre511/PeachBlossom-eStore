@@ -10,7 +10,6 @@ import {
     BaseGranularity,
     ExpandedGranularity,
     LineData,
-    PieData,
     PlusGranularity,
     PlusParams,
     RRPParams,
@@ -27,9 +26,6 @@ import CustomLineChart from "../CustomCharts/CustomLineChart";
 import CustomBarChart from "../CustomCharts/CustomBarChart";
 import DateSelector from "../DateSelector";
 import GranularitySelector from "../GranularitySelector";
-import { ArrowLeftSharp, ArrowRightSharp } from "@mui/icons-material";
-import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import CustomPieChart from "../CustomCharts/CustomPieChart";
 import StackedBarChartSharpIcon from "@mui/icons-material/StackedBarChartSharp";
 

@@ -10,8 +10,6 @@ const Cart: React.FC = () => {
     const cart = useAppSelector((state: RootState) => state.cart);
     const navigate = useNavigate();
 
-    console.log(cart);
-
     return (
         <div className="cart-container">
             <div className="cart">

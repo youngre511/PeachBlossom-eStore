@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { CartItem as item } from "../Cart/CartTypes";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../../hooks/reduxHooks";
-import { RootState } from "../../store/customerStore";
 import { updateItemQuantity } from "../Cart/cartSlice";
 import "./cart-item.css";
 import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";

@@ -1,6 +1,5 @@
 import React from "react";
-import { useEffect } from "react";
-import { Stepper, Step, StepLabel, StepContent, Box } from "@mui/material";
+import { Stepper, Step, StepLabel, Box } from "@mui/material";
 
 interface Props {
     orderStatus:

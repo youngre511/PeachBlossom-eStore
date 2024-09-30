@@ -1,5 +1,4 @@
 import React from "react";
-import { useEffect } from "react";
 
 interface Props {}
 const PrivacyAndCookies: React.FC<Props> = () => {

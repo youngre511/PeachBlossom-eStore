@@ -3,7 +3,7 @@ import React, { ChangeEvent } from "react";
 import "./mobile-nav.css";
 import { useEffect, useRef, useState } from "react";
 import { useAppSelector } from "../../hooks/reduxHooks";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import SearchButton from "../../../assets/img/search.svg?react";
 import CartButton from "../../../assets/img/cart.svg?react";
 
@@ -12,7 +12,6 @@ import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { RootState } from "../../store/customerStore";
-import SearchField from "../../../common/components/Fields/SearchField";
 import MenuSharpIcon from "@mui/icons-material/MenuSharp";
 import CloseSharpIcon from "@mui/icons-material/CloseSharp";
 import ChevronRightSharpIcon from "@mui/icons-material/ChevronRightSharp";

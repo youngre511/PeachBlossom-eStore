@@ -5,9 +5,7 @@ import {
     TableHead,
     TableRow,
     Box,
-    Checkbox,
     TableSortLabel,
-    Icon,
 } from "@mui/material";
 import { visuallyHidden } from "@mui/utils";
 import { Order } from "./InventoryCatalog";

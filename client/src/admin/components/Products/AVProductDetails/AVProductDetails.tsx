@@ -1,8 +1,6 @@
 import React, {
-    ComponentProps,
     useState,
     useEffect,
-    useCallback,
     useMemo,
     SetStateAction,
     useContext,
@@ -24,7 +22,6 @@ import { ImageListType } from "react-images-uploading";
 import { useAppDispatch, useAppSelector } from "../../../hooks/reduxHooks";
 import { RootState } from "../../../store/store";
 import { avFetchCategories } from "../../../features/AVMenuData/avMenuDataSlice";
-import { AVCategory } from "../../../features/AVMenuData/avMenuDataTypes";
 import { SelectFieldNonFormik } from "../../../../common/components/Fields/SelectFieldNonFormik";
 import BlankPopup from "../../../../common/components/BlankPopup";
 import StatusPopup from "../../../../common/components/StatusPopup";

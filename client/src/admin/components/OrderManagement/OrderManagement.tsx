@@ -1,8 +1,8 @@
 import React from "react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import OrdersList from "./OrdersList";
-import axios, { AxiosError } from "axios";
+
 import "./order-management.css";
 import OrderManagementFilters from "./OrderManagementFilters";
 import {

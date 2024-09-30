@@ -8,7 +8,6 @@ import {
     TextField,
 } from "@mui/material";
 import React from "react";
-import { ReactNode } from "react";
 import { inputStyle } from "../Products/AddProduct/AddProduct";
 
 interface Props {

@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import AVProductCatalog from "../../features/AVCatalog/AVProductCatalog";
+import { useSearchParams } from "react-router-dom";
+
 import { AVFilters } from "../../features/AVCatalog/avCatalogTypes";
 import {
     avFetchProducts,
@@ -10,9 +10,8 @@ import {
 import { arraysEqual } from "../../../common/utils/arraysEqual";
 import { RootState } from "../../store/store.js";
 import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
-import PeachButton from "../../../common/components/PeachButton";
-import AddCircleOutlineSharpIcon from "@mui/icons-material/AddCircleOutlineSharp";
-import { Button, SvgIcon } from "@mui/material";
+
+import { Button } from "@mui/material";
 import SearchField from "../../../common/components/Fields/SearchField";
 import InventoryCatalog from "./InventoryCatalog";
 import "./inventory-management.css";
