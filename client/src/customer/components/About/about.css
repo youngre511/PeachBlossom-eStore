@@ -1,0 +1,9 @@
+.about {
+    max-width: 1000px;
+    margin: 0 auto;
+    line-height: 1.5rem;
+}
+
+.about a {
+    color: black;
+}
