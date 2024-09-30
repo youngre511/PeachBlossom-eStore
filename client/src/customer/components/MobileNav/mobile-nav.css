@@ -149,6 +149,7 @@
     height: 120px;
     top: 19px;
     left: 19px;
+    cursor: pointer;
 }
 
 .m-text-only-logo {

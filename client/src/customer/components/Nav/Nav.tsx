@@ -292,20 +292,25 @@ const Nav: React.FC<Props> = () => {
                             </div>
                         </Tooltip>
                     </li>
-                    <li>
+                    <li
+                        onMouseEnter={() => handleCartMouseEnter()}
+                        onMouseLeave={() => handleCartMouseLeave()}
+                    >
                         <div
                             className="nav-icon"
                             id="cart"
                             aria-label="cart"
                             tabIndex={0}
                             role="button"
-                            onMouseEnter={() => handleCartMouseEnter()}
-                            onMouseLeave={() => handleCartMouseLeave()}
                             onClick={() => navigate("/shoppingcart")}
                         >
                             <CartButton />
                             {cartContents > 0 && (
-                                <div className="cart-badge" aria-live="polite">
+                                <div
+                                    className="cart-badge"
+                                    aria-live="polite"
+                                    onClick={() => navigate("/shoppingcart")}
+                                >
                                     <div className="badge-background"></div>
                                     <div className="badge-background-overlay"></div>
                                     <p
