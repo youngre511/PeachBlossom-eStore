@@ -1,11 +1,11 @@
 .home-splash-screen {
-    height: 90vh;
-    height: 90dvh;
+    height: 100vh;
+    height: 100dvh;
     width: 100vw;
     margin: -180px -10px -60px -10px;
     background-size: cover;
     background-position: 70% 50%;
-    padding-top: 140px;
+    padding-top: 120px;
     background-image: url("https://d1xcoz7nfocye6.cloudfront.net/blossom_800.webp");
 }
 

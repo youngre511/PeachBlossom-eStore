@@ -20,7 +20,9 @@ const Footer: React.FC<Props> = () => {
                     </li>
                 </ul>
             </div>
-            <div className="copyright"></div>
+            <div className="copyright">
+                &copy; Copyright 2024 Ryan Young. All Rights Reserved.
+            </div>
         </footer>
     );
 };

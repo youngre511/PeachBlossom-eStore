@@ -1,8 +1,8 @@
 main {
     margin-top: 60px;
     padding: 0 10px;
-    min-height: calc(100vh - 520px);
-    min-height: calc(100dvh - 520px);
+    min-height: calc(100vh - 190px);
+    min-height: calc(100dvh - 190px);
 }
 
 h1,
@@ -40,5 +40,7 @@ article > ul {
     main {
         margin-top: 180px;
         padding: 0 20px;
+        min-height: calc(100vh - 310px);
+        min-height: calc(100dvh - 310px);
     }
 }

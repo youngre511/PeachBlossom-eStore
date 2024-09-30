@@ -518,7 +518,7 @@ const Checkout: React.FC = () => {
             <CssBaseline />
             <Grid
                 container
-                sx={{ height: { xs: "100%" }, minHeight: { sm: "100vh" } }}
+                sx={{ height: { xs: "100%" }, minHeight: { sm: "80vh" } }}
             >
                 <Grid
                     item
@@ -739,6 +739,15 @@ const Checkout: React.FC = () => {
                                 </Step>
                             ))}
                         </Stepper>
+                        <Typography sx={{ fontSize: ".8rem" }}>
+                            Note: This is not a real e-store. None of the
+                            products are real, and the site will not accept real
+                            payment details or process payments. Submitted names
+                            and addresses will be accessible via the admin demo
+                            site, however, so do not input any real names, phone
+                            numbers, street addresses, or email addresses that
+                            you wish not to be made publicly visible.
+                        </Typography>
 
                         {/* Main content */}
                         {activeStep === steps.length ? (
