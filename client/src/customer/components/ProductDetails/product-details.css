@@ -149,6 +149,7 @@
 @media (min-width: 1025px) {
     .product-details-container {
         flex-direction: row;
+        align-items: flex-start;
     }
 
     .product-images-cont {
@@ -225,6 +226,7 @@
         height: 100%;
         max-height: 40rem;
         width: auto;
+        min-width: auto;
         max-width: none;
     }
 
