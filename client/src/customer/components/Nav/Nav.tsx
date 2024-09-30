@@ -21,6 +21,8 @@ import pblogo1x from "../../../assets/peachblossomlogo-1x.webp";
 import pblogo2x from "../../../assets/peachblossomlogo-2x.webp";
 import pblogo3x from "../../../assets/peachblossomlogo-3x.webp";
 import { useNavigationContext } from "../../../common/contexts/navContext";
+import AccountsTab from "../AccountsTab/AccountsTab";
+import RecentlyViewed from "../../features/RecentlyViewed/RecentlyViewed";
 
 interface Props {}
 const Nav: React.FC<Props> = () => {
@@ -39,6 +41,8 @@ const Nav: React.FC<Props> = () => {
     const [isCartDropdownVisible, setCartDropdownVisible] =
         useState<boolean>(false);
     const cartAnimationRef = useRef<GSAPTimeline | null>(null);
+    const [isRecentVisible, setRecentVisible] = useState<boolean>(false);
+    const recentAnimationRef = useRef<GSAPTimeline | null>(null);
     const [isSearchBarVisible, setIsSearchBarVisible] =
         useState<boolean>(false);
 
@@ -46,6 +50,8 @@ const Nav: React.FC<Props> = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const [searchQuery, setSearchQuery] = useState<string>("");
+    const [accountsTabVisible, setAccountsTabVisible] =
+        useState<boolean>(false);
 
     useEffect(() => {
         if (searchOptionsSlice.searchOptions) {
@@ -55,6 +61,7 @@ const Nav: React.FC<Props> = () => {
 
     useEffect(
         contextSafe(() => {
+            // Shop dropdown animation
             shopAnimationRef.current = gsap
                 .timeline({ paused: true })
                 .to(".shop-nav", {
@@ -67,12 +74,8 @@ const Nav: React.FC<Props> = () => {
 
             // Ensure the menu is hidden initially
             gsap.set(".shop-nav", { display: "none", opacity: 0 });
-        }),
-        []
-    );
 
-    useEffect(
-        contextSafe(() => {
+            // Cart dropdown animation
             cartAnimationRef.current = gsap
                 .timeline({ paused: true })
                 .to(".drop-cart", {
@@ -85,6 +88,20 @@ const Nav: React.FC<Props> = () => {
 
             // Ensure the menu is hidden initially
             gsap.set(".drop-cart", { display: "none", opacity: 0 });
+
+            // Recent items dropdown animation
+            recentAnimationRef.current = gsap
+                .timeline({ paused: true })
+                .to(".recent-items", {
+                    duration: 0.2,
+                    opacity: 1,
+                    scale: 1,
+                    ease: "power1.inOut",
+                });
+            // The animation is played in reverse for hiding
+
+            // Ensure the menu is hidden initially
+            gsap.set(".recent-items", { display: "none", opacity: 0 });
         }),
         []
     );
@@ -164,6 +181,27 @@ const Nav: React.FC<Props> = () => {
             });
         }
         setCartDropdownVisible(false);
+    };
+
+    const handleRecentMouseEnter = () => {
+        if (recentAnimationRef.current) {
+            // Play the animation forward
+            gsap.set(".recent-items", { display: "flex" });
+            recentAnimationRef.current.play();
+        }
+        setRecentVisible(true);
+    };
+
+    const handleRecentMouseLeave = () => {
+        if (recentAnimationRef.current) {
+            // Reverse the animation (hide the cart)
+            recentAnimationRef.current.reverse().then(() => {
+                if (!isRecentVisible) {
+                    gsap.set(".recent-items", { display: "none" });
+                }
+            });
+        }
+        setRecentVisible(false);
     };
 
     useEffect(() => {
@@ -271,6 +309,9 @@ const Nav: React.FC<Props> = () => {
                                 aria-label="account"
                                 tabIndex={0}
                                 role="button"
+                                onClick={() =>
+                                    setAccountsTabVisible(!accountsTabVisible)
+                                }
                             >
                                 <AccountButton />
                             </div>
@@ -287,6 +328,8 @@ const Nav: React.FC<Props> = () => {
                                 aria-label="recently viewed"
                                 tabIndex={0}
                                 role="button"
+                                onMouseEnter={handleRecentMouseEnter}
+                                onMouseLeave={handleRecentMouseLeave}
                             >
                                 <RecentButton />
                             </div>
@@ -405,6 +448,11 @@ const Nav: React.FC<Props> = () => {
                         onClick={() => navigate("/")}
                     ></div>
                 </div>
+                <RecentlyViewed
+                    isRecentVisible={isRecentVisible}
+                    handleRecentMouseEnter={handleRecentMouseEnter}
+                    handleRecentMouseLeave={handleRecentMouseLeave}
+                />
                 <ShopNav
                     isShopMenuVisible={isShopMenuVisible}
                     handleShopMouseEnter={handleShopMouseEnter}
@@ -416,6 +464,10 @@ const Nav: React.FC<Props> = () => {
                     handleCartMouseLeave={handleCartMouseLeave}
                 />
             </div>
+            <AccountsTab
+                setAccountsTabVisible={setAccountsTabVisible}
+                accountsTabVisible={accountsTabVisible}
+            />
         </header>
     );
 };

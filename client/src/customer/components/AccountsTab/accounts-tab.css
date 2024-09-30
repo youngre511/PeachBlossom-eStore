@@ -1,0 +1,23 @@
+.customer-accounts {
+    position: fixed;
+    right: 0;
+    top: 0;
+    height: 100vh;
+    height: 100dvh;
+    width: 40vw;
+    min-width: 350px;
+    background-color: white;
+    box-shadow: -2px -2px 20px 0 rgba(0, 0, 0, 0.4);
+    padding: 30px;
+    justify-content: center;
+    align-items: center;
+    z-index: 105;
+    transform: translateX(90vw);
+    transition: all 0.3s ease-in-out;
+}
+
+.close-accounts-tab-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
