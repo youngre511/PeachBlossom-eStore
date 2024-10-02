@@ -1,4 +1,5 @@
 import sequelize from "../models/mysql/index.js";
+import { QueryTypes } from "sequelize";
 import { sqlOrder } from "../models/mysql/sqlOrderModel.js";
 import { sqlOrderItem } from "../models/mysql/sqlOrderItemModel.js";
 import { sqlAddress } from "../models/mysql/sqlAddressModel.js";
@@ -75,20 +76,20 @@ const regions: RegionMap = {
     West: ["AK", "CA", "CO", "HI", "ID", "MT", "NV", "OR", "UT", "WA", "WY"],
 };
 
-const buildRegionCase = () => {
+const buildRegionCase = (prefix?: string) => {
     let caseStatement = "CASE";
 
     for (const region in regions) {
         const states = regions[region].map((state) => `'${state}'`).join(", ");
-        caseStatement += ` WHEN stateAbbr IN (${states}) THEN '${region}'`;
+        caseStatement += ` WHEN ${
+            prefix ? prefix + "." : ""
+        }stateAbbr IN (${states}) THEN '${region}'`;
     }
 
     caseStatement += " ELSE 'Unknown' END";
 
     return caseStatement;
 };
-
-const regionCaseStatement = buildRegionCase();
 
 // SortOrder type must allow all granularity types except "all"
 export type SortOrder =
@@ -211,70 +212,101 @@ export const getRevenueOverTime = async (
     chartType: ChartType
 ) => {
     try {
-        // Dynamically construct attributes based on granularity input
-        const attributeClause: FindAttributeOptions = [
-            [fn("YEAR", col("orderDate")), "year"],
-        ];
+        const startDateObj = startDate
+            ? new Date(startDate)
+            : new Date("01-01-2022");
+        const endDateObj = endDate ? new Date(endDate) : new Date();
+
+        // Define variables based on granularity
+        let intervalUnit = "";
+        let selectPeriod = "";
+        let groupByPeriod = "";
+        let orderByPeriod = "";
+        let leftJoinCondition = "";
 
         switch (granularity) {
             case "year":
+                intervalUnit = "1 YEAR";
+                selectPeriod = "YEAR(p.period_date) AS year";
+                groupByPeriod = "YEAR(p.period_date)";
+                orderByPeriod = "YEAR(p.period_date)";
+                leftJoinCondition = "YEAR(o.orderDate) = YEAR(p.period_date)";
                 break;
             case "quarter":
-                attributeClause.push([
-                    literal("QUARTER(orderDate)"),
-                    "quarter",
-                ]);
+                intervalUnit = "3 MONTH";
+                selectPeriod =
+                    "YEAR(p.period_date) AS year, QUARTER(p.period_date) AS quarter";
+                groupByPeriod = "YEAR(p.period_date), QUARTER(p.period_date)";
+                orderByPeriod = "YEAR(p.period_date), QUARTER(p.period_date)";
+                leftJoinCondition =
+                    "YEAR(o.orderDate) = YEAR(p.period_date) AND QUARTER(o.orderDate) = QUARTER(p.period_date)";
                 break;
             case "month":
-                attributeClause.push([fn("MONTH", col("orderDate")), "month"]);
+                intervalUnit = "1 MONTH";
+                selectPeriod =
+                    "YEAR(p.period_date) AS year, MONTH(p.period_date) AS month";
+                groupByPeriod = "YEAR(p.period_date), MONTH(p.period_date)";
+                orderByPeriod = "YEAR(p.period_date), MONTH(p.period_date)";
+                leftJoinCondition =
+                    "YEAR(o.orderDate) = YEAR(p.period_date) AND MONTH(o.orderDate) = MONTH(p.period_date)";
                 break;
             case "week":
-                attributeClause.push([fn("WEEK", col("orderDate")), "week"]);
+                intervalUnit = "1 WEEK";
+                selectPeriod =
+                    "YEAR(p.period_date) AS year, WEEK(p.period_date, 1) AS week"; // Using mode 1 for ISO weeks
+                groupByPeriod = "YEAR(p.period_date), WEEK(p.period_date, 1)";
+                orderByPeriod = "YEAR(p.period_date), WEEK(p.period_date, 1)";
+                leftJoinCondition =
+                    "YEAR(o.orderDate) = YEAR(p.period_date) AND WEEK(o.orderDate, 1) = WEEK(p.period_date, 1)";
                 break;
             default:
-                throw new Error("invalid time grouping");
+                throw new Error("Invalid granularity");
         }
 
-        // Add sum data to attributes
-        attributeClause.push([fn("SUM", col("subTotal")), "total_revenue"]);
+        // Build the raw SQL query
+        const query = `
+            WITH RECURSIVE periods AS (
+                SELECT :startDate AS period_date
+                UNION ALL
+                SELECT DATE_ADD(period_date, INTERVAL ${intervalUnit})
+                FROM periods
+                WHERE period_date < :endDate
+            )
+            SELECT
+                ${selectPeriod},
+                ${byState ? "a.stateAbbr AS stateAbbr," : ""}
+                ${byRegion ? `${buildRegionCase("a")} AS region,` : ""}
+                COALESCE(SUM(o.subTotal), 0) AS total_revenue
+            FROM periods p
+            LEFT JOIN Orders o ON
+                ${leftJoinCondition}
+                AND o.orderDate BETWEEN :startDate AND :endDate
+                ${byState || byRegion ? "AND o.address_id IS NOT NULL" : ""}
+            ${
+                byState || byRegion
+                    ? "LEFT JOIN Addresses a ON o.address_id = a.address_id"
+                    : ""
+            }
+            WHERE p.period_date BETWEEN :startDate AND :endDate
+            GROUP BY ${groupByPeriod}
+            ${byState ? ", a.stateAbbr" : ""}
+            ${byRegion ? ", region" : ""}
+            ORDER BY ${orderByPeriod}
+            ${byState ? ", a.stateAbbr" : ""}
+            ${byRegion ? ", region" : ""};
+        `;
 
-        // Dynamically add date restrictions based on input
+        // Prepare replacements
+        const replacements = {
+            startDate: startDateObj.toISOString().split("T")[0],
+            endDate: endDateObj.toISOString().split("T")[0],
+        };
 
-        let whereClause: WhereOptions | undefined = {};
-        if (startDate && endDate) {
-            whereClause["orderDate"] = {
-                [Op.between]: [startDate, endDate],
-            };
-        } else if (startDate && !endDate) {
-            whereClause["orderDate"] = {
-                [Op.gte]: startDate,
-            };
-        } else if (endDate) {
-            whereClause["orderDate"] = {
-                [Op.lte]: endDate,
-            };
-        } else {
-            whereClause = undefined;
-        }
-
-        // Dynamically create include parameter if sorting by state or region
-
-        let includeClause: IncludeOptions[] | undefined = undefined;
-        if (byState || byRegion) {
-            includeClause = [
-                {
-                    model: sqlAddress,
-                    as: "Address",
-                    attributes: [
-                        byState
-                            ? "stateAbbr"
-                            : [literal(regionCaseStatement), "region"],
-                    ],
-                },
-            ];
-        }
-
-        // Dynamically create group clause and order clause
+        // Execute the raw SQL query
+        const results = await sequelize.query(query, {
+            type: QueryTypes.SELECT,
+            replacements: replacements,
+        });
 
         const dataFormat = { y: "total_revenue" } as {
             id: SortOrder;
@@ -282,13 +314,9 @@ export const getRevenueOverTime = async (
             x: SortOrder | null;
             y: YValue;
         };
-        const groupClause: GroupOption = [];
         if (byRegion && chartType !== "bar") {
-            // Since sequelize does not support grouping or ordering by dynamically created fields in associated tables, in order to group/order by region, the RAW sql that created the column must be repeated in the group/order clause.
-            groupClause.push(literal(regionCaseStatement));
             dataFormat["id"] = "region";
         } else if (byState && chartType !== "bar") {
-            groupClause.push("stateAbbr");
             dataFormat["id"] = "stateAbbr";
         } else if (chartType === "bar") {
             dataFormat["id"] = granularity;
@@ -297,7 +325,6 @@ export const getRevenueOverTime = async (
             dataFormat["id"] = "year";
         }
 
-        groupClause.push("year");
         // SortOrder type must allow all granularity types except "all"
         if (chartType === "bar") {
             if (byRegion) {
@@ -311,33 +338,13 @@ export const getRevenueOverTime = async (
             dataFormat["x"] = granularity as SortOrder;
         }
 
-        if (["week", "month", "quarter"].includes(granularity)) {
-            groupClause.push(`${granularity}`);
-        }
-
-        if (chartType === "bar") {
-            if (byRegion) {
-                groupClause.push(literal(regionCaseStatement));
-            } else if (byState) {
-                groupClause.push("stateAbbr");
-            }
-        }
-
-        const results = await sqlOrder.findAll({
-            where: whereClause,
-            attributes: attributeClause,
-            include: includeClause,
-            group: groupClause,
-            order: ["total_revenue"],
-            raw: true,
-        });
-
         const processedResults = buildChartObjects(
             results,
             chartType,
             dataFormat,
             "Revenue"
         );
+
         return processedResults;
     } catch (error) {
         if (error instanceof Error) {
@@ -367,113 +374,252 @@ export const getRevenueByCategory = async (
     chartType: ChartType
 ) => {
     try {
-        // Dynamically construct order attributes based on granularity input
-        let orderAttributeClause: FindAttributeOptions = ["orderDate"];
-        switch (granularity) {
-            case "all":
-                break;
-            case "year":
-                orderAttributeClause.push([
-                    fn("YEAR", col("orderDate")),
-                    "year",
-                ]);
-                break;
-            case "quarter":
-                orderAttributeClause.push([
-                    literal("QUARTER(orderDate)"),
-                    "quarter",
-                ]);
-                orderAttributeClause.push([
-                    fn("YEAR", col("orderDate")),
-                    "year",
-                ]);
-                break;
-            case "month":
-                orderAttributeClause.push([
-                    fn("MONTH", col("orderDate")),
-                    "month",
-                ]);
-                orderAttributeClause.push([
-                    fn("YEAR", col("orderDate")),
-                    "year",
-                ]);
-                break;
-            case "week":
-                orderAttributeClause.push([
-                    fn("WEEK", col("orderDate")),
-                    "week",
-                ]);
-                orderAttributeClause.push([
-                    fn("YEAR", col("orderDate")),
-                    "year",
-                ]);
-                break;
-            default:
-                throw new Error("invalid time grouping");
+        const startDateObj = startDate
+            ? new Date(startDate)
+            : new Date("01-01-2022");
+        const endDateObj = endDate ? new Date(endDate) : new Date();
+
+        // Define the categories or subcategories CTE
+        const categoryField = bySubcategory
+            ? "subcategoryName"
+            : "categoryName";
+        const categoryTable = bySubcategory ? "Subcategories" : "Categories";
+
+        let query = "";
+        const replacements: Record<string, any> = {
+            startDate: startDateObj.toISOString().split("T")[0],
+            endDate: endDateObj.toISOString().split("T")[0],
+        };
+
+        if (stateAbbr) {
+            replacements["stateAbbr"] = stateAbbr;
         }
 
-        // Dynamically add date restrictions based on input
+        if (region) {
+            replacements["region"] = region;
+        }
 
-        let orderWhereClause: WhereOptions | undefined = {};
-        if (startDate && endDate) {
-            orderWhereClause["orderDate"] = {
-                [Op.between]: [startDate, endDate],
-            };
-        } else if (startDate && !endDate) {
-            orderWhereClause["orderDate"] = {
-                [Op.gte]: startDate,
-            };
-        } else if (endDate) {
-            orderWhereClause["orderDate"] = {
-                [Op.lte]: endDate,
-            };
+        if (granularity === "all") {
+            query = `
+                WITH categories AS (
+                    SELECT DISTINCT ${categoryField} AS categoryName FROM ${categoryTable}
+                ),
+                category_revenue AS (
+                    SELECT
+                        cat.${categoryField} AS categoryName,
+                        SUM(oi.quantity * oi.priceWhenOrdered) AS total_revenue
+                    FROM OrderItems oi
+                    JOIN Orders o ON oi.order_id = o.order_id
+                    JOIN Products pr ON oi.productNo = pr.productNo
+                    JOIN ${categoryTable} cat ON pr.${
+                bySubcategory ? "subcategory_id" : "category_id"
+            } = cat.${bySubcategory ? "subcategory_id" : "category_id"}
+                    ${
+                        stateAbbr || region
+                            ? `
+                    JOIN Addresses addr ON o.address_id = addr.address_id
+                    `
+                            : ""
+                    }
+                    WHERE o.orderDate BETWEEN :startDate AND :endDate
+                    ${stateAbbr ? `AND addr.stateAbbr = :stateAbbr` : ""}
+                    ${region ? `AND ${buildRegionCase("addr")} = :region` : ""}
+                    GROUP BY categoryName
+                ),
+                total_revenue AS (
+                    SELECT
+                        SUM(oi.quantity * oi.priceWhenOrdered) AS total_revenue
+                    FROM OrderItems oi
+                    JOIN Orders o ON oi.order_id = o.order_id
+                    ${
+                        stateAbbr || region
+                            ? `
+                    JOIN Addresses addr ON o.address_id = addr.address_id
+                    `
+                            : ""
+                    }
+                    WHERE o.orderDate BETWEEN :startDate AND :endDate
+                    ${stateAbbr ? `AND addr.stateAbbr = :stateAbbr` : ""}
+                    ${region ? `AND ${buildRegionCase("addr")} = :region` : ""}
+                )
+                SELECT
+                    c.categoryName AS ${categoryField},
+                    COALESCE(cr.total_revenue, 0) AS total_revenue,
+                    tr.total_revenue AS total_period_revenue,
+                    CASE
+                        WHEN tr.total_revenue = 0 THEN 0
+                        ELSE ROUND((COALESCE(cr.total_revenue, 0) / tr.total_revenue) * 100, 2)
+                    END AS percentage_of_total
+                FROM categories c
+                LEFT JOIN category_revenue cr ON cr.categoryName = c.categoryName
+                CROSS JOIN total_revenue tr
+                ORDER BY c.categoryName;
+            `;
         } else {
-            orderWhereClause = undefined;
+            // Define variables based on granularity
+            let intervalUnit = "";
+            let selectPeriodMain = "";
+            let selectPeriodSub = "";
+            let groupByPeriodMain = "";
+            let groupByPeriodSub = "";
+            let orderByPeriod = "";
+            let periodJoinConditionRd = "";
+            let periodJoinConditionTr = "";
+
+            switch (granularity) {
+                case "year":
+                    intervalUnit = "1 YEAR";
+                    selectPeriodMain = "YEAR(p.period_date) AS year";
+                    selectPeriodSub = "YEAR(o.orderDate) AS year";
+                    groupByPeriodMain = "YEAR(p.period_date)";
+                    groupByPeriodSub = "YEAR(o.orderDate)";
+                    orderByPeriod = "YEAR(p.period_date)";
+                    periodJoinConditionRd = "rd.year = YEAR(p.period_date)";
+                    periodJoinConditionTr = "tr.year = YEAR(p.period_date)";
+                    break;
+                case "quarter":
+                    intervalUnit = "1 QUARTER";
+                    selectPeriodMain =
+                        "YEAR(p.period_date) AS year, QUARTER(p.period_date) AS quarter";
+                    selectPeriodSub =
+                        "YEAR(o.orderDate) AS year, QUARTER(o.orderDate) AS quarter";
+                    groupByPeriodMain =
+                        "YEAR(p.period_date), QUARTER(p.period_date)";
+                    groupByPeriodSub =
+                        "YEAR(o.orderDate), QUARTER(o.orderDate)";
+                    orderByPeriod =
+                        "YEAR(p.period_date), QUARTER(p.period_date)";
+                    periodJoinConditionRd =
+                        "rd.year = YEAR(p.period_date) AND rd.quarter = QUARTER(p.period_date)";
+                    periodJoinConditionTr =
+                        "tr.year = YEAR(p.period_date) AND tr.quarter = QUARTER(p.period_date)";
+                    break;
+                case "month":
+                    intervalUnit = "1 MONTH";
+                    selectPeriodMain =
+                        "YEAR(p.period_date) AS year, MONTH(p.period_date) AS month";
+                    selectPeriodSub =
+                        "YEAR(o.orderDate) AS year, MONTH(o.orderDate) AS month";
+                    groupByPeriodMain =
+                        "YEAR(p.period_date), MONTH(p.period_date)";
+                    groupByPeriodSub = "YEAR(o.orderDate), MONTH(o.orderDate)";
+                    orderByPeriod = "YEAR(p.period_date), MONTH(p.period_date)";
+                    periodJoinConditionRd =
+                        "rd.year = YEAR(p.period_date) AND rd.month = MONTH(p.period_date)";
+                    periodJoinConditionTr =
+                        "tr.year = YEAR(p.period_date) AND tr.month = MONTH(p.period_date)";
+                    break;
+                case "week":
+                    intervalUnit = "1 WEEK";
+                    selectPeriodMain =
+                        "YEAR(p.period_date) AS year, WEEK(p.period_date, 1) AS week";
+                    selectPeriodSub =
+                        "YEAR(o.orderDate) AS year, WEEK(o.orderDate, 1) AS week";
+                    groupByPeriodMain =
+                        "YEAR(p.period_date), WEEK(p.period_date, 1)";
+                    groupByPeriodSub =
+                        "YEAR(o.orderDate), WEEK(o.orderDate, 1)";
+                    orderByPeriod =
+                        "YEAR(p.period_date), WEEK(p.period_date, 1)";
+                    periodJoinConditionRd =
+                        "rd.year = YEAR(p.period_date) AND rd.week = WEEK(p.period_date, 1)";
+                    periodJoinConditionTr =
+                        "tr.year = YEAR(p.period_date) AND tr.week = WEEK(p.period_date, 1)";
+                    break;
+                default:
+                    throw new Error("Invalid granularity");
+            }
+
+            // Build the raw SQL query
+            query = `
+            WITH RECURSIVE periods AS (
+                SELECT DATE(:startDate) AS period_date
+                UNION ALL
+                SELECT DATE_ADD(period_date, INTERVAL ${intervalUnit})
+                FROM periods
+                WHERE period_date < DATE(:endDate)
+            ),
+            categories AS (
+                SELECT DISTINCT ${categoryField} AS category_name FROM ${categoryTable}
+            )
+            SELECT
+                ${selectPeriodMain},
+                c.category_name AS ${categoryField},
+                COALESCE(rd.total_revenue, 0) AS total_revenue,
+                COALESCE(tr.total_revenue, 0) AS total_period_revenue,
+                CASE
+                    WHEN COALESCE(tr.total_revenue, 0) = 0 THEN 0
+                    ELSE ROUND((COALESCE(rd.total_revenue, 0) / tr.total_revenue) * 100, 2)
+                END AS percentage_of_total
+            FROM periods p
+            CROSS JOIN categories c
+            LEFT JOIN (
+            -- Subquery rd: Revenue by category per period
+                SELECT
+                    ${selectPeriodSub},
+                    cat.${categoryField} AS category_name,
+                    SUM(oi.quantity * oi.priceWhenOrdered) AS total_revenue
+                FROM OrderItems oi
+                JOIN Orders o ON oi.order_id = o.order_id
+                JOIN Products pr ON oi.productNo = pr.productNo
+                JOIN ${categoryTable} cat ON pr.${
+                bySubcategory ? "subcategory_id" : "category_id"
+            } = cat.${bySubcategory ? "subcategory_id" : "category_id"}
+                ${
+                    stateAbbr || region
+                        ? `
+                JOIN Addresses addr ON o.address_id = addr.address_id
+                `
+                        : ""
+                }
+                WHERE o.orderDate BETWEEN :startDate AND :endDate
+                ${
+                    region
+                        ? `
+                AND ${buildRegionCase("addr")} = :region
+                `
+                        : ""
+                }
+                ${
+                    stateAbbr
+                        ? `
+                AND addr.stateAbbr = :stateAbbr
+                `
+                        : ""
+                }
+                GROUP BY ${groupByPeriodSub}, category_name
+            ) rd ON
+                ${periodJoinConditionRd}
+                AND rd.category_name = c.category_name
+            LEFT JOIN (
+                -- Subquery tr: Total revenue per period
+                SELECT
+                    ${selectPeriodSub},
+                    SUM(oi.quantity * oi.priceWhenOrdered) AS total_revenue
+                FROM OrderItems oi
+                JOIN Orders o ON oi.order_id = o.order_id
+                ${
+                    stateAbbr || region
+                        ? `
+                JOIN Addresses addr ON o.address_id = addr.address_id
+                `
+                        : ""
+                }
+                WHERE o.orderDate BETWEEN :startDate AND :endDate
+                ${stateAbbr ? `AND addr.stateAbbr = :stateAbbr` : ""}
+                ${region ? `AND ${buildRegionCase("addr")} = :region` : ""}
+                GROUP BY ${groupByPeriodSub}
+            ) tr ON
+                ${periodJoinConditionTr}
+            ORDER BY ${orderByPeriod}, c.category_name;
+        `;
         }
 
-        // Dynamically create order include parameter if sorting by state or region
-
-        let orderIncludeClause: IncludeOptions[] = [];
-        if (stateAbbr || region) {
-            orderIncludeClause.push({
-                model: sqlAddress,
-                as: "Address",
-                attributes: ["stateAbbr"],
-                where: stateAbbr
-                    ? { stateAbbr: stateAbbr }
-                    : sequelize.where(literal(regionCaseStatement), region),
-            });
-        }
-
-        // Dynamically create order item include parameter if sorting by state or region
-        const includeClause: IncludeOptions[] = [
-            {
-                model: sqlProduct,
-                as: "Product",
-                attributes: [],
-                include: [
-                    {
-                        model: sqlCategory,
-                        as: "Category",
-                        attributes: ["categoryName"],
-                    },
-                    {
-                        model: sqlSubcategory,
-                        as: "Subcategory",
-                        attributes: ["subcategoryName"],
-                    },
-                ],
-            },
-            {
-                model: sqlOrder,
-                as: "Order",
-                attributes: orderAttributeClause,
-                where: orderWhereClause,
-                include: orderIncludeClause,
-            },
-        ];
-
-        // Dynamically create data format
+        // Execute the raw SQL query
+        const results = await sequelize.query(query, {
+            type: QueryTypes.SELECT,
+            replacements: replacements,
+        });
 
         const dataFormat = {
             y: returnPercentage ? "percentage_of_total" : "total_revenue",
@@ -506,100 +652,12 @@ export const getRevenueByCategory = async (
         }
 
         // Dynamically create group clause
-        const groupClause: GroupOption = [];
-        const periodName: string[] = [];
-        const periodGroupClause: GroupOption = [];
-        if (!returnPercentage) {
-            if (bySubcategory) {
-                groupClause.push("subcategoryName");
-            } else {
-                groupClause.push("categoryName");
-            }
-        }
-
-        if (granularity !== "all") {
-            periodName.push("YEAR(orderDate)");
-            periodGroupClause.push(literal("YEAR(orderDate)"));
-            groupClause.push(literal("YEAR(orderDate)"));
-        }
-        if (["week", "month", "quarter"].includes(granularity)) {
-            periodName.push(`'-${granularity.toUpperCase().substring(0, 1)}'`);
-            periodName.push(`${granularity.toUpperCase()}(orderDate)`);
-            periodGroupClause.push(
-                literal(`${granularity.toUpperCase()}(orderDate)`)
-            );
-            groupClause.push(
-                literal(`${granularity.toUpperCase()}(orderDate)`)
-            );
-        }
-
-        if (returnPercentage) {
-            if (bySubcategory) {
-                groupClause.push("subcategoryName");
-            } else {
-                groupClause.push("categoryName");
-            }
-        }
-
-        const attributesClause: FindAttributeOptions = [
-            [literal(`SUM(quantity * priceWhenOrdered)`), "total_revenue"],
-        ];
-
-        if (Array.isArray(periodName) && periodName.length > 0) {
-            attributesClause.push([
-                literal(`CONCAT(${periodName.join(", ")})`),
-                "period",
-            ]);
-        }
-
-        const totalRevenueByPeriod = await sqlOrderItem.findAll({
-            attributes: attributesClause,
-            include: [
-                {
-                    model: sqlOrder,
-                    as: "Order",
-                    attributes: [],
-                    where: orderWhereClause,
-                },
-            ],
-            group: periodGroupClause,
-            raw: true,
-        });
-
-        console.log(totalRevenueByPeriod);
-
-        const totalRevenueMap: Record<string, number> = {};
-        totalRevenueByPeriod.forEach((entry: any) => {
-            const periodKey = entry.period || "all";
-            totalRevenueMap[periodKey] = entry.total_revenue;
-        });
-
-        const results = await sqlOrderItem.findAll({
-            attributes: attributesClause,
-            include: includeClause,
-            group: groupClause,
-            order: ["total_revenue"],
-            raw: true,
-        });
-
-        const resultsWithPercentage = results.map((result: any) => {
-            const periodKey = result.period || "all"; // Get the period from the SQL result
-            const totalRevenueForPeriod = totalRevenueMap[periodKey] || 1; // Use the map, or default to 1
-            const percentageOfTotal =
-                (result.total_revenue / totalRevenueForPeriod) * 100;
-
-            return {
-                ...result,
-                percentage_of_total: percentageOfTotal.toFixed(2), // Round to 2 decimal places
-            };
-        });
-
-        console.log(resultsWithPercentage);
 
         const processedResults = buildChartObjects(
-            resultsWithPercentage,
+            results,
             chartType,
-            dataFormat
+            dataFormat,
+            returnPercentage ? "Percent of Total" : undefined
         );
 
         const returnObject: Record<
@@ -630,7 +688,6 @@ export const getRevenueByCategory = async (
         }
     }
 };
-
 // Get number transactions
 
 export const getTransactionsOverTime = async (
@@ -642,71 +699,130 @@ export const getTransactionsOverTime = async (
     chartType: ChartType
 ) => {
     try {
-        // Dynamically construct attributes based on granularity input
-        const attributeClause: FindAttributeOptions = [];
-        switch (granularity) {
-            case "all":
-                break;
-            case "year":
-                attributeClause.push([fn("YEAR", col("orderDate")), "year"]);
-                break;
-            case "quarter":
-                attributeClause.push([
-                    literal("QUARTER(orderDate)"),
-                    "quarter",
-                ]);
-                attributeClause.push([fn("YEAR", col("orderDate")), "year"]);
-                break;
-            case "month":
-                attributeClause.push([fn("MONTH", col("orderDate")), "month"]);
-                attributeClause.push([fn("YEAR", col("orderDate")), "year"]);
-                break;
-            case "week":
-                attributeClause.push([fn("WEEK", col("orderDate")), "week"]);
-                attributeClause.push([fn("YEAR", col("orderDate")), "year"]);
-                break;
-            default:
-                throw new Error("invalid time grouping");
-        }
+        const startDateObj = startDate
+            ? new Date(startDate)
+            : new Date("01-01-2022");
+        const endDateObj = endDate ? new Date(endDate) : new Date();
 
-        // Add number of items to attributes
-        attributeClause.push([fn("COUNT", col("order_id")), "count"]);
+        // Prepare replacements
+        const replacements = {
+            startDate: startDateObj.toISOString().split("T")[0],
+            endDate: endDateObj.toISOString().split("T")[0],
+        };
 
-        // Dynamically add date restrictions based on input
+        let query = "";
 
-        let whereClause: WhereOptions | undefined = {};
-        if (startDate && endDate) {
-            whereClause["orderDate"] = {
-                [Op.between]: [startDate, endDate],
-            };
-        } else if (startDate && !endDate) {
-            whereClause["orderDate"] = {
-                [Op.gte]: startDate,
-            };
-        } else if (endDate) {
-            whereClause["orderDate"] = {
-                [Op.lte]: endDate,
-            };
+        if (granularity === "all") {
+            // Build the raw SQL query
+            query = `
+
+            SELECT
+                ${byState ? "a.stateAbbr AS stateAbbr," : ""}
+                ${byRegion ? `${buildRegionCase("a")} AS region,` : ""}
+                COUNT(o.order_id) AS count
+            FROM Orders o
+            ${
+                byState || byRegion
+                    ? "LEFT JOIN Addresses a ON o.address_id = a.address_id"
+                    : ""
+            }
+            WHERE o.orderDate BETWEEN :startDate AND :endDate
+            ${byState ? "GROUP BY a.stateAbbr" : ""}
+            ${byRegion ? "GROUP BY region" : ""}
+            ${byState ? "ORDER BY a.stateAbbr" : ""}
+            ${byRegion ? "ORDER BY region" : ""};
+        `;
         } else {
-            whereClause = undefined;
+            // Define variables based on granularity
+            let intervalUnit = "";
+            let selectPeriod = "";
+            let groupByPeriod = "";
+            let orderByPeriod = "";
+            let leftJoinCondition = "";
+
+            switch (granularity) {
+                case "year":
+                    intervalUnit = "1 YEAR";
+                    selectPeriod = "YEAR(p.period_date) AS year";
+                    groupByPeriod = "YEAR(p.period_date)";
+                    orderByPeriod = "YEAR(p.period_date)";
+                    leftJoinCondition =
+                        "YEAR(o.orderDate) = YEAR(p.period_date)";
+                    break;
+                case "quarter":
+                    intervalUnit = "3 MONTH";
+                    selectPeriod =
+                        "YEAR(p.period_date) AS year, QUARTER(p.period_date) AS quarter";
+                    groupByPeriod =
+                        "YEAR(p.period_date), QUARTER(p.period_date)";
+                    orderByPeriod =
+                        "YEAR(p.period_date), QUARTER(p.period_date)";
+                    leftJoinCondition =
+                        "YEAR(o.orderDate) = YEAR(p.period_date) AND QUARTER(o.orderDate) = QUARTER(p.period_date)";
+                    break;
+                case "month":
+                    intervalUnit = "1 MONTH";
+                    selectPeriod =
+                        "YEAR(p.period_date) AS year, MONTH(p.period_date) AS month";
+                    groupByPeriod = "YEAR(p.period_date), MONTH(p.period_date)";
+                    orderByPeriod = "YEAR(p.period_date), MONTH(p.period_date)";
+                    leftJoinCondition =
+                        "YEAR(o.orderDate) = YEAR(p.period_date) AND MONTH(o.orderDate) = MONTH(p.period_date)";
+                    break;
+                case "week":
+                    intervalUnit = "1 WEEK";
+                    selectPeriod =
+                        "YEAR(p.period_date) AS year, WEEK(p.period_date, 1) AS week"; // Using mode 1 for ISO weeks
+                    groupByPeriod =
+                        "YEAR(p.period_date), WEEK(p.period_date, 1)";
+                    orderByPeriod =
+                        "YEAR(p.period_date), WEEK(p.period_date, 1)";
+                    leftJoinCondition =
+                        "YEAR(o.orderDate) = YEAR(p.period_date) AND WEEK(o.orderDate, 1) = WEEK(p.period_date, 1)";
+                    break;
+                default:
+                    throw new Error("Invalid granularity");
+            }
+
+            // Build the raw SQL query
+            query = `
+            WITH RECURSIVE periods AS (
+                SELECT :startDate AS period_date
+                UNION ALL
+                SELECT DATE_ADD(period_date, INTERVAL ${intervalUnit})
+                FROM periods
+                WHERE period_date < :endDate
+            )
+            SELECT
+                ${selectPeriod},
+                ${byState ? "a.stateAbbr AS stateAbbr," : ""}
+                ${byRegion ? `${buildRegionCase("a")} AS region,` : ""}
+                COUNT(o.order_id) AS count
+            FROM periods p
+            LEFT JOIN Orders o ON
+                ${leftJoinCondition}
+                AND o.orderDate BETWEEN :startDate AND :endDate
+                ${byState || byRegion ? "AND o.address_id IS NOT NULL" : ""}
+            ${
+                byState || byRegion
+                    ? "LEFT JOIN Addresses a ON o.address_id = a.address_id"
+                    : ""
+            }
+            WHERE p.period_date BETWEEN :startDate AND :endDate
+            GROUP BY ${groupByPeriod}
+            ${byState ? ", a.stateAbbr" : ""}
+            ${byRegion ? ", region" : ""}
+            ORDER BY ${orderByPeriod}
+            ${byState ? ", a.stateAbbr" : ""}
+            ${byRegion ? ", region" : ""};
+        `;
         }
 
-        // Dynamically create include parameter if sorting by state or region
-
-        let includeClause: IncludeOptions[] | undefined = undefined;
-        if (byState || byRegion) {
-            includeClause = [
-                {
-                    model: sqlAddress,
-                    as: "Address",
-                    attributes: [
-                        byState
-                            ? "stateAbbr"
-                            : [literal(regionCaseStatement), "region"],
-                    ],
-                },
-            ];
-        }
+        // Execute the raw SQL query
+        const results = await sequelize.query(query, {
+            type: QueryTypes.SELECT,
+            replacements: replacements,
+        });
 
         // Dynamically create data format and group clause
 
@@ -716,17 +832,16 @@ export const getTransactionsOverTime = async (
             x: SortOrder | null;
             y: YValue;
         };
-        const groupClause: GroupOption = [];
+
         if (byRegion) {
-            // Since sequelize does not support grouping or ordering by dynamically created fields in associated tables, in order to group/order by region, the RAW sql that created the column must be repeated in the group/order clause.
-            groupClause.push(literal(regionCaseStatement));
             dataFormat["id"] = "region";
         } else if (byState) {
-            groupClause.push("stateAbbr");
             dataFormat["id"] = "stateAbbr";
         } else if (chartType === "bar") {
             dataFormat["id"] = granularity as SortOrder;
-            dataFormat["id2"] = "year";
+            if (granularity !== "year") {
+                dataFormat["id2"] = "year";
+            }
         } else {
             dataFormat["id"] = "year";
         }
@@ -735,34 +850,17 @@ export const getTransactionsOverTime = async (
         dataFormat["x"] =
             chartType === "bar" ? null : (granularity as SortOrder);
 
-        if (["week", "month", "quarter", "year"].includes(granularity)) {
-            groupClause.push(literal("YEAR(orderDate)"));
-        }
-        if (["week", "month", "quarter"].includes(granularity)) {
-            groupClause.push(
-                literal(`${granularity.toUpperCase()}(orderDate)`)
-            );
-        }
-
-        const results = await sqlOrder.findAll({
-            where: whereClause,
-            attributes: attributeClause,
-            include: includeClause,
-            group: groupClause,
-            order: ["count"],
-            raw: true,
-        });
-        if (granularity !== "all") {
-            const processedResults = buildChartObjects(
-                results,
-                chartType,
-                dataFormat,
-                "Transactions"
-            );
-            return processedResults;
-        } else {
-            return results;
-        }
+        // if (granularity !== "all") {
+        const processedResults = buildChartObjects(
+            results,
+            chartType,
+            dataFormat,
+            "Transactions"
+        );
+        return processedResults;
+        // } else {
+        //     return results;
+        // }
     } catch (error) {
         if (error instanceof Error) {
             // Rollback the transaction in case of any errors
@@ -788,79 +886,131 @@ export const getItemsPerTransaction = async (
     chartType: ChartType
 ) => {
     try {
-        // Dynamically construct attributes based on granularity input
-        const attributeClause: FindAttributeOptions = [];
+        const startDateObj = startDate
+            ? new Date(startDate)
+            : new Date("01-01-2022");
+        const endDateObj = endDate ? new Date(endDate) : new Date();
+
+        // Define variables based on granularity
+        let intervalUnit = "";
+        let selectPeriodMain = "";
+        let selectPeriodSub = "";
+        let groupByPeriodMain = "";
+        let groupByPeriodSub = "";
+        let orderByPeriod = "";
+        let periodJoinCondition = "";
+
         switch (granularity) {
             case "year":
-                attributeClause.push([fn("YEAR", col("orderDate")), "year"]);
+                intervalUnit = "1 YEAR";
+                selectPeriodMain = "YEAR(p.period_date) AS year";
+                selectPeriodSub = "YEAR(o.orderDate) AS year";
+                groupByPeriodMain = "YEAR(p.period_date)";
+                groupByPeriodSub = "YEAR(o.orderDate)";
+                orderByPeriod = "YEAR(p.period_date)";
+                periodJoinCondition = "it.year = YEAR(p.period_date)";
                 break;
             case "quarter":
-                attributeClause.push([
-                    literal("QUARTER(orderDate)"),
-                    "quarter",
-                ]);
-                attributeClause.push([fn("YEAR", col("orderDate")), "year"]);
+                intervalUnit = "1 QUARTER";
+                selectPeriodMain =
+                    "YEAR(p.period_date) AS year, QUARTER(p.period_date) AS quarter";
+                selectPeriodSub =
+                    "YEAR(o.orderDate) AS year, QUARTER(o.orderDate) AS quarter";
+                groupByPeriodMain =
+                    "YEAR(p.period_date), QUARTER(p.period_date)";
+                groupByPeriodSub = "YEAR(o.orderDate), QUARTER(o.orderDate)";
+                orderByPeriod = "YEAR(p.period_date), QUARTER(p.period_date)";
+                periodJoinCondition =
+                    "it.year = YEAR(p.period_date) AND it.quarter = QUARTER(p.period_date)";
                 break;
             case "month":
-                attributeClause.push([fn("MONTH", col("orderDate")), "month"]);
-                attributeClause.push([fn("YEAR", col("orderDate")), "year"]);
+                intervalUnit = "1 MONTH";
+                selectPeriodMain =
+                    "YEAR(p.period_date) AS year, MONTH(p.period_date) AS month";
+                selectPeriodSub =
+                    "YEAR(o.orderDate) AS year, MONTH(o.orderDate) AS month";
+                groupByPeriodMain = "YEAR(p.period_date), MONTH(p.period_date)";
+                groupByPeriodSub = "YEAR(o.orderDate), MONTH(o.orderDate)";
+                orderByPeriod = "YEAR(p.period_date), MONTH(p.period_date)";
+                periodJoinCondition =
+                    "it.year = YEAR(p.period_date) AND it.month = MONTH(p.period_date)";
                 break;
             case "week":
-                attributeClause.push([fn("WEEK", col("orderDate")), "week"]);
-                attributeClause.push([fn("YEAR", col("orderDate")), "year"]);
+                intervalUnit = "1 WEEK";
+                selectPeriodMain =
+                    "YEAR(p.period_date) AS year, WEEK(p.period_date, 1) AS week";
+                selectPeriodSub =
+                    "YEAR(o.orderDate) AS year, WEEK(o.orderDate, 1) AS week";
+                groupByPeriodMain =
+                    "YEAR(p.period_date), WEEK(p.period_date, 1)";
+                groupByPeriodSub = "YEAR(o.orderDate), WEEK(o.orderDate, 1)";
+                orderByPeriod = "YEAR(p.period_date), WEEK(p.period_date, 1)";
+                periodJoinCondition =
+                    "it.year = YEAR(p.period_date) AND it.week = WEEK(p.period_date, 1)";
+
                 break;
+
             default:
-                throw new Error("invalid time grouping");
+                throw new Error("Invalid granularity");
         }
 
-        // Dynamically add date restrictions based on input
+        const query = `
+            WITH RECURSIVE periods AS (
+                SELECT :startDate AS period_date
+                UNION ALL
+                SELECT DATE_ADD(period_date, INTERVAL ${intervalUnit})
+                FROM periods
+                WHERE period_date < :endDate
+            )
+            SELECT
+                ${selectPeriodMain},
+                CASE
+                    WHEN COALESCE(it.total_transactions, 0) = 0 THEN 0
+                    ELSE ROUND((COALESCE(it.total_items, 0) / it.total_transactions), 2)
+                END AS averageQuantityPerOrder
+            FROM periods p
+            LEFT JOIN (
+                SELECT
+                    ${selectPeriodSub},
+                    SUM(oi.quantity) as total_items,
+                    COUNT(DISTINCT o.order_id) AS total_transactions
+                FROM Orders o
+                JOIN OrderItems oi ON oi.order_id = o.order_id
+                ${
+                    byState || byRegion
+                        ? `
+                    JOIN Addresses a ON o.address_id = a.address_id
+                    `
+                        : ""
+                }
+                WHERE o.orderDate BETWEEN :startDate AND :endDate
+                ${byState ? "AND a.stateAbbr AS stateAbbr," : ""}
+                ${byRegion ? `AND ${buildRegionCase("a")} AS region,` : ""}
+                GROUP BY ${groupByPeriodSub}
+            ) it ON 
+                ${periodJoinCondition}
+            WHERE p.period_date BETWEEN :startDate AND :endDate
+            GROUP BY ${groupByPeriodMain}
+            ${byState ? ", a.stateAbbr" : ""}
+            ${byRegion ? ", region" : ""}
+            ORDER BY ${orderByPeriod}
+            ${byState ? ", a.stateAbbr" : ""}
+            ${byRegion ? ", region" : ""};
+        `;
 
-        let whereClause: WhereOptions | undefined = {};
-        if (startDate && endDate) {
-            whereClause["orderDate"] = {
-                [Op.between]: [startDate, endDate],
-            };
-        } else if (startDate && !endDate) {
-            whereClause["orderDate"] = {
-                [Op.gte]: startDate,
-            };
-        } else if (endDate) {
-            whereClause["orderDate"] = {
-                [Op.lte]: endDate,
-            };
-        } else {
-            whereClause = undefined;
-        }
+        // Prepare replacements
+        const replacements = {
+            startDate: startDateObj.toISOString().split("T")[0],
+            endDate: endDateObj.toISOString().split("T")[0],
+        };
 
-        // Dynamically create include parameter if sorting by state or region
+        // Execute the raw SQL query
+        const results = await sequelize.query(query, {
+            type: QueryTypes.SELECT,
+            replacements: replacements,
+        });
 
-        let includeClause: IncludeOptions[] = [
-            {
-                model: sqlOrderItem,
-                as: "OrderItem",
-                attributes: [
-                    [
-                        sequelize.literal(
-                            `ROUND((SUM(quantity) / COUNT(DISTINCT OrderItem.order_id)), 2)`
-                        ),
-                        "averageQuantityPerOrder",
-                    ],
-                ],
-            },
-        ];
-        if (byState || byRegion) {
-            includeClause.push({
-                model: sqlAddress,
-                as: "Address",
-                attributes: [
-                    byState
-                        ? "stateAbbr"
-                        : [literal(regionCaseStatement), "region"],
-                ],
-            });
-        }
-
-        // Dynamically create data format and group clause
+        // Dynamically create data format
 
         const dataFormat = { y: "averageQuantityPerOrder" } as {
             id: SortOrder;
@@ -868,13 +1018,10 @@ export const getItemsPerTransaction = async (
             x: SortOrder | null;
             y: YValue;
         };
-        const groupClause: GroupOption = [];
+
         if (byRegion) {
-            // Since sequelize does not support grouping or ordering by dynamically created fields in associated tables, in order to group/order by region, the RAW sql that created the column must be repeated in the group/order clause.
-            groupClause.push(literal(regionCaseStatement));
             dataFormat["id"] = "region";
         } else if (byState) {
-            groupClause.push("stateAbbr");
             dataFormat["id"] = "stateAbbr";
         } else if (chartType === "bar") {
             dataFormat["id"] = granularity;
@@ -887,22 +1034,6 @@ export const getItemsPerTransaction = async (
         dataFormat["x"] =
             chartType === "bar" ? null : (granularity as SortOrder);
 
-        if (["week", "month", "quarter", "year"].includes(granularity)) {
-            groupClause.push(literal("YEAR(orderDate)"));
-        }
-        if (["week", "month", "quarter"].includes(granularity)) {
-            groupClause.push(
-                literal(`${granularity.toUpperCase()}(orderDate)`)
-            );
-        }
-
-        const results = await sqlOrder.findAll({
-            where: whereClause,
-            attributes: attributeClause,
-            include: includeClause,
-            group: groupClause,
-            raw: true,
-        });
         const processedResults = buildChartObjects(
             results,
             chartType,
@@ -935,85 +1066,132 @@ export const getAverageOrderValue = async (
     chartType: ChartType
 ) => {
     try {
-        // Dynamically construct attributes based on granularity input
-        const attributeClause: FindAttributeOptions = [
-            [fn("YEAR", col("orderDate")), "year"],
-        ];
+        const startDateObj = startDate
+            ? new Date(startDate)
+            : new Date("01-01-2022");
+        const endDateObj = endDate ? new Date(endDate) : new Date();
+
+        // Define variables based on granularity
+        let intervalUnit = "";
+        let selectPeriodMain = "";
+        let selectPeriodSub = "";
+        let groupByPeriodMain = "";
+        let groupByPeriodSub = "";
+        let orderByPeriod = "";
+        let periodJoinCondition = "";
+
         switch (granularity) {
             case "quarter":
-                attributeClause.push([
-                    literal("QUARTER(orderDate)"),
-                    "quarter",
-                ]);
-                attributeClause.push([fn("YEAR", col("orderDate")), "year"]);
+                intervalUnit = "1 QUARTER";
+                selectPeriodMain =
+                    "YEAR(p.period_date) AS year, QUARTER(p.period_date) AS quarter";
+                selectPeriodSub =
+                    "YEAR(o.orderDate) AS year, QUARTER(o.orderDate) AS quarter";
+                groupByPeriodMain =
+                    "YEAR(p.period_date), QUARTER(p.period_date)";
+                groupByPeriodSub = "YEAR(o.orderDate), QUARTER(o.orderDate)";
+                orderByPeriod = "YEAR(p.period_date), QUARTER(p.period_date)";
+                periodJoinCondition =
+                    "it.year = YEAR(p.period_date) AND it.quarter = QUARTER(p.period_date)";
                 break;
             case "month":
-                attributeClause.push([fn("MONTH", col("orderDate")), "month"]);
-                attributeClause.push([fn("YEAR", col("orderDate")), "year"]);
+                intervalUnit = "1 MONTH";
+                selectPeriodMain =
+                    "YEAR(p.period_date) AS year, MONTH(p.period_date) AS month";
+                selectPeriodSub =
+                    "YEAR(o.orderDate) AS year, MONTH(o.orderDate) AS month";
+                groupByPeriodMain = "YEAR(p.period_date), MONTH(p.period_date)";
+                groupByPeriodSub = "YEAR(o.orderDate), MONTH(o.orderDate)";
+                orderByPeriod = "YEAR(p.period_date), MONTH(p.period_date)";
+                periodJoinCondition =
+                    "it.year = YEAR(p.period_date) AND it.month = MONTH(p.period_date)";
                 break;
             case "week":
-                attributeClause.push([fn("WEEK", col("orderDate")), "week"]);
-                attributeClause.push([fn("YEAR", col("orderDate")), "year"]);
+                intervalUnit = "1 WEEK";
+                selectPeriodMain =
+                    "YEAR(p.period_date) AS year, WEEK(p.period_date, 1) AS week";
+                selectPeriodSub =
+                    "YEAR(o.orderDate) AS year, WEEK(o.orderDate, 1) AS week";
+                groupByPeriodMain =
+                    "YEAR(p.period_date), WEEK(p.period_date, 1)";
+                groupByPeriodSub = "YEAR(o.orderDate), WEEK(o.orderDate, 1)";
+                orderByPeriod = "YEAR(p.period_date), WEEK(p.period_date, 1)";
+                periodJoinCondition =
+                    "it.year = YEAR(p.period_date) AND it.week = WEEK(p.period_date, 1)";
+
                 break;
+
             default:
-                throw new Error("invalid time grouping");
+                throw new Error("Invalid granularity");
         }
 
-        attributeClause.push([
-            sequelize.literal(`ROUND((SUM(subTotal) / COUNT(order_id)), 2)`),
-            "averageOrderValue",
-        ]);
+        const query = `
+            WITH RECURSIVE periods AS (
+                SELECT :startDate AS period_date
+                UNION ALL
+                SELECT DATE_ADD(period_date, INTERVAL ${intervalUnit})
+                FROM periods
+                WHERE period_date < :endDate
+            )
+            SELECT
+                ${selectPeriodMain},
+                CASE
+                    WHEN COALESCE(it.total_transactions, 0) = 0 THEN 0
+                    ELSE ROUND((COALESCE(it.total_value, 0) / it.total_transactions), 2)
+                END AS averageOrderValue
+            FROM periods p
+            LEFT JOIN (
+                SELECT
+                    ${selectPeriodSub},
+                    SUM(oi.quantity * oi.priceWhenOrdered) as total_value,
+                    COUNT(DISTINCT o.order_id) AS total_transactions
+                FROM Orders o
+                JOIN OrderItems oi ON oi.order_id = o.order_id
+                ${
+                    byState || byRegion
+                        ? `
+                    JOIN Addresses a ON o.address_id = a.address_id
+                    `
+                        : ""
+                }
+                WHERE o.orderDate BETWEEN :startDate AND :endDate
+                ${byState ? "AND a.stateAbbr AS stateAbbr," : ""}
+                ${byRegion ? `AND ${buildRegionCase("a")} AS region,` : ""}
+                GROUP BY ${groupByPeriodSub}
+            ) it ON 
+                ${periodJoinCondition}
+            WHERE p.period_date BETWEEN :startDate AND :endDate
+            GROUP BY ${groupByPeriodMain}
+            ${byState ? ", a.stateAbbr" : ""}
+            ${byRegion ? ", region" : ""}
+            ORDER BY ${orderByPeriod}
+            ${byState ? ", a.stateAbbr" : ""}
+            ${byRegion ? ", region" : ""};
+        `;
 
-        // Dynamically add date restrictions based on input
+        // Prepare replacements
+        const replacements = {
+            startDate: startDateObj.toISOString().split("T")[0],
+            endDate: endDateObj.toISOString().split("T")[0],
+        };
 
-        let whereClause: WhereOptions | undefined = {};
-        if (startDate && endDate) {
-            whereClause["orderDate"] = {
-                [Op.between]: [startDate, endDate],
-            };
-        } else if (startDate && !endDate) {
-            whereClause["orderDate"] = {
-                [Op.gte]: startDate,
-            };
-        } else if (endDate) {
-            whereClause["orderDate"] = {
-                [Op.lte]: endDate,
-            };
-        } else {
-            whereClause = undefined;
-        }
+        // Execute the raw SQL query
+        const results = await sequelize.query(query, {
+            type: QueryTypes.SELECT,
+            replacements: replacements,
+        });
 
-        // Dynamically create include parameter if sorting by state or region
-
-        let includeClause: IncludeOptions[] | undefined = [];
-        if (byState || byRegion) {
-            includeClause.push({
-                model: sqlAddress,
-                as: "Address",
-                attributes: [
-                    byState
-                        ? "stateAbbr"
-                        : [literal(regionCaseStatement), "region"],
-                ],
-            });
-        } else {
-            includeClause = undefined;
-        }
-
-        // Dynamically create group clause and order clause
+        // Dynamically create group clause
         const dataFormat = { y: "averageOrderValue" } as {
             id: SortOrder;
             id2?: "year";
             x: SortOrder | null;
             y: YValue;
         };
-        const groupClause: GroupOption = [];
+
         if (byRegion) {
-            // Since sequelize does not support grouping or ordering by dynamically created fields in associated tables, in order to group/order by region, the RAW sql that created the column must be repeated in the group/order clause.
-            groupClause.push(literal(regionCaseStatement));
             dataFormat["id"] = "region";
         } else if (byState) {
-            groupClause.push("stateAbbr");
             dataFormat["id"] = "stateAbbr";
         } else if (chartType === "bar") {
             dataFormat["id"] = granularity;
@@ -1026,21 +1204,6 @@ export const getAverageOrderValue = async (
         dataFormat["x"] =
             chartType === "bar" ? null : (granularity as SortOrder);
 
-        groupClause.push(literal("YEAR(orderDate)"));
-
-        if (["week", "month", "quarter"].includes(granularity)) {
-            groupClause.push(
-                literal(`${granularity.toUpperCase()}(orderDate)`)
-            );
-        }
-
-        const results = await sqlOrder.findAll({
-            where: whereClause,
-            attributes: attributeClause,
-            include: includeClause,
-            group: groupClause,
-            raw: true,
-        });
         const processedResults = buildChartObjects(
             results,
             chartType,
@@ -1132,7 +1295,7 @@ export const getRegionRevenuePercentages = async (
                     attributes: [
                         byState
                             ? "stateAbbr"
-                            : [literal(regionCaseStatement), "region"],
+                            : [literal(buildRegionCase()), "region"],
                     ],
                 },
             ];
@@ -1168,7 +1331,7 @@ export const getRegionRevenuePercentages = async (
 
         if (byRegion) {
             // Since sequelize does not support grouping or ordering by dynamically created fields in associated tables, in order to group/order by region, the RAW sql that created the column must be repeated in the group/order clause.
-            groupClause.push(literal(regionCaseStatement));
+            groupClause.push(literal(buildRegionCase()));
             dataFormat.id = "region";
         } else if (byState) {
             groupClause.push("stateAbbr");

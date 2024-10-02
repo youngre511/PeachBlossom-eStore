@@ -128,7 +128,6 @@ const Revenue: React.FC<Props> = () => {
             setRblLoading(true);
         } else {
             setRblLoading(false);
-            console.log(rblData);
         }
     }, [rbl.loading]);
 

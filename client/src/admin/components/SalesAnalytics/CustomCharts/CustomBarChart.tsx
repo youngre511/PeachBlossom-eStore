@@ -77,7 +77,6 @@ const CustomBarChart: React.FC<Props> = ({
                     const pointCopy = { ...dataPoint };
                     const year = pointCopy.id.split(" ")[1];
                     pointCopy.id = pointCopy.id.split(" ")[0];
-                    console.log("pointCopy:", pointCopy);
                     const periodIndex = newDataArray.findIndex(
                         (item) => item.period === year
                     );

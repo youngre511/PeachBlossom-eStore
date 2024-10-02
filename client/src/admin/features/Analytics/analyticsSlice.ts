@@ -6,7 +6,6 @@ import {
     BarData,
     CategoryPercentagesResponse,
     LineData,
-    PieData,
     RBCParams,
     RevenueByCategoryResponse,
     PlusParams,
