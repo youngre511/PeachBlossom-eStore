@@ -13,6 +13,8 @@ export interface AdminUser extends User {
 export interface CustomerUser extends User {
     customer_id: number;
     email: string;
+    totalSpent: number;
+    totalOrders: number;
 }
 
 export interface CustomerFilters {

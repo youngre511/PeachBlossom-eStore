@@ -14,8 +14,9 @@ import {
 import CustomerListHead from "./CustomerListHead";
 import { useNavigate } from "react-router-dom";
 import { CustomerUser } from "../../features/Users/userTypes";
+import CustomerListRow from "./CustomerListRow";
 
-interface AdminListProps {
+interface CustomerListProps {
     page: number;
     results: CustomerUser[];
     numberOfResults: number;
@@ -24,15 +25,17 @@ interface AdminListProps {
     handleUserDelete: (user_id: number) => void;
 }
 
-interface Row {
+export interface CustomerRow {
     user_id: number;
     username: string;
     customer_id: number;
     email: string;
+    totalOrders: number;
+    totalSpent: number;
     defaultPassword: boolean;
 }
 
-const CustomerList: React.FC<AdminListProps> = ({
+const CustomerList: React.FC<CustomerListProps> = ({
     page,
     results,
     numberOfResults,
@@ -44,11 +47,13 @@ const CustomerList: React.FC<AdminListProps> = ({
     const navigate = useNavigate();
 
     const rows = results.map((user) => {
-        const rowData: Row = {
+        const rowData: CustomerRow = {
             user_id: user.user_id,
             username: user.username,
             customer_id: user.customer_id,
             email: user.email,
+            totalOrders: user.totalOrders,
+            totalSpent: user.totalSpent,
             defaultPassword: user.defaultPassword,
         };
         return rowData;
@@ -61,7 +66,7 @@ const CustomerList: React.FC<AdminListProps> = ({
     const handleChangeRowsPerPage = (
         event: React.ChangeEvent<HTMLInputElement>
     ) => {
-        setRowsPerPage(parseInt(event.target.value, 24));
+        setRowsPerPage(+event.target.value);
         updateSearchParams({
             page: "1",
             itemsPerPage: String(event.target.value),
@@ -76,7 +81,7 @@ const CustomerList: React.FC<AdminListProps> = ({
             <Paper sx={{ width: "100%", mb: 2 }}>
                 <TableContainer sx={{ maxHeight: 500 }}>
                     <Table
-                        sx={{ minWidth: 750, paddingLeft: "20px" }}
+                        sx={{ paddingLeft: "20px" }}
                         aria-labelledby="tableTitle"
                         size={"medium"}
                         stickyHeader
@@ -84,54 +89,14 @@ const CustomerList: React.FC<AdminListProps> = ({
                     >
                         <CustomerListHead />
                         <TableBody>
-                            {rows.map((row, index) => {
-                                return (
-                                    <TableRow
-                                        hover
-                                        tabIndex={-1}
-                                        key={row.user_id}
-                                    >
-                                        <TableCell align="left">
-                                            {row.user_id}
-                                        </TableCell>
-                                        <TableCell align="left">
-                                            {row.username}
-                                        </TableCell>
-                                        <TableCell align="left">
-                                            {row.customer_id}
-                                        </TableCell>
-                                        <TableCell align="left">
-                                            {row.email}
-                                        </TableCell>
-                                        <TableCell align="left">
-                                            {String(row.defaultPassword)}
-                                        </TableCell>
-                                        <TableCell align="left">
-                                            {/* {row.username !== "youngre511" && (
-                                                <CustomerMoreMenu
-                                                    user_id={row.user_id}
-                                                    username={row.username}
-                                                    currentAccessLevel={
-                                                        row.accessLevel
-                                                    }
-                                                    isDefaultPassword={
-                                                        row.defaultPassword
-                                                    }
-                                                    handleResetPassword={
-                                                        handleResetPassword
-                                                    }
-                                                    handleUserDelete={
-                                                        handleUserDelete
-                                                    }
-                                                    handleChangeAccessLevel={
-                                                        handleChangeAccessLevel
-                                                    }
-                                                />
-                                            )} */}
-                                        </TableCell>
-                                    </TableRow>
-                                );
-                            })}
+                            {rows.map((row, index) => (
+                                <CustomerListRow
+                                    row={row}
+                                    handleResetPassword={handleResetPassword}
+                                    handleUserDelete={handleUserDelete}
+                                    key={row.username}
+                                />
+                            ))}
                             {emptyRows > 0 && (
                                 <TableRow
                                     style={{

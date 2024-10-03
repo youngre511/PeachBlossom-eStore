@@ -8,6 +8,7 @@ import { Op } from "sequelize";
 import { generateAccessToken, UserPayload } from "../utils/jwt.js";
 import { sqlRefreshToken } from "../models/mysql/sqlRefreshTokenModel.js";
 import { ReceivedUser } from "../middleware/authMiddleware.js";
+import { sqlOrder } from "../models/mysql/sqlOrderModel.js";
 
 interface IUser extends Model {
     user_id: number;
@@ -85,6 +86,7 @@ export const getCustomers = async (
     searchString?: string
 ) => {
     try {
+        console.log("Searchstring:", searchString);
         const offset = (page - 1) * usersPerPage;
         const whereClause: any = { [Op.and]: [{ role: "customer" }] };
         const customerWhereClause: any = {};
@@ -92,10 +94,8 @@ export const getCustomers = async (
             whereClause[Op.or] = [
                 { user_id: { [Op.eq]: searchString } },
                 { username: { [Op.like]: `%${searchString}%` } },
-            ];
-            customerWhereClause[Op.or] = [
-                { customer_id: { [Op.eq]: searchString } },
-                { email: { [Op.like]: `%${searchString}%` } },
+                { "$customer.customer_id$": { [Op.eq]: searchString } },
+                { "$customer.email$": { [Op.like]: `%${searchString}%` } },
             ];
         }
         const customerResponse = await sqlUser.findAndCountAll({
@@ -105,6 +105,28 @@ export const getCustomers = async (
                     model: sqlCustomer,
                     as: "customer",
                     where: customerWhereClause,
+                    attributes: [
+                        "customer_id",
+                        "email",
+                        [
+                            sequelize.literal(`(
+                            SELECT COUNT(*)
+                            FROM Orders AS OrderTable
+                            WHERE
+                              OrderTable.customer_id = customer.customer_id
+                          )`),
+                            "totalOrders",
+                        ],
+                        [
+                            sequelize.literal(`(
+                            SELECT SUM(OrderTable.subTotal)
+                            FROM Orders AS OrderTable
+                            WHERE
+                              OrderTable.customer_id = customer.customer_id
+                          )`),
+                            "totalSpent",
+                        ],
+                    ],
                 },
             ],
             nest: true,
@@ -120,6 +142,8 @@ export const getCustomers = async (
                 const parsedCustomer = parsedUser.customer.get();
                 parsedUser.customer_id = parsedCustomer.customer_id;
                 parsedUser.email = parsedCustomer.email;
+                parsedUser.totalSpent = parsedCustomer.totalSpent;
+                parsedUser.totalOrders = parsedCustomer.totalOrders;
             }
             if (parsedUser.defaultPassword === 0) {
                 parsedUser.defaultPassword = false;

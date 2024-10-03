@@ -78,7 +78,7 @@ export const fetchCustomers = createAsyncThunk<
         const token = localStorage.getItem("jwtToken");
         try {
             const response = await axios.get(
-                `${import.meta.env.VITE_API_URL}/user/admins`,
+                `${import.meta.env.VITE_API_URL}/user/customers`,
                 {
                     params: { page, usersPerPage, searchString },
                     headers: {

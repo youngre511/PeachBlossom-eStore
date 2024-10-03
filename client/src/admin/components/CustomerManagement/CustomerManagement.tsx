@@ -1,90 +1,85 @@
-import React, { useMemo } from "react";
+import React from "react";
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import axios, { AxiosError } from "axios";
-import "./admin-management.css";
-
+import "./customer-management.css";
 import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
 import {
-    changeAccessLevelOptimistic,
     clearError,
     deleteUser,
-    fetchAdmins,
+    fetchCustomers,
     resetUserPassword,
-    rollbackAccessLevel,
 } from "../../features/Users/userSlice";
 import { RootState } from "../../store/store";
-import { Button, InputLabel, MenuItem, Select } from "@mui/material";
+import { Button, Icon, InputLabel, MenuItem, Select } from "@mui/material";
 import PeachButton from "../../../common/components/PeachButton";
-
 import BlankPopup from "../../../common/components/BlankPopup";
-
 import CustomerList from "./CustomerList";
+import AddCircleOutlineSharpIcon from "@mui/icons-material/AddCircleOutlineSharp";
+import VisibilitySharpIcon from "@mui/icons-material/VisibilitySharp";
+import SearchField from "../../../common/components/Fields/SearchField";
 
-interface FetchAdminParams {
-    page: string;
-    usersPerPage: string;
-    accessLevel: string[];
-}
+const inputStyle = {
+    "&.MuiInputBase-root": {
+        backgroundColor: "white",
+        "&.MuiFilledInput-root": {
+            backgroundColor: "white",
+            "&.Mui-disabled": {
+                backgroundColor: "peach.light",
+            },
+        },
+    },
+    "& .MuiInputBase-root.MuiOutlinedInput-root.MuiInputBase-colorPrimary": {
+        backgroundColor: "white",
+    },
+};
 
-interface Props {}
-const AdminManagement: React.FC<Props> = () => {
+const CustomerManagement: React.FC = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const search = searchParams.get("search");
     const page = searchParams.get("page") || "1";
     const usersPerPage = searchParams.get("usersPerPage") || "24";
-    const accessLevel = searchParams.get("accessLevel") || "all";
     const users = useAppSelector((state: RootState) => state.users);
     const numberOfResults = users.numberOfCustomers;
     const results = users.customers;
-    const [loading, setLoading] = useState<boolean>(true);
+    const [loading, setLoading] = useState<boolean>(false);
     const [isError, setIsError] = useState<boolean>(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [showConfirm, setShowConfirm] = useState<boolean>(false);
-    const [justLoaded, setJustLoaded] = useState<boolean>(false);
-    const [accessView, setAccessView] = useState<string>("all");
+    const [justLoaded, setJustLoaded] = useState<boolean>(true);
     const [deleteId, setDeleteId] = useState<number | null>(null);
-    const [addingUser, setAddingUser] = useState<boolean>(false);
+
+    const navigate = useNavigate();
 
     const dispatch = useAppDispatch();
 
     useEffect(() => {
-        console.log("results changed");
-        console.log(results);
-    }, [results]);
-    useEffect(() => {
         setLoading(users.loading);
     }, [users.loading]);
 
+    // Fetch data on page load then set justLoaded state to false to prevent future automatic fetches.
     useEffect(() => {
         if (!loading && justLoaded) {
-            fetchAdminData();
+            fetchCustomerData();
             setJustLoaded(false);
         }
     }, [loading, justLoaded]);
 
     useEffect(() => {
-        console.log("error:", users.error);
         if (users.error) {
             setIsError(true);
+            console.error(users.error);
         }
         setErrorMessage(users.error);
     }, [users.error]);
 
+    // Fetch data if access view selection changes
     useEffect(() => {
-        if (accessView !== accessLevel) {
-            setAccessView(accessLevel);
-        }
-        fetchAdminData();
-    }, [search, page, usersPerPage, accessLevel]);
+        fetchCustomerData();
+    }, [searchParams, search, page, usersPerPage]);
 
-    useEffect(() => {
-        if (accessView !== accessLevel) {
-            updateSearchParams({ accessLevel: accessView });
-        }
-    }, [accessView]);
-
-    const fetchAdminData = () => {
+    // Construct formatted params and dispatch fetch request to slice.
+    const fetchCustomerData = () => {
         const initialParams: Record<string, string> = {};
 
         if (!searchParams.get("page")) {
@@ -100,7 +95,6 @@ const AdminManagement: React.FC<Props> = () => {
         }
 
         if (Object.keys(initialParams).length > 0) {
-            console.log("adding search parameters");
             setSearchParams((prevParams) => {
                 const newParams = new URLSearchParams(prevParams);
                 Object.keys(initialParams).forEach((key) => {
@@ -111,19 +105,12 @@ const AdminManagement: React.FC<Props> = () => {
                 return newParams;
             });
         } else {
-            //Construct filters obj
-            const accessLevelParam: Array<"full" | "limited" | "view only"> =
-                accessLevel === "all"
-                    ? ["full", "limited", "view only"]
-                    : [accessLevel as "full" | "limited" | "view only"];
             const params = {
                 page: page,
                 usersPerPage: usersPerPage,
-                accessLevel: accessLevelParam,
                 searchString: search ? search : undefined,
             };
-            console.log("dispatching fetchAdmins");
-            dispatch(fetchAdmins(params));
+            dispatch(fetchCustomers(params));
         }
     };
 
@@ -157,69 +144,20 @@ const AdminManagement: React.FC<Props> = () => {
         dispatch(resetUserPassword({ user_id, userRole: "admin" }));
     };
 
-    const handleAddAdmin = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        // Access the form element
-        const form = e.currentTarget;
-
-        // Access individual form fields by their names or IDs
-        const formData = new FormData(form);
-        const username = formData.get("username") as string;
-        const accessLevel = formData.get("accessLevel") as string;
-
-        const token = localStorage.getItem("jwtToken");
-        try {
-            await axios.post(
-                `${import.meta.env.VITE_API_URL}/auth/register`,
-                { username, password: "default", role: "admin", accessLevel },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
-        } catch (error) {
-            if (error instanceof AxiosError) {
-                console.error("Error adding admin:", error.message);
-                setErrorMessage(error.message);
-                setIsError(true);
-            } else {
-                console.error("Error adding admin:", error);
-                setErrorMessage("An unknown error occurred while adding admin");
-                setIsError(true);
-            }
-        } finally {
-            fetchAdminData();
-        }
-
-        setAddingUser(false);
-    };
-
     return (
-        <div className="admin-management">
-            <div className="admin-manage-header">
-                <h1>Admin Management</h1>
-                <PeachButton
-                    text="Add New Admin"
-                    onClick={() => setAddingUser(true)}
-                />
+        <div className="customer-management">
+            <div className="customer-manage-header">
+                <h1>Customer Management</h1>
             </div>
-            <div className="access-select">
-                <InputLabel id={`view-label`}>View</InputLabel>
-                <Select
-                    fullWidth
-                    labelId={"view-label"}
-                    value={accessView || "all"}
-                    variant="outlined"
-                    id="view"
-                    label="View"
-                    onChange={(event) => setAccessView(event.target.value)}
-                >
-                    <MenuItem value={"all"}>All</MenuItem>
-                    <MenuItem value={"full"}>Full Access</MenuItem>
-                    <MenuItem value={"limited"}>Limited Access</MenuItem>
-                    <MenuItem value={"view only"}>View Only</MenuItem>
-                </Select>
+            <div className="customer-search-bar-container">
+                <div className="customer-search-bar">
+                    <SearchField
+                        updateSearchParams={updateSearchParams}
+                        sx={inputStyle}
+                        inputSx={{ backgroundColor: "white" }}
+                        options={[]}
+                    />
+                </div>
             </div>
             <CustomerList
                 page={+page}
@@ -231,7 +169,7 @@ const AdminManagement: React.FC<Props> = () => {
             />
             {showConfirm && (
                 <BlankPopup>
-                    <span>Delete user {deleteId}?</span>
+                    <div>Delete user {deleteId}?</div>
                     <div className="confirm-buttons">
                         <Button
                             onClick={() => {
@@ -247,6 +185,7 @@ const AdminManagement: React.FC<Props> = () => {
                                 setDeleteId(null);
                                 setShowConfirm(false);
                             }}
+                            sx={{ marginLeft: "10px" }}
                             variant="outlined"
                         >
                             No, wait!
@@ -270,4 +209,4 @@ const AdminManagement: React.FC<Props> = () => {
         </div>
     );
 };
-export default AdminManagement;
+export default CustomerManagement;

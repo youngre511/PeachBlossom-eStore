@@ -33,6 +33,9 @@ export class sqlOrder extends Model {
     })
     declare customer_id: number;
 
+    @BelongsTo(() => sqlCustomer, { as: "Customer", foreignKey: "customer_id" })
+    declare customer: sqlCustomer;
+
     @Unique
     @Column({
         type: DataType.STRING(50),
