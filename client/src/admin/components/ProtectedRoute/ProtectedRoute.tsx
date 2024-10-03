@@ -6,19 +6,29 @@ import { LinearProgress } from "@mui/material";
 interface ProtectedRouteProps {
     component: React.ComponentType<any>;
     requiredRole?: "customer" | "admin";
-    requiredAccessLevel?: "full" | "limited" | "view only";
+    minimumAccessLevel?: "full" | "limited" | "view only";
     [key: string]: any;
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     component: Component,
     requiredRole,
-    requiredAccessLevel,
+    minimumAccessLevel,
     ...rest
 }) => {
     const authContext = useContext(AuthContext);
     const [isLoadingAuthorization, setIsLoadingAuthorization] =
         useState<boolean>(true);
+
+    const permittedAccessLevels: Array<"full" | "limited" | "view only"> = [
+        "full",
+    ];
+    if (minimumAccessLevel && minimumAccessLevel !== "full") {
+        permittedAccessLevels.push("limited");
+        if (minimumAccessLevel === "view only") {
+            permittedAccessLevels.push("view only");
+        }
+    }
 
     useEffect(() => {
         const checkAuthentication = async () => {
@@ -71,8 +81,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     }
 
     if (
-        requiredAccessLevel &&
-        authContext.user.accessLevel !== requiredAccessLevel
+        minimumAccessLevel &&
+        authContext.user.accessLevel &&
+        !permittedAccessLevels.includes(authContext.user.accessLevel)
     ) {
         // If the user does not have the required access level, redirect to unauthorized page
         return <Navigate to="/unauthorized" />;
