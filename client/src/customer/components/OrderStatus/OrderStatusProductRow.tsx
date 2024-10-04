@@ -27,10 +27,9 @@ const OrderStatusProductRow: React.FC<Props> = ({ item }) => {
                     sx={
                         width && width < 1000 && !open
                             ? {
-                                  borderBottom: !open
-                                      ? "1px solid rgba(224, 224, 224, 0);"
-                                      : undefined,
-                                  transition: "border .3s ease-out",
+                                  borderBottom:
+                                      "1px solid rgba(224, 224, 224, 0);",
+                                  transition: "border .28s ease-out",
                               }
                             : {}
                     }
@@ -53,10 +52,9 @@ const OrderStatusProductRow: React.FC<Props> = ({ item }) => {
                     sx={
                         width && width < 1000 && !open
                             ? {
-                                  borderBottom: !open
-                                      ? "1px solid rgba(224, 224, 224, 0);"
-                                      : undefined,
-                                  transition: "border .3s ease-out",
+                                  borderBottom:
+                                      "1px solid rgba(224, 224, 224, 0);",
+                                  transition: "border .28s ease-out",
                               }
                             : {}
                     }
