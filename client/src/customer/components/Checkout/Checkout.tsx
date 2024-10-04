@@ -448,7 +448,6 @@ const Checkout: React.FC = () => {
             if (response.data.orderNo) {
                 setOrderPlaced(true);
                 dispatch(clearCart());
-                dispatch(setExpirationTime({ expiration: null }));
                 return response.data.orderNo;
             } else {
                 throw new Error("no orderNo returned");
@@ -458,7 +457,7 @@ const Checkout: React.FC = () => {
                 console.error("Error placing order", error);
             } else {
                 console.error(
-                    "An unknown error has ocurred while releasing hold on stock"
+                    "An unknown error has ocurred while placing order"
                 );
             }
         }
@@ -900,7 +899,10 @@ const Checkout: React.FC = () => {
                         </Button>
                         <Button
                             variant="contained"
-                            onClick={() => setDismissedRenewDialogue(true)}
+                            onClick={() => {
+                                setDismissedRenewDialogue(true);
+                                setShowRenewDialogue(false);
+                            }}
                         >
                             No
                         </Button>

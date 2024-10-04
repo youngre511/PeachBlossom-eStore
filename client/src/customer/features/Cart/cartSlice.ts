@@ -267,6 +267,7 @@ const cartSlice = createSlice({
             state.cartId = null;
             state.error = null;
             state.numberOfItems = 0;
+            state.expirationTime = null;
         },
         setCartId: (state, action: PayloadAction<{ cartId: number }>) => {
             state.cartId = action.payload.cartId;

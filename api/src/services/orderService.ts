@@ -346,7 +346,10 @@ export const getOneOrder = async (
         }
         const parsedOrderData = extractOrderData(orderData);
 
-        if (email && parsedOrderData.email !== email) {
+        if (
+            email &&
+            parsedOrderData.email.toLowerCase() !== email.toLowerCase()
+        ) {
             throw new Error(
                 `Order ${orderNo} is not associated with ${email}.`
             );

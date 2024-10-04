@@ -52,6 +52,9 @@ export const CheckoutTimerProvider: React.FC<CheckoutTimerProviderProps> = ({
             if (localExpirationTime !== timerEnd) {
                 setTimerEnd(localExpirationTime);
             }
+        } else {
+            setTimerEnd(null);
+            setTimeLeft(null);
         }
     }, [expirationTime]);
 

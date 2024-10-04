@@ -317,7 +317,7 @@ const OrderStatus: React.FC<Props> = ({ orderNumber }) => {
                                             flexDirection: "column",
                                         }}
                                     >
-                                        <span>SubTotal</span>
+                                        <span>Subtotal</span>
                                         <span>Shipping</span>
                                         <span>Tax</span>
                                         <span>Total</span>
