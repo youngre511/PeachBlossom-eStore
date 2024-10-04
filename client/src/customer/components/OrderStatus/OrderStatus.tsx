@@ -14,6 +14,8 @@ import PeachButton from "../../../common/components/PeachButton";
 import axios, { AxiosError } from "axios";
 import StatusStepper from "./StatusStepper";
 import "./order-status.css";
+import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
+import OrderStatusProductRow from "./OrderStatusProductRow";
 
 interface Product {
     id: number;
@@ -28,7 +30,7 @@ interface Product {
     updatedAt: Date;
     status: string;
 }
-interface OrderItem {
+export interface OrderItem {
     order_item_id: number;
     order_id: number;
     productNo: string;
@@ -78,6 +80,7 @@ const OrderStatus: React.FC<Props> = ({ orderNumber }) => {
         "",
     ]);
     const [formattedDate, setFormattedDate] = useState<string>("");
+    const { width } = useWindowSizeContext();
 
     useEffect(() => {
         if (orderNumber) {
@@ -234,82 +237,72 @@ const OrderStatus: React.FC<Props> = ({ orderNumber }) => {
                         <h1>Order #{orderDetails.orderNo.toLowerCase()}</h1>
                         <span>Order Date: {formattedDate}</span>
                     </div>
-                    <StatusStepper orderStatus={orderDetails.orderStatus} />
-                    <div className="order-details">
-                        <p className="status-summary">
-                            {steps[activeStep].description}
-                        </p>
-                        <div className="shipping-billing-details">
-                            <div className="os-shipping-label">
-                                Shipping Address
-                            </div>
-                            <div>
-                                {splitShippingAddress[0]}
-                                {splitShippingAddress[1] !== "" && (
-                                    <span>{splitShippingAddress[1]}</span>
-                                )}
-                            </div>
-                            <div>
-                                {orderDetails.city}, {orderDetails.stateAbbr}
-                            </div>
-                            <div>{orderDetails.zipCode}</div>
+                    <StatusStepper
+                        orderStatus={orderDetails.orderStatus}
+                        steps={steps}
+                    />
+                    {width && width >= 600 && (
+                        <div className="order-details">
+                            <p className="status-summary">
+                                {steps[activeStep].description}
+                            </p>
                         </div>
-                    </div>
+                    )}
                     <Table
-                        sx={{ minWidth: 650 }}
+                        sx={{ minWidth: 330 }}
                         aria-label="simple table"
                         className="order-item-list"
                     >
                         <TableHead>
                             <TableRow>
                                 <TableCell></TableCell>
-                                <TableCell>Product No.</TableCell>
+                                {width && width > 1000 && (
+                                    <TableCell>Product No.</TableCell>
+                                )}
                                 <TableCell>Item</TableCell>
                                 <TableCell>Quantity</TableCell>
-                                <TableCell>Price</TableCell>
+
+                                <TableCell>
+                                    {width && width > 1000 ? "Price" : ""}
+                                </TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
                             {orderDetails.OrderItem.map((item, index) => (
-                                <TableRow
-                                    key={item.Product.productName}
-                                    sx={
-                                        index !==
-                                        orderDetails.OrderItem.length - 1
-                                            ? {
-                                                  "& td, & th": { border: 0 },
-                                              }
-                                            : {}
-                                    }
-                                >
-                                    <TableCell>
-                                        <img
-                                            src={`${item.Product.thumbnailUrl}_140.webp`}
-                                            alt={item.Product.productName}
-                                            className="order-status-thumbnail"
-                                            width="40px"
-                                            height="40px"
-                                            loading="lazy"
-                                        />
-                                    </TableCell>
-                                    <TableCell>{item.productNo}</TableCell>
-                                    <TableCell component="th" scope="row">
-                                        {item.Product.productName}
-                                    </TableCell>
-                                    <TableCell>{item.quantity}</TableCell>
-                                    <TableCell align="right">
-                                        ${item.priceWhenOrdered}
-                                    </TableCell>
-                                </TableRow>
+                                <OrderStatusProductRow
+                                    item={item}
+                                    key={item.productNo}
+                                />
                             ))}
                             <TableRow
                                 sx={{
                                     "& td, & th": { border: 0 },
                                 }}
                             >
-                                <TableCell></TableCell>
-                                <TableCell></TableCell>
-                                <TableCell></TableCell>
+                                <TableCell colSpan={2}>
+                                    {" "}
+                                    <div className="shipping-billing-details">
+                                        <div className="os-shipping-label">
+                                            Shipping Address
+                                        </div>
+                                        <div>
+                                            {splitShippingAddress[0]}
+                                            {splitShippingAddress[1] !== "" && (
+                                                <span>
+                                                    {splitShippingAddress[1]}
+                                                </span>
+                                            )}
+                                        </div>
+                                        <div>
+                                            {orderDetails.city},{" "}
+                                            {orderDetails.stateAbbr}
+                                        </div>
+                                        <div>{orderDetails.zipCode}</div>
+                                    </div>
+                                </TableCell>
+                                {width && width > 1000 && (
+                                    <TableCell></TableCell>
+                                )}
                                 <TableCell>
                                     <div
                                         style={{

@@ -1,5 +1,6 @@
 import React from "react";
-import { Stepper, Step, StepLabel, Box } from "@mui/material";
+import { Stepper, Step, StepLabel, Box, StepContent } from "@mui/material";
+import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
 
 interface Props {
     orderStatus:
@@ -8,9 +9,11 @@ interface Props {
         | "delivered"
         | "shipped"
         | "delivered";
+    steps: Array<{ label: string; description: string }>;
 }
-export const StatusStepper: React.FC<Props> = ({ orderStatus }) => {
+export const StatusStepper: React.FC<Props> = ({ orderStatus, steps }) => {
     let activeStep: number;
+    const { width } = useWindowSizeContext();
 
     switch (orderStatus) {
         case "in process":
@@ -29,36 +32,18 @@ export const StatusStepper: React.FC<Props> = ({ orderStatus }) => {
             activeStep = 0;
     }
 
-    const steps = [
-        {
-            label: "In Process",
-            description:
-                "We've received your order, and we're working hard to get it to you as soon as possible. Our team members are gathering the products you ordered to prepare them for shipping.",
-        },
-        {
-            label: "Ready to Ship",
-            description:
-                "Your order is assembled and ready to send out. It'll be on it's way to you before you know it. You'll receive an email notifying you when your order has shipped.",
-        },
-        {
-            label: "Shipped",
-            description:
-                "Your order is on its way! We can't wait for you to be able to enjoy our products.",
-        },
-        {
-            label: "Delivered",
-            description:
-                "Your order has been delivered! We hope you love every product you got. If not, contact us as soon as possible so that we can get you a replacement or refund. Nothing but the best for our customers!",
-        },
-    ];
-
     return (
         <Box sx={{ maxWidth: 800 }}>
-            <Stepper activeStep={activeStep}>
+            <Stepper
+                activeStep={activeStep}
+                orientation={width && width >= 600 ? "horizontal" : "vertical"}
+            >
                 {steps.map((step, index) => (
                     <Step key={step.label}>
                         <StepLabel>{step.label}</StepLabel>
-                        {/* <StepContent>{step.description}</StepContent> */}
+                        {width && width < 600 && (
+                            <StepContent>{step.description}</StepContent>
+                        )}
                     </Step>
                 ))}
             </Stepper>

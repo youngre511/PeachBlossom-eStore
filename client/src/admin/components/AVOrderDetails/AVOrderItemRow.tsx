@@ -84,7 +84,13 @@ const AVOrderItemRow: React.FC<Props> = ({
                     padding={
                         width && width >= 1000 && editMode ? "none" : "normal"
                     }
-                    sx={{ minWidth: "131px" }}
+                    sx={{
+                        minWidth: "131px",
+                        borderBottom: !open
+                            ? "1px solid rgba(224, 224, 224, 0);"
+                            : undefined,
+                        transition: "border .28s ease-out",
+                    }}
                     onClick={() =>
                         navigate(
                             `/products/product-details?product=${row.productNo}`
@@ -112,7 +118,19 @@ const AVOrderItemRow: React.FC<Props> = ({
                     </React.Fragment>
                 )}
 
-                <TableCell align="right">
+                <TableCell
+                    align="right"
+                    sx={
+                        width && width < 1000 && !open
+                            ? {
+                                  borderBottom: !open
+                                      ? "1px solid rgba(224, 224, 224, 0);"
+                                      : undefined,
+                                  transition: "border .28s ease-out",
+                              }
+                            : {}
+                    }
+                >
                     {editMode ? (
                         <div className="quantity-field">
                             <AVOrderItemQuantity
@@ -131,7 +149,19 @@ const AVOrderItemRow: React.FC<Props> = ({
                         {row.status === "cancelled" ? "$0" : row.itemTotal}
                     </TableCell>
                 )}
-                <TableCell align="left">
+                <TableCell
+                    align="left"
+                    sx={
+                        width && width < 1000 && !open
+                            ? {
+                                  borderBottom: !open
+                                      ? "1px solid rgba(224, 224, 224, 0);"
+                                      : undefined,
+                                  transition: "border .28s ease-out",
+                              }
+                            : {}
+                    }
+                >
                     {editMode ? (
                         <AVOrderItemStatus
                             item_id={row.id}
@@ -151,6 +181,10 @@ const AVOrderItemRow: React.FC<Props> = ({
                             right: 0,
                             backgroundColor: "white",
                             zIndex: 1,
+                            borderBottom: !open
+                                ? "1px solid rgba(224, 224, 224, 0);"
+                                : undefined,
+                            transition: "border .3s ease-out",
                         }}
                     >
                         <div
@@ -178,7 +212,7 @@ const AVOrderItemRow: React.FC<Props> = ({
                 <TableRow>
                     <TableCell
                         style={{ paddingBottom: 0, paddingTop: 0 }}
-                        colSpan={3}
+                        colSpan={4}
                     >
                         <Collapse in={open} timeout="auto" unmountOnExit>
                             <Box margin={1}>

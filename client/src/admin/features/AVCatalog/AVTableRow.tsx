@@ -71,6 +71,15 @@ const AVTableRow: React.FC<Props> = ({
                     id={labelId}
                     scope="row"
                     padding={width && width >= 800 ? "none" : undefined}
+                    sx={
+                        width && width < 800 && !open
+                            ? {
+                                  borderBottom:
+                                      "1px solid rgba(224, 224, 224, 0);",
+                                  transition: "border .28s ease-out",
+                              }
+                            : {}
+                    }
                 >
                     <img
                         src={`${row.thumbnailUrl}_140.webp`}
@@ -89,7 +98,14 @@ const AVTableRow: React.FC<Props> = ({
                     id={labelId}
                     scope="row"
                     padding="none"
-                    sx={{ minWidth: 138 }}
+                    sx={{
+                        minWidth: 138,
+                        borderBottom:
+                            width && width < 800 && !open
+                                ? "1px solid rgba(224, 224, 224, 0);"
+                                : undefined,
+                        transition: "border .3s ease-out",
+                    }}
                 >
                     <Link
                         to={`/products/product-details?product=${row.productNo}`}
@@ -125,6 +141,11 @@ const AVTableRow: React.FC<Props> = ({
                         position: "sticky",
                         right: 0,
                         backgroundColor: "white",
+                        borderBottom:
+                            width && width < 800 && !open
+                                ? "1px solid rgba(224, 224, 224, 0);"
+                                : undefined,
+                        transition: "border .3s ease-out",
                     }}
                 >
                     <div

@@ -38,14 +38,37 @@ const CustomerListRow: React.FC<Props> = ({
                     </TableCell>
                 )}
 
-                <TableCell align="left">{row.username}</TableCell>
+                <TableCell
+                    align="left"
+                    sx={
+                        width && width < 800 && !open
+                            ? {
+                                  borderBottom:
+                                      "1px solid rgba(224, 224, 224, 0);",
+                                  transition: "border .28s ease-out",
+                              }
+                            : {}
+                    }
+                >
+                    {row.username}
+                </TableCell>
                 {width && width >= 800 && (
                     <TableCell align="left" sx={{ minWidth: "126px" }}>
                         {row.customer_id}
                     </TableCell>
                 )}
 
-                <TableCell align="left" sx={{ minWidth: "90px" }}>
+                <TableCell
+                    align="left"
+                    sx={{
+                        minWidth: "90px",
+                        borderBottom:
+                            width && width < 800 && !open
+                                ? "1px solid rgba(224, 224, 224, 0);"
+                                : undefined,
+                        transition: "border .3s ease-out",
+                    }}
+                >
                     {row.email}
                 </TableCell>
                 {width && width >= 800 && (
@@ -68,6 +91,11 @@ const CustomerListRow: React.FC<Props> = ({
                         position: "sticky",
                         right: 0,
                         backgroundColor: "white",
+                        borderBottom:
+                            width && width < 800 && !open
+                                ? "1px solid rgba(224, 224, 224, 0);"
+                                : undefined,
+                        transition: "border .3s ease-out",
                     }}
                 >
                     {row.username !== "youngre511" && (

@@ -38,7 +38,17 @@ const InventoryTableRow: React.FC<Props> = ({
     return (
         <React.Fragment>
             <TableRow hover tabIndex={-1}>
-                <TableCell scope="row" sx={{ minWidth: 170 }}>
+                <TableCell
+                    scope="row"
+                    sx={{
+                        minWidth: 170,
+                        borderBottom:
+                            width && width < 1000 && !open
+                                ? "1px solid rgba(224, 224, 224, 0);"
+                                : undefined,
+                        transition: "border .3s ease-out",
+                    }}
+                >
                     {row.name}
                 </TableCell>
                 {width && width >= 1000 && (
@@ -46,7 +56,17 @@ const InventoryTableRow: React.FC<Props> = ({
                         {row.productNo}
                     </TableCell>
                 )}
-                <TableCell align="right" sx={{ minWidth: "92px" }}>
+                <TableCell
+                    align="right"
+                    sx={{
+                        minWidth: "92px",
+                        borderBottom:
+                            width && width < 1000 && !open
+                                ? "1px solid rgba(224, 224, 224, 0);"
+                                : undefined,
+                        transition: "border .3s ease-out",
+                    }}
+                >
                     <div className="stock-input">
                         <StockField
                             value={String(stockAmount)}
@@ -58,8 +78,34 @@ const InventoryTableRow: React.FC<Props> = ({
                         />
                     </div>
                 </TableCell>
-                <TableCell align="right">{row.reserved}</TableCell>
-                <TableCell align="right">{row.available}</TableCell>
+                <TableCell
+                    align="right"
+                    sx={
+                        width && width < 1000 && !open
+                            ? {
+                                  borderBottom:
+                                      "1px solid rgba(224, 224, 224, 0);",
+                                  transition: "border .28s ease-out",
+                              }
+                            : {}
+                    }
+                >
+                    {row.reserved}
+                </TableCell>
+                <TableCell
+                    align="right"
+                    sx={
+                        width && width < 1000 && !open
+                            ? {
+                                  borderBottom:
+                                      "1px solid rgba(224, 224, 224, 0);",
+                                  transition: "border .28s ease-out",
+                              }
+                            : {}
+                    }
+                >
+                    {row.available}
+                </TableCell>
                 {width && width >= 1000 ? (
                     <React.Fragment>
                         <TableCell align="right">{row.price}</TableCell>
@@ -72,6 +118,10 @@ const InventoryTableRow: React.FC<Props> = ({
                             position: "sticky",
                             right: 0,
                             backgroundColor: "white",
+                            borderBottom: !open
+                                ? "1px solid rgba(224, 224, 224, 0);"
+                                : undefined,
+                            transition: "border .3s ease-out",
                         }}
                     >
                         <div
@@ -99,7 +149,7 @@ const InventoryTableRow: React.FC<Props> = ({
                 <TableRow>
                     <TableCell
                         style={{ paddingBottom: 0, paddingTop: 0 }}
-                        colSpan={3}
+                        colSpan={5}
                     >
                         <Collapse in={open} timeout="auto" unmountOnExit>
                             <Box margin={1}>

@@ -1,3 +1,5 @@
+import React, { useState } from "react";
+import { useEffect } from "react";
 import {
     Box,
     Collapse,
@@ -6,71 +8,64 @@ import {
     TableRow,
     Typography,
 } from "@mui/material";
-import React, { useState } from "react";
-
 import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
-import { useNavigate } from "react-router-dom";
-
-import { OrderRow } from "./OrdersList";
+import { OrderItem } from "./OrderStatus";
 import KeyboardArrowUpSharpIcon from "@mui/icons-material/KeyboardArrowUpSharp";
 import KeyboardArrowDownSharpIcon from "@mui/icons-material/KeyboardArrowDownSharp";
-import dayjs from "dayjs";
 
 interface Props {
-    row: OrderRow;
+    item: OrderItem;
 }
-const OrderListRow: React.FC<Props> = ({ row }) => {
-    const { width, isTouchDevice } = useWindowSizeContext();
+const OrderStatusProductRow: React.FC<Props> = ({ item }) => {
+    const { width } = useWindowSizeContext();
     const [open, setOpen] = useState<boolean>(false);
-    const navigate = useNavigate();
 
     return (
         <React.Fragment>
-            <TableRow hover tabIndex={-1}>
+            <TableRow key={item.Product.productName}>
                 <TableCell
-                    scope="row"
-                    sx={{
-                        cursor: "pointer",
-                        textDecoration: "underline",
-                        borderBottom: !open
-                            ? "1px solid rgba(224, 224, 224, 0);"
-                            : undefined,
-                        transition: "border .3s ease-out",
-                    }}
-                    onClick={() =>
-                        navigate(`/orders/order-details?order=${row.orderNo}`)
-                    }
-                >
-                    {row.orderNo}
-                </TableCell>
-                <TableCell
-                    align="left"
                     sx={
-                        width && width < 800 && !open
+                        width && width < 1000 && !open
                             ? {
-                                  borderBottom:
-                                      "1px solid rgba(224, 224, 224, 0);",
-                                  transition: "border .28s ease-out",
+                                  borderBottom: !open
+                                      ? "1px solid rgba(224, 224, 224, 0);"
+                                      : undefined,
+                                  transition: "border .3s ease-out",
                               }
                             : {}
                     }
                 >
-                    {dayjs(row.orderDate).format("YYYY-MM-DD HH:mm:ss")}
+                    <img
+                        src={`${item.Product.thumbnailUrl}_140.webp`}
+                        alt={item.Product.productName}
+                        className="order-status-thumbnail"
+                        width="40px"
+                        height="40px"
+                        loading="lazy"
+                    />
                 </TableCell>
-                {width && width >= 800 && (
-                    <React.Fragment>
-                        <TableCell align="right">{row.total}</TableCell>
-                        <TableCell align="left">
-                            {row.shippingAddress}
-                        </TableCell>
-                        <TableCell align="left">{row.state}</TableCell>
-                        <TableCell align="left">{row.email}</TableCell>
-                    </React.Fragment>
+                {width && width > 1000 && (
+                    <TableCell>{item.productNo}</TableCell>
                 )}
                 <TableCell
-                    align="left"
+                    component="th"
+                    scope="row"
                     sx={
-                        width && width < 800 && !open
+                        width && width < 1000 && !open
+                            ? {
+                                  borderBottom: !open
+                                      ? "1px solid rgba(224, 224, 224, 0);"
+                                      : undefined,
+                                  transition: "border .3s ease-out",
+                              }
+                            : {}
+                    }
+                >
+                    {item.Product.productName}
+                </TableCell>
+                <TableCell
+                    sx={
+                        width && width < 1000 && !open
                             ? {
                                   borderBottom:
                                       "1px solid rgba(224, 224, 224, 0);",
@@ -79,14 +74,20 @@ const OrderListRow: React.FC<Props> = ({ row }) => {
                             : {}
                     }
                 >
-                    {row.orderStatus}
+                    {item.quantity}
                 </TableCell>
-                {width && width < 800 && (
+                {width && width > 1000 && (
+                    <TableCell align="right">
+                        ${item.priceWhenOrdered}
+                    </TableCell>
+                )}
+                {width && width < 1000 && (
                     <TableCell
                         sx={{
                             position: "sticky",
                             right: 0,
                             backgroundColor: "white",
+                            zIndex: 1,
                             borderBottom: !open
                                 ? "1px solid rgba(224, 224, 224, 0);"
                                 : undefined,
@@ -114,7 +115,7 @@ const OrderListRow: React.FC<Props> = ({ row }) => {
                     </TableCell>
                 )}
             </TableRow>
-            {width && width < 800 && (
+            {width && width < 1000 && (
                 <TableRow>
                     <TableCell
                         style={{ paddingBottom: 0, paddingTop: 0 }}
@@ -124,18 +125,11 @@ const OrderListRow: React.FC<Props> = ({ row }) => {
                             <Box margin={1}>
                                 {/* Data that is hidden in the main row but appears in the collapsible section */}
                                 <Typography variant="body2">
-                                    <b>Order Total: </b> {row.total}
-                                </Typography>
-
-                                <Typography variant="body2">
-                                    <b>Shipping Address: </b>
-                                    {row.shippingAddress}
+                                    <b>Product No.: </b> {item.productNo}
                                 </Typography>
                                 <Typography variant="body2">
-                                    <b>State: </b> {row.state}
-                                </Typography>
-                                <Typography variant="body2">
-                                    <b>Email: </b> {row.email}
+                                    <b>Price: </b>
+                                    {item.priceWhenOrdered}
                                 </Typography>
                             </Box>
                         </Collapse>
@@ -145,4 +139,4 @@ const OrderListRow: React.FC<Props> = ({ row }) => {
         </React.Fragment>
     );
 };
-export default OrderListRow;
+export default OrderStatusProductRow;
