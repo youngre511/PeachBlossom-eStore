@@ -584,7 +584,7 @@ export const createProduct = async (
                         } else {
                             processedImageBuffer = fileContent;
                         }
-                        const specificFileName = `${fileName}_${size}${extension}`;
+                        const specificFileName = `${fileName}_${size}.webp`;
                         await uploadFile(
                             processedImageBuffer,
                             specificFileName,
@@ -762,7 +762,6 @@ export const updateProductDetails = async (
             images = [],
             tags = null,
         } = productData;
-        console.log("received subcategory:", subcategory);
 
         // Delete unused images from S3
         const targetProduct = await Product.findOne({
@@ -836,7 +835,7 @@ export const updateProductDetails = async (
                             } else {
                                 processedImageBuffer = fileContent;
                             }
-                            const specificFileName = `${fileName}_${size}${extension}`;
+                            const specificFileName = `${fileName}_${size}.webp`;
                             await uploadFile(
                                 processedImageBuffer,
                                 specificFileName,
