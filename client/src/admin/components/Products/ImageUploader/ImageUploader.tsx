@@ -388,6 +388,11 @@ const ImageUploader: React.FC<Props> = ({
                                         <IconButton
                                             onClick={onImageUpload}
                                             className="choose-button"
+                                            disabled={
+                                                managedEditMode
+                                                    ? !productEditMode
+                                                    : false
+                                            }
                                         >
                                             <AddAPhotoSharpIcon
                                                 sx={{ fontSize: 48 }}
@@ -400,6 +405,11 @@ const ImageUploader: React.FC<Props> = ({
                                         variant="contained"
                                         className="choose-button"
                                         {...dragProps}
+                                        disabled={
+                                            managedEditMode
+                                                ? !productEditMode
+                                                : false
+                                        }
                                     >
                                         Click or Drop Here
                                     </Button>
