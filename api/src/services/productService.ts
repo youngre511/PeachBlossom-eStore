@@ -777,12 +777,14 @@ export const updateProductDetails = async (
         );
 
         if (imagesToDelete.length > 0) {
-            imagesToDelete.forEach(async (imageUrl) => {
-                const splitUrl = imageUrl.split("/");
-                const fileName = splitUrl[splitUrl.length - 1];
-                console.log("DELETING", fileName);
-                await deleteFile(fileName);
-            });
+            for (const imageUrl of imagesToDelete) {
+                async (imageUrl: string) => {
+                    const splitUrl = imageUrl.split("/");
+                    const fileName = splitUrl[splitUrl.length - 1];
+                    console.log("DELETING", fileName);
+                    await deleteFile(fileName);
+                };
+            }
         }
 
         // Upload images to S3 and get URLs
@@ -845,7 +847,7 @@ export const updateProductDetails = async (
                         return `${process.env.CLOUDFRONT_DOMAIN}/${fileName}`; // Base URL of the uploaded image
                     } catch (error) {
                         console.error(`Error processing image: ${error}`);
-                        return "";
+                        throw error;
                     }
                 })
             );
@@ -1137,15 +1139,7 @@ export const deleteProduct = async (
     } catch (error) {
         await session.abortTransaction();
         await sqlTransaction.rollback();
-        if (error instanceof Error) {
-            throw new Error(
-                "Error updating product status(es): " + error.message
-            );
-        } else {
-            throw new Error(
-                "An unknown error occurred while updating product status(es)"
-            );
-        }
+        throw error;
     } finally {
         await session.endSession();
     }
