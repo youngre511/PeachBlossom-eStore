@@ -20,12 +20,6 @@ import authRouter from "./routes/authRoutes.js";
 import userRouter from "./routes/userRoutes.js";
 import analyticsRouter from "./routes/analyticsRoutes.js";
 
-// Read incoming requests properly
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
-// logs requests to the server
-app.use(logger("dev"));
-
 //Cors settings
 const allowedOrigins: string[] = [
     "https://pb.ryanyoung.codes",
@@ -46,6 +40,12 @@ const corsOptions: CorsOptions = {
 };
 
 app.use(cors(corsOptions));
+
+// Read incoming requests properly
+app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
+// logs requests to the server
+app.use(logger("dev"));
 
 // parse cookies
 app.use(cookieParser());
