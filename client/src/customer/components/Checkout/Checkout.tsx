@@ -29,6 +29,8 @@ import {
     syncCart,
     clearCart,
     setExpirationTime,
+    holdCartStock,
+    setCartChangesMade,
 } from "../../features/Cart/cartSlice";
 import { CartState } from "../../features/Cart/CartTypes";
 import "./checkout.css";
@@ -172,6 +174,7 @@ const Checkout: React.FC = () => {
     const [showRenewDialogue, setShowRenewDialogue] = useState<boolean>(false);
     const [dismissedRenewDialogue, setDismissedRenewDialogue] =
         useState<boolean>(false);
+    const [cartEdited, setCartEdited] = useState<boolean>(false);
 
     const validStates = [
         "AK",
@@ -235,13 +238,7 @@ const Checkout: React.FC = () => {
                 setCurrentCartItems([...cart.items]);
             }
             try {
-                const response = await axios.put(
-                    `${import.meta.env.VITE_API_URL}/inventory/holdStock`,
-                    { cartId: currentCartId }
-                );
-                dispatch(
-                    setExpirationTime({ expiration: response.data.payload })
-                );
+                dispatch(holdCartStock());
             } catch (error) {
                 if (error instanceof AxiosError) {
                     console.error("Error holding stock", error);
@@ -253,31 +250,16 @@ const Checkout: React.FC = () => {
             }
         };
 
-        // Function to release stock when component dismounts
-        const releaseStock = async () => {
-            if (!orderPlaced) {
-                try {
-                    await axios.put(
-                        `${
-                            import.meta.env.VITE_API_URL
-                        }/inventory/releaseStock`,
-                        { cartId: currentCartId }
-                    );
-                } catch (error) {
-                    if (error instanceof AxiosError) {
-                        console.error("Error releasing stock", error);
-                    } else {
-                        console.error(
-                            "An unknown error has ocurred while releasing hold on stock"
-                        );
-                    }
-                }
-            }
-        };
-
         // Hold stock when component mounts
         holdStock();
     }, []);
+
+    useEffect(() => {
+        if (cart.cartChangesMade) {
+            setCartEdited(true);
+            dispatch(setCartChangesMade(false));
+        }
+    }, [cart.cartChangesMade]);
 
     useEffect(() => {
         let canProceed = true;
@@ -562,6 +544,20 @@ const Checkout: React.FC = () => {
                             </Box>
                         )}
                     </Box>
+                    {cartEdited && (
+                        <Box
+                            sx={{
+                                backgroundColor: "var(--peaches-and-cream)",
+                                padding: "5px",
+                            }}
+                        >
+                            <Typography color="info">
+                                One or more items in your cart was unavailable
+                                or had limited availability. Quantities have
+                                been adjusted.
+                            </Typography>
+                        </Box>
+                    )}
                     <Box
                         sx={{
                             display: "flex",
@@ -599,12 +595,6 @@ const Checkout: React.FC = () => {
                 >
                     <Box
                         sx={{
-                            display: "flex",
-                            justifyContent: {
-                                sm: "space-between",
-                                md: "flex-end",
-                            },
-                            alignItems: "center",
                             width: "100%",
                             maxWidth: { sm: "100%", md: 600 },
                         }}
@@ -638,6 +628,22 @@ const Checkout: React.FC = () => {
                                 </Box>
                             )}
                         </Box>
+                        {cartEdited && (
+                            <Box
+                                sx={{
+                                    backgroundColor: "var(--peaches-and-cream)",
+                                    padding: "5px",
+                                    marginTop: "10px",
+                                }}
+                            >
+                                <Typography color="info">
+                                    One or more items in your cart was
+                                    unavailable or had limited availability.
+                                    Quantities have been adjusted.
+                                </Typography>
+                            </Box>
+                        )}
+
                         <Box
                             sx={{
                                 display: { xs: "none", md: "flex" },

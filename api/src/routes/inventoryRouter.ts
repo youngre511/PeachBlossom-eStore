@@ -3,7 +3,6 @@ const inventoryRouter = Router();
 import {
     extendHold,
     holdStock,
-    releaseStock,
     syncStockLevels,
     updateStockLevels,
 } from "../controllers/inventoryController.js";
@@ -13,8 +12,6 @@ import { authorizeRoles } from "../middleware/authorize.js";
 inventoryRouter.put("/holdStock", holdStock);
 
 inventoryRouter.put("/extendHold", extendHold);
-
-inventoryRouter.put("/releaseStock", releaseStock);
 
 inventoryRouter.put(
     "/updateStockLevels",

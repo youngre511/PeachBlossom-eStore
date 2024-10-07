@@ -424,7 +424,7 @@ export const mergeCarts = async (cartId1: number, cartId2: number) => {
                 "Unable to retrieve new cart state during cart merge"
             );
         }
-
+        await sqlTransaction.commit();
         return {
             success: true,
             message: "Carts successfully merged",

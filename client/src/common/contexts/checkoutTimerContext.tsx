@@ -13,6 +13,9 @@ import { RootState } from "../../customer/store/customerStore";
 interface CheckoutTimerContextType {
     timeLeft: { minutes: number; seconds: number } | null;
     setTimerEnd: React.Dispatch<SetStateAction<Date | null>>;
+    setTimeLeft: React.Dispatch<
+        SetStateAction<{ minutes: number; seconds: number } | null>
+    >;
 }
 
 const CheckoutTimerContext = createContext<
@@ -69,7 +72,10 @@ export const CheckoutTimerProvider: React.FC<CheckoutTimerProviderProps> = ({
                     const timeDifference = +new Date(timerEnd) - +new Date();
                     if (timeDifference <= 0) {
                         setTimerEnd(null);
-                        setTimeLeft(null);
+                        setTimeLeft({ minutes: 0, seconds: 0 });
+                        setTimeout(() => {
+                            setTimeLeft(null);
+                        }, 500);
                         if (timerIntervalRef.current) {
                             clearInterval(timerIntervalRef.current);
                         }
@@ -99,7 +105,9 @@ export const CheckoutTimerProvider: React.FC<CheckoutTimerProviderProps> = ({
     }, [timerEnd, timerIntervalRef.current]);
 
     return (
-        <CheckoutTimerContext.Provider value={{ timeLeft, setTimerEnd }}>
+        <CheckoutTimerContext.Provider
+            value={{ timeLeft, setTimerEnd, setTimeLeft }}
+        >
             {children}
         </CheckoutTimerContext.Provider>
     );

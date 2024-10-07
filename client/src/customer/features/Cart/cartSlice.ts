@@ -10,6 +10,8 @@ import {
     CartResponsePayload,
     CartResponse,
     MergeActionData,
+    HoldResponsePayload,
+    HoldResponse,
 } from "./CartTypes";
 import { RootState } from "../../store/customerStore";
 import axios from "axios";
@@ -21,6 +23,7 @@ const initialState: CartState = {
     cartId: null,
     error: null,
     expirationTime: null,
+    cartChangesMade: false,
 };
 
 //Thunks//
@@ -218,6 +221,27 @@ export const mergeCart = createAsyncThunk<
     }
 });
 
+export const holdCartStock = createAsyncThunk<
+    HoldResponsePayload,
+    void,
+    { state: RootState; rejectValue: string }
+>("cart/holdCartStock", async (_, { getState, rejectWithValue }) => {
+    try {
+        const state = getState() as RootState;
+        const response = await axios.put<HoldResponse>(
+            `${import.meta.env.VITE_API_URL}/inventory/holdStock`,
+            { cartId: state.cart.cartId }
+        );
+        console.log(response);
+        console.log(response.data.payload);
+        return response.data.payload;
+    } catch (error: any) {
+        return rejectWithValue(
+            error.response?.data || ("Error reserving cart items" as string)
+        );
+    }
+});
+
 //Add Promo To Cart
 
 //Remove Promo From Cart
@@ -278,6 +302,9 @@ const cartSlice = createSlice({
         ) => {
             state.expirationTime = action.payload.expiration;
         },
+        setCartChangesMade: (state, action: PayloadAction<boolean>) => {
+            state.cartChangesMade = action.payload;
+        },
         addCartPromo: (state, action: PayloadAction<string>) => {},
         removeCartPromo: (state, action: PayloadAction<string>) => {},
     },
@@ -336,6 +363,23 @@ const cartSlice = createSlice({
             })
             .addCase(mergeCart.rejected, (state, action) => {
                 state.error = action.payload || "Failed to fetch products";
+            })
+            .addCase(holdCartStock.pending, (state) => {
+                state.error = null;
+            })
+            .addCase(holdCartStock.fulfilled, (state, action) => {
+                console.log("cart:", action.payload.cart);
+                state.items = action.payload.cart.items;
+                state.subTotal = action.payload.cart.subTotal;
+                state.cartId = action.payload.cart.cartId;
+                state.numberOfItems = action.payload.cart.numberOfItems;
+                console.log(action.payload.expirationTime);
+                state.expirationTime = action.payload.expirationTime;
+                state.cartChangesMade = action.payload.cartChangesMade;
+                state.error = null;
+            })
+            .addCase(holdCartStock.rejected, (state, action) => {
+                state.error = action.payload || "Failed to fetch products";
             });
     },
 });
@@ -348,5 +392,6 @@ export const {
     clearCart,
     setCartId,
     setExpirationTime,
+    setCartChangesMade,
 } = cartSlice.actions;
 export default cartSlice.reducer;

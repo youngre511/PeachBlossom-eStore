@@ -15,6 +15,7 @@ export interface CartState {
     cartId: number | null;
     error: string | null;
     expirationTime: string | null;
+    cartChangesMade: boolean;
 }
 
 export interface ChangeQuantityRequest {
@@ -58,6 +59,22 @@ export interface CartResponsePayload {
 export interface CartResponse {
     message: string;
     payload: CartResponsePayload;
+}
+
+export interface HoldResponsePayload {
+    expirationTime: string;
+    cart: {
+        items: CartItem[];
+        subTotal: number;
+        cartId: number;
+        numberOfItems: number;
+    };
+    cartChangesMade: boolean;
+}
+
+export interface HoldResponse {
+    message: string;
+    payload: HoldResponsePayload;
 }
 
 export interface MergeActionData {
