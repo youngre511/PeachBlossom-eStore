@@ -69,7 +69,7 @@ export const CheckoutTimerProvider: React.FC<CheckoutTimerProviderProps> = ({
                     const timeDifference = +new Date(timerEnd) - +new Date();
                     if (timeDifference <= 0) {
                         setTimerEnd(null);
-                        setTimeLeft({ minutes: 0, seconds: 0 });
+                        setTimeLeft(null);
                         if (timerIntervalRef.current) {
                             clearInterval(timerIntervalRef.current);
                         }
