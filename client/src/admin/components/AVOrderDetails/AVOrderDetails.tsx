@@ -174,6 +174,8 @@ const AVOrderDetails: React.FC = () => {
     const [status, setStatus] = useState<"loading" | "success" | "failure">(
         "loading"
     );
+    const [someBackOrdered, setSomeBackOrdered] = useState<boolean>(false);
+    const [notReadyToShip, setNotReadyToShip] = useState<boolean>(false);
     const [emailHelperText, setEmailHelperText] = useState<string>("");
     const [error, setError] = useState<null | string>(null);
     const authContext = useContext(AuthContext);
@@ -189,9 +191,12 @@ const AVOrderDetails: React.FC = () => {
         "back ordered",
     ];
 
+    const limitedStatusOptions = ["in process", "cancelled"];
+    const backOrderedStatusOptions = ["cancelled", "back ordered"];
+
     useEffect(() => {
         if (orderNo) {
-            dispatch(avFetchOrderDetails({ orderNo }));
+            dispatch(avFetchOrderDetails({ orderNo, force: true }));
         }
     }, [orderNo]);
 
@@ -301,6 +306,94 @@ const AVOrderDetails: React.FC = () => {
         setSearchParams(searchParams);
     };
 
+    useEffect(() => {
+        let processing: boolean = false;
+        let cancelled: boolean = false;
+        let ready: boolean = false;
+        let backOrdered: boolean = false;
+        let numberCancelled: number = 0;
+        let numberFulfilled: number = 0;
+        for (const item of items) {
+            if (item.fulfillmentStatus !== "fulfilled") {
+                if (item.fulfillmentStatus === "cancelled") {
+                    numberCancelled++;
+                    if (numberCancelled === items.length) {
+                        cancelled = true;
+                    } else {
+                        cancelled = false;
+                    }
+                } else if (item.fulfillmentStatus === "back ordered") {
+                    backOrdered = true;
+                } else {
+                    processing = true;
+                }
+            } else {
+                numberFulfilled++;
+                if (
+                    numberFulfilled !== 0 &&
+                    numberFulfilled + numberCancelled === items.length
+                ) {
+                    ready = true;
+                }
+            }
+        }
+        if (cancelled) {
+            setOrderStatus("cancelled");
+            setNotReadyToShip(true);
+            if (backOrdered) {
+                setSomeBackOrdered(true);
+            } else {
+                setSomeBackOrdered(false);
+            }
+        } else if (backOrdered) {
+            setOrderStatus("back ordered");
+            setNotReadyToShip(true);
+            setSomeBackOrdered(true);
+        } else if (processing) {
+            setOrderStatus("in process");
+            setNotReadyToShip(true);
+            setSomeBackOrdered(false);
+        } else if (
+            ready &&
+            (orderStatus === "in process" || orderStatus === "cancelled")
+        ) {
+            setOrderStatus("ready to ship");
+            setNotReadyToShip(false);
+            setSomeBackOrdered(false);
+        }
+    }, [items]);
+
+    useEffect(() => {
+        if (orderStatus === "cancelled") {
+            let newItemArray = [...items];
+            for (const item of newItemArray) {
+                item.fulfillmentStatus = "cancelled";
+            }
+            setItems(newItemArray);
+            setSubTotal("0.00");
+            setTax("0.00");
+            setShipping("0.00");
+            setTotal("0.00");
+        } else {
+            let subT = 0;
+            for (const item of items) {
+                if (item.fulfillmentStatus !== "cancelled") {
+                    subT += +item.priceWhenOrdered * +item.quantity;
+                }
+            }
+            setSubTotal(subT.toFixed(2));
+            if (subT !== 0) {
+                setShipping("9.99");
+                setTax(((subT + 9.99) * 0.06).toFixed(2));
+                setTotal(((subT + 9.99) * 1.06).toFixed(2));
+            } else {
+                setShipping("0.00");
+                setTax("0.00");
+                setTotal("0.00");
+            }
+        }
+    }, [orderStatus]);
+
     const handleSave = useCallback(async () => {
         setIsConfirming(false);
         setIsSaving(true);
@@ -341,20 +434,20 @@ const AVOrderDetails: React.FC = () => {
                 const originalItem = currentDetails.OrderItem.filter(
                     (orig) => orig.order_item_id === item.order_item_id
                 )[0];
+                if (item.fulfillmentStatus !== "cancelled")
+                    isOrderCancelled = false;
+                if (item.fulfillmentStatus !== "shipped")
+                    isOrderShipped = false;
+                if (item.fulfillmentStatus !== "back ordered")
+                    isOrderBackOrdered = false;
+                if (item.fulfillmentStatus !== "fulfilled")
+                    isOrderReadyToShip = false;
 
                 if (
                     item.quantity !== originalItem.quantity ||
                     item.fulfillmentStatus !== originalItem.fulfillmentStatus
                 ) {
                     thereAreChanges = true;
-                    if (item.fulfillmentStatus !== "cancelled")
-                        isOrderCancelled = false;
-                    if (item.fulfillmentStatus !== "shipped")
-                        isOrderShipped = false;
-                    if (item.fulfillmentStatus !== "back ordered")
-                        isOrderBackOrdered = false;
-                    if (item.fulfillmentStatus !== "fulfilled")
-                        isOrderReadyToShip = false;
                     const itemToAdd = {
                         order_item_id: item.order_item_id,
                         quantity: item.quantity,
@@ -363,6 +456,16 @@ const AVOrderDetails: React.FC = () => {
                     itemUpdates.push(itemToAdd);
                 }
             }
+            console.log(
+                "cancelled:",
+                isOrderCancelled,
+                "shipped:",
+                isOrderShipped,
+                "back:",
+                isOrderBackOrdered,
+                "ready:",
+                isOrderReadyToShip
+            );
             let newOrderStatus = orderStatus;
             if (isOrderCancelled) {
                 newOrderStatus = "cancelled";
@@ -401,8 +504,16 @@ const AVOrderDetails: React.FC = () => {
                 newOrderStatus !== currentDetails.orderStatus
             ) {
                 updateInfo["orderStatus"] = newOrderStatus;
+                thereAreChanges = true;
             } else {
                 updateInfo["orderStatus"] = currentDetails.orderStatus;
+            }
+
+            if (subTotal && subTotal !== currentDetails.subTotal) {
+                updateInfo["subTotal"] = +subTotal;
+                thereAreChanges = true;
+            } else {
+                updateInfo["subTotal"] = +currentDetails.subTotal;
             }
 
             if (total && total !== currentDetails.totalAmount) {
@@ -450,7 +561,6 @@ const AVOrderDetails: React.FC = () => {
                         },
                     }
                 );
-
                 setStatus("success");
                 searchParams.delete("editing");
                 setSearchParams(searchParams);
@@ -679,6 +789,15 @@ const AVOrderDetails: React.FC = () => {
                                                     editMode
                                                         ? "filled"
                                                         : "standard"
+                                                }
+                                                optionsToStayEnabled={
+                                                    someBackOrdered
+                                                        ? backOrderedStatusOptions
+                                                        : limitedStatusOptions
+                                                }
+                                                someOptionsDisabled={
+                                                    notReadyToShip ||
+                                                    someBackOrdered
                                                 }
                                             />
                                         </div>

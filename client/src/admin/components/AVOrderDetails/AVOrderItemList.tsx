@@ -1,4 +1,4 @@
-import React, { SetStateAction } from "react";
+import { useState, useEffect, SetStateAction } from "react";
 import { Paper, Table, TableBody, TableContainer, Box } from "@mui/material";
 
 import AVOrderItemListHead from "./AVOrderItemListHead";
@@ -31,12 +31,11 @@ const AVOrderItemList: React.FC<AVCatProps> = ({
     subTotal,
     editMode,
 }) => {
-    const [selected, setSelected] = React.useState<readonly string[]>([]);
-    const [rows, setRows] = React.useState<OrderItemRow[]>([]);
-    const [cancelledRowNumber, setCancelledRowNumber] =
-        React.useState<number>(0);
+    const [selected, setSelected] = useState<readonly string[]>([]);
+    const [rows, setRows] = useState<OrderItemRow[]>([]);
+    const [cancelledRowNumber, setCancelledRowNumber] = useState<number>(0);
 
-    React.useEffect(() => {
+    useEffect(() => {
         const updatedRows = orderItems.map((item) => {
             const rowData: OrderItemRow = {
                 id: String(item.order_item_id),
@@ -132,6 +131,9 @@ const AVOrderItemList: React.FC<AVCatProps> = ({
         }
     };
 
+    // Deep copy order items, find index of changed item. If found, set status to the new status.
+    // If the new status is cancelled, add one to the cancelledRowNumber state and subtract the price from the subtotal. Reverse that if the old status was cancelled.
+    // Cancelled row number is used by product list header to calculate number of items selected when all are selected.
     const handleChangeStatus = (
         newStatus: string,
         item_id: string,

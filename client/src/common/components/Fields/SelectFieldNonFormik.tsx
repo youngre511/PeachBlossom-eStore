@@ -21,6 +21,8 @@ export type SelectFieldProps = {
     value: string[] | string;
     readOnly: boolean;
     variant: "filled" | "outlined" | "standard" | undefined;
+    someOptionsDisabled?: boolean;
+    optionsToStayEnabled?: string[];
 };
 
 const itemHeight = 48;
@@ -46,6 +48,8 @@ export const SelectFieldNonFormik: React.FC<SelectFieldProps> = ({
     value,
     readOnly,
     variant,
+    someOptionsDisabled = false,
+    optionsToStayEnabled,
 }) => {
     return (
         <Box>
@@ -77,7 +81,15 @@ export const SelectFieldNonFormik: React.FC<SelectFieldProps> = ({
             >
                 {Array.isArray(options) &&
                     options.map((option: string) => (
-                        <MenuItem value={option} key={option}>
+                        <MenuItem
+                            value={option}
+                            key={option}
+                            disabled={
+                                someOptionsDisabled &&
+                                optionsToStayEnabled &&
+                                !optionsToStayEnabled.includes(option)
+                            }
+                        >
                             {multiple && (
                                 <Checkbox
                                     checked={

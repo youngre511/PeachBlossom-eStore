@@ -86,9 +86,10 @@ const AVOrderItemRow: React.FC<Props> = ({
                     }
                     sx={{
                         minWidth: "131px",
-                        borderBottom: !open
-                            ? "1px solid rgba(224, 224, 224, 0);"
-                            : undefined,
+                        borderBottom:
+                            width && width < 1000 && !open
+                                ? "1px solid rgba(224, 224, 224, 0);"
+                                : undefined,
                         transition: "border .28s ease-out",
                     }}
                     onClick={() =>
