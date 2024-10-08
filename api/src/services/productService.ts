@@ -1,6 +1,8 @@
-import Product, { ProductItem } from "../models/mongo/productModel.js";
-import sharp from "sharp";
-import { fileTypeFromBuffer } from "file-type";
+import Product, {
+    PopulatedProductItem,
+    ProductItem,
+} from "../models/mongo/productModel.js";
+
 import Category, {
     CategoryItem,
     SubcategoryItem,
@@ -32,6 +34,7 @@ import {
     FilterObject,
     JoinReqCountAdminProduct,
 } from "./serviceTypes.js";
+import processImages from "../utils/processImages.js";
 
 ////// TYPES AND INTERFACES //////
 
@@ -71,335 +74,356 @@ export const getSearchOptions = async () => {
 ////// GET SORTED AND FILTERED PRODUCTS WITH OUT OF STOCK PRODUCTS LISTED LAST//////
 
 export const getProducts = async (filters: FilterObject) => {
-    if (!filters.page) {
-        filters.page = "1";
-    }
-    if (!filters.sort) {
-        filters.sort = "name-ascend";
-    }
-    const skip = (+filters.page - 1) * +filters.itemsPerPage;
-    let categoryId: Schema.Types.ObjectId | undefined;
-    let subcategoryId: Types.ObjectId | undefined;
+    try {
+        if (!filters.page) {
+            filters.page = "1";
+        }
+        if (!filters.sort) {
+            filters.sort = "name-ascend";
+        }
+        const skip = (+filters.page - 1) * +filters.itemsPerPage;
+        let categoryId: Schema.Types.ObjectId | undefined;
+        let subcategoryId: Types.ObjectId | undefined;
 
-    // Retrieve category and tag object ids if names are provided
-    if (filters.category) {
-        const cat = await Category.findOne({ name: filters.category }).exec();
-        if (cat) {
-            categoryId = cat._id;
-            if (filters.subcategory) {
-                const subcat = cat.subcategories.filter(
-                    (subcategory: SubcategoryItem) =>
-                        subcategory.name === filters.subcategory
-                );
-                if (subcat.length === 0) {
-                    throw new Error(
-                        `Not a valid subcategory of ${filters.category}`
+        // Retrieve category and tag object ids if names are provided
+        if (filters.category) {
+            const cat = await Category.findOne({
+                name: filters.category,
+            }).exec();
+            if (cat) {
+                categoryId = cat._id;
+                if (filters.subcategory) {
+                    const subcat = cat.subcategories.filter(
+                        (subcategory: SubcategoryItem) =>
+                            subcategory.name === filters.subcategory
                     );
-                } else {
-                    subcategoryId = subcat[0]._id;
+                    if (subcat.length === 0) {
+                        throw new Error(
+                            `Not a valid subcategory of ${filters.category}`
+                        );
+                    } else {
+                        subcategoryId = subcat[0]._id;
+                    }
                 }
-            }
-        } else {
-            throw new Error("Not a valid category");
-        }
-    }
-    let tagIds: Array<Schema.Types.ObjectId> | undefined;
-    if (filters.tags) {
-        const ts = await Tag.find({ name: { $in: filters.tags } });
-        if (ts) {
-            tagIds = ts.map((t: TagItem) => t._id);
-        }
-    }
-
-    //Begin setting match conditions
-    const matchConditions: { [key: string]: any } = { status: "active" };
-
-    // Narrow by user-input search params
-    if (filters.search) {
-        const searchRegex = new RegExp(filters.search, "i");
-        const productNoRegex = new RegExp(`^${filters.search}$`, "i");
-        matchConditions.$or = [
-            { name: { $regex: searchRegex } },
-            { productNo: { $regex: productNoRegex } },
-        ];
-    }
-
-    // Narrow by category
-    if (subcategoryId) {
-        matchConditions.subcategory = subcategoryId;
-    } else if (categoryId) {
-        matchConditions.category = categoryId;
-    }
-
-    // Narrow by tag
-    if (tagIds) {
-        matchConditions.tag = { $in: tagIds };
-    }
-
-    // Narrow by color
-    if (filters.color) {
-        matchConditions["attributes.color"] = { $in: filters.color };
-    }
-
-    // Narrow by material
-    if (filters.material) {
-        matchConditions["attributes.material"] = {
-            $elemMatch: { $in: filters.material },
-        };
-    }
-
-    // Define and iterate through all min-max parameters and add query params asneeded
-    const minMaxParams = ["price", "width", "height", "depth"];
-    for (const param of minMaxParams) {
-        const minParam = `${
-            param === "price" ? "" : "attributes.dimensions."
-        }min${
-            param.charAt(0).toUpperCase() + param.slice(1)
-        }` as keyof FilterObject;
-        const maxParam = `${
-            param === "price" ? "" : "attributes.dimensions."
-        }max${
-            param.charAt(0).toUpperCase() + param.slice(1)
-        }` as keyof FilterObject;
-        if (filters[minParam]) {
-            matchConditions[param] = {
-                ...matchConditions[param],
-                $gte: filters[minParam] as unknown as number,
-            };
-        }
-        if (filters[minParam]) {
-            matchConditions[param] = {
-                ...matchConditions[param],
-                $lte: filters[maxParam] as unknown as number,
-            };
-        }
-    }
-
-    const validSortMethods = [
-        "price-ascend",
-        "price-descend",
-        "name-ascend",
-        "name-descend",
-    ];
-    // Add sort parameters
-    let sortFields: Record<string, 1 | -1> = {};
-    if (validSortMethods.includes(filters.sort)) {
-        const sortParams = filters.sort.split("-");
-        const sortOrder: 1 | -1 = sortParams[1] === "ascend" ? 1 : -1;
-        sortFields[sortParams[0]] = sortOrder;
-    }
-
-    const sortStage: Record<string, 1 | -1> = { stockZero: 1, ...sortFields };
-
-    const aggregationPipeline = [
-        { $match: matchConditions },
-        // Add a field to indicate if stock is zero (1) or greater than zero (0)
-        {
-            $addFields: {
-                stockZero: { $cond: [{ $eq: ["$stock", 0] }, 1, 0] },
-            },
-        },
-        // Sort by stockZero first, then by your sortFields
-        { $sort: sortStage },
-        // Use $facet to get total count and paginated data
-        {
-            $facet: {
-                metadata: [{ $count: "total" }],
-                data: [{ $skip: skip }, { $limit: +filters.itemsPerPage }],
-            },
-        },
-    ];
-
-    const pipelineResult = await Product.aggregate(aggregationPipeline).exec();
-
-    // //Get number of total results
-    const totalCount =
-        pipelineResult[0].metadata.length > 0
-            ? pipelineResult[0].metadata[0].total
-            : 0;
-    const products: Array<AggregateProduct> = pipelineResult[0].data;
-
-    const productRecords: Array<CatalogResponse> = products.map((product) => {
-        let discountPrice: number | null = null;
-        const activePromos = product.promotions.filter((promotion) => {
-            const now = new Date(Date.now());
-            const startDate = new Date(promotion.startDate);
-            const endDate = new Date(promotion.endDate);
-            return (
-                promotion.active === true && startDate < now && endDate > now
-            );
-        });
-
-        // If there is an active promotion, grab the description and determine whether it is a single-product sale.
-        let promoDesc: string | null = null;
-        let singleSale: boolean = false;
-        if (activePromos.length > 0) {
-            const activePromo = activePromos[0];
-            promoDesc = activePromo.description;
-            if (promoDesc === "single product") {
-                singleSale = true;
-            }
-            if (activePromo.discountType === "percentage") {
-                discountPrice =
-                    product.price - product.price * activePromo.discountValue;
             } else {
-                discountPrice = product.price - activePromo.discountValue;
+                throw new Error("Not a valid category");
+            }
+        }
+        let tagIds: Array<Schema.Types.ObjectId> | undefined;
+        if (filters.tags) {
+            const ts = await Tag.find({ name: { $in: filters.tags } });
+            if (ts) {
+                tagIds = ts.map((t: TagItem) => t._id);
             }
         }
 
-        // Formulate response
-        const catObj: CatalogResponse = {
-            productNo: product.productNo,
-            name: product.name,
-            description: product.description,
-            price: product.price,
-            discountPrice: discountPrice,
-            promotionDesc: promoDesc,
-            singleProdProm: singleSale,
-            attributes: {
-                color: product.attributes.color,
-                material: product.attributes.material,
-                weight: product.attributes.weight,
-                dimensions: {
-                    width: product.attributes.dimensions.width,
-                    height: product.attributes.dimensions.height,
-                    depth: product.attributes.dimensions.depth,
+        //Begin setting match conditions
+        const matchConditions: { [key: string]: any } = { status: "active" };
+
+        // Narrow by user-input search params
+        if (filters.search) {
+            const searchRegex = new RegExp(filters.search, "i");
+            const productNoRegex = new RegExp(`^${filters.search}$`, "i");
+            matchConditions.$or = [
+                { name: { $regex: searchRegex } },
+                { productNo: { $regex: productNoRegex } },
+            ];
+        }
+
+        // Narrow by category
+        if (subcategoryId) {
+            matchConditions.subcategory = subcategoryId;
+        } else if (categoryId) {
+            matchConditions.category = categoryId;
+        }
+
+        // Narrow by tag
+        if (tagIds) {
+            matchConditions.tag = { $in: tagIds };
+        }
+
+        // Narrow by color
+        if (filters.color) {
+            matchConditions["attributes.color"] = { $in: filters.color };
+        }
+
+        // Narrow by material
+        if (filters.material) {
+            matchConditions["attributes.material"] = {
+                $elemMatch: { $in: filters.material },
+            };
+        }
+
+        // Define and iterate through all min-max parameters and add query params asneeded
+        const minMaxParams = ["price", "width", "height", "depth"];
+        for (const param of minMaxParams) {
+            const minParam = `${
+                param === "price" ? "" : "attributes.dimensions."
+            }min${
+                param.charAt(0).toUpperCase() + param.slice(1)
+            }` as keyof FilterObject;
+            const maxParam = `${
+                param === "price" ? "" : "attributes.dimensions."
+            }max${
+                param.charAt(0).toUpperCase() + param.slice(1)
+            }` as keyof FilterObject;
+            if (filters[minParam]) {
+                matchConditions[param] = {
+                    ...matchConditions[param],
+                    $gte: filters[minParam] as unknown as number,
+                };
+            }
+            if (filters[maxParam]) {
+                matchConditions[param] = {
+                    ...matchConditions[param],
+                    $lte: filters[maxParam] as unknown as number,
+                };
+            }
+        }
+
+        const validSortMethods = [
+            "price-ascend",
+            "price-descend",
+            "name-ascend",
+            "name-descend",
+        ];
+        // Add sort parameters
+        let sortFields: Record<string, 1 | -1> = {};
+        if (validSortMethods.includes(filters.sort)) {
+            const sortParams = filters.sort.split("-");
+            const sortOrder: 1 | -1 = sortParams[1] === "ascend" ? 1 : -1;
+            sortFields[sortParams[0]] = sortOrder;
+        }
+
+        const sortStage: Record<string, 1 | -1> = {
+            stockZero: 1,
+            ...sortFields,
+        };
+
+        const aggregationPipeline = [
+            { $match: matchConditions },
+            // Add a field to indicate if stock is zero (1) or greater than zero (0)
+            {
+                $addFields: {
+                    stockZero: { $cond: [{ $eq: ["$stock", 0] }, 1, 0] },
                 },
             },
-            images: product.images,
-            stock: product.stock,
-        };
-        return catObj;
-    });
+            // Sort by stockZero first, then by your sortFields
+            { $sort: sortStage },
+            // Use $facet to get total count and paginated data
+            {
+                $facet: {
+                    metadata: [{ $count: "total" }],
+                    data: [{ $skip: skip }, { $limit: +filters.itemsPerPage }],
+                },
+            },
+        ];
 
-    return { totalCount, productRecords };
+        const pipelineResult = await Product.aggregate(
+            aggregationPipeline
+        ).exec();
+
+        // //Get number of total results
+        const totalCount =
+            pipelineResult[0].metadata.length > 0
+                ? pipelineResult[0].metadata[0].total
+                : 0;
+        const products: Array<AggregateProduct> = pipelineResult[0].data;
+
+        const productRecords: Array<CatalogResponse> = products.map(
+            (product) => {
+                let discountPrice: number | null = null;
+                const activePromos = product.promotions.filter((promotion) => {
+                    const now = new Date(Date.now());
+                    const startDate = new Date(promotion.startDate);
+                    const endDate = new Date(promotion.endDate);
+                    return (
+                        promotion.active === true &&
+                        startDate < now &&
+                        endDate > now
+                    );
+                });
+
+                // If there is an active promotion, grab the description and determine whether it is a single-product sale.
+                let promoDesc: string | null = null;
+                let singleSale: boolean = false;
+                if (activePromos.length > 0) {
+                    const activePromo = activePromos[0];
+                    promoDesc = activePromo.description;
+                    if (promoDesc === "single product") {
+                        singleSale = true;
+                    }
+                    if (activePromo.discountType === "percentage") {
+                        discountPrice =
+                            product.price -
+                            product.price * activePromo.discountValue;
+                    } else {
+                        discountPrice =
+                            product.price - activePromo.discountValue;
+                    }
+                }
+
+                // Formulate response
+                const catObj: CatalogResponse = {
+                    productNo: product.productNo,
+                    name: product.name,
+                    description: product.description,
+                    price: product.price,
+                    discountPrice: discountPrice,
+                    promotionDesc: promoDesc,
+                    singleProdProm: singleSale,
+                    attributes: {
+                        color: product.attributes.color,
+                        material: product.attributes.material,
+                        weight: product.attributes.weight,
+                        dimensions: {
+                            width: product.attributes.dimensions.width,
+                            height: product.attributes.dimensions.height,
+                            depth: product.attributes.dimensions.depth,
+                        },
+                    },
+                    images: product.images,
+                    stock: product.stock,
+                };
+                return catObj;
+            }
+        );
+
+        return { totalCount, productRecords };
+    } catch (error) {
+        throw error;
+    }
 };
 
 ////// GET SORTED AND FILTERED ADMIN PRODUCTS //////
 
 export const getAdminProducts = async (filters: AdminFilterObj) => {
-    if (!filters.sort) {
-        filters.sort = "name-ascend";
-    }
-
-    const page = +filters.page || 1;
-    const offset = (page - 1) * +filters.itemsPerPage;
-
-    const whereClause: any = {};
-    if (filters.search) {
-        whereClause[Op.or] = [
-            { productName: { [Op.like]: `%${filters.search}%` } },
-            { productNo: { [Op.like]: `%${filters.search}%` } },
-        ];
-    }
-
-    if (filters.view === "discontinued" || filters.view === "active") {
-        whereClause[Op.and] = { status: filters.view };
-    }
-
-    const validSortMethods = [
-        "price-ascend",
-        "price-descend",
-        "name-ascend",
-        "name-descend",
-        "lastModified-ascend",
-        "lastModified-descend",
-        "createdAt-ascend",
-        "createdAt-descend",
-    ];
-
-    let sortBy: string;
-    let sortOrder: string;
-    if (validSortMethods.includes(filters.sort)) {
-        const splitSort = filters.sort.split("-");
-        sortOrder = splitSort[1].split("en")[0].toUpperCase();
-        // Substitute updatedAt for lastModified and productName for name
-        sortBy =
-            splitSort[0] === "lastModified"
-                ? "updatedAt"
-                : splitSort[0] === "name"
-                ? "productName"
-                : splitSort[0];
-    } else {
-        (sortOrder = "ASC"), (sortBy = "name");
-    }
-
-    const orderArray: Order = [[sortBy, sortOrder]];
-    if (sortBy !== "productName") {
-        orderArray.push(["productName", "ASC"]);
-    }
-
-    const products = (await sqlProduct.findAndCountAll({
-        where: whereClause,
-        include: [
-            {
-                model: sqlCategory,
-                as: "Category",
-                where: filters.category
-                    ? { categoryName: filters.category }
-                    : undefined,
-            },
-            {
-                model: sqlSubcategory,
-                as: "Subcategory",
-                where: filters.subcategory
-                    ? { subcategoryName: filters.subcategory }
-                    : undefined,
-            },
-            {
-                model: sqlInventory,
-                as: "Inventory",
-            },
-        ],
-        order: orderArray,
-        limit: +filters.itemsPerPage,
-        offset: offset,
-        nest: true,
-    })) as unknown as JoinReqCountAdminProduct;
-
-    const totalCount = products.count;
-    const parsedProducts = extractSqlProductData(products);
-
-    //Format Data
-    const productRecords: Array<AdminCatalogResponse> = parsedProducts.map(
-        (product) => {
-            const catObj = {
-                thumbnailUrl: product.thumbnailUrl,
-                name: product.productName,
-                productNo: product.productNo,
-                price: product.price,
-                category: product.Category.categoryName,
-                subcategory: product.Subcategory?.subcategoryName || null,
-                lastModified: product.updatedAt.toLocaleString(),
-                createdAt: product.createdAt.toLocaleString(),
-                description: product.description,
-                stock: product.Inventory.stock,
-                reserved: product.Inventory.reserved,
-                available: product.Inventory.available,
-                status: product.status,
-            };
-            return catObj;
+    try {
+        if (!filters.sort) {
+            filters.sort = "name-ascend";
         }
-    );
 
-    return { totalCount, productRecords };
+        const page = +filters.page || 1;
+        const offset = (page - 1) * +filters.itemsPerPage;
+
+        const whereClause: any = {};
+        if (filters.search) {
+            whereClause[Op.or] = [
+                { productName: { [Op.like]: `%${filters.search}%` } },
+                { productNo: { [Op.like]: `%${filters.search}%` } },
+            ];
+        }
+
+        if (filters.view === "discontinued" || filters.view === "active") {
+            whereClause[Op.and] = { status: filters.view };
+        }
+
+        const validSortMethods = [
+            "price-ascend",
+            "price-descend",
+            "name-ascend",
+            "name-descend",
+            "lastModified-ascend",
+            "lastModified-descend",
+            "createdAt-ascend",
+            "createdAt-descend",
+        ];
+
+        let sortBy: string;
+        let sortOrder: string;
+        if (validSortMethods.includes(filters.sort)) {
+            const splitSort = filters.sort.split("-");
+            sortOrder = splitSort[1].split("en")[0].toUpperCase();
+            // Substitute updatedAt for lastModified and productName for name
+            sortBy =
+                splitSort[0] === "lastModified"
+                    ? "updatedAt"
+                    : splitSort[0] === "name"
+                    ? "productName"
+                    : splitSort[0];
+        } else {
+            (sortOrder = "ASC"), (sortBy = "name");
+        }
+
+        const orderArray: Order = [[sortBy, sortOrder]];
+        if (sortBy !== "productName") {
+            orderArray.push(["productName", "ASC"]);
+        }
+
+        const products = (await sqlProduct.findAndCountAll({
+            where: whereClause,
+            include: [
+                {
+                    model: sqlCategory,
+                    as: "Category",
+                    where: filters.category
+                        ? { categoryName: filters.category }
+                        : undefined,
+                },
+                {
+                    model: sqlSubcategory,
+                    as: "Subcategory",
+                    where: filters.subcategory
+                        ? { subcategoryName: filters.subcategory }
+                        : undefined,
+                },
+                {
+                    model: sqlInventory,
+                    as: "Inventory",
+                },
+            ],
+            order: orderArray,
+            limit: +filters.itemsPerPage,
+            offset: offset,
+            nest: true,
+        })) as unknown as JoinReqCountAdminProduct;
+
+        const totalCount = products.count;
+        const parsedProducts = extractSqlProductData(products);
+
+        //Format Data
+        const productRecords: Array<AdminCatalogResponse> = parsedProducts.map(
+            (product) => {
+                const catObj = {
+                    thumbnailUrl: product.thumbnailUrl,
+                    name: product.productName,
+                    productNo: product.productNo,
+                    price: product.price,
+                    category: product.Category.categoryName,
+                    subcategory: product.Subcategory?.subcategoryName || null,
+                    lastModified: product.updatedAt.toLocaleString(),
+                    createdAt: product.createdAt.toLocaleString(),
+                    description: product.description,
+                    stock: product.Inventory.stock,
+                    reserved: product.Inventory.reserved,
+                    available: product.Inventory.available,
+                    status: product.status,
+                };
+                return catObj;
+            }
+        );
+
+        return { totalCount, productRecords };
+    } catch (error) {
+        throw error;
+    }
 };
 
 //////////////////////////////////////////////////////////////////////////
 
 export const getOneProduct = async (productNo: string) => {
     try {
-        const result: ProductItem | null = await Product.findOne({
+        const result: PopulatedProductItem | null = await Product.findOne({
             productNo: productNo,
-        });
+        })
+            .populate<{ category: CategoryItem }>("category")
+            .exec();
 
         if (!result) {
             throw new Error("Product not found");
         }
 
-        const category: CategoryItem | null = await Category.findOne({
-            _id: result.category,
-        });
+        const category: CategoryItem | null = result.category;
 
         if (!category) {
             throw new Error("Product category not found");
@@ -436,17 +460,17 @@ export const getOneProduct = async (productNo: string) => {
 
 export const getCatalogProductDetails = async (productNo: string) => {
     try {
-        const result: ProductItem | null = await Product.findOne({
+        const result: PopulatedProductItem | null = await Product.findOne({
             productNo: productNo,
-        });
+        })
+            .populate<{ category: CategoryItem }>("category")
+            .exec();
 
         if (!result) {
             throw new Error("Product not found");
         }
 
-        const category: CategoryItem | null = await Category.findOne({
-            _id: result.category,
-        });
+        const category: CategoryItem | null = result.category;
 
         if (!category) {
             throw new Error("Product category not found");
@@ -504,11 +528,7 @@ export const getCatalogProductDetails = async (productNo: string) => {
 
         return productData;
     } catch (error) {
-        if (error instanceof Error) {
-            throw new Error("Error fetching product: " + error.message);
-        } else {
-            throw new Error("An unknown error occurred while fetching product");
-        }
+        throw error;
     }
 };
 
@@ -540,63 +560,9 @@ export const createProduct = async (
             (word) => `${word[0].toUpperCase()}${word.substring(1)}`
         );
         const sanitizedName = capitalizedNameArr.join(" ");
+
         // Upload images to S3 and get URLs
-        const sizes = [140, 300, 450, 600, 960, 1024];
-        const imageUrls = await Promise.all(
-            images.map(async (image) => {
-                const { fileContent, fileName, mimeType } = image;
-                const fileType = await fileTypeFromBuffer(fileContent);
-                let extension: string;
-                let fileMimeType: string = mimeType;
-                if (fileType) {
-                    const { ext, mime } = fileType;
-                    extension = `.${ext}`;
-                    fileMimeType = mime;
-                } else {
-                    extension = "";
-                }
-                try {
-                    for (const size of sizes) {
-                        let processedImageBuffer;
-                        const metadata = await sharp(fileContent).metadata();
-                        if (
-                            fileMimeType !== "image/webp" &&
-                            metadata.width !== size
-                        ) {
-                            processedImageBuffer = await sharp(fileContent)
-                                .resize({ width: size })
-                                .toFormat("webp")
-                                .toBuffer();
-                        } else if (
-                            fileMimeType !== "image/webp" &&
-                            metadata.width === size
-                        ) {
-                            processedImageBuffer = await sharp(fileContent)
-                                .toFormat("webp")
-                                .toBuffer();
-                        } else if (
-                            fileMimeType === "image/webp" &&
-                            metadata.width !== size
-                        ) {
-                            processedImageBuffer = await sharp(fileContent)
-                                .resize({ width: size })
-                                .toBuffer();
-                        } else {
-                            processedImageBuffer = fileContent;
-                        }
-                        const specificFileName = `${fileName}_${size}.webp`;
-                        await uploadFile(
-                            processedImageBuffer,
-                            specificFileName,
-                            "image/webp"
-                        );
-                    }
-                    return `${process.env.CLOUDFRONT_DOMAIN}/${fileName}`; // Base URL of the uploaded image
-                } catch (error) {
-                    console.error(`Error processing image: ${error}`);
-                }
-            })
-        );
+        const imageUrls = await processImages(images);
 
         //Construct SQL product
         const abbrDesc = description.substring(0, 79) + "...";
@@ -730,11 +696,7 @@ export const createProduct = async (
     } catch (error) {
         await session.abortTransaction();
         await sqlTransaction.rollback();
-        if (error instanceof Error) {
-            throw new Error("Error adding product: " + error.message);
-        } else {
-            throw new Error("An unknown error occurred while adding product");
-        }
+        throw error;
     } finally {
         await session.endSession();
     }
@@ -764,9 +726,13 @@ export const updateProductDetails = async (
         } = productData;
 
         // Delete unused images from S3
-        const targetProduct = await Product.findOne({
-            productNo: productNo,
-        });
+        const targetProduct = await Product.findOne(
+            {
+                productNo: productNo,
+            },
+            null,
+            { session: session }
+        );
 
         if (!targetProduct) {
             throw new Error("Product not found in mongo database");
@@ -778,12 +744,10 @@ export const updateProductDetails = async (
 
         if (imagesToDelete.length > 0) {
             for (const imageUrl of imagesToDelete) {
-                async (imageUrl: string) => {
-                    const splitUrl = imageUrl.split("/");
-                    const fileName = splitUrl[splitUrl.length - 1];
-                    console.log("DELETING", fileName);
-                    await deleteFile(fileName);
-                };
+                const splitUrl = imageUrl.split("/");
+                const fileName = splitUrl[splitUrl.length - 1];
+                console.log("DELETING", fileName);
+                await deleteFile(fileName);
             }
         }
 
@@ -792,65 +756,7 @@ export const updateProductDetails = async (
         let newImageUrls: string[] | null = null;
 
         if (images.length > 0) {
-            const sizes = [140, 300, 450, 600, 960, 1024];
-            newImageUrls = await Promise.all(
-                images.map(async (image) => {
-                    const { fileContent, fileName, mimeType } = image;
-                    const fileType = await fileTypeFromBuffer(fileContent);
-                    let extension: string;
-                    let fileMimeType: string = mimeType;
-                    if (fileType) {
-                        const { ext, mime } = fileType;
-                        extension = `.${ext}`;
-                        fileMimeType = mime;
-                    } else {
-                        extension = "";
-                    }
-                    try {
-                        for (const size of sizes) {
-                            let processedImageBuffer;
-                            const metadata = await sharp(
-                                fileContent
-                            ).metadata();
-                            if (
-                                fileMimeType !== "image/webp" &&
-                                metadata.width !== size
-                            ) {
-                                processedImageBuffer = await sharp(fileContent)
-                                    .resize({ width: size })
-                                    .toFormat("webp")
-                                    .toBuffer();
-                            } else if (
-                                fileMimeType !== "image/webp" &&
-                                metadata.width === size
-                            ) {
-                                processedImageBuffer = await sharp(fileContent)
-                                    .toFormat("webp")
-                                    .toBuffer();
-                            } else if (
-                                fileMimeType === "image/webp" &&
-                                metadata.width !== size
-                            ) {
-                                processedImageBuffer = await sharp(fileContent)
-                                    .resize({ width: size })
-                                    .toBuffer();
-                            } else {
-                                processedImageBuffer = fileContent;
-                            }
-                            const specificFileName = `${fileName}_${size}.webp`;
-                            await uploadFile(
-                                processedImageBuffer,
-                                specificFileName,
-                                "image/webp"
-                            );
-                        }
-                        return `${process.env.CLOUDFRONT_DOMAIN}/${fileName}`; // Base URL of the uploaded image
-                    } catch (error) {
-                        console.error(`Error processing image: ${error}`);
-                        throw error;
-                    }
-                })
-            );
+            newImageUrls = await processImages(images);
         }
 
         let imageUrls: string[];
@@ -993,13 +899,7 @@ export const updateProductDetails = async (
     } catch (error) {
         await session.abortTransaction();
         await sqlTransaction.rollback();
-        if (error instanceof Error) {
-            throw new Error("Error updating product details: " + error.message);
-        } else {
-            throw new Error(
-                "An unknown error occurred while updating product details"
-            );
-        }
+        throw error;
     } finally {
         await session.endSession();
     }
@@ -1055,15 +955,7 @@ export const updateProductStatus = async (
     } catch (error) {
         await session.abortTransaction();
         await sqlTransaction.rollback();
-        if (error instanceof Error) {
-            throw new Error(
-                "Error updating product status(es): " + error.message
-            );
-        } else {
-            throw new Error(
-                "An unknown error occurred while updating product status(es)"
-            );
-        }
+        throw error;
     } finally {
         await session.endSession();
     }
@@ -1124,12 +1016,14 @@ export const deleteProduct = async (
 
         //Delete Images
         if (imagesToDelete.length > 0) {
-            imagesToDelete.forEach(async (imageUrl) => {
+            const deletionPromises = imagesToDelete.map(async (imageUrl) => {
                 const splitUrl = imageUrl.split("/");
                 const fileName = splitUrl[splitUrl.length - 1];
                 console.log("DELETING", fileName);
                 await deleteFile(fileName);
             });
+
+            await Promise.all(deletionPromises);
         }
 
         await session.commitTransaction();
