@@ -317,7 +317,6 @@ export const getOneOrder = async (
     orderNo: string,
     email: string | undefined
 ) => {
-    const sqlTransaction = await sequelize.transaction();
     try {
         const orderData = (await sqlOrder.findOne({
             where: { orderNo: orderNo },
@@ -337,7 +336,6 @@ export const getOneOrder = async (
                     as: "Address",
                 },
             ],
-            transaction: sqlTransaction,
             nest: true,
         })) as unknown as JoinReqOrderDetails;
 
@@ -356,7 +354,6 @@ export const getOneOrder = async (
         }
         return parsedOrderData;
     } catch (error) {
-        await sqlTransaction.rollback();
         if (error instanceof Error) {
             throw new Error("Error retrieving order: " + error.message);
         } else {
