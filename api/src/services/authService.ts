@@ -271,7 +271,7 @@ export const revokeRefreshToken = async (jti: string) => {
         if (affectedCount !== 1) {
             throw new Error("Unable to revoke refresh token.");
         }
-        sqlTransaction.commit();
+        await sqlTransaction.commit();
         return;
     } catch (error) {
         await sqlTransaction.rollback();
