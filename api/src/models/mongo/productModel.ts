@@ -1,4 +1,5 @@
 import { Date, Document, Schema, model, Types } from "mongoose";
+import { CategoryItem } from "./categoryModel.js";
 
 export interface Promotion {
     promoId: string;
@@ -16,6 +17,24 @@ export interface ProductItem extends Document {
     productNo: string;
     name: string;
     category: Schema.Types.ObjectId;
+    subcategory: Types.ObjectId;
+    description: string;
+    attributes: Attributes;
+    price: number;
+    promotions: Array<Promotion>;
+    stock: number;
+    tags: string[];
+    status: string;
+    images: Array<string>;
+    createdAt?: Date;
+    updatedAt?: Date;
+}
+
+export interface PopulatedProductItem extends Document {
+    _id: Schema.Types.ObjectId;
+    productNo: string;
+    name: string;
+    category: CategoryItem;
     subcategory: Types.ObjectId;
     description: string;
     attributes: Attributes;
