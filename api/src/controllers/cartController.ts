@@ -7,6 +7,10 @@ interface CartIdRequestParams extends Request {
     cartId: string;
 }
 
+interface CustomerCartRequestParams extends Request {
+    customerId: string;
+}
+
 interface CustomerIdBodyRequest extends Request {
     body: {
         customerId: number;
@@ -72,7 +76,7 @@ export const getCartById: RequestHandler<CartIdRequestParams> = async (
 ) => {
     try {
         const { cartId } = req.params;
-        const result = await cartService.getCartById(+cartId);
+        const result = await cartService.getCart({ cartId: +cartId });
 
         (res as CartResponse).json({
             message: "success",
@@ -85,6 +89,33 @@ export const getCartById: RequestHandler<CartIdRequestParams> = async (
     } catch (error) {
         let errorObj = {
             message: "get Cart by ID failure",
+            payload: error,
+        };
+
+        console.error(errorObj);
+
+        res.status(500).json(errorObj);
+    }
+};
+
+export const getCustomerCart: RequestHandler<
+    CustomerCartRequestParams
+> = async (req: Request<CustomerCartRequestParams>, res: Response) => {
+    try {
+        const { customerId } = req.params;
+        const result = await cartService.getCart({ customerId: +customerId });
+
+        (res as CartResponse).json({
+            message: "success",
+            payload: {
+                success: true,
+                message: "successfully retrieved customer cart",
+                cart: result,
+            },
+        });
+    } catch (error) {
+        let errorObj = {
+            message: "get customer cart failure",
             payload: error,
         };
 

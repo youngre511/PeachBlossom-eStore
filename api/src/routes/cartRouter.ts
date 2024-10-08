@@ -2,6 +2,7 @@ import { Router } from "express";
 const cartRouter = Router();
 import {
     getCartById,
+    getCustomerCart,
     addToCart,
     deleteFromCart,
     updateItemQuantity,
@@ -12,7 +13,7 @@ function dummyFunc() {}
 
 cartRouter.get("/cartId/:cartId", getCartById);
 
-cartRouter.get("/customerId/:customerId", dummyFunc);
+cartRouter.get("/customerId/:customerId", getCustomerCart);
 
 cartRouter.put("/add-to-cart", addToCart);
 

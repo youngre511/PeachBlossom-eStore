@@ -8,7 +8,7 @@ import mongoose, { ClientSession } from "mongoose";
 import { Model } from "sequelize-typescript";
 import { getAdminProducts } from "./productService.js";
 import { AdminFilterObj, JoinReqInventory } from "./serviceTypes.js";
-import { getCartById } from "./cartService.js";
+import { getCart } from "./cartService.js";
 let syncInProgress = false;
 
 // Interfaces
@@ -98,8 +98,7 @@ export const holdStock = async (cartId: number) => {
 
         if (unreservedCartItems.length === 0) {
             await sqlTransaction.commit();
-            const nonUpdatedCart = await getCartById(cartId);
-            console.log("nonUpdatedCart:", nonUpdatedCart);
+            const nonUpdatedCart = await getCart({ cartId });
             return {
                 expirationTime: expirationTime,
                 cart: nonUpdatedCart,
@@ -210,7 +209,7 @@ export const holdStock = async (cartId: number) => {
 
         await sqlTransaction.commit();
 
-        const updatedCartObj = await getCartById(cartId);
+        const updatedCartObj = await getCart({ cartId });
         return {
             expirationTime: expirationTime,
             cart: updatedCartObj,

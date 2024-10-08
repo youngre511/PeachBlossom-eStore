@@ -5,8 +5,8 @@ import { sqlPromotion } from "../models/mysql/sqlPromotionModel.js";
 import { sqlCart } from "../models/mysql/sqlCartModel.js";
 import { sqlCartItem } from "../models/mysql/sqlCartItemModel.js";
 import { sqlInventory } from "../models/mysql/sqlInventoryModel.js";
-import { Op } from "sequelize";
-import { JoinReqCart } from "./serviceTypes.js";
+import { Op, Transaction, WhereOptions } from "sequelize";
+import { JoinReqCart, RawJoinReqProduct } from "./serviceTypes.js";
 
 // Types and Interfaces
 
@@ -31,10 +31,24 @@ export const extractCartData = (cartData: JoinReqCart) => {
     return updatedCart;
 };
 
-export const getCartById = async (cartId: number) => {
+export const getCart = async (Args: {
+    cartId?: number;
+    customerId?: number;
+}) => {
     try {
-        let updatedCartRaw = (await sqlCart.findOne({
-            where: { cart_id: cartId },
+        if (!Args.cartId && !Args.customerId) {
+            throw new Error("Must provide either cartId or customerId");
+        }
+
+        const whereClause: WhereOptions = {};
+        if (Args.cartId) {
+            whereClause["cart_id"] = Args.cartId;
+        } else {
+            whereClause["customer_id"] = Args.customerId;
+        }
+
+        const updatedCartRaw = (await sqlCart.findOne({
+            where: whereClause,
             include: [
                 {
                     model: sqlCartItem,
@@ -56,7 +70,7 @@ export const getCartById = async (cartId: number) => {
             nest: true,
         })) as unknown as JoinReqCart;
 
-        let updatedCart = extractCartData(updatedCartRaw);
+        const updatedCart = extractCartData(updatedCartRaw);
 
         if (!updatedCart) {
             throw new Error("Unable to retrieve cart state");
@@ -92,89 +106,92 @@ export const getCartById = async (cartId: number) => {
 
         return returnCartObj;
     } catch (error) {
-        if (error instanceof Error) {
-            // Rollback the transaction in case of any errors
-            throw new Error("Error retrieving cart: " + error.message);
-        } else {
-            // Rollback the transaction in case of any non-Error errors
-            throw new Error("An unknown error occurred while retrieving cart");
-        }
+        throw error;
     }
-};
-
-export const getCustomerCart = async (customerId: number) => {
-    console.log("yes");
 };
 
 export const addToCart = async (
     productNo: string,
     cartId: number | null,
     quantity: number,
-    thumbnailUrl: string
+    thumbnailUrl: string,
+    transaction?: Transaction
 ) => {
-    const sqlTransaction = await sequelize.transaction();
+    const sqlTransaction = transaction
+        ? transaction
+        : await sequelize.transaction();
     let cartExists = cartId ? true : false;
 
     try {
         // Find product record
-        const product = await sqlProduct.findOne({
+        const product = (await sqlProduct.findOne({
             where: { productNo: productNo },
+            include: [
+                {
+                    model: sqlInventory,
+                    as: "Inventory",
+                    attributes: [
+                        "inventory_id",
+                        "reserved",
+                        "product_id",
+                        [sequelize.literal("stock - reserved"), "available"],
+                    ],
+                },
+            ],
             transaction: sqlTransaction,
             raw: true,
-        });
+        })) as unknown as RawJoinReqProduct;
         if (!product) {
             throw new Error("ProductNo not found in database");
         }
 
-        //Find any current and active promotions
-        const currentDate = new Date();
-        const promotions = await sqlPromotion.findAll({
-            include: [
-                {
-                    model: sqlProduct,
-                    as: "productPromotions",
-                    where: { productNo: product.productNo },
-                    through: {
-                        attributes: [],
-                    },
-                },
-            ],
-            where: {
-                active: true,
-                startDate: { [Op.lte]: currentDate },
-                endDate: { [Op.gte]: currentDate },
-            },
-        });
+        if (product.status !== "active") {
+            throw new Error(
+                `Product ${product.productName} is no longer available`
+            );
+        }
 
-        const promotionId =
-            promotions.length > 0 ? promotions[0].promotionId : undefined;
-
-        let finalPrice: number;
-
-        // If there is an active promotion, calculate final price. Otherwise, set final price equal to regular price
-        if (promotionId) {
-            const promo = promotions[0];
-            if (promo.discountType === "percentage") {
-                finalPrice =
-                    product.price - promo.discountValue * product.price;
-            } else {
-                finalPrice = product.price - promo.discountValue;
+        if (quantity > product["Inventory.available"]) {
+            if (!transaction) {
+                throw new Error(
+                    `Insufficient stock. Tried add ${quantity} ${product.productName} unit(s) to cart, but only ${product["Inventory.available"]} are available.`
+                );
             }
-        } else {
-            finalPrice = product.price;
+            await sqlTransaction.commit();
+            // Fetch the updated cart. Format and return data to update store.
+            const returnCartObj = await getCart({ cartId: cartId as number });
+
+            if (!returnCartObj) {
+                throw new Error("Unable to retrieve new cart state");
+            }
+
+            return {
+                success: false,
+                message: `Insufficient stock. Tried add ${quantity} ${product.productName} units to cart, but only ${product["Inventory.available"]} are available.`,
+                cart: returnCartObj,
+            };
         }
 
         // If a cartId is supplied, fetch cart record from cart table. If cart cannot be found, set cartExists equal to false.
         let cart;
+        let cartItem = null;
         if (cartExists) {
             cart = await sqlCart.findOne({
                 where: { cart_id: cartId },
                 include: [{ model: sqlCartItem, as: "CartItem" }],
                 transaction: sqlTransaction,
-                raw: true,
+                nest: true,
             });
+            console.log("cart:", cart);
             if (!cart) {
                 cartExists = false;
+            } else {
+                //Search cart items to determine whether product already exists in cart.
+                if (cart.dataValues.CartItem) {
+                    cartItem = cart.dataValues.CartItem.find(
+                        (item: any) => item.dataValues.productNo === productNo
+                    );
+                }
             }
         }
 
@@ -188,21 +205,54 @@ export const addToCart = async (
             throw new Error("Cart creation failed");
         }
 
-        //Search cart items to determine whether product already exists in cart.
-        let cartItem = null;
-        if (cart.cartItems) {
-            cartItem = cart.cartItems.find(
-                (item: any) => item.productNo === productNo
-            );
-        }
-
         // If the product is already in the cart, increment the quantity, otherwise, create a new cart item.
         if (cartItem) {
-            cartItem.quantity += quantity;
-            cartItem.promotionId = promotionId;
-            cartItem.finalPrice = finalPrice;
-            await cartItem.save({ transaction: sqlTransaction });
+            const updates: Record<string, any> = {};
+            updates["quantity"] = cartItem.quantity + quantity;
+            await sqlCartItem.increment("quantity", {
+                by: quantity,
+                where: { cart_item_id: cartItem.cart_item_id },
+                transaction: sqlTransaction,
+            });
         } else {
+            //Find any current and active promotions
+            const currentDate = new Date();
+            const promotions = await sqlPromotion.findAll({
+                include: [
+                    {
+                        model: sqlProduct,
+                        as: "productPromotions",
+                        where: { productNo: product.productNo },
+                        through: {
+                            attributes: [],
+                        },
+                    },
+                ],
+                where: {
+                    active: true,
+                    startDate: { [Op.lte]: currentDate },
+                    endDate: { [Op.gte]: currentDate },
+                },
+            });
+
+            const promotionId =
+                promotions.length > 0 ? promotions[0].promotionId : undefined;
+
+            let finalPrice: number;
+
+            // If there is an active promotion, calculate final price. Otherwise, set final price equal to regular price
+            if (promotionId) {
+                const promo = promotions[0];
+                if (promo.discountType === "percentage") {
+                    finalPrice =
+                        product.price - promo.discountValue * product.price;
+                } else {
+                    finalPrice = product.price - promo.discountValue;
+                }
+            } else {
+                finalPrice = product.price;
+            }
+
             await sqlCartItem.create(
                 {
                     cart_id: cartId,
@@ -217,12 +267,14 @@ export const addToCart = async (
             );
         }
 
-        // Commit transaction
-
+        // Commit transaction unless function has received transaction as an argument
+        if (transaction) {
+            return;
+        }
         await sqlTransaction.commit();
 
         // Fetch the updated cart. Format and return data to update store.
-        const returnCartObj = await getCartById(cartId as number);
+        const returnCartObj = await getCart({ cartId: cartId as number });
 
         if (!returnCartObj) {
             throw new Error("Unable to retrieve new cart state");
@@ -235,15 +287,7 @@ export const addToCart = async (
         };
     } catch (error) {
         await sqlTransaction.rollback();
-        if (error instanceof Error) {
-            // Rollback the transaction in case of any errors
-            throw new Error("Error adding item to cart: " + error.message);
-        } else {
-            // Rollback the transaction in case of any non-Error errors
-            throw new Error(
-                "An unknown error occurred while adding item to cart"
-            );
-        }
+        throw error;
     }
 };
 
@@ -269,12 +313,29 @@ export const updateItemQuantity = async (
             where: { cart_id: cartId },
             include: [{ model: sqlCartItem, as: "CartItem" }],
             transaction: sqlTransaction,
+            lock: true,
             nest: true,
         })) as any;
 
         if (!cart) {
             throw new Error("Invalid Cart Id");
         }
+
+        await cart.reload({
+            include: [
+                {
+                    model: sqlCartItem,
+                    as: "CartItem",
+                    required: false,
+                },
+            ],
+            transaction: sqlTransaction,
+            lock: {
+                level: sqlTransaction.LOCK.UPDATE,
+                of: sqlCartItem, // Lock the cart items
+            },
+        });
+
         let cartItem = cart.CartItem.find(
             (item: any) => item.dataValues.productNo === productNo
         );
@@ -286,17 +347,15 @@ export const updateItemQuantity = async (
         await sqlCartItem.update(
             { quantity: quantity },
             {
-                where: { cart_item_id: cartItem.dataValues.cart_item_id },
+                where: { cart_id: cartId, productNo: productNo },
                 transaction: sqlTransaction,
             }
         );
 
-        await cart.save({ transaction: sqlTransaction });
-
         await sqlTransaction.commit();
 
         // Fetch the updated cart. Format and return data to update store.
-        const returnCartObj = await getCartById(cartId);
+        const returnCartObj = await getCart({ cartId });
 
         if (!returnCartObj) {
             throw new Error("Unable to retrieve new cart state");
@@ -309,17 +368,7 @@ export const updateItemQuantity = async (
         };
     } catch (error) {
         await sqlTransaction.rollback();
-        if (error instanceof Error) {
-            // Rollback the transaction in case of any errors
-            throw new Error(
-                "Error updating item quantity in cart: " + error.message
-            );
-        } else {
-            // Rollback the transaction in case of any non-Error errors
-            throw new Error(
-                "An unknown error occurred while updating item quantity in cart"
-            );
-        }
+        throw error;
     }
 };
 
@@ -341,12 +390,28 @@ export const deleteFromCart = async (productNo: string, cartId: number) => {
             where: { cart_id: cartId },
             include: [{ model: sqlCartItem, as: "CartItem" }],
             transaction: sqlTransaction,
+            lock: true,
             nest: true,
         })) as unknown as JoinReqCart;
 
         if (!cart) {
             throw new Error("Invalid Cart Id");
         }
+
+        await cart.reload({
+            include: [
+                {
+                    model: sqlCartItem,
+                    as: "CartItem",
+                    required: false,
+                },
+            ],
+            transaction: sqlTransaction,
+            lock: {
+                level: sqlTransaction.LOCK.UPDATE,
+                of: sqlCartItem, // Lock the cart items
+            },
+        });
 
         let cartItem = cart.CartItem.find(
             (item: any) => item.dataValues.productNo === productNo
@@ -370,7 +435,7 @@ export const deleteFromCart = async (productNo: string, cartId: number) => {
         await sqlTransaction.commit();
 
         // Fetch the updated cart. Format and return data to update store.
-        const returnCartObj = await getCartById(cartId);
+        const returnCartObj = await getCart({ cartId });
 
         if (!returnCartObj) {
             throw new Error("Unable to retrieve new cart state");
@@ -382,15 +447,7 @@ export const deleteFromCart = async (productNo: string, cartId: number) => {
         };
     } catch (error) {
         await sqlTransaction.rollback();
-        if (error instanceof Error) {
-            // Rollback the transaction in case of any errors
-            throw new Error("Error removing item from cart: " + error.message);
-        } else {
-            // Rollback the transaction in case of any non-Error errors
-            throw new Error(
-                "An unknown error occurred while removing item from cart"
-            );
-        }
+        throw error;
     }
 };
 
@@ -412,12 +469,13 @@ export const mergeCarts = async (cartId1: number, cartId2: number) => {
                 item.dataValues.productNo,
                 cartId1,
                 item.dataValues.quantity,
-                item.dataValues.thumbnailUrl as string
+                item.dataValues.thumbnailUrl as string,
+                sqlTransaction
             );
         }
 
         // Fetch the updated cart. Format and return data to update store.
-        const returnCartObj = await getCartById(cartId1);
+        const returnCartObj = await getCart({ cartId: cartId1 });
 
         if (!returnCartObj) {
             throw new Error(
@@ -432,12 +490,6 @@ export const mergeCarts = async (cartId1: number, cartId2: number) => {
         };
     } catch (error) {
         await sqlTransaction.rollback();
-        if (error instanceof Error) {
-            // Rollback the transaction in case of any errors
-            throw new Error("Error merging carts: " + error.message);
-        } else {
-            // Rollback the transaction in case of any non-Error errors
-            throw new Error("An unknown error occurred while merging carts");
-        }
+        throw error;
     }
 };
