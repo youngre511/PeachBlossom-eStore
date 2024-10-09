@@ -364,6 +364,7 @@ const AVOrderDetails: React.FC = () => {
     }, [items]);
 
     useEffect(() => {
+        console.log("new order status:", orderStatus);
         if (orderStatus === "cancelled") {
             let newItemArray = [...items];
             for (const item of newItemArray) {
@@ -398,7 +399,7 @@ const AVOrderDetails: React.FC = () => {
         setIsConfirming(false);
         setIsSaving(true);
         let thereAreChanges: boolean = false;
-
+        console.log(orderStatus);
         const updateInfo: Record<
             string,
             | string
@@ -472,7 +473,7 @@ const AVOrderDetails: React.FC = () => {
             }
             if (
                 isOrderReadyToShip &&
-                !["shipped", "delivered"].includes(orderStatus)
+                !["shipped", "delivered"].includes(newOrderStatus)
             ) {
                 newOrderStatus = "ready to ship";
                 setOrderStatus("ready to ship");
@@ -493,6 +494,7 @@ const AVOrderDetails: React.FC = () => {
                 }
             }
 
+            console.log(newOrderStatus, currentDetails.orderStatus);
             if (
                 newOrderStatus &&
                 newOrderStatus !== currentDetails.orderStatus
@@ -578,6 +580,7 @@ const AVOrderDetails: React.FC = () => {
         }
     }, [
         orderNo,
+        orderStatus,
         currentDetails,
         total,
         state,

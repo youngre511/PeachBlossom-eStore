@@ -10,9 +10,7 @@ interface Props {
     handleChangeStatus: (
         newStatus: string,
         item_id: string,
-        oldStatus: string,
-        priceWhenOrdered: number,
-        quantity: number
+        oldStatus: string
     ) => void;
 }
 const AVOrderItemStatus: React.FC<Props> = ({
@@ -29,13 +27,7 @@ const AVOrderItemStatus: React.FC<Props> = ({
 
     useEffect(() => {
         if (itemStatus !== status) {
-            handleChangeStatus(
-                itemStatus,
-                item_id,
-                status,
-                priceWhenOrdered,
-                quantity
-            );
+            handleChangeStatus(itemStatus, item_id, status);
         }
     }, [itemStatus]);
     return (

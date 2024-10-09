@@ -137,9 +137,7 @@ const AVOrderItemList: React.FC<AVCatProps> = ({
     const handleChangeStatus = (
         newStatus: string,
         item_id: string,
-        oldStatus: string,
-        priceWhenOrdered: number,
-        quantity: number
+        oldStatus: string
     ) => {
         const newOrderItems = [...orderItems];
         const foundIndex = newOrderItems.findIndex(
@@ -149,11 +147,9 @@ const AVOrderItemList: React.FC<AVCatProps> = ({
             const item = newOrderItems[foundIndex];
             item.fulfillmentStatus = newStatus;
             if (newStatus === "cancelled") {
-                handleSetSubtotal(subTotal - quantity * priceWhenOrdered);
                 setCancelledRowNumber(cancelledRowNumber + 1);
             } else {
                 if (oldStatus === "cancelled") {
-                    handleSetSubtotal(subTotal + quantity * priceWhenOrdered);
                     setCancelledRowNumber(cancelledRowNumber - 1);
                 }
             }

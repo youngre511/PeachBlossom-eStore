@@ -28,9 +28,7 @@ interface Props {
     handleChangeStatus: (
         newStatus: string,
         item_id: string,
-        oldStatus: string,
-        priceWhenOrdered: number,
-        quantity: number
+        oldStatus: string
     ) => void;
 }
 const AVOrderItemRow: React.FC<Props> = ({
