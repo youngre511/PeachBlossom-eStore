@@ -105,6 +105,7 @@ export const placeOrder = async (orderData: OrderData) => {
         const shipping = orderData.shipping;
         const orderDetails = orderData.orderDetails;
         const orderNo: string = await generateOrderNo();
+        let backOrdered: boolean = false;
 
         const shippingAddressFull = `${shipping.shippingAddress} | ${shipping.shippingAddress2}`;
 
@@ -176,6 +177,9 @@ export const placeOrder = async (orderData: OrderData) => {
                         inventoryRecord["Inventory.stock"] -
                             inventoryRecord["Inventory.reserved"] >=
                         item.quantity;
+                    if (!inStock) {
+                        backOrdered = true;
+                    }
                     const orderItem = {
                         order_id: createdOrder.dataValues.order_id,
                         productNo: item.productNo,
@@ -202,6 +206,12 @@ export const placeOrder = async (orderData: OrderData) => {
                 }
             })
         );
+
+        if (backOrdered) {
+            console.log("Adjusting order status to 'back ordered'");
+            createdOrder.orderStatus = "back ordered";
+            await createdOrder.save({ transaction: sqlTransaction });
+        }
 
         console.log("Deleting cart and cart items.");
         if (orderData.cartId) {
