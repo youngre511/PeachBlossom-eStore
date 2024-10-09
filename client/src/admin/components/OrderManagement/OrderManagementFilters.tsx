@@ -259,7 +259,7 @@ const OrderManagementFilters: React.FC<Props> = ({
                             label="Start Date"
                             onChange={(newValue) => setDateMin(newValue)}
                             disableFuture={true}
-                            minDate={dayjs("2024-06-01")}
+                            minDate={dayjs("2022-01-01")}
                             maxDate={dateMax ? dateMax : dayjs()}
                             slotProps={{
                                 actionBar: {

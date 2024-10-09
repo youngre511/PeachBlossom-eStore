@@ -456,16 +456,7 @@ const AVOrderDetails: React.FC = () => {
                     itemUpdates.push(itemToAdd);
                 }
             }
-            console.log(
-                "cancelled:",
-                isOrderCancelled,
-                "shipped:",
-                isOrderShipped,
-                "back:",
-                isOrderBackOrdered,
-                "ready:",
-                isOrderReadyToShip
-            );
+
             let newOrderStatus = orderStatus;
             if (isOrderCancelled) {
                 newOrderStatus = "cancelled";
@@ -479,7 +470,10 @@ const AVOrderDetails: React.FC = () => {
                 newOrderStatus = "back ordered";
                 setOrderStatus("back ordered");
             }
-            if (isOrderReadyToShip) {
+            if (
+                isOrderReadyToShip &&
+                !["shipped", "delivered"].includes(orderStatus)
+            ) {
                 newOrderStatus = "ready to ship";
                 setOrderStatus("ready to ship");
             }
