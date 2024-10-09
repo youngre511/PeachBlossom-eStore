@@ -1,6 +1,7 @@
 import { Router } from "express";
 const inventoryRouter = Router();
 import {
+    adjustHoldQuantity,
     extendHold,
     holdStock,
     syncStockLevels,
@@ -10,6 +11,8 @@ import { authMiddleware } from "../middleware/authMiddleware.js";
 import { authorizeRoles } from "../middleware/authorize.js";
 
 inventoryRouter.put("/holdStock", holdStock);
+
+inventoryRouter.put("/adjustHold", adjustHoldQuantity);
 
 inventoryRouter.put("/extendHold", extendHold);
 

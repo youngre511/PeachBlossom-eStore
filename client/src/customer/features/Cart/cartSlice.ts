@@ -232,8 +232,7 @@ export const holdCartStock = createAsyncThunk<
             `${import.meta.env.VITE_API_URL}/inventory/holdStock`,
             { cartId: state.cart.cartId }
         );
-        console.log(response);
-        console.log(response.data.payload);
+
         return response.data.payload;
     } catch (error: any) {
         return rejectWithValue(

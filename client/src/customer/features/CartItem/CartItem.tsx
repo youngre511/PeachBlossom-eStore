@@ -1,16 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { CartItem as item } from "../Cart/CartTypes";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useAppDispatch } from "../../hooks/reduxHooks";
+import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
 import { updateItemQuantity } from "../Cart/cartSlice";
 import "./cart-item.css";
 import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
+import { RootState } from "../../store/customerStore";
+import axios from "axios";
 
 interface Props {
     item: item;
 }
 const CartItem: React.FC<Props> = ({ item }: Props) => {
     const [quantity, setQuantity] = useState<string>(String(item.quantity));
+    const cart = useAppSelector((state: RootState) => state.cart);
     const totalPrice = (
         item.quantity * (item.discountPrice ? item.discountPrice : item.price)
     ).toFixed(2);
@@ -18,25 +21,56 @@ const CartItem: React.FC<Props> = ({ item }: Props) => {
     const navigate = useNavigate();
     const { isTouchDevice } = useWindowSizeContext();
 
-    const handleUpdateQuantity = () => {
+    const handleUpdateQuantity = async () => {
         let updateQuantity = +quantity;
-
+        let realExpiration;
+        let holdInPlace: boolean = false;
+        if (cart.expirationTime) {
+            realExpiration = new Date(cart.expirationTime);
+            realExpiration.setSeconds(realExpiration.getSeconds() + 30);
+            const now = new Date();
+            if (now.getTime() < realExpiration.getTime()) {
+                holdInPlace = true;
+            }
+        }
+        // Check whether the updated quantity exceeds the max available. If it does, check whether there is a live checkout timer.
+        // If there is a live checkout timer, treat current quantity as already reserved and only check whether the difference between the updateQuantity and existing quantity is greater than the max available. If it is, reset quantity to the existing quantity.
         if (updateQuantity > item.maxAvailable) {
-            updateQuantity = item.maxAvailable;
-            setQuantity(String(item.maxAvailable));
+            if (!holdInPlace) {
+                updateQuantity = item.maxAvailable;
+                setQuantity(String(item.maxAvailable));
+            } else {
+                if (updateQuantity - item.quantity > item.maxAvailable) {
+                    updateQuantity = item.quantity;
+                    setQuantity(String(item.quantity));
+                }
+            }
         }
 
-        dispatch(
-            updateItemQuantity({
+        const adjustmentAmount = updateQuantity - item.quantity;
+        // Only make changes if the quantity has been adjusted
+        if (adjustmentAmount !== 0) {
+            const adjustmentResult = await axios.put<{
+                message: string;
+                payload: boolean;
+            }>(`${import.meta.env.VITE_API_URL}/inventory/adjustHold`, {
+                cartId: cart.cartId,
                 productNo: item.productNo,
-                newQuantity: updateQuantity,
-            })
-        );
+                adjustment: adjustmentAmount,
+            });
+            if (!adjustmentResult.data.payload) {
+                updateQuantity = item.quantity;
+                setQuantity(String(item.quantity));
+            } else {
+                dispatch(
+                    updateItemQuantity({
+                        productNo: item.productNo,
+                        newQuantity: updateQuantity,
+                    })
+                );
+            }
+        }
     };
-
-    useEffect(() => {
-        console.log("quantity:", quantity);
-    }, [quantity]);
 
     const location = useLocation();
 

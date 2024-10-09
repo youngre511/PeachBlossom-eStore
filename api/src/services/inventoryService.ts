@@ -7,7 +7,11 @@ import sequelize from "../models/mysql/index.js";
 import mongoose, { ClientSession } from "mongoose";
 import { Model } from "sequelize-typescript";
 import { getAdminProducts } from "./productService.js";
-import { AdminFilterObj, JoinReqInventory } from "./serviceTypes.js";
+import {
+    AdminFilterObj,
+    JoinReqInventory,
+    RawJoinReqProduct,
+} from "./serviceTypes.js";
 import { getCart } from "./cartService.js";
 let syncInProgress = false;
 
@@ -215,6 +219,73 @@ export const holdStock = async (cartId: number) => {
             cart: updatedCartObj,
             cartChangesMade: cartChangesMade,
         };
+    } catch (error) {
+        await sqlTransaction.rollback();
+        throw error;
+    }
+};
+
+export const adjustHoldQuantity = async (
+    productNo: string,
+    cartId: number,
+    adjustment: number
+) => {
+    const sqlTransaction = await sequelize.transaction();
+    try {
+        console.log("Validating cart");
+        const cart = await sqlCart.findOne({ where: { cart_id: cartId } });
+        if (!cart) {
+            throw new Error("Cart id invalid.");
+        }
+        const expiration = new Date(cart.checkoutExpiration);
+        const now = new Date();
+        if (now.getTime() >= expiration.getTime()) {
+            throw new Error(
+                "Cannot adjust hold quantity. Cart checkout is expired"
+            );
+        }
+
+        console.log("Fetching product record");
+        const product = await sqlProduct.findOne({
+            where: { productNo: productNo },
+        });
+
+        if (!product) {
+            throw new Error("Error fetching product record");
+        }
+
+        console.log("Fetching inventory record");
+        const inventoryRecord = await sqlInventory.findOne({
+            where: { product_id: product.id },
+            transaction: sqlTransaction,
+            lock: sqlTransaction.LOCK.UPDATE,
+        });
+        if (!inventoryRecord) {
+            throw new Error("Unable to retrieve inventory record.");
+        }
+        if (adjustment > inventoryRecord.stock - inventoryRecord.reserved) {
+            return false;
+        }
+
+        console.log("Adjusting reserved stock quantity");
+        if (adjustment > 0) {
+            await inventoryRecord.increment("reserved", {
+                by: adjustment,
+                where: { product_id: product.id },
+                transaction: sqlTransaction,
+            });
+        } else {
+            await inventoryRecord.decrement("reserved", {
+                by: Math.abs(adjustment),
+                where: { product_id: product.id },
+                transaction: sqlTransaction,
+            });
+        }
+
+        console.log("Success. Committing changes.");
+        await sqlTransaction.commit();
+
+        return true;
     } catch (error) {
         await sqlTransaction.rollback();
         throw error;

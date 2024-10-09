@@ -8,6 +8,14 @@ interface CartIdRequest extends Request {
     };
 }
 
+interface AdjustHoldQuantityRequest extends Request {
+    body: {
+        cartId: number;
+        adjustment: number;
+        productNo: string;
+    };
+}
+
 interface StockUpdateRequest extends Request {
     body: {
         updateData: Record<string, number>;
@@ -27,6 +35,34 @@ export const holdStock = async (req: CartIdRequest, res: Response) => {
     } catch (error) {
         let errorObj = {
             message: "hold stock failure",
+            payload: error,
+        };
+
+        console.error(errorObj);
+
+        res.status(500).json(errorObj);
+    }
+};
+
+export const adjustHoldQuantity = async (
+    req: AdjustHoldQuantityRequest,
+    res: Response
+) => {
+    try {
+        const { cartId, productNo, adjustment } = req.body;
+        const response = await inventoryService.adjustHoldQuantity(
+            productNo,
+            cartId,
+            adjustment
+        );
+
+        res.json({
+            message: "successfully completed operation",
+            payload: response,
+        });
+    } catch (error) {
+        let errorObj = {
+            message: "adjust hold quantity failure",
             payload: error,
         };
 
