@@ -62,29 +62,40 @@ interface JoinReqFilteredOrders extends Model {
 const extractOrderData = (
     orderData: JoinReqOrderDetails | JoinReqOrderSummary
 ) => {
-    const parsedOrder = orderData.get();
-    if (parsedOrder.OrderItem) {
-        const parsedOrderItems = parsedOrder.OrderItem.map(
-            (item: JoinReqOrderItem) => {
-                const parsedItem = item.get();
-                if (parsedItem.Product) {
-                    parsedItem.Product = parsedItem.Product.get();
-                }
+    try {
+        const parsedOrder = orderData.get();
+        if (parsedOrder.OrderItem) {
+            const parsedOrderItems = parsedOrder.OrderItem.map(
+                (item: JoinReqOrderItem) => {
+                    const parsedItem = item.get();
+                    if (parsedItem.Product) {
+                        parsedItem.Product = parsedItem.Product.get();
+                    }
 
-                return parsedItem;
-            }
-        );
-        parsedOrder.OrderItem = parsedOrderItems;
+                    return parsedItem;
+                }
+            );
+            parsedOrder.OrderItem = parsedOrderItems;
+        }
+        if (parsedOrder.Address) {
+            const address = parsedOrder.Address.get();
+            parsedOrder.shippingAddress = address.shippingAddress;
+            parsedOrder.city = address.city;
+            parsedOrder.stateAbbr = address.stateAbbr;
+            parsedOrder.zipCode = address.zipCode;
+            parsedOrder.phoneNumber = address.phoneNumber;
+        }
+        console.log("Order Parsed.");
+        return parsedOrder;
+    } catch (error) {
+        if (error instanceof Error) {
+            throw new Error(`Error extracting order data: ${error.message}`);
+        } else {
+            throw new Error(
+                `An unknown error ocurred while extracting order data`
+            );
+        }
     }
-    if (parsedOrder.Address) {
-        const address = parsedOrder.Address.get();
-        parsedOrder.shippingAddress = address.shippingAddress;
-        parsedOrder.city = address.city;
-        parsedOrder.stateAbbr = address.stateAbbr;
-        parsedOrder.zipCode = address.zipCode;
-        parsedOrder.phoneNumber = address.phoneNumber;
-    }
-    return parsedOrder;
 };
 
 export const placeOrder = async (orderData: OrderData) => {
@@ -97,8 +108,9 @@ export const placeOrder = async (orderData: OrderData) => {
 
         const shippingAddressFull = `${shipping.shippingAddress} | ${shipping.shippingAddress2}`;
 
-        // Check to see if address already exists in the address table
-        let address = await sqlAddress.findOne({
+        console.log("Attempting to find or create address table record");
+        // Find address if it already exists and create it if it doesn't.
+        const [address, created] = await sqlAddress.findOrCreate({
             where: {
                 shippingAddress: shippingAddressFull,
                 city: shipping.city,
@@ -108,21 +120,12 @@ export const placeOrder = async (orderData: OrderData) => {
             },
             transaction: sqlTransaction,
         });
-
-        // If not, create a new entry in the address table with the provided shipping address and return the data in order to use the newly created address_id when creating the order record.
         if (!address) {
-            address = await sqlAddress.create(
-                {
-                    shippingAddress: shippingAddressFull,
-                    city: shipping.city,
-                    stateAbbr: shipping.state,
-                    zipCode: shipping.zipCode,
-                    phoneNumber: shipping.phoneNumber,
-                },
-                { transaction: sqlTransaction }
-            );
+            throw new Error("Address record creation/retrieval failed.");
         }
-
+        console.log(
+            `Successfully found or created address ${address.address_id}`
+        );
         const newOrder = {
             customerId: orderData.customerId,
             orderNo: orderNo,
@@ -135,10 +138,8 @@ export const placeOrder = async (orderData: OrderData) => {
             orderStatus: "in process",
         };
 
-        await sqlOrder.create(newOrder, { transaction: sqlTransaction });
-
-        const createdOrder = await sqlOrder.findOne({
-            where: { orderNo: orderNo },
+        console.log("Creating order");
+        const createdOrder = await sqlOrder.create(newOrder, {
             transaction: sqlTransaction,
         });
 
@@ -148,36 +149,61 @@ export const placeOrder = async (orderData: OrderData) => {
             );
         }
 
-        for (const item of orderDetails.items) {
-            const inventoryRecord = (await sqlProduct.findOne({
-                where: { productNo: item.productNo },
-                include: [
-                    {
-                        model: sqlInventory,
-                        as: "Inventory",
-                    },
-                ],
-                raw: true,
-            })) as unknown as RawJoinReqProduct;
-            if (!inventoryRecord) {
-                throw new Error("Inventory record not found.");
-            }
-            const inStock =
-                inventoryRecord["Inventory.stock"] -
-                    inventoryRecord["Inventory.reserved"] >=
-                item.quantity;
-            const orderItem = {
-                order_id: createdOrder.dataValues.order_id,
-                productNo: item.productNo,
-                quantity: item.quantity,
-                priceWhenOrdered: item.priceAtCheckout,
-                fulfillmentStatus: inStock ? "unfulfilled" : "back ordered",
-            };
-            await sqlOrderItem.create(orderItem, {
-                transaction: sqlTransaction,
-            });
-        }
+        console.log("Successfully created order. Now creating order items.");
 
+        await Promise.all(
+            orderDetails.items.map(async (item) => {
+                try {
+                    console.log(
+                        `Looking up product ${item.productNo} inventory record`
+                    );
+                    const inventoryRecord = (await sqlProduct.findOne({
+                        where: { productNo: item.productNo },
+                        include: [
+                            {
+                                model: sqlInventory,
+                                as: "Inventory",
+                            },
+                        ],
+                        lock: true,
+                        transaction: sqlTransaction,
+                        raw: true,
+                    })) as unknown as RawJoinReqProduct;
+                    if (!inventoryRecord) {
+                        throw new Error("Inventory record not found.");
+                    }
+                    const inStock =
+                        inventoryRecord["Inventory.stock"] -
+                            inventoryRecord["Inventory.reserved"] >=
+                        item.quantity;
+                    const orderItem = {
+                        order_id: createdOrder.dataValues.order_id,
+                        productNo: item.productNo,
+                        quantity: item.quantity,
+                        priceWhenOrdered: item.priceAtCheckout,
+                        fulfillmentStatus: inStock
+                            ? "unfulfilled"
+                            : "back ordered",
+                    };
+                    console.log(
+                        `Creating order item with fulfillment status ${
+                            inStock ? "unfulfilled" : "back ordered"
+                        }`
+                    );
+                    await sqlOrderItem.create(orderItem, {
+                        transaction: sqlTransaction,
+                    });
+                } catch (error) {
+                    throw new Error(
+                        `Error creating order item for product ${
+                            item.productNo
+                        }: ${error instanceof Error ? error.message : error}`
+                    );
+                }
+            })
+        );
+
+        console.log("Deleting cart and cart items.");
         if (orderData.cartId) {
             await sqlCartItem.destroy({
                 where: { cart_id: orderData.cartId },
@@ -189,7 +215,7 @@ export const placeOrder = async (orderData: OrderData) => {
             });
         }
 
-        sqlTransaction.commit();
+        await sqlTransaction.commit();
 
         return {
             success: true,
@@ -198,119 +224,127 @@ export const placeOrder = async (orderData: OrderData) => {
         };
     } catch (error) {
         await sqlTransaction.rollback();
-        if (error instanceof Error) {
-            // Rollback the transaction in case of any errors
-            throw new Error("Error placing order: " + error.message);
-        } else {
-            // Rollback the transaction in case of any non-Error errors
-            throw new Error("An unknown error occurred while placing order");
-        }
+        throw error;
     }
 };
 
 export const getOrders = async (filters: GetOrdersFilters) => {
-    if (!filters.sort) {
-        filters.sort = "orderDate-descend";
-    }
+    try {
+        if (!filters.sort) {
+            filters.sort = "orderDate-descend";
+        }
 
-    const page = +filters.page || 1;
-    const offset = (page - 1) * +filters.itemsPerPage;
+        const page = +filters.page || 1;
+        const offset = (page - 1) * +filters.itemsPerPage;
 
-    const whereClause: any = {};
-    const addressWhereClause: any = {};
-    if (filters.search) {
-        whereClause[Op.or] = [
-            { customer_id: { [Op.like]: `%${filters.search}%` } },
-            { email: { [Op.like]: `%${filters.search}%` } },
-            { orderNo: { [Op.like]: `%${filters.search}%` } },
+        console.log("Constructing order query from filters:", filters);
+        const whereClause: any = {};
+        const addressWhereClause: any = {};
+        if (filters.search) {
+            whereClause[Op.or] = [
+                { customer_id: { [Op.like]: `%${filters.search}%` } },
+                { email: { [Op.like]: `%${filters.search}%` } },
+                { orderNo: { [Op.like]: `%${filters.search}%` } },
+            ];
+        }
+
+        const andConditions = [];
+
+        if (filters.orderStatus) {
+            console.log("orderStatus", filters.orderStatus);
+            andConditions.push({
+                orderStatus: { [Op.in]: filters.orderStatus },
+            });
+        }
+
+        if (filters.state) {
+            if (Array.isArray(filters.state)) {
+                addressWhereClause.stateAbbr = { [Op.in]: filters.state };
+            }
+        }
+
+        if (filters.startDate || filters.endDate) {
+            const dateConditions: { [key: symbol]: Date } = {};
+            if (filters.startDate) {
+                dateConditions[Op.gte] = new Date(filters.startDate);
+            }
+            if (filters.endDate) {
+                dateConditions[Op.lte] = new Date(filters.endDate);
+            }
+            andConditions.push({ orderDate: dateConditions });
+        }
+
+        if (andConditions.length) {
+            whereClause[Op.and] = andConditions;
+        }
+
+        const validSortMethods = [
+            "orderDate-ascend",
+            "orderDate-descend",
+            "totalAmount-ascend",
+            "totalAmount-descend",
+            "stateAbbr-ascend",
+            "stateAbbr-descend",
+            "orderNo-ascend",
+            "orderNo-descend",
         ];
-    }
 
-    const andConditions = [];
+        let sortBy: string;
+        let sortOrder: string;
 
-    if (filters.orderStatus) {
-        console.log("orderStatus", filters.orderStatus);
-        andConditions.push({ orderStatus: { [Op.in]: filters.orderStatus } });
-    }
-
-    if (filters.state) {
-        if (Array.isArray(filters.state)) {
-            addressWhereClause.stateAbbr = { [Op.in]: filters.state };
+        if (validSortMethods.includes(filters.sort)) {
+            const splitSort = filters.sort.split("-");
+            sortOrder = splitSort[1].split("en")[0].toUpperCase();
+            sortBy = splitSort[0];
+        } else {
+            (sortOrder = "DESC"), (sortBy = "orderDate");
         }
-    }
 
-    if (filters.startDate || filters.endDate) {
-        const dateConditions: { [key: symbol]: Date } = {};
-        if (filters.startDate) {
-            dateConditions[Op.gte] = new Date(filters.startDate);
+        const orderArray: Order = [[sortBy, sortOrder]];
+        if (sortBy !== "orderDate") {
+            orderArray.push(["orderDate", "DESC"]);
         }
-        if (filters.endDate) {
-            dateConditions[Op.lte] = new Date(filters.endDate);
+
+        console.log("WHERE:", whereClause);
+        console.log("ORDER:", orderArray);
+        console.log("ADDRESS WHERE:", addressWhereClause);
+
+        console.log("Finding and counting results");
+        const ordersData = (await sqlOrder.findAndCountAll({
+            where: whereClause,
+            order: orderArray,
+            limit: +filters.itemsPerPage,
+            offset: offset,
+            include: [
+                {
+                    model: sqlAddress,
+                    as: "Address",
+                    where: addressWhereClause,
+                },
+            ],
+            subQuery: false,
+            nest: true,
+        })) as unknown as JoinReqFilteredOrders;
+
+        const totalCount = ordersData.count;
+        console.log(`${totalCount} matching results`);
+
+        if (totalCount > 0 && !ordersData) {
+            throw new Error("An unknown error occurred when retrieving orders");
         }
-        andConditions.push({ orderDate: dateConditions });
+
+        let orders = [];
+        if (totalCount > 0 && ordersData) {
+            console.log("Extracting order data.");
+            orders = ordersData.rows.map((orderData) =>
+                extractOrderData(orderData)
+            );
+        }
+
+        return { totalCount, orders };
+    } catch (error) {
+        throw error;
     }
-
-    if (andConditions.length) {
-        whereClause[Op.and] = andConditions;
-    }
-
-    const validSortMethods = [
-        "orderDate-ascend",
-        "orderDate-descend",
-        "totalAmount-ascend",
-        "totalAmount-descend",
-        "stateAbbr-ascend",
-        "stateAbbr-descend",
-        "orderNo-ascend",
-        "orderNo-descend",
-    ];
-
-    let sortBy: string;
-    let sortOrder: string;
-
-    if (validSortMethods.includes(filters.sort)) {
-        const splitSort = filters.sort.split("-");
-        sortOrder = splitSort[1].split("en")[0].toUpperCase();
-        sortBy = splitSort[0];
-    } else {
-        (sortOrder = "DESC"), (sortBy = "orderDate");
-    }
-
-    const orderArray: Order = [[sortBy, sortOrder]];
-    if (sortBy !== "orderDate") {
-        orderArray.push(["orderDate", "DESC"]);
-    }
-
-    const ordersData = (await sqlOrder.findAndCountAll({
-        where: whereClause,
-        order: orderArray,
-        limit: +filters.itemsPerPage,
-        offset: offset,
-        include: [
-            {
-                model: sqlAddress,
-                as: "Address",
-                where: addressWhereClause,
-            },
-        ],
-        subQuery: false,
-        nest: true,
-    })) as unknown as JoinReqFilteredOrders;
-
-    const totalCount = ordersData.count;
-
-    if (totalCount > 0 && !ordersData) {
-        throw new Error("An unknown error occurred when retrieving orders");
-    }
-
-    let orders = [];
-    if (totalCount > 0 && ordersData) {
-        orders = ordersData.rows.map((orderData) =>
-            extractOrderData(orderData)
-        );
-    }
-
-    return { totalCount, orders };
 };
 
 export const getOneOrder = async (
@@ -318,6 +352,7 @@ export const getOneOrder = async (
     email: string | undefined
 ) => {
     try {
+        console.log(`Fetching order ${orderNo}`);
         const orderData = (await sqlOrder.findOne({
             where: { orderNo: orderNo },
             include: [
@@ -342,8 +377,12 @@ export const getOneOrder = async (
         if (!orderData) {
             throw new Error("Order not found.");
         }
+
+        console.log("Extracting order data");
         const parsedOrderData = extractOrderData(orderData);
 
+        console.log("Will verify email:", email ? true : false);
+        // Check to see that email address matches record if supplied by front end.
         if (
             email &&
             parsedOrderData.email.toLowerCase() !== email.toLowerCase()
@@ -354,11 +393,7 @@ export const getOneOrder = async (
         }
         return parsedOrderData;
     } catch (error) {
-        if (error instanceof Error) {
-            throw new Error("Error retrieving order: " + error.message);
-        } else {
-            throw new Error("An unknown error occurred while placing order");
-        }
+        throw error;
     }
 };
 
@@ -366,9 +401,10 @@ export const updateOrder = async (updateInfo: UpdateOrder) => {
     const sqlTransaction = await sequelize.transaction();
     try {
         const items: UpdateItem[] = updateInfo.items;
-        console.log("updateInfo:", updateInfo);
+        console.log("Updating order:", updateInfo);
 
-        let address = await sqlAddress.findOne({
+        // Find address if it already exists and create it if it doesn't.
+        const [address, created] = await sqlAddress.findOrCreate({
             where: {
                 shippingAddress: updateInfo.shippingAddress,
                 city: updateInfo.city,
@@ -379,22 +415,11 @@ export const updateOrder = async (updateInfo: UpdateOrder) => {
             transaction: sqlTransaction,
         });
 
-        console.log("first run address:", address);
-
-        // If the address doesn't exist, create a new one
         if (!address) {
-            address = await sqlAddress.create(
-                {
-                    shippingAddress: updateInfo.shippingAddress,
-                    city: updateInfo.city,
-                    stateAbbr: updateInfo.stateAbbr,
-                    zipCode: updateInfo.zipCode,
-                    phoneNumber: updateInfo.phoneNumber,
-                },
-                { transaction: sqlTransaction }
-            );
+            throw new Error("Unable to find or create address record.");
         }
 
+        console.log("Updating order details");
         await sqlOrder.update(
             {
                 subTotal: updateInfo.subTotal,
@@ -410,34 +435,83 @@ export const updateOrder = async (updateInfo: UpdateOrder) => {
                 transaction: sqlTransaction,
             }
         );
+
+        console.log("Updating order items");
         await Promise.all(
             items.map(async (item) => {
-                await sqlOrderItem.update(
-                    {
-                        quantity: item.quantity,
-                        fulfillmentStatus: item.fulfillmentStatus,
-                    },
-                    {
-                        where: { order_item_id: item.order_item_id },
-                        transaction: sqlTransaction,
+                try {
+                    const itemRecord = await sqlOrderItem.findByPk(
+                        item.order_item_id,
+                        {
+                            lock: sqlTransaction.LOCK.UPDATE,
+                            transaction: sqlTransaction,
+                        }
+                    );
+                    if (!itemRecord) {
+                        throw new Error(
+                            `Order item ${item.order_item_id} not found in database`
+                        );
                     }
-                );
+                    const oldStatus = itemRecord.fulfillmentStatus;
+                    const soldConditions = ["shipped", "delivered"];
+
+                    // Remove quantity from inventory reserved numbers if newly shipped/delivered, and add back if regressing from shipped/delivered to another status.
+                    if (
+                        !soldConditions.includes(oldStatus) &&
+                        soldConditions.includes(item.fulfillmentStatus)
+                    ) {
+                        console.log(
+                            "Removing quantity from inventory reserved stock"
+                        );
+                        await sqlInventory.decrement(
+                            { reserved: item.quantity },
+                            {
+                                where: {
+                                    product_id: sequelize.literal(
+                                        `(SELECT id FROM Products WHERE productNo= '${itemRecord.productNo}')`
+                                    ),
+                                },
+                                transaction: sqlTransaction,
+                            }
+                        );
+                    } else if (
+                        soldConditions.includes(oldStatus) &&
+                        !soldConditions.includes(item.fulfillmentStatus)
+                    ) {
+                        console.log(
+                            "Returning quantity to inventory as reserved stock to await shipping."
+                        );
+                        await sqlInventory.increment(
+                            { reserved: item.quantity },
+                            {
+                                where: {
+                                    product_id: sequelize.literal(
+                                        `(SELECT id FROM Products WHERE productNo= '${itemRecord.productNo}')`
+                                    ),
+                                },
+                                transaction: sqlTransaction,
+                            }
+                        );
+                    }
+
+                    console.log(
+                        `Saving order item ${itemRecord.order_item_id}`
+                    );
+                    itemRecord.quantity = item.quantity;
+                    itemRecord.fulfillmentStatus = item.fulfillmentStatus;
+                    await itemRecord.save({ transaction: sqlTransaction });
+                } catch (error) {
+                    throw new Error(
+                        `Error updating item ${item.order_item_id}: ${
+                            error instanceof Error ? error.message : error
+                        }`
+                    );
+                }
             })
         );
         await sqlTransaction.commit();
     } catch (error) {
         await sqlTransaction.rollback();
-        if (error instanceof Error) {
-            throw new Error("Error placing order: " + error.message);
-        } else {
-            throw new Error("An unknown error occurred while placing order");
-        }
+        throw error;
     }
 };
-
-const inventoryRecord = await sqlProduct.findOne({
-    where: { productNo: "pl-7943b209" },
-    include: [{ model: sqlInventory, as: "Inventory" }],
-    raw: true,
-});
-console.log("inventoryRecord:", inventoryRecord);
