@@ -75,6 +75,7 @@ const OrderStatus: React.FC<Props> = ({ orderNumber }) => {
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(null);
+    const [activeStep, setActiveStep] = useState<number>(0);
     const [splitShippingAddress, setSplitShippingAddress] = useState<string[]>([
         "",
         "",
@@ -132,25 +133,23 @@ const OrderStatus: React.FC<Props> = ({ orderNumber }) => {
         }
     };
 
-    let activeStep: number = 0;
-
     useEffect(() => {
         if (orderDetails) {
             switch (orderDetails.orderStatus) {
                 case "in process":
-                    activeStep = 0;
+                    setActiveStep(0);
                     break;
                 case "ready to ship":
-                    activeStep = 1;
+                    setActiveStep(1);
                     break;
                 case "shipped":
-                    activeStep = 2;
+                    setActiveStep(2);
                     break;
                 case "delivered":
-                    activeStep = 3;
+                    setActiveStep(3);
                     break;
                 default:
-                    activeStep = 0;
+                    setActiveStep(0);
             }
             setSplitShippingAddress(orderDetails.shippingAddress.split(" | "));
             const date = new Date(orderDetails.orderDate);
