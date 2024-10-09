@@ -242,13 +242,15 @@ const ProductManagement: React.FC<Props> = () => {
             <div className="pm-header">
                 <div className="header-and-add">
                     <h1>Product Management</h1>
-                    <div className="pm-desktop-add">
-                        <PeachButton
-                            text={`Add New Product`}
-                            onClick={() => navigate("/products/add")}
-                            width="150px"
-                        />
-                    </div>
+                    {accessLevel !== "view only" && (
+                        <div className="pm-desktop-add">
+                            <PeachButton
+                                text={`Add New Product`}
+                                onClick={() => navigate("/products/add")}
+                                width="150px"
+                            />
+                        </div>
+                    )}
                     {fromCategoryManage && previousRoute && (
                         <PeachButton
                             text={`Back To Categories`}
@@ -366,16 +368,25 @@ const ProductManagement: React.FC<Props> = () => {
                             </Select>
                         </div>
                     </div>
-                    <div className="pm-mobile-buttons">
-                        <button
-                            onClick={() => navigate("/products/add")}
-                            className="pm-mobile-add"
-                        >
-                            <Icon sx={{ marginRight: "10px" }}>
-                                <AddCircleOutlineSharpIcon />
-                            </Icon>{" "}
-                            Add New Product
-                        </button>
+                    <div
+                        className="pm-mobile-buttons"
+                        style={
+                            accessLevel === "view only"
+                                ? { display: "block" }
+                                : undefined
+                        }
+                    >
+                        {accessLevel !== "view only" && (
+                            <button
+                                onClick={() => navigate("/products/add")}
+                                className="pm-mobile-add"
+                            >
+                                <Icon sx={{ marginRight: "10px" }}>
+                                    <AddCircleOutlineSharpIcon />
+                                </Icon>{" "}
+                                Add New Product
+                            </button>
+                        )}
                         <button
                             className="pm-mobile-filter"
                             onClick={() =>

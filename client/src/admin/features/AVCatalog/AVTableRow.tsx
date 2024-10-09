@@ -8,7 +8,7 @@ import {
     Tooltip,
     Typography,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
 import { Link, useNavigate } from "react-router-dom";
 import MoreMenu from "./MoreMenu";
@@ -16,6 +16,7 @@ import { Row } from "./AVProductCatalog";
 import ModeEditSharpIcon from "@mui/icons-material/ModeEditSharp";
 import KeyboardArrowUpSharpIcon from "@mui/icons-material/KeyboardArrowUpSharp";
 import KeyboardArrowDownSharpIcon from "@mui/icons-material/KeyboardArrowDownSharp";
+import { AuthContext } from "../../../common/contexts/authContext";
 
 interface Props {
     row: Row;
@@ -38,6 +39,8 @@ const AVTableRow: React.FC<Props> = ({
     const isItemSelected = isSelected(row.id);
     const labelId = `enhanced-table-checkbox-${index}`;
     const navigate = useNavigate();
+    const authContext = useContext(AuthContext);
+    const accessLevel = authContext?.user?.accessLevel;
 
     return (
         <React.Fragment>
@@ -157,7 +160,8 @@ const AVTableRow: React.FC<Props> = ({
                     >
                         {row.status !== "discontinued" &&
                             width &&
-                            width >= 800 && (
+                            width >= 800 &&
+                            accessLevel !== "view only" && (
                                 <Tooltip title="Edit">
                                     <IconButton
                                         onClick={() =>

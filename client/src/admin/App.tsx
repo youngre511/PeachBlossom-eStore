@@ -113,6 +113,7 @@ function AdminApp() {
                                 <ProtectedRoute
                                     component={AddProduct}
                                     requiredRole="admin"
+                                    minimumAccessLevel="limited"
                                 />
                             }
                         />

@@ -260,6 +260,7 @@ const InventoryManagement: React.FC<Props> = () => {
                 updateSearchParams={updateSearchParams}
                 pendingInventoryUpdates={pendingInventoryUpdates}
                 setPendingInventoryUpdates={setPendingInventoryUpdates}
+                editable={accessLevel !== "view only"}
             />
             {isSaving && (
                 <StatusPopup

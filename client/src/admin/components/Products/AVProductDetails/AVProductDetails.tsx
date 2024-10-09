@@ -266,6 +266,13 @@ const AVProductDetails: React.FC = () => {
     }, [previousRoute, lockedPrevious]);
 
     useEffect(() => {
+        if (editMode && accessLevel === "view only") {
+            searchParams.set("editing", "false");
+            setSearchParams(searchParams);
+        }
+    }, [editMode]);
+
+    useEffect(() => {
         if (mustFetchData) {
             const getProductDetails = async () => {
                 try {
@@ -917,7 +924,7 @@ const AVProductDetails: React.FC = () => {
                     >
                         &lt; Back to {previous.name}
                     </Button>
-                    {editMode ? (
+                    {editMode && (
                         <Box
                             className="edit-mode-buttons"
                             sx={{
@@ -956,7 +963,8 @@ const AVProductDetails: React.FC = () => {
                                 Cancel
                             </Button>
                         </Box>
-                    ) : (
+                    )}
+                    {accessLevel !== "view only" && (
                         <Button
                             variant="contained"
                             onClick={() => {

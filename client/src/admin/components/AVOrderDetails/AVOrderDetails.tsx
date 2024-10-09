@@ -201,6 +201,13 @@ const AVOrderDetails: React.FC = () => {
     }, [orderNo]);
 
     useEffect(() => {
+        if (editMode && accessLevel === "view only") {
+            searchParams.set("editing", "false");
+            setSearchParams(searchParams);
+        }
+    }, [editMode]);
+
+    useEffect(() => {
         if (avOrderDetails) {
             const orderDetails: IAVOrderDetails = avOrderDetails.details;
             const deepCopiedOrderDetails = JSON.parse(
@@ -678,7 +685,7 @@ const AVOrderDetails: React.FC = () => {
                                         &lt; Back
                                     </Button>
 
-                                    {editMode ? (
+                                    {editMode && (
                                         <div>
                                             <Button
                                                 variant="contained"
@@ -703,24 +710,28 @@ const AVOrderDetails: React.FC = () => {
                                                 Cancel
                                             </Button>
                                         </div>
-                                    ) : (
-                                        <Button
-                                            variant="contained"
-                                            onClick={() => {
-                                                searchParams.set(
-                                                    "editing",
-                                                    "true"
-                                                );
-                                                setSearchParams(searchParams);
-                                            }}
-                                            sx={{
-                                                marginLeft: "20px",
-                                                marginBottom: "20px",
-                                            }}
-                                        >
-                                            Edit
-                                        </Button>
                                     )}
+                                    {!editMode &&
+                                        accessLevel !== "view only" && (
+                                            <Button
+                                                variant="contained"
+                                                onClick={() => {
+                                                    searchParams.set(
+                                                        "editing",
+                                                        "true"
+                                                    );
+                                                    setSearchParams(
+                                                        searchParams
+                                                    );
+                                                }}
+                                                sx={{
+                                                    marginLeft: "20px",
+                                                    marginBottom: "20px",
+                                                }}
+                                            >
+                                                Edit
+                                            </Button>
+                                        )}
                                 </Grid>
                             </Grid>
                             <Grid

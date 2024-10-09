@@ -27,6 +27,7 @@ interface AVCatProps {
     setPendingInventoryUpdates: React.Dispatch<
         React.SetStateAction<Record<string, number>>
     >;
+    editable: boolean;
 }
 
 export interface InventoryRow {
@@ -49,6 +50,7 @@ const InventoryCatalog: React.FC<AVCatProps> = ({
     updateSearchParams,
     pendingInventoryUpdates,
     setPendingInventoryUpdates,
+    editable,
 }) => {
     const { products, numberOfResults, loading, error } = useAppSelector(
         (state: RootState) => state.avCatalog
@@ -140,6 +142,7 @@ const InventoryCatalog: React.FC<AVCatProps> = ({
                                         setPendingInventoryUpdates
                                     }
                                     key={row.productNo}
+                                    editable={editable}
                                 />
                             ))}
                             {emptyRows > 0 && (

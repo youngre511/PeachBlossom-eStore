@@ -22,11 +22,13 @@ interface Props {
     setPendingInventoryUpdates: React.Dispatch<
         React.SetStateAction<Record<string, number>>
     >;
+    editable: boolean;
 }
 const InventoryTableRow: React.FC<Props> = ({
     row,
     pendingInventoryUpdates,
     setPendingInventoryUpdates,
+    editable,
 }) => {
     const { width, isTouchDevice } = useWindowSizeContext();
     const [open, setOpen] = useState<boolean>(false);
@@ -67,17 +69,23 @@ const InventoryTableRow: React.FC<Props> = ({
                         transition: "border .3s ease-out",
                     }}
                 >
-                    <div className="stock-input">
-                        <StockField
-                            value={String(stockAmount)}
-                            style={{ width: "80px" }}
-                            productNo={row.productNo}
-                            setPendingInventoryUpdates={
-                                setPendingInventoryUpdates
-                            }
-                            pendingInventoryUpdates={pendingInventoryUpdates}
-                        />
-                    </div>
+                    {editable ? (
+                        <div className="stock-input">
+                            <StockField
+                                value={String(stockAmount)}
+                                style={{ width: "80px" }}
+                                productNo={row.productNo}
+                                setPendingInventoryUpdates={
+                                    setPendingInventoryUpdates
+                                }
+                                pendingInventoryUpdates={
+                                    pendingInventoryUpdates
+                                }
+                            />
+                        </div>
+                    ) : (
+                        row.stock
+                    )}
                 </TableCell>
                 <TableCell
                     align="right"

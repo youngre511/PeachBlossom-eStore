@@ -1,5 +1,5 @@
 /// <reference types="vite-plugin-svgr/client" />
-import React, { Dispatch, SetStateAction } from "react";
+import React, { Dispatch, SetStateAction, useContext } from "react";
 import Slider, { Settings } from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -11,6 +11,7 @@ import CloseButton from "../../../../assets/img/close.svg?react";
 import DeleteOutlineSharpIcon from "@mui/icons-material/DeleteOutlineSharp";
 import AddAPhotoSharpIcon from "@mui/icons-material/AddAPhotoSharp";
 import { useWindowSizeContext } from "../../../../common/contexts/windowSizeContext";
+import { AuthContext } from "../../../../common/contexts/authContext";
 
 interface Props {
     setImages: Dispatch<SetStateAction<ImageListType>>;
@@ -32,6 +33,8 @@ const ImageUploader: React.FC<Props> = ({
     const [addMode, setAddMode] = useState<boolean>(true);
     const [editMode, setEditMode] = useState<boolean>(false);
     const { isTouchDevice } = useWindowSizeContext();
+    const authContext = useContext(AuthContext);
+    const accessLevel = authContext?.user?.accessLevel;
 
     const settings: Settings = {
         swipe: true,
@@ -312,30 +315,40 @@ const ImageUploader: React.FC<Props> = ({
                                     Images should have an aspect ratio of 1:1.
                                 </div>
                                 {!editMode ? (
-                                    <div className="edit-buttons">
-                                        <Button
-                                            variant="contained"
-                                            onClick={() => setAddMode(true)}
-                                            disabled={
-                                                managedEditMode
-                                                    ? !productEditMode
-                                                    : false
-                                            }
-                                        >
-                                            ADD IMAGES
-                                        </Button>
-                                        <Button
-                                            variant="contained"
-                                            onClick={() => setEditMode(true)}
-                                            disabled={
-                                                managedEditMode
-                                                    ? !productEditMode
-                                                    : false
-                                            }
-                                        >
-                                            EDIT IMAGES
-                                        </Button>
-                                    </div>
+                                    <Tooltip
+                                        title={
+                                            accessLevel === "view only"
+                                                ? "Must have limited access level or higher to edit images."
+                                                : ""
+                                        }
+                                    >
+                                        <div className="edit-buttons">
+                                            <Button
+                                                variant="contained"
+                                                onClick={() => setAddMode(true)}
+                                                disabled={
+                                                    managedEditMode
+                                                        ? !productEditMode
+                                                        : false
+                                                }
+                                            >
+                                                ADD IMAGES
+                                            </Button>
+                                            <Button
+                                                variant="contained"
+                                                onClick={() =>
+                                                    setEditMode(true)
+                                                }
+                                                disabled={
+                                                    managedEditMode
+                                                        ? !productEditMode
+                                                        : false
+                                                }
+                                            >
+                                                EDIT IMAGES
+                                            </Button>
+                                        </div>
+                                    </Tooltip>
                                 ) : (
                                     <div className="edit-buttons">
                                         <Button
