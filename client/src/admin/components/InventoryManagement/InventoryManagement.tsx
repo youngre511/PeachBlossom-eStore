@@ -146,6 +146,7 @@ const InventoryManagement: React.FC<Props> = () => {
             sort,
             page,
             itemsPerPage,
+            view: "active",
         };
         console.log("Params:", params);
         dispatch(avFetchProducts({ filters: params as AVFilters }));

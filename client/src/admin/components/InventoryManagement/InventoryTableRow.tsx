@@ -70,6 +70,7 @@ const InventoryTableRow: React.FC<Props> = ({
                     <div className="stock-input">
                         <StockField
                             value={String(stockAmount)}
+                            style={{ width: "80px" }}
                             productNo={row.productNo}
                             setPendingInventoryUpdates={
                                 setPendingInventoryUpdates

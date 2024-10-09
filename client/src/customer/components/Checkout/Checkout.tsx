@@ -393,6 +393,10 @@ const Checkout: React.FC = () => {
         }
     };
 
+    useEffect(() => {
+        setCurrentCartItems([...cart.items]);
+    }, [cart.items]);
+
     const handleBack = () => {
         setActiveStep(activeStep - 1);
     };
