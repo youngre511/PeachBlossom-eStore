@@ -49,7 +49,6 @@ export const fetchProducts = createAsyncThunk<
     ) => {
         const state = getState() as RootState;
         const itemsPerPage = state.userPreferences.itemsPerPage;
-        console.log("itemsPerPage:", itemsPerPage);
         const existingFilters = state.catalog.filters;
         let filterUnchanged = true;
 

@@ -56,10 +56,6 @@ const Shop = () => {
     };
     const [isInitialLoad, setIsInitialLoad] = useState<boolean>(true);
 
-    useEffect(() => {
-        console.log("itemsPerPage:", itemsPerPage);
-    }, [itemsPerPage]);
-
     useEffect(
         // Set up drawer animation
         contextSafe(() => {
@@ -68,7 +64,6 @@ const Shop = () => {
                 filterAnimationRef.current = gsap
                     .timeline({
                         paused: true,
-                        onStart: () => console.log("running"),
                     })
                     .set(".filter-options-drawer", { display: "block" })
                     .to(".filter-options-drawer", { duration: 0.4, x: 0 });
@@ -266,21 +261,27 @@ const Shop = () => {
         if (page === "1") {
             fetchData(true);
         } else {
-            setSearchParams({ page: "1" });
+            setSearchParams((prevParams) => {
+                const newParams = new URLSearchParams(prevParams);
+                newParams.set(page, "1");
+                return newParams;
+            });
         }
     }, [itemsPerPage]);
 
     const updateSearchParams = (newFilters: Record<string, string>): void => {
-        Object.keys(newFilters).forEach((key) => {
-            const value = newFilters[key];
-            if (value) {
-                console.log("key:", key, "value:", value);
-                searchParams.set(key, value as string);
-            } else {
-                searchParams.delete(key);
-            }
+        setSearchParams((prevParams) => {
+            const newParams = new URLSearchParams(prevParams);
+            Object.keys(newFilters).forEach((key) => {
+                const value = newFilters[key];
+                if (value) {
+                    newParams.set(key, value as string);
+                } else {
+                    newParams.delete(key);
+                }
+            });
+            return newParams;
         });
-        setSearchParams(searchParams);
     };
 
     const changeSortOrder = (
@@ -294,27 +295,39 @@ const Shop = () => {
     };
 
     const removeSubcategory = (): void => {
-        searchParams.delete("sub_category");
-        setSearchParams(searchParams);
+        setSearchParams((prevParams) => {
+            const newParams = new URLSearchParams(prevParams);
+            newParams.delete("sub_category");
+            return newParams;
+        });
     };
 
     const addSubcategoryAndCategory = (
         subcategory: string,
         category: string
     ): void => {
-        searchParams.set("sub_category", subcategory);
-        searchParams.set("category", category);
-        setSearchParams(searchParams);
+        setSearchParams((prevParams) => {
+            const newParams = new URLSearchParams(prevParams);
+            newParams.set("sub_category", subcategory);
+            newParams.set("category", category);
+            return newParams;
+        });
     };
 
     const addSubcategory = (subcategory: string): void => {
-        searchParams.set("sub_category", subcategory);
-        setSearchParams(searchParams);
+        setSearchParams((prevParams) => {
+            const newParams = new URLSearchParams(prevParams);
+            newParams.set("sub_category", subcategory);
+            return newParams;
+        });
     };
 
     const addCategory = (category: string): void => {
-        searchParams.set("category", category);
-        setSearchParams(searchParams);
+        setSearchParams((prevParams) => {
+            const newParams = new URLSearchParams(prevParams);
+            newParams.set("category", category);
+            return newParams;
+        });
     };
 
     return (
