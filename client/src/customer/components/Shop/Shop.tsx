@@ -31,7 +31,7 @@ const Shop = () => {
     const category = searchParams.get("category");
     const subcategory = searchParams.get("sub_category");
     const page = searchParams.get("page") || "1";
-    const color = searchParams.get("color")?.split(",") || null;
+    const color = searchParams.get("color") || null;
     const minPrice = searchParams.get("minPrice");
     const maxPrice = searchParams.get("maxPrice");
     const minWidth = searchParams.get("minWidth");
@@ -40,9 +40,9 @@ const Shop = () => {
     const maxHeight = searchParams.get("maxHeight");
     const minDepth = searchParams.get("minDepth");
     const maxDepth = searchParams.get("maxDepth");
-    const tags = searchParams.get("tags")?.split(",") || null;
+    const tags = searchParams.get("tags") || null;
     const sort = searchParams.get("sort") || "name-ascend";
-    const material = searchParams.get("material")?.split(",") || null;
+    const material = searchParams.get("material") || null;
     const [filterDrawerOpen, setFilterDrawerOpen] = useState<boolean>(false);
     const [drawerInitialized, setDrawerInitialized] = useState<boolean>(false);
     const filterAnimationRef = useRef<GSAPTimeline | null>(null);
@@ -188,7 +188,7 @@ const Shop = () => {
             });
             //If there were no missing params, dispatch a request to fetch products based on the existing filters
         } else {
-            const params = {
+            const noArrayParams = {
                 search,
                 category,
                 subcategory,
@@ -226,6 +226,12 @@ const Shop = () => {
                     setIsInitialLoad(false);
                 }
                 const mobile = width && width < 550 ? true : false;
+                const params = {
+                    ...noArrayParams,
+                    color: noArrayParams.color?.split(","),
+                    material: noArrayParams.material?.split(","),
+                    tags: noArrayParams.tags?.split(","),
+                };
                 dispatch(
                     fetchProducts({ filters: params as Filters, force, mobile })
                 );
@@ -234,6 +240,7 @@ const Shop = () => {
     };
 
     useEffect(() => {
+        console.log("fetching");
         fetchData();
     }, [
         search,
@@ -252,8 +259,6 @@ const Shop = () => {
         tags,
         sort,
         material,
-        searchParams,
-        setSearchParams,
     ]);
 
     // If items per page changes, check whether current page is page one. If it is, force fetchData. If it isn't, set searchParams to page 1, triggering fetchData.

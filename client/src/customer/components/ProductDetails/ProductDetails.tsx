@@ -13,7 +13,7 @@ import "./product-details.css";
 import AddToCartButton from "../AddToCartButton/AddToCartButton";
 import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
 import { useNavigationContext } from "../../../common/contexts/navContext";
-import { Button } from "@mui/material";
+import { Button, CircularProgress } from "@mui/material";
 
 interface Props {}
 const ProductDetails: React.FC<Props> = () => {
@@ -35,6 +35,7 @@ const ProductDetails: React.FC<Props> = () => {
         size2: number;
         size3: number;
     }>({ size1: 960, size2: 1024, size3: 1024 });
+    const [imageLoaded, setImageLoaded] = useState<boolean>(false);
 
     useEffect(() => {
         if (width && width < 1342) {
@@ -133,9 +134,10 @@ const ProductDetails: React.FC<Props> = () => {
 
     useEffect(() => {
         if (productNo && (!product || product.productNo !== productNo)) {
+            setProduct(null);
             dispatch(fetchOneProduct(productNo));
         }
-    }, [productNo]);
+    }, [productNo, dispatch]);
 
     return (
         <div className="product-details">
@@ -201,6 +203,20 @@ const ProductDetails: React.FC<Props> = () => {
                                     </Slider>
                                 )}
                                 <div className="product-details-image-cont">
+                                    {!imageLoaded && (
+                                        <div
+                                            className="image-placeholder"
+                                            style={{
+                                                width: 450,
+                                                height: 450,
+                                                display: "flex",
+                                                justifyContent: "center",
+                                                alignItems: "center",
+                                            }}
+                                        >
+                                            <CircularProgress />
+                                        </div>
+                                    )}
                                     <img
                                         src={`${currentImage}_1024.webp`}
                                         srcSet={`${currentImage}_${imageSizes.size1}.webp, ${currentImage}_${imageSizes.size2}.webp 2x, ${currentImage}_${imageSizes.size3}.webp 3x`}
@@ -208,6 +224,12 @@ const ProductDetails: React.FC<Props> = () => {
                                         alt={`${product.name} thumbnail`}
                                         width="450x"
                                         height="450px"
+                                        onLoad={() => setImageLoaded(true)}
+                                        style={
+                                            imageLoaded
+                                                ? {}
+                                                : { display: "none" }
+                                        }
                                     />
                                 </div>
                             </div>
