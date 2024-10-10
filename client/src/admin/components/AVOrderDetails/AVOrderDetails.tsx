@@ -362,7 +362,9 @@ const AVOrderDetails: React.FC = () => {
             setSomeBackOrdered(false);
         } else if (
             ready &&
-            (orderStatus === "in process" || orderStatus === "cancelled")
+            (orderStatus === "in process" ||
+                orderStatus === "cancelled" ||
+                orderStatus === "back ordered")
         ) {
             setOrderStatus("ready to ship");
             setNotReadyToShip(false);
@@ -371,7 +373,6 @@ const AVOrderDetails: React.FC = () => {
     }, [items]);
 
     useEffect(() => {
-        console.log("new order status:", orderStatus);
         if (orderStatus === "cancelled") {
             let newItemArray = [...items];
             for (const item of newItemArray) {
