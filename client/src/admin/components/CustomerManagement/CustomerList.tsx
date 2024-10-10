@@ -15,6 +15,7 @@ import CustomerListHead from "./CustomerListHead";
 import { useNavigate } from "react-router-dom";
 import { CustomerUser } from "../../features/Users/userTypes";
 import CustomerListRow from "./CustomerListRow";
+import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
 
 interface CustomerListProps {
     page: number;
@@ -44,7 +45,7 @@ const CustomerList: React.FC<CustomerListProps> = ({
     handleUserDelete,
 }) => {
     const [rowsPerPage, setRowsPerPage] = React.useState(24);
-    const navigate = useNavigate();
+    const { width } = useWindowSizeContext();
 
     const rows = results.map((user) => {
         const rowData: CustomerRow = {
@@ -79,7 +80,14 @@ const CustomerList: React.FC<CustomerListProps> = ({
     return (
         <Box sx={{ width: "100%" }}>
             <Paper sx={{ width: "100%", mb: 2 }}>
-                <TableContainer sx={{ maxHeight: 500 }}>
+                <TableContainer
+                    sx={{
+                        maxHeight:
+                            width && width < 800
+                                ? "calc(100vh - 320px)"
+                                : "70dvh",
+                    }}
+                >
                     <Table
                         sx={{ paddingLeft: "20px" }}
                         aria-labelledby="tableTitle"

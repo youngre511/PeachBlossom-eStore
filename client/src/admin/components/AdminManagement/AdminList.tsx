@@ -15,6 +15,7 @@ import AdminListHead from "./AdminListHead";
 import { useNavigate } from "react-router-dom";
 import { AdminUser } from "../../features/Users/userTypes";
 import AdminListRow from "./AdminListRow";
+import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
 
 interface AdminListProps {
     page: number;
@@ -48,7 +49,7 @@ const AdminList: React.FC<AdminListProps> = ({
     handleChangeAccessLevel,
 }) => {
     const [rowsPerPage, setRowsPerPage] = React.useState(24);
-    const navigate = useNavigate();
+    const { width } = useWindowSizeContext();
 
     const rows = results.map((user) => {
         const rowData: AdminRow = {
@@ -81,7 +82,14 @@ const AdminList: React.FC<AdminListProps> = ({
     return (
         <Box sx={{ width: "100%" }}>
             <Paper sx={{ width: "100%", mb: 2 }}>
-                <TableContainer sx={{ maxHeight: 500 }}>
+                <TableContainer
+                    sx={{
+                        maxHeight:
+                            width && width < 800
+                                ? "calc(100vh - 320px)"
+                                : "70dvh",
+                    }}
+                >
                     <Table
                         sx={{ paddingLeft: "20px" }}
                         aria-labelledby="tableTitle"

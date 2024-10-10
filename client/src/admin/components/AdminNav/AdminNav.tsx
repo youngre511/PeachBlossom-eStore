@@ -292,9 +292,14 @@ const AdminNav: React.FC<Props> = (props: Props) => {
                             >
                                 <List>
                                     <ListItem disablePadding>
-                                        <ListItemButton sx={{ paddingLeft: 2 }}>
+                                        <ListItemButton
+                                            sx={{ paddingLeft: 2 }}
+                                            onClick={() =>
+                                                navigate("/customer-overview")
+                                            }
+                                        >
                                             <ListItemText
-                                                secondary={"Customers Overview"}
+                                                secondary={"Customer Overview"}
                                             />
                                         </ListItemButton>
                                     </ListItem>
@@ -327,7 +332,9 @@ const AdminNav: React.FC<Props> = (props: Props) => {
                         </ListItemButton>
                     </ListItem>
                     <ListItem disablePadding>
-                        <ListItemButton>
+                        <ListItemButton
+                            onClick={() => navigate("/user-settings")}
+                        >
                             <ListItemIcon>
                                 <SettingsIcon className="menu-svg" />
                             </ListItemIcon>
