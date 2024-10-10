@@ -27,6 +27,8 @@ import TransactionData from "./components/SalesAnalytics/TransactionData/Transac
 import ProductPerformance from "./components/SalesAnalytics/Product Performance/ProductPerformance";
 import ChangePassword from "./components/ChangePassword/ChangePassword";
 import CustomerManagement from "./components/CustomerManagement/CustomerManagement";
+import CustomerOverview from "./components/Customer Overview/CustomerOverview";
+import Settings from "./components/Settings/Settings";
 function AdminApp() {
     const dispatch = useAppDispatch();
     const authContext = useContext(AuthContext);
@@ -170,6 +172,24 @@ function AdminApp() {
                                     component={CustomerManagement}
                                     requiredRole="admin"
                                     minimumAccessLevel="limited"
+                                />
+                            }
+                        />
+                        <Route
+                            path="/customer-overview"
+                            element={
+                                <ProtectedRoute
+                                    component={CustomerOverview}
+                                    requiredRole="admin"
+                                />
+                            }
+                        />
+                        <Route
+                            path="/user-settings"
+                            element={
+                                <ProtectedRoute
+                                    component={Settings}
+                                    requiredRole="admin"
                                 />
                             }
                         />
