@@ -75,6 +75,7 @@ export const getSearchOptions = async () => {
 
 export const getProducts = async (filters: FilterObject) => {
     try {
+        console.log("Filters:", filters);
         if (!filters.page) {
             filters.page = "1";
         }
@@ -157,26 +158,38 @@ export const getProducts = async (filters: FilterObject) => {
         // Define and iterate through all min-max parameters and add query params asneeded
         const minMaxParams = ["price", "width", "height", "depth"];
         for (const param of minMaxParams) {
-            const minParam = `${
-                param === "price" ? "" : "attributes.dimensions."
-            }min${
+            const minParam = `min${
                 param.charAt(0).toUpperCase() + param.slice(1)
             }` as keyof FilterObject;
-            const maxParam = `${
-                param === "price" ? "" : "attributes.dimensions."
-            }max${
+            const maxParam = `max${
                 param.charAt(0).toUpperCase() + param.slice(1)
             }` as keyof FilterObject;
             if (filters[minParam]) {
-                matchConditions[param] = {
-                    ...matchConditions[param],
-                    $gte: filters[minParam] as unknown as number,
+                matchConditions[
+                    `${
+                        param === "price" ? "" : "attributes.dimensions."
+                    }${param}`
+                ] = {
+                    ...matchConditions[
+                        `${
+                            param === "price" ? "" : "attributes.dimensions."
+                        }${param}`
+                    ],
+                    $gte: Number(filters[minParam]),
                 };
             }
             if (filters[maxParam]) {
-                matchConditions[param] = {
-                    ...matchConditions[param],
-                    $lte: filters[maxParam] as unknown as number,
+                matchConditions[
+                    `${
+                        param === "price" ? "" : "attributes.dimensions."
+                    }${param}`
+                ] = {
+                    ...matchConditions[
+                        `${
+                            param === "price" ? "" : "attributes.dimensions."
+                        }${param}`
+                    ],
+                    $lte: Number(filters[maxParam]),
                 };
             }
         }
@@ -199,6 +212,8 @@ export const getProducts = async (filters: FilterObject) => {
             stockZero: 1,
             ...sortFields,
         };
+
+        console.log("MatchConditions:", matchConditions);
 
         const aggregationPipeline = [
             { $match: matchConditions },
