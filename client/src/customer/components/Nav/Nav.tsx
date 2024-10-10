@@ -283,7 +283,13 @@ const Nav: React.FC<Props> = () => {
                     >
                         Orders
                     </li>
-                    <li className="nav-text">Support</li>
+                    <li
+                        className="nav-text"
+                        role="button"
+                        onClick={() => navigate("/support")}
+                    >
+                        Support
+                    </li>
                     <li>
                         <div
                             className="nav-icon"

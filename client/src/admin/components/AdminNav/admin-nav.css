@@ -25,13 +25,15 @@
 .name-and-access {
     margin-bottom: 10px;
     display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: flex-start;
 }
 
 .username-display,
 .access-level-display {
     display: flex;
-    flex-direction: column;
-    justify-content: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 5px;
 }

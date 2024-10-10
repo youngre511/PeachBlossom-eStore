@@ -454,7 +454,14 @@ const MobileNav: React.FC<Props> = () => {
                                 </button>
                             </li>
                             <li>
-                                <button>Support</button>
+                                <button
+                                    onClick={() => {
+                                        navigate("/support");
+                                        handleCloseMenu();
+                                    }}
+                                >
+                                    Support
+                                </button>
                             </li>
                             <li>
                                 <button

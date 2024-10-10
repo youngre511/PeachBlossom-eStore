@@ -30,6 +30,7 @@ import pbtext1x from "../assets/peachblossomtext-1x.webp";
 import pbtext2x from "../assets/peachblossomtext-2x.webp";
 import pbtext3x from "../assets/peachblossomtext-3x.webp";
 import { useNavigationContext } from "../common/contexts/navContext";
+import Support from "./components/Support/Support";
 
 const CustomerApp: React.FC = () => {
     const dispatch = useAppDispatch();
@@ -91,6 +92,7 @@ const CustomerApp: React.FC = () => {
                         <Route path="/shoppingcart" element={<Cart />} />
                         <Route path="/checkout" element={<Checkout />} />
                         <Route path="/product" element={<ProductDetails />} />
+                        <Route path="/support" element={<Support />} />
                         <Route
                             path="/sustainability"
                             element={<Sustainability />}

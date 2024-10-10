@@ -26,11 +26,16 @@ const About: React.FC<Props> = () => {
                 Despite existing for demonstration purposes only, this is a
                 full-featured site, with both a robust customer-facing portal
                 and an{" "}
-                <a href="https://admin.pb.ryanyoung.codes">admin portal</a> from
-                which one can edit and and remove products, manage inventory,
-                view and manage customer orders, manage admin accounts, and view
-                (fake) sales analytics. Users can add items to their carts,
-                checkout, and track their orders.
+                <a
+                    href="https://admin.pb.ryanyoung.codes"
+                    style={{ color: "var(--dark-peach)" }}
+                >
+                    <b>admin portal</b>
+                </a>{" "}
+                from which one can edit and and remove products, manage
+                inventory, view and manage customer orders, manage admin
+                accounts, and view (fake) sales analytics. Users can add items
+                to their carts, checkout, and track their orders.
             </p>
             <p>
                 That said, there are elements that are not currently functional,

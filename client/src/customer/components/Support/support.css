@@ -1,0 +1,14 @@
+.support {
+    width: 90vw;
+    max-width: 500px;
+    height: 50vh;
+    height: auto;
+    background-color: white;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
+    margin: 25vh auto;
+    padding: 30px;
+}
+
+.support a {
+    color: black;
+}

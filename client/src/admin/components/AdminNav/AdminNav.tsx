@@ -25,6 +25,8 @@ import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIconSharp from "@mui/icons-material/ExpandMoreSharp";
+import StorefrontSharpIcon from "@mui/icons-material/StorefrontSharp";
+import OpenInNewSharpIcon from "@mui/icons-material/OpenInNewSharp";
 import "./admin-nav.css";
 import { AuthContext } from "../../../common/contexts/authContext";
 import { Button } from "@mui/material";
@@ -339,6 +341,38 @@ const AdminNav: React.FC<Props> = (props: Props) => {
                                 <SettingsIcon className="menu-svg" />
                             </ListItemIcon>
                             <ListItemText primary={"Settings"} />
+                        </ListItemButton>
+                    </ListItem>
+                    <ListItem disablePadding>
+                        <ListItemButton
+                            onClick={() =>
+                                window.open(
+                                    "https://pb.ryanyoung.codes",
+                                    "_blank",
+                                    "noopener"
+                                )
+                            }
+                        >
+                            <ListItemIcon>
+                                <StorefrontSharpIcon className="menu-svg" />
+                            </ListItemIcon>
+                            <ListItemText primary={"To Storefront"} />
+                        </ListItemButton>
+                    </ListItem>
+                    <ListItem disablePadding>
+                        <ListItemButton
+                            onClick={() =>
+                                window.open(
+                                    "https://ryanyoung.codes",
+                                    "_blank",
+                                    "noopener"
+                                )
+                            }
+                        >
+                            <ListItemIcon>
+                                <OpenInNewSharpIcon className="menu-svg" />
+                            </ListItemIcon>
+                            <ListItemText primary={"To My Portfolio"} />
                         </ListItemButton>
                     </ListItem>
                 </List>
