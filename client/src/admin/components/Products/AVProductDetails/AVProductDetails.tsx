@@ -964,7 +964,7 @@ const AVProductDetails: React.FC = () => {
                             </Button>
                         </Box>
                     )}
-                    {accessLevel !== "view only" && (
+                    {accessLevel !== "view only" && !editMode && (
                         <Button
                             variant="contained"
                             onClick={() => {
