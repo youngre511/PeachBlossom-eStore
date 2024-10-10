@@ -1,36 +1,54 @@
-import React from "react";
-import { Stepper, Step, StepLabel, Box, StepContent } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import {
+    Stepper,
+    Step,
+    StepLabel,
+    Box,
+    StepContent,
+    StepIconProps,
+} from "@mui/material";
 import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
+import CheckIcon from "@mui/icons-material/Check";
+import StepperIcon from "@mui/icons-material/Circle";
 
 interface Props {
-    orderStatus:
-        | "in process"
-        | "ready to ship"
-        | "delivered"
-        | "shipped"
-        | "delivered";
     steps: Array<{ label: string; description: string }>;
+    activeStep: number;
 }
-export const StatusStepper: React.FC<Props> = ({ orderStatus, steps }) => {
-    let activeStep: number;
+export const StatusStepper: React.FC<Props> = ({ steps, activeStep }) => {
     const { width } = useWindowSizeContext();
+    const CustomStepIcon = (props: StepIconProps) => {
+        const { active, completed, className } = props;
 
-    switch (orderStatus) {
-        case "in process":
-            activeStep = 0;
-            break;
-        case "ready to ship":
-            activeStep = 1;
-            break;
-        case "shipped":
-            activeStep = 2;
-            break;
-        case "delivered":
-            activeStep = 3;
-            break;
-        default:
-            activeStep = 0;
-    }
+        return completed || active ? (
+            <CheckIcon
+                className={className}
+                sx={{
+                    color: "white",
+                    backgroundColor: "var(--dark-peach)",
+                    borderRadius: "100%",
+                    padding: "2px",
+                }}
+            />
+        ) : (
+            <div
+                style={{
+                    color: "white",
+                    backgroundColor: "var(--dark-peach)",
+                    borderRadius: "100%",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    width: "24px",
+                    height: "24px",
+                    fontSize: ".9rem",
+                    fontWeight: 600,
+                }}
+            >
+                {activeStep + 1}
+            </div>
+        );
+    };
 
     return (
         <Box sx={{ maxWidth: 800 }}>
@@ -40,7 +58,9 @@ export const StatusStepper: React.FC<Props> = ({ orderStatus, steps }) => {
             >
                 {steps.map((step, index) => (
                     <Step key={step.label}>
-                        <StepLabel>{step.label}</StepLabel>
+                        <StepLabel StepIconComponent={CustomStepIcon}>
+                            {step.label}
+                        </StepLabel>
                         {width && width < 600 && (
                             <StepContent>{step.description}</StepContent>
                         )}

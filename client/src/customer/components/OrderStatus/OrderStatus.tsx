@@ -59,9 +59,46 @@ interface OrderDetails {
         | "ready to ship"
         | "delivered"
         | "shipped"
-        | "delivered";
+        | "delivered"
+        | "cancelled";
     OrderItem: OrderItem[];
 }
+
+const steps = [
+    {
+        label: "In Process",
+        description:
+            "We've received your order, and we're working hard to get it to you as soon as possible. Our team members are gathering the products you ordered to prepare them for shipping.",
+    },
+    {
+        label: "Ready to Ship",
+        description:
+            "Your order is assembled and ready to send out. It'll be on it's way to you before you know it. You'll receive an email notifying you when your order has shipped.",
+    },
+    {
+        label: "Shipped",
+        description:
+            "Your order is on its way! We can't wait for you to be able to enjoy our products.",
+    },
+    {
+        label: "Delivered",
+        description:
+            "Your order has been delivered! We hope you love every product you got. If not, contact us as soon as possible so that we can get you a replacement or refund. Nothing but the best for our customers!",
+    },
+];
+
+const stepsCancelled = [
+    {
+        label: "In Process",
+        description:
+            "We've received your order, and we're working hard to get it to you as soon as possible. Our team members are gathering the products you ordered to prepare them for shipping.",
+    },
+    {
+        label: "Cancelled",
+        description:
+            "Your order has been cancelled. Any payments that have been processed have been refunded to the card they were purchased with.",
+    },
+];
 
 interface Props {
     orderNumber?: string;
@@ -76,6 +113,8 @@ const OrderStatus: React.FC<Props> = ({ orderNumber }) => {
     const [error, setError] = useState<string | null>(null);
     const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(null);
     const [activeStep, setActiveStep] = useState<number>(0);
+    const [stepDefinitions, setStepDefinitions] =
+        useState<Array<{ label: string; description: string }>>(steps);
     const [splitShippingAddress, setSplitShippingAddress] = useState<string[]>([
         "",
         "",
@@ -148,6 +187,11 @@ const OrderStatus: React.FC<Props> = ({ orderNumber }) => {
                 case "delivered":
                     setActiveStep(3);
                     break;
+                case "cancelled": {
+                    setActiveStep(1);
+                    setStepDefinitions(stepsCancelled);
+                    break;
+                }
                 default:
                     setActiveStep(0);
             }
@@ -162,29 +206,6 @@ const OrderStatus: React.FC<Props> = ({ orderNumber }) => {
             setFormattedDate(date.toLocaleDateString("en-US", options));
         }
     }, [orderDetails]);
-
-    const steps = [
-        {
-            label: "In Process",
-            description:
-                "We've received your order, and we're working hard to get it to you as soon as possible. Our team members are gathering the products you ordered to prepare them for shipping.",
-        },
-        {
-            label: "Ready to Ship",
-            description:
-                "Your order is assembled and ready to send out. It'll be on it's way to you before you know it. You'll receive an email notifying you when your order has shipped.",
-        },
-        {
-            label: "Shipped",
-            description:
-                "Your order is on its way! We can't wait for you to be able to enjoy our products.",
-        },
-        {
-            label: "Delivered",
-            description:
-                "Your order has been delivered! We hope you love every product you got. If not, contact us as soon as possible so that we can get you a replacement or refund. Nothing but the best for our customers!",
-        },
-    ];
 
     return (
         <div className="track-order">
@@ -237,13 +258,13 @@ const OrderStatus: React.FC<Props> = ({ orderNumber }) => {
                         <span>Order Date: {formattedDate}</span>
                     </div>
                     <StatusStepper
-                        orderStatus={orderDetails.orderStatus}
-                        steps={steps}
+                        steps={stepDefinitions}
+                        activeStep={activeStep}
                     />
                     {width && width >= 600 && (
                         <div className="order-details">
                             <p className="status-summary">
-                                {steps[activeStep].description}
+                                {stepDefinitions[activeStep].description}
                             </p>
                         </div>
                     )}
