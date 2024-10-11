@@ -259,6 +259,7 @@ const Shop = () => {
         tags,
         sort,
         material,
+        searchParams.toString(),
     ]);
 
     // If items per page changes, check whether current page is page one. If it is, force fetchData. If it isn't, set searchParams to page 1, triggering fetchData.
