@@ -240,7 +240,6 @@ const Shop = () => {
     };
 
     useEffect(() => {
-        console.log("fetching");
         fetchData();
     }, [
         search,
