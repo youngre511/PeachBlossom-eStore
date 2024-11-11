@@ -161,7 +161,11 @@ const Nav: React.FC<Props> = () => {
     };
 
     const handleCartMouseEnter = () => {
-        if (cartContents > 0 && location.pathname !== "/shoppingcart") {
+        if (
+            cartContents > 0 &&
+            location.pathname !== "/shoppingcart" &&
+            location.pathname !== "/checkout"
+        ) {
             if (cartAnimationRef.current) {
                 // Play the animation forward
                 gsap.set(".drop-cart", { display: "block" });
@@ -206,7 +210,10 @@ const Nav: React.FC<Props> = () => {
 
     useEffect(() => {
         if (currentRoute) {
-            if (currentRoute === "/shoppingcart") {
+            if (
+                currentRoute === "/shoppingcart" ||
+                currentRoute === "/checkout"
+            ) {
                 handleCartMouseLeave();
                 setCartDropdownVisible(false);
             }
