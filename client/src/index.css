@@ -35,6 +35,50 @@
         );
 }
 
+@supports (property(--dark-peach)) {
+    @property --dark-peach {
+        syntax: "<color>";
+        inherits: false;
+        initial-value: #ec7f52;
+    }
+
+    @property --deep-peach {
+        syntax: "<color>";
+        inherits: false;
+        initial-value: #f1a180;
+    }
+
+    @property --peach-blush {
+        syntax: "<color>";
+        inherits: false;
+        initial-value: #f6b99d;
+    }
+
+    @property --pale-gold {
+        syntax: "<color>";
+        inherits: false;
+        initial-value: #fcca73;
+    }
+
+    @property --rich-gold {
+        syntax: "<color>";
+        inherits: false;
+        initial-value: #e8b154;
+    }
+
+    @property --peach-blossom {
+        syntax: "<color>";
+        inherits: false;
+        initial-value: #fbeee5;
+    }
+
+    @property --peaches-and-cream {
+        syntax: "<color>";
+        inherits: false;
+        initial-value: #f3d9c8;
+    }
+}
+
 body {
     margin: 0;
     font-family: "Lato", sans-serif;
