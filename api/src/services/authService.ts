@@ -204,7 +204,9 @@ export const login = async (username: string, password: string) => {
 
         await sqlTransaction.commit();
 
-        return { accessToken, refreshToken };
+        const role = user.role;
+
+        return { accessToken, refreshToken, role };
     } catch (error) {
         await sqlTransaction.rollback();
         if (error instanceof Error) {

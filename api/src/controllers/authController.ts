@@ -43,7 +43,8 @@ export const createUser = async (req: CreateAccountRequest, res: Response) => {
             secure: true, //Only use secure in production mode, not local dev mode
             sameSite: "none",
             path: "/",
-            domain: ".pb.ryanyoung.codes",
+            domain:
+                role === "admin" ? ".pb.ryanyoung.codes" : ".ryanyoung.codes",
             maxAge: 7 * 24 * 60 * 60 * 1000, //7 days
         });
         res.status(201).json({ accessToken });
@@ -62,7 +63,7 @@ export const createUser = async (req: CreateAccountRequest, res: Response) => {
 export const login = async (req: LoginRequest, res: Response) => {
     try {
         const { username, password } = req.body;
-        const { accessToken, refreshToken } = await authService.login(
+        const { accessToken, refreshToken, role } = await authService.login(
             username,
             password
         );
@@ -72,7 +73,8 @@ export const login = async (req: LoginRequest, res: Response) => {
             secure: true, //Only use secure in production mode, not local dev mode
             sameSite: "none",
             path: "/",
-            domain: ".pb.ryanyoung.codes",
+            domain:
+                role === "admin" ? ".pb.ryanyoung.codes" : ".ryanyoung.codes",
             maxAge: 7 * 24 * 60 * 60 * 1000, //7 days
         });
 
