@@ -185,7 +185,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         };
     }, [requestAccessTokenRefresh]);
 
-    const isTokenExpired = (): boolean => {
+    const isTokenExpired = useCallback((): boolean => {
         try {
             const token = localStorage.getItem("jwtToken");
             if (!token) {
@@ -201,7 +201,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             console.error("Failed to decode token", e);
             return true;
         }
-    };
+    }, []);
 
     const login = async (username: string, password: string) => {
         try {
@@ -223,7 +223,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
             setUser(decodedToken);
             setMadeInitialCheck(false);
-            navigate("/");
+            if (user && user.role === "admin") {
+                navigate("/");
+            }
         } catch (error) {
             if (error instanceof AxiosError) {
                 setError(

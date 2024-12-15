@@ -1,4 +1,10 @@
-import React, { SetStateAction, useContext, useEffect, useState } from "react";
+import React, {
+    FormEvent,
+    SetStateAction,
+    useContext,
+    useEffect,
+    useState,
+} from "react";
 import "./accounts-tab.css";
 import CloseSharpIcon from "@mui/icons-material/CloseSharp";
 import { IconButton } from "@mui/material";
@@ -16,9 +22,7 @@ const AccountsTab: React.FC<Props> = ({
 }) => {
     const auth = useContext(AuthContext);
     const [creating, setCreating] = useState<boolean>(false);
-    const [loggedIn, setLoggedIn] = useState<boolean>(false);
-
-    useEffect(() => {}, [auth]);
+    const loggedIn = auth && auth.user && !auth.isTokenExpired();
 
     return (
         <div
@@ -34,15 +38,14 @@ const AccountsTab: React.FC<Props> = ({
                     <CloseSharpIcon />
                 </IconButton>
             </div>
-            {auth && auth.user && !auth.isTokenExpired() && (
-                <div>Customer accounts are not yet supported.</div>
+            {loggedIn && <div>Customer accounts are not yet supported.</div>}
+            {!loggedIn && !creating && (
+                <Login
+                    setCreating={setCreating}
+                    accountsTabVisible={accountsTabVisible}
+                />
             )}
-            {(!auth || !auth.user || auth.isTokenExpired()) && !creating && (
-                <Login setCreating={setCreating} />
-            )}
-            {(!auth || !auth.user || auth.isTokenExpired()) && creating && (
-                <Signup setCreating={setCreating} />
-            )}
+            {!loggedIn && creating && <Signup setCreating={setCreating} />}
         </div>
     );
 };

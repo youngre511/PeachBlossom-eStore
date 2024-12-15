@@ -34,4 +34,10 @@
 .sign-up-btn {
     color: var(--dark-peach);
     font-weight: 700;
+    cursor: pointer;
+}
+
+.login-error-msg {
+    font-weight: 700;
+    margin-bottom: 30px;
 }
