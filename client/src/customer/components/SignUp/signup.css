@@ -34,4 +34,5 @@
 .sign-in-btn {
     color: var(--dark-peach);
     font-weight: 700;
+    cursor: pointer;
 }

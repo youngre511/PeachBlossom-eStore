@@ -1,8 +1,9 @@
 import { FormControl, FormLabel, TextField } from "@mui/material";
-import React, { SetStateAction, useState } from "react";
+import React, { ChangeEvent, FormEvent, SetStateAction, useState } from "react";
 import { useEffect } from "react";
 import PeachButton from "../../../common/components/PeachButton";
 import "./signup.css";
+import { FormProps } from "react-router-dom";
 
 interface Props {
     setCreating: React.Dispatch<SetStateAction<boolean>>;
@@ -15,11 +16,25 @@ const Signup: React.FC<Props> = ({ setCreating }) => {
         null
     );
 
+    const [formData, setFormData] = useState<{
+        email: string;
+        password: string;
+    }>({ email: "", password: "" });
+
+    const signUp = (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        console.log(formData);
+    };
+
+    const handleEmailChange = (e: ChangeEvent) => {
+        console.log(e.target);
+    };
+
     return (
         <div className="signup">
             <div className="signup-box">
                 <h1>Create account</h1>
-                <form onSubmit={() => {}} className="signup-form">
+                <form onSubmit={signUp} className="signup-form">
                     <FormControl sx={{ marginBottom: "30px" }}>
                         <FormLabel htmlFor="name">Full Name</FormLabel>
                         <TextField
