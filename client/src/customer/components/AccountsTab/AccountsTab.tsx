@@ -9,8 +9,9 @@ import "./accounts-tab.css";
 import CloseSharpIcon from "@mui/icons-material/CloseSharp";
 import { IconButton } from "@mui/material";
 import { AuthContext } from "../../../common/contexts/authContext";
-import Login from "../LogIn/Login";
-import Signup from "../SignUp/Signup";
+import Login from "./LogIn/Login";
+import Signup from "./SignUp/Signup";
+import AccountManagement from "./AccountManagement/AccountManagement";
 
 interface Props {
     setAccountsTabVisible: React.Dispatch<SetStateAction<boolean>>;
@@ -23,6 +24,14 @@ const AccountsTab: React.FC<Props> = ({
     const auth = useContext(AuthContext);
     const [creating, setCreating] = useState<boolean>(false);
     const loggedIn = auth && auth.user && !auth.isTokenExpired();
+
+    useEffect(() => {
+        if (!accountsTabVisible) {
+            setTimeout(() => {
+                setCreating(false);
+            }, 301);
+        }
+    }, [accountsTabVisible]);
 
     return (
         <div
@@ -38,14 +47,24 @@ const AccountsTab: React.FC<Props> = ({
                     <CloseSharpIcon />
                 </IconButton>
             </div>
-            {loggedIn && <div>Customer accounts are not yet supported.</div>}
+            {loggedIn && (
+                <AccountManagement
+                    accountsTabVisible={accountsTabVisible}
+                    setAccountsTabVisible={setAccountsTabVisible}
+                />
+            )}
             {!loggedIn && !creating && (
                 <Login
                     setCreating={setCreating}
                     accountsTabVisible={accountsTabVisible}
                 />
             )}
-            {!loggedIn && creating && <Signup setCreating={setCreating} />}
+            {!loggedIn && creating && (
+                <Signup
+                    setCreating={setCreating}
+                    accountsTabVisible={accountsTabVisible}
+                />
+            )}
         </div>
     );
 };
