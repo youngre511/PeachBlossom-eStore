@@ -23,7 +23,9 @@ export const createUser = async (
     role: "customer" | "admin",
     accessLevel: "full" | "limited" | "view only" | null,
     email: string | null,
-    defaultPassword: boolean
+    defaultPassword: boolean,
+    firstName: string | null,
+    lastName: string | null
 ) => {
     const sqlTransaction = await sequelize.transaction();
     const sqlTransaction2 = await sequelize.transaction();
@@ -83,6 +85,8 @@ export const createUser = async (
                 {
                     user_id: userData.user_id,
                     email: email,
+                    firstName: firstName,
+                    lastName: lastName,
                 },
                 { transaction: sqlTransaction }
             );
