@@ -43,25 +43,25 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
         setPaymentType(event.target.value);
     };
 
-    const handleCardNumberChange = (event: { target: { value: string } }) => {
-        const value = "1234567890123456".replace(/\D/g, "");
-        const formattedValue = value.replace(/(\d{4})(?=\d)/g, "$1 ");
-        if (value.length <= 16) {
-            setCardNumber(formattedValue);
-            setPaymentDetails({
-                ...paymentDetails,
-                cardNumber: formattedValue,
-            });
-        }
-    };
+    // const handleCardNumberChange = (event: { target: { value: string } }) => {
+    //     const value = "1234567890123456".replace(/\D/g, "");
+    //     const formattedValue = value.replace(/(\d{4})(?=\d)/g, "$1 ");
+    //     if (value.length <= 16) {
+    //         setCardNumber(formattedValue);
+    //         setPaymentDetails({
+    //             ...paymentDetails,
+    //             cardNumber: formattedValue,
+    //         });
+    //     }
+    // };
 
-    const handleCvvChange = (event: { target: { value: string } }) => {
-        const value = "123".replace(/\D/g, "");
-        if (value.length <= 3) {
-            setCvv(value);
-        }
-        setPaymentDetails({ ...paymentDetails, cvv: value });
-    };
+    // const handleCvvChange = (event: { target: { value: string } }) => {
+    //     const value = "123".replace(/\D/g, "");
+    //     if (value.length <= 3) {
+    //         setCvv(value);
+    //     }
+    //     setPaymentDetails({ ...paymentDetails, cvv: value });
+    // };
 
     const handleExpirationDateChange = (event: {
         target: { value: string };
@@ -196,8 +196,8 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
                                     autoComplete="card-number"
                                     placeholder="1234 5678 9012 3456"
                                     required
-                                    value={cardNumber}
-                                    onChange={handleCardNumberChange}
+                                    value={"1234 5678 9012 3456"}
+                                    // onChange={handleCardNumberChange}
                                 />
                             </FormGrid>
                             <FormGrid sx={{ maxWidth: "20%" }}>
@@ -209,8 +209,8 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
                                     autoComplete="CVV"
                                     placeholder="123"
                                     required
-                                    value={cvv}
-                                    onChange={handleCvvChange}
+                                    value={123}
+                                    // onChange={handleCvvChange}
                                 />
                             </FormGrid>
                         </Box>
@@ -221,8 +221,9 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
                                 </FormLabel>
                                 <OutlinedInput
                                     id="card-name"
-                                    autoComplete="card-name"
+                                    autoComplete="cc-name"
                                     placeholder="John Smith"
+                                    type="text"
                                     value={name}
                                     required
                                     onChange={handleNameChange}
@@ -234,7 +235,10 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
                                 </FormLabel>
                                 <OutlinedInput
                                     id="card-expiration"
-                                    autoComplete="card-expiration"
+                                    inputProps={{
+                                        inputMode: "numeric",
+                                    }}
+                                    autoComplete="cc-exp"
                                     placeholder="MM/YY"
                                     required
                                     value={expirationDate}
