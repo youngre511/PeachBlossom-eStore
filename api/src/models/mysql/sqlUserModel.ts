@@ -23,7 +23,7 @@ export class sqlUser extends Model {
     declare user_id: number;
 
     @Column({
-        type: DataType.STRING(20),
+        type: DataType.STRING(254),
         allowNull: false,
         unique: true,
     })
