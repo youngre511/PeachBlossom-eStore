@@ -77,59 +77,6 @@ interface OrderData {
 
 const steps = ["Shipping address", "Payment details", "Review your order"];
 
-const validStates = [
-    "AK",
-    "AL",
-    "AR",
-    "AZ",
-    "CA",
-    "CO",
-    "CT",
-    "DE",
-    "FL",
-    "GA",
-    "HI",
-    "IA",
-    "ID",
-    "IL",
-    "IN",
-    "KS",
-    "KY",
-    "LA",
-    "MA",
-    "MD",
-    "ME",
-    "MI",
-    "MN",
-    "MO",
-    "MS",
-    "MT",
-    "NC",
-    "ND",
-    "NE",
-    "NH",
-    "NJ",
-    "NM",
-    "NV",
-    "NY",
-    "OH",
-    "OK",
-    "OR",
-    "PA",
-    "RI",
-    "SC",
-    "SD",
-    "TN",
-    "TX",
-    "UT",
-    "VA",
-    "VT",
-    "WA",
-    "WI",
-    "WV",
-    "WY",
-];
-
 const Checkout: React.FC = () => {
     const dispatch = useAppDispatch();
     const auth = useContext(AuthContext);
@@ -336,7 +283,7 @@ const Checkout: React.FC = () => {
         canPlaceOrder,
     ]);
 
-    function getStepContent(step: number) {
+    const getStepContent = (step: number) => {
         switch (step) {
             case 0:
                 return (
@@ -369,7 +316,7 @@ const Checkout: React.FC = () => {
             default:
                 throw new Error("Unknown step");
         }
-    }
+    };
 
     const handleNext = async () => {
         if (activeStep === 2) {
