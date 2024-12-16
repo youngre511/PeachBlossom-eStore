@@ -19,10 +19,22 @@ interface IUserToken {
     defaultPassword: boolean;
 }
 
+export interface CreateAccountData {
+    username: string;
+    password: string;
+    role: "customer" | "admin";
+    accessLevel?: "full" | "limited";
+    email?: string;
+    defaultPassword?: boolean;
+    firstName?: string;
+    lastName: string;
+}
+
 interface AuthContextProps {
     user: IUserToken | undefined;
     login: (username: string, password: string) => Promise<void>;
     logout: () => void;
+    createAccount: (data: CreateAccountData) => Promise<void>;
     isTokenExpired: () => boolean;
     requestAccessTokenRefresh: () => void;
     changePassword: (
@@ -203,6 +215,40 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
     }, []);
 
+    const createAccount = async (data: CreateAccountData) => {
+        try {
+            const response = await axios.post(
+                `${import.meta.env.VITE_API_URL}/auth/register`,
+                data,
+                { withCredentials: true }
+            );
+
+            const { accessToken } = response.data;
+            const decodedToken = jwtDecode<IUserToken>(accessToken);
+            if (!decodedToken.exp) {
+                throw new Error("Token does not have an expiration date");
+            }
+            const expirationTime = decodedToken.exp * 1000;
+
+            localStorage.setItem("jwtToken", accessToken);
+            localStorage.setItem("jwtExpiration", expirationTime.toString());
+
+            setUser(decodedToken);
+            setMadeInitialCheck(false);
+            if (user && user.role === "admin") {
+                navigate("/");
+            }
+        } catch (error) {
+            if (error instanceof AxiosError) {
+                setError(
+                    error.response ? error.response.data.message : error.message
+                );
+            } else {
+                setError("An unknown error occurred");
+            }
+        }
+    };
+
     const login = async (username: string, password: string) => {
         try {
             const response = await axios.post(
@@ -316,6 +362,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         <AuthContext.Provider
             value={{
                 user,
+                createAccount,
                 login,
                 logout,
                 isTokenExpired,

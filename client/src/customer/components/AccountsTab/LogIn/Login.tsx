@@ -8,9 +8,9 @@ import React, {
     useState,
 } from "react";
 import { useEffect } from "react";
-import PeachButton from "../../../common/components/PeachButton";
+import PeachButton from "../../../../common/components/PeachButton";
 import "./login.css";
-import { AuthContext } from "../../../common/contexts/authContext";
+import { AuthContext } from "../../../../common/contexts/authContext";
 
 interface Props {
     setCreating: React.Dispatch<SetStateAction<boolean>>;
@@ -21,10 +21,7 @@ const Login: React.FC<Props> = ({ setCreating, accountsTabVisible }) => {
 
     const [emailError, setEmailError] = useState<boolean>(false);
     const [emailErrorMsg, setEmailErrorMsg] = useState<string | null>(null);
-    const [passwordError, setPasswordError] = useState<boolean>(false);
-    const [passwordErrorMsg, setPasswordErrorMsg] = useState<string | null>(
-        null
-    );
+
     const [loginError, setLoginError] = useState<string | null>(null);
 
     const [formData, setFormData] = useState<{
@@ -48,11 +45,7 @@ const Login: React.FC<Props> = ({ setCreating, accountsTabVisible }) => {
     };
 
     useEffect(() => {
-        console.log("changing");
-        console.log(accountsTabVisible);
-        console.log(formData);
         if (!accountsTabVisible) {
-            console.log("setting");
             setFormData({ email: "", password: "" });
             setEmailError(false);
             setEmailErrorMsg(null);
@@ -61,6 +54,7 @@ const Login: React.FC<Props> = ({ setCreating, accountsTabVisible }) => {
 
     const handleEmailBlur = (e: FocusEvent<HTMLInputElement>) => {
         if (
+            formData.email.length > 0 &&
             !/^(?=.{1,64}@.{1,255}$)(?=.{6,})[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(
                 formData.email
             )
@@ -121,20 +115,16 @@ const Login: React.FC<Props> = ({ setCreating, accountsTabVisible }) => {
                             </div>
                         </div>
                         <TextField
-                            error={passwordError}
-                            helperText={passwordErrorMsg}
                             id="password"
                             type="password"
                             name="password"
-                            placeholder="••••••"
+                            placeholder="••••••••"
                             value={formData.password}
                             onChange={handlePasswordChange}
                             autoComplete="current-password"
-                            autoFocus
                             required
                             fullWidth
                             variant="outlined"
-                            color={passwordError ? "error" : "primary"}
                         />
                     </FormControl>
 
