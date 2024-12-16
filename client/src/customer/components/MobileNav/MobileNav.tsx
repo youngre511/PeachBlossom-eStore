@@ -35,6 +35,7 @@ import {
 } from "@mui/material";
 import MobileShopCategoryBlock from "./MobileShopCategoryBlock";
 import { useNavigationContext } from "../../../common/contexts/navContext";
+import AccountsTab from "../AccountsTab/AccountsTab";
 gsap.registerPlugin(ScrollTrigger);
 gsap.registerPlugin(useGSAP);
 
@@ -65,6 +66,8 @@ const MobileNav: React.FC<Props> = () => {
     const [forceCollapse, setForceCollapse] = useState<boolean>(false);
     const [staggerDuration, setStaggerDuration] = useState<number>(0);
     const [menusExpanded, setMenusExpanded] = useState<Array<string>>([]);
+    const [accountsTabVisible, setAccountsTabVisible] =
+        useState<boolean>(false);
 
     // State tracks whether full logo should be visible based on scroll position
     const [showFullLogo, setShowFullLogo] = useState<boolean>(true);
@@ -370,6 +373,9 @@ const MobileNav: React.FC<Props> = () => {
                         className="m-nav-icon"
                         id="account"
                         aria-label="account"
+                        onClick={() =>
+                            setAccountsTabVisible(!accountsTabVisible)
+                        }
                         tabIndex={0}
                         role="button"
                     >
@@ -606,6 +612,10 @@ const MobileNav: React.FC<Props> = () => {
                     </div>
                 </div>
             </div>
+            <AccountsTab
+                setAccountsTabVisible={setAccountsTabVisible}
+                accountsTabVisible={accountsTabVisible}
+            />
         </header>
     );
 };
