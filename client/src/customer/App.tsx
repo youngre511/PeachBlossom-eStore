@@ -5,8 +5,6 @@ import { ThemeProvider } from "@mui/material/styles";
 import theme from "../common/utils/materialUITheme";
 import Nav from "./components/Nav/Nav";
 import About from "./components/About/About";
-import Login from "./components/LogIn/Login";
-import Signup from "./components/SignUp/Signup";
 import Home from "./components/Home/Home";
 import ProductDetails from "./components/ProductDetails/ProductDetails";
 import OrderStatus from "./components/OrderStatus/OrderStatus";
@@ -86,8 +84,6 @@ const CustomerApp: React.FC = () => {
                             element={<ProductDetails />}
                         />
                         <Route path="/about" element={<About />} />
-                        <Route path="/login" element={<Login />} />
-                        <Route path="/signup" element={<Signup />} />
                         <Route path="/order-status" element={<OrderStatus />} />
                         <Route path="/shoppingcart" element={<Cart />} />
                         <Route path="/checkout" element={<Checkout />} />
