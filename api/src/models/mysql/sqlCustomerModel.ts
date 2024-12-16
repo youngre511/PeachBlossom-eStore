@@ -36,6 +36,18 @@ export class sqlCustomer extends Model {
     })
     declare email: string;
 
+    @Column({
+        type: DataType.STRING(255),
+        allowNull: false,
+    })
+    declare firstName: string;
+
+    @Column({
+        type: DataType.STRING(255),
+        allowNull: false,
+    })
+    declare lastName: string;
+
     @BelongsTo(() => sqlUser, { as: "CustomerUser" })
     declare user: sqlUser;
 
