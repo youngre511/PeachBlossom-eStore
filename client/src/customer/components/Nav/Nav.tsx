@@ -312,23 +312,18 @@ const Nav: React.FC<Props> = () => {
                         </div>
                     </li>
                     <li>
-                        <Tooltip
-                            title="Feature coming soon!"
-                            enterTouchDelay={100}
+                        <div
+                            className="nav-icon"
+                            id="account"
+                            aria-label="account"
+                            tabIndex={0}
+                            role="button"
+                            onClick={() =>
+                                setAccountsTabVisible(!accountsTabVisible)
+                            }
                         >
-                            <div
-                                className="nav-icon"
-                                id="account"
-                                aria-label="account"
-                                tabIndex={0}
-                                role="button"
-                                onClick={() =>
-                                    setAccountsTabVisible(!accountsTabVisible)
-                                }
-                            >
-                                <AccountButton />
-                            </div>
-                        </Tooltip>
+                            <AccountButton />
+                        </div>
                     </li>
                     <li>
                         <Tooltip
