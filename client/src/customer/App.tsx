@@ -29,6 +29,8 @@ import pbtext2x from "../assets/peachblossomtext-2x.webp";
 import pbtext3x from "../assets/peachblossomtext-3x.webp";
 import { useNavigationContext } from "../common/contexts/navContext";
 import Support from "./components/Support/Support";
+import CustomerOrders from "./components/CustomerOrders/CustomerOrders";
+import ProtectedRoute from "../common/components/ProtectedRoute/ProtectedRoute";
 
 const CustomerApp: React.FC = () => {
     const dispatch = useAppDispatch();
@@ -85,6 +87,15 @@ const CustomerApp: React.FC = () => {
                         />
                         <Route path="/about" element={<About />} />
                         <Route path="/order-status" element={<OrderStatus />} />
+                        <Route
+                            path="/orders"
+                            element={
+                                <ProtectedRoute
+                                    component={CustomerOrders}
+                                    requiredRole="customer"
+                                />
+                            }
+                        />
                         <Route path="/shoppingcart" element={<Cart />} />
                         <Route path="/checkout" element={<Checkout />} />
                         <Route path="/product" element={<ProductDetails />} />
