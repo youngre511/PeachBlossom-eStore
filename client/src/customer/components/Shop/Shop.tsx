@@ -23,7 +23,7 @@ const Shop = () => {
     const dispatch = useAppDispatch();
     const catalog = useAppSelector((state: RootState) => state.catalog);
     const itemsPerPage = useAppSelector(
-        (state: RootState) => state.userPreferences.itemsPerPage
+        (state: RootState) => state.userData.preferences.itemsPerPage
     );
     const { width } = useWindowSizeContext();
     const [searchParams, setSearchParams] = useSearchParams();

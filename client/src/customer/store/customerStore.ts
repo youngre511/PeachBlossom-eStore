@@ -12,7 +12,7 @@ import {
 import storage from "redux-persist/lib/storage";
 import cartReducer from "../features/Cart/cartSlice";
 import catalogReducer from "../features/ProductCatalog/catalogSlice";
-import userPreferencesReducer from "../features/UserPreferences/userPreferencesSlice";
+import userDataReducer from "../features/UserData/userDataSlice";
 import categoriesReducer from "../features/Categories/categoriesSlice";
 import searchOptionsReducer from "../features/SearchOptions/searchOptionsSlice";
 
@@ -25,7 +25,7 @@ const rootReducer = combineReducers({
     cart: cartReducer,
     categories: categoriesReducer,
     catalog: catalogReducer,
-    userPreferences: userPreferencesReducer,
+    userData: userDataReducer,
     searchOptions: searchOptionsReducer,
 });
 

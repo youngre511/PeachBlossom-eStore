@@ -48,7 +48,7 @@ export const fetchProducts = createAsyncThunk<
         { getState, rejectWithValue }
     ) => {
         const state = getState() as RootState;
-        const itemsPerPage = state.userPreferences.itemsPerPage;
+        const itemsPerPage = state.userData.preferences.itemsPerPage;
         const existingFilters = state.catalog.filters;
         let filterUnchanged = true;
 

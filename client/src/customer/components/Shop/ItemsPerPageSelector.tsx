@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { InputLabel, Select, SelectChangeEvent, MenuItem } from "@mui/material";
 import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
 import { RootState } from "../../store/customerStore";
-import { setItemsPerPage } from "../../features/UserPreferences/userPreferencesSlice";
+import { setItemsPerPage } from "../../features/UserData/userDataSlice";
 
 const inputStyle = {
     "&.MuiInputBase-root": {
@@ -19,7 +19,7 @@ const inputStyle = {
 const ItemsPerPageSelector: React.FC = () => {
     const dispatch = useAppDispatch();
     const itemsPerPage = useAppSelector(
-        (state: RootState) => state.userPreferences.itemsPerPage
+        (state: RootState) => state.userData.preferences.itemsPerPage
     );
     const [currentItemsPerPage, setCurrentItemsPerPage] =
         useState<string>("24");
