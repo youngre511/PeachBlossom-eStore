@@ -72,6 +72,7 @@
 .nav-icon svg {
     height: 20px;
     width: auto;
+    fill: black;
 }
 
 .nav-placeholder {

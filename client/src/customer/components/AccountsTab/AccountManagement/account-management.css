@@ -1,0 +1,50 @@
+.account-management {
+    width: 100%;
+    height: 100%;
+}
+
+.account-menu-content {
+    margin-top: 50px;
+}
+
+.user-greeting {
+    position: absolute;
+    top: 8px;
+    left: 18px;
+    display: flex;
+    align-items: center;
+    font-size: 1.1rem;
+}
+
+.account-icon {
+    background-color: var(--peach-blush);
+    width: 30px;
+    height: 30px;
+    border-radius: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.account-icon svg {
+    width: 20px;
+    height: auto;
+    fill: white;
+}
+
+.user-greeting-text {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding-left: 10px;
+    height: 40px;
+}
+
+.options ul {
+    list-style: none;
+    padding: 0;
+}
+
+.options li {
+    padding: 10px 0;
+}
