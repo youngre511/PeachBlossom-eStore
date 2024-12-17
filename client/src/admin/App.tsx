@@ -17,7 +17,7 @@ import OrderManagement from "./components/OrderManagement/OrderManagement";
 import AVOrderDetails from "./components/AVOrderDetails/AVOrderDetails";
 import CategoryManagement from "./components/CategoryManagement/CategoryManagement";
 import AdminLogin from "./components/Login/AdminLogin";
-import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
+import ProtectedRoute from "../common/components/ProtectedRoute/ProtectedRoute";
 import { AuthContext } from "../common/contexts/authContext";
 import Revenue from "./components/SalesAnalytics/Revenue/Revenue";
 import HomeRedirect from "./components/HomeRedirect";
