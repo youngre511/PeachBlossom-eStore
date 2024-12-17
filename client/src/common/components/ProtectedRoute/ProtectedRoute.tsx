@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
-import { AuthContext } from "../../../common/contexts/authContext";
+import { AuthContext } from "../../contexts/authContext";
 import { LinearProgress } from "@mui/material";
 
 interface ProtectedRouteProps {
