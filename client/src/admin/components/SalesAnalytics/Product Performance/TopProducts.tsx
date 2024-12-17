@@ -15,15 +15,16 @@ import { useWindowSizeContext } from "../../../../common/contexts/windowSizeCont
 interface Props {
     number: "5" | "10";
     worst: boolean;
+    period?: "7d" | "30d" | "6m" | "1y" | "allTime";
 }
-const TopProducts: React.FC<Props> = ({ number, worst }) => {
+const TopProducts: React.FC<Props> = ({ number, worst, period = "30d" }) => {
     const dispatch = useAppDispatch();
     const analytics = useAppSelector((state: RootState) => state.analytics);
     const navigate = useNavigate();
     const { width } = useWindowSizeContext();
-    const [period, setPeriod] = useState<
+    const [currentPeriod, setCurrentPeriod] = useState<
         "7d" | "30d" | "6m" | "1y" | "allTime"
-    >("30d");
+    >(period);
     let topProducts: {
         period: "7d" | "30d" | "6m" | "1y" | "allTime";
         products: TopProduct[];
@@ -45,28 +46,53 @@ const TopProducts: React.FC<Props> = ({ number, worst }) => {
     }
 
     useEffect(() => {
-        if (topProducts && topProducts.products.length === 0) {
-            if (number === "5") {
-                dispatch(
-                    fetchTopFiveProducts({
-                        period: period,
-                    })
-                );
-            } else if (number === "10" && !worst) {
-                dispatch(
-                    fetchTopTenProducts({
-                        period: period,
-                    })
-                );
-            } else {
-                dispatch(
-                    fetchTopTenWorstProducts({
-                        period: period,
-                    })
-                );
-            }
+        if (
+            topProducts &&
+            topProducts.products.length === 0 &&
+            !topProducts.error
+        ) {
+            fetchData();
         }
-    }, [topProducts, period]);
+    }, [topProducts, currentPeriod]);
+
+    const fetchData = () => {
+        if (number === "5") {
+            dispatch(
+                fetchTopFiveProducts({
+                    period: currentPeriod,
+                    force: true,
+                })
+            );
+        } else if (number === "10" && !worst) {
+            dispatch(
+                fetchTopTenProducts({
+                    period: currentPeriod,
+                    force: true,
+                })
+            );
+        } else {
+            dispatch(
+                fetchTopTenWorstProducts({
+                    period: currentPeriod,
+                    force: true,
+                })
+            );
+        }
+    };
+
+    useEffect(() => {
+        if (period) {
+            setCurrentPeriod(period);
+        }
+    }, [period]);
+
+    useEffect(() => {
+        fetchData();
+    }, [currentPeriod]);
+
+    useEffect(() => {
+        console.log("top products:", topProducts);
+    }, [topProducts]);
 
     return (
         <React.Fragment>
@@ -89,7 +115,18 @@ const TopProducts: React.FC<Props> = ({ number, worst }) => {
 
                     <div>Quantity Sold</div>
                 </div>
+                {topProducts && topProducts.error && (
+                    <div
+                        className="no-top-products-contents"
+                        style={{ textAlign: "center" }}
+                    >
+                        <div className="top-products-error">
+                            {topProducts.error}{" "}
+                        </div>
+                    </div>
+                )}
                 {topProducts &&
+                    !topProducts.error &&
                     topProducts.products.map((product, index) => (
                         <div
                             className="analytics-product"

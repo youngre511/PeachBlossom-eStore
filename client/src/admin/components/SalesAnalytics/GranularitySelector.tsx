@@ -8,6 +8,7 @@ import {
     PlusParams,
     RBCParams,
     RRPParams,
+    TopParams,
     TOTParams,
 } from "../../features/Analytics/analyticsTypes";
 import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";

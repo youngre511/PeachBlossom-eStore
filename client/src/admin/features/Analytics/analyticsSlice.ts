@@ -760,6 +760,10 @@ const analyticsSlice = createSlice({
             .addCase(fetchTopFiveProducts.fulfilled, (state, action) => {
                 state.topFiveProducts.period = action.payload.period;
                 state.topFiveProducts.products = action.payload.products;
+                if (action.payload.products.length === 0) {
+                    state.topFiveProducts.error =
+                        "No sales data for selected period.";
+                }
                 state.topFiveProducts.expiration = generateExpirationTime();
                 state.topFiveProducts.loading = false;
             })
@@ -770,12 +774,18 @@ const analyticsSlice = createSlice({
             })
             // TOP TEN PRODUCTS
             .addCase(fetchTopTenProducts.pending, (state) => {
+                console.log("setting null");
                 state.topTenProducts.loading = true;
                 state.topTenProducts.error = null;
             })
             .addCase(fetchTopTenProducts.fulfilled, (state, action) => {
                 state.topTenProducts.period = action.payload.period;
                 state.topTenProducts.products = action.payload.products;
+                console.log("products:", action.payload.products);
+                if (action.payload.products.length === 0) {
+                    state.topTenProducts.error =
+                        "No sales data for selected period.";
+                }
                 state.topTenProducts.expiration = generateExpirationTime();
                 state.topTenProducts.loading = false;
             })
@@ -792,6 +802,10 @@ const analyticsSlice = createSlice({
             .addCase(fetchTopTenWorstProducts.fulfilled, (state, action) => {
                 state.topTenWorstProducts.period = action.payload.period;
                 state.topTenWorstProducts.products = action.payload.products;
+                if (action.payload.products.length === 0) {
+                    state.topTenWorstProducts.error =
+                        "No sales data for selected period.";
+                }
                 state.topTenWorstProducts.expiration = generateExpirationTime();
                 state.topTenWorstProducts.loading = false;
             })

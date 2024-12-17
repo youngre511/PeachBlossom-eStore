@@ -8,7 +8,7 @@ interface Props {
     maxIdx: number;
     text: string;
 }
-const PeriodSelector: React.FC<Props> = ({
+const ChartPeriodSelector: React.FC<Props> = ({
     currentIdx,
     setCurrentIdx,
     maxIdx,
@@ -29,7 +29,7 @@ const PeriodSelector: React.FC<Props> = ({
                     <ArrowLeftSharp />
                 </SvgIcon>
             </IconButton>
-            <div className="period-selection-label">{text}</div>
+            <div className="chart-period-selection-label">{text}</div>
             <IconButton
                 onClick={() => setCurrentIdx(currentIdx + 1)}
                 disabled={currentIdx === maxIdx}
@@ -46,4 +46,4 @@ const PeriodSelector: React.FC<Props> = ({
         </React.Fragment>
     );
 };
-export default PeriodSelector;
+export default ChartPeriodSelector;

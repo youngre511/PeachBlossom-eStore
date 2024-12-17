@@ -78,6 +78,11 @@ export interface TopProduct {
     totalQuantity: number;
 }
 
+export type Period = "7d" | "30d" | "6m" | "1y" | "allTime";
+export interface TopParams {
+    period: Period;
+}
+
 export interface AnalyticsState {
     revenueByCategory: {
         rbcData: LineData[] | BarData[];

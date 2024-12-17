@@ -9,7 +9,7 @@ import { nivoTheme } from "./chartThemes";
 import { useWindowSizeContext } from "../../../../common/contexts/windowSizeContext";
 import { IconButton, SvgIcon } from "@mui/material";
 import { ArrowLeftSharp, ArrowRightSharp } from "@mui/icons-material";
-import PeriodSelector from "./PeriodSelector";
+import ChartPeriodSelector from "./ChartPeriodSelector";
 
 interface Props {
     data: PieDataArray;
@@ -52,13 +52,20 @@ const CustomPieChart: React.FC<Props> = ({
         }
     }, [width, setIsNarrow]);
 
+    const checkAllZeros = (data: PieData) => {
+        for (let datum of data) {
+            if (String(datum.value) !== "0.00") return false;
+        }
+        return true;
+    };
+
     return (
         <React.Fragment>
             {Array.isArray(data) && (
                 <React.Fragment>
-                    <div className="period-selection-btns">
+                    <div className="chart-period-selection-btns">
                         {data.length > 1 && currentIdx < data.length && (
-                            <PeriodSelector
+                            <ChartPeriodSelector
                                 currentIdx={currentIdx}
                                 setCurrentIdx={setCurrentIdx}
                                 maxIdx={data.length - 1}
@@ -68,54 +75,60 @@ const CustomPieChart: React.FC<Props> = ({
                     </div>
                     {currentIdx < data.length && (
                         <div className="pie-chart">
-                            <ResponsivePie
-                                data={data[currentIdx].data}
-                                theme={nivoTheme}
-                                margin={
-                                    margin || {
-                                        top: 40,
-                                        right: 80,
-                                        bottom: 80,
-                                        left: 80,
+                            {checkAllZeros(data[currentIdx].data) ? (
+                                <div className="no-sales-data">
+                                    No sales data for selected period.{" "}
+                                </div>
+                            ) : (
+                                <ResponsivePie
+                                    data={data[currentIdx].data}
+                                    theme={nivoTheme}
+                                    margin={
+                                        margin || {
+                                            top: 40,
+                                            right: 80,
+                                            bottom: 80,
+                                            left: 80,
+                                        }
                                     }
-                                }
-                                valueFormat={(value) =>
-                                    `${Number(value).toFixed(1)}%`
-                                }
-                                enableArcLinkLabels={!isNarrow}
-                                innerRadius={innerRadius}
-                                legends={
-                                    isNarrow
-                                        ? [
-                                              {
-                                                  anchor: "bottom-right",
-                                                  direction: "column",
-                                                  justify: false,
-                                                  translateX: 35,
-                                                  translateY: 100,
-                                                  itemsSpacing: 5,
-                                                  itemWidth: 100,
-                                                  itemHeight: 18,
-                                                  itemTextColor: "#444",
-                                                  itemDirection:
-                                                      "left-to-right",
-                                                  itemOpacity: 1,
-                                                  symbolSize: 18,
-                                                  symbolShape: "circle",
-                                                  effects: [
-                                                      {
-                                                          on: "hover",
-                                                          style: {
-                                                              itemTextColor:
-                                                                  "#000",
+                                    valueFormat={(value) =>
+                                        `${Number(value).toFixed(1)}%`
+                                    }
+                                    enableArcLinkLabels={!isNarrow}
+                                    innerRadius={innerRadius}
+                                    legends={
+                                        isNarrow
+                                            ? [
+                                                  {
+                                                      anchor: "bottom-right",
+                                                      direction: "column",
+                                                      justify: false,
+                                                      translateX: 35,
+                                                      translateY: 100,
+                                                      itemsSpacing: 5,
+                                                      itemWidth: 100,
+                                                      itemHeight: 18,
+                                                      itemTextColor: "#444",
+                                                      itemDirection:
+                                                          "left-to-right",
+                                                      itemOpacity: 1,
+                                                      symbolSize: 18,
+                                                      symbolShape: "circle",
+                                                      effects: [
+                                                          {
+                                                              on: "hover",
+                                                              style: {
+                                                                  itemTextColor:
+                                                                      "#000",
+                                                              },
                                                           },
-                                                      },
-                                                  ],
-                                              },
-                                          ]
-                                        : undefined
-                                }
-                            />
+                                                      ],
+                                                  },
+                                              ]
+                                            : undefined
+                                    }
+                                />
+                            )}
                         </div>
                     )}
                 </React.Fragment>

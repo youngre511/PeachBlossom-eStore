@@ -28,14 +28,14 @@
     flex-shrink: 0;
 }
 
-.period-selection-btns {
+.chart-period-selection-btns {
     display: flex;
     justify-content: center;
     align-items: center;
     height: 50px;
 }
 
-.period-selection-label {
+.chart-period-selection-label {
     font-weight: 600;
     font-size: 1.1rem;
 }
@@ -65,6 +65,14 @@
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.no-sales-data {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
 }
 
 .date-picker {
@@ -107,12 +115,14 @@
     font-weight: 600;
 }
 
-.granularity-select {
+.granularity-select,
+.period-select {
     position: absolute;
     right: 10px;
 }
 
-.granularity-button-set-cont {
+.granularity-button-set-cont,
+.period-button-set-cont {
     overflow-x: scroll;
     background-color: var(--peach-blush);
     scrollbar-width: none; /* Firefox */
@@ -120,7 +130,8 @@
     transition: all 0.4s ease-in-out;
 }
 
-.granularity-button-set {
+.granularity-button-set,
+.period-button-set {
     background-color: var(--peach-blush);
     display: flex;
     justify-content: space-evenly;
@@ -128,11 +139,13 @@
     width: calc(100vw - 40px);
 }
 
-.granularity-button-set::-webkit-scrollbar {
+.granularity-button-set::-webkit-scrollbar,
+.period-button-set::-webkit-scrollbar {
     display: none; /* Chrome, Safari, and Opera */
 }
 
-.granularity-button {
+.granularity-button,
+.period-button {
     background-color: var(--peach-blush);
     padding: 10px;
     font-size: 0.75rem;
@@ -143,22 +156,34 @@
     transition: color 0.2s ease-in-out;
 }
 
-.granularity-button-selected {
+.granularity-button-selected,
+.period-button-selected {
     position: sticky;
     right: 0;
     left: 0;
 }
 
-.granularity-button:hover {
+.granularity-button:hover,
+.period-button:hover {
     color: white;
 }
 
-.granularity-button:not(:first-of-type) {
+.granularity-button:not(:first-of-type),
+.period-button:not(:first-of-type) {
     border-left: none;
 }
 
 .top-products {
     background-color: white;
+}
+
+.no-top-products-contents {
+    width: 100%;
+    height: 70px;
+    background-color: var(--peach-blossom);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .top-products-contents {
@@ -219,11 +244,13 @@
         min-width: calc(100vw - 339px);
     }
 
-    .granularity-button-set-cont {
+    .granularity-button-set-cont,
+    .period-button-set-cont {
         width: calc(100vw - 299px);
     }
 
-    .granularity-button-set {
+    .granularity-button-set,
+    .period-button-set {
         width: calc(100vw - 299px);
     }
 
@@ -281,13 +308,15 @@
         padding-top: 2px;
     }
 
-    .granularity-button-set-cont {
+    .granularity-button-set-cont,
+    .period-button-set-cont {
         position: static;
         width: auto;
         background-color: transparent;
     }
 
-    .granularity-button-set {
+    .granularity-button-set,
+    .period-button-set {
         position: static;
         width: auto;
         background-color: transparent;

@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import keySort from "../../../utils/keySort";
 import { useEffect } from "react";
 import { nivoTheme } from "./chartThemes";
-import PeriodSelector from "./PeriodSelector";
+import ChartPeriodSelector from "./ChartPeriodSelector";
 import { BarData } from "../../../features/Analytics/analyticsTypes";
 
 interface Props {
@@ -144,9 +144,9 @@ const CustomBarChart: React.FC<Props> = ({
 
     return (
         <React.Fragment>
-            <div className="period-selection-btns">
+            <div className="chart-period-selection-btns">
                 {viewByYear && (
-                    <PeriodSelector
+                    <ChartPeriodSelector
                         currentIdx={currentIdx}
                         setCurrentIdx={setCurrentIdx}
                         maxIdx={dataArray.length - 1}

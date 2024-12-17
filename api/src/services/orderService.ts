@@ -525,3 +525,115 @@ export const updateOrder = async (updateInfo: UpdateOrder) => {
         throw error;
     }
 };
+
+// import { faker } from '@faker-js/faker';
+
+// interface ShippingDetails {
+//   shippingAddress: string;
+//   shippingAddress2: string;
+//   firstName: string;
+//   lastName: string;
+//   zipCode: string;
+//   phoneNumber: string;
+//   state: string;
+//   city: string;
+// }
+
+// interface OrderItem {
+//   productNo: string;
+//   quantity: number;
+//   priceAtCheckout: number;
+// }
+
+// interface OrderData {
+//   cartId: number | null;
+//   customerId?: number;
+//   shipping: ShippingDetails;
+//   email: string;
+//   orderDetails: {
+//     subTotal: number;
+//     shipping: number;
+//     tax: number;
+//     totalAmount: number;
+//     items: OrderItem[];
+//   };
+// }
+
+// // Example list of products
+// const products: { productNo: string; price: number }[] = [
+//   { productNo: 'P12345', price: 10.99 },
+//   { productNo: 'P54321', price: 15.5 },
+//   { productNo: 'P98765', price: 8.75 },
+// ];
+
+// // Example list of customer IDs
+// const customerIds: number[] = [1, 2, 3, 4, 5];
+
+// export const generateOrders = (numOrders: number): OrderData[] => {
+//   const orders: OrderData[] = [];
+
+//   for (let i = 0; i < numOrders; i++) {
+//     // Randomly choose whether to assign a customer ID
+//     const customerId = Math.random() < 0.6 ? faker.helpers.arrayElement(customerIds) : undefined;
+
+//     // Generate shipping details
+//     const shipping: ShippingDetails = {
+//       shippingAddress: faker.location.streetAddress(),
+//       shippingAddress2: Math.random() < 0.3 ? faker.location.secondaryAddress() : '',
+//       firstName: faker.person.firstName(),
+//       lastName: faker.person.lastName(),
+//       city: faker.location.city(),
+//       state: faker.location.stateAbbr(),
+//       zipCode: faker.location.zipCode(),
+//       phoneNumber: faker.phone.number(),
+//     };
+
+//     const email = faker.internet.email(shipping.firstName, shipping.lastName);
+
+//     // Generate random items for the order
+//     const numItems = faker.number.int({ min: 1, max: 5 });
+//     const items: OrderItem[] = [];
+//     let subTotal = 0;
+
+//     for (let j = 0; j < numItems; j++) {
+//       const product = faker.helpers.arrayElement(products);
+//       const quantity = faker.number.int({ min: 1, max: 4 });
+//       const priceAtCheckout = product.price;
+
+//       subTotal += priceAtCheckout * quantity;
+
+//       items.push({
+//         productNo: product.productNo,
+//         quantity,
+//         priceAtCheckout,
+//       });
+//     }
+
+//     // Calculate shipping cost, tax, and total amount
+//     const shippingCost = 9.99;
+//     const tax = parseFloat(((subTotal + shippingCost) * 0.06).toFixed(2));
+//     const totalAmount = parseFloat((subTotal + shippingCost + tax).toFixed(2));
+
+//     const order: OrderData = {
+//       cartId: null, // Cart ID remains null unless specified
+//       customerId,
+//       shipping,
+//       email,
+//       orderDetails: {
+//         subTotal: parseFloat(subTotal.toFixed(2)),
+//         shipping: parseFloat(shippingCost.toFixed(2)),
+//         tax,
+//         totalAmount,
+//         items,
+//       },
+//     };
+
+//     orders.push(order);
+//   }
+
+//   return orders;
+// };
+
+// // Generate 100 orders for testing
+// const testOrders = generateOrders(100);
+// console.log(testOrders);

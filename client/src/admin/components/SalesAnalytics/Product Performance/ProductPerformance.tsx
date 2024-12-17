@@ -9,8 +9,10 @@ import {
     BarData,
     ExpandedGranularity,
     LineData,
+    Period,
     PieDataArray,
     RBCParams,
+    TopParams,
 } from "../../../features/Analytics/analyticsTypes";
 import {
     fetchCategoryPercentages,
@@ -25,6 +27,7 @@ import DateSelector from "../DateSelector";
 import GranularitySelector from "../GranularitySelector";
 import { useWindowSizeContext } from "../../../../common/contexts/windowSizeContext";
 import CustomPieChart from "../CustomCharts/CustomPieChart";
+import PeriodSelector from "../PeriodSelector";
 
 interface Props {}
 const ProductPerformance: React.FC<Props> = () => {
@@ -134,6 +137,15 @@ const ProductPerformance: React.FC<Props> = () => {
             setCpData(cp.rbcData);
         }
     }, [cp.rbcData]);
+
+    const topPeriodOptions = ["7d", "30d", "6m", "1y", "all time"];
+
+    const [bestParams, setBestParams] = useState<TopParams>({
+        period: "30d",
+    });
+    const [worstParams, setWorstParams] = useState<TopParams>({
+        period: "30d",
+    });
 
     return (
         <div className="product-performance-data">
@@ -292,10 +304,32 @@ const ProductPerformance: React.FC<Props> = () => {
             </div>
 
             <div className="best-performing-products analytics-box">
-                <TopProducts number="10" worst={false} />
+                <TopProducts
+                    number="10"
+                    worst={false}
+                    period={bestParams.period}
+                />
+                <div className="box-footer">
+                    <PeriodSelector<TopParams>
+                        paramsObj={bestParams}
+                        setParams={setBestParams}
+                        periodOptions={topPeriodOptions}
+                    />
+                </div>
             </div>
             <div className="worst-performing-products analytics-box">
-                <TopProducts number="10" worst={true} />
+                <TopProducts
+                    number="10"
+                    worst={true}
+                    period={worstParams.period}
+                />
+                <div className="box-footer">
+                    <PeriodSelector<TopParams>
+                        paramsObj={worstParams}
+                        setParams={setWorstParams}
+                        periodOptions={topPeriodOptions}
+                    />
+                </div>
             </div>
         </div>
     );
