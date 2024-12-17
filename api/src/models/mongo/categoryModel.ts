@@ -5,7 +5,7 @@ export interface SubcategoryItem {
     name: string;
 }
 export interface CategoryItem extends Document {
-    _id: Schema.Types.ObjectId;
+    _id: Types.ObjectId;
     name: string;
     subcategories: SubcategoryItem[];
     createdAt?: Date;
@@ -13,7 +13,7 @@ export interface CategoryItem extends Document {
 }
 
 const SubcategorySchema: Schema = new Schema({
-    _id: { type: Schema.Types.ObjectId, auto: false },
+    _id: { type: Types.ObjectId, auto: false },
     name: {
         type: String,
         required: true,

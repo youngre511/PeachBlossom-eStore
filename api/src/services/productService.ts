@@ -83,7 +83,7 @@ export const getProducts = async (filters: FilterObject) => {
             filters.sort = "name-ascend";
         }
         const skip = (+filters.page - 1) * +filters.itemsPerPage;
-        let categoryId: Schema.Types.ObjectId | undefined;
+        let categoryId: Types.ObjectId | undefined;
         let subcategoryId: Types.ObjectId | undefined;
 
         // Retrieve category and tag object ids if names are provided
@@ -110,7 +110,7 @@ export const getProducts = async (filters: FilterObject) => {
                 throw new Error("Not a valid category");
             }
         }
-        let tagIds: Array<Schema.Types.ObjectId> | undefined;
+        let tagIds: Array<Types.ObjectId> | undefined;
         if (filters.tags) {
             const ts = await Tag.find({ name: { $in: filters.tags } });
             if (ts) {
@@ -645,7 +645,7 @@ export const createProduct = async (
         if (!categoryDoc) {
             throw new Error("category does not exist in MongoDB database");
         }
-        const categoryId: Schema.Types.ObjectId = categoryDoc._id;
+        const categoryId: Types.ObjectId = categoryDoc._id;
 
         let subcategoryId: Types.ObjectId | null;
         if (subcategory) {
@@ -663,20 +663,18 @@ export const createProduct = async (
             subcategoryId = null;
         }
 
-        let validTagIds: Array<Schema.Types.ObjectId> | null;
+        let validTagIds: Array<Types.ObjectId> | null;
 
         if (tags) {
             const tagIds = await Promise.all(
-                tags.map(
-                    async (tagName): Promise<Schema.Types.ObjectId | null> => {
-                        const tagDoc = await Tag.findOne({ name: tagName });
-                        return tagDoc ? tagDoc._id : null;
-                    }
-                )
+                tags.map(async (tagName): Promise<Types.ObjectId | null> => {
+                    const tagDoc = await Tag.findOne({ name: tagName });
+                    return tagDoc ? tagDoc._id : null;
+                })
             );
 
             validTagIds = tagIds.filter(
-                (id): id is Schema.Types.ObjectId => id != null
+                (id): id is Types.ObjectId => id != null
             );
         } else {
             validTagIds = null;

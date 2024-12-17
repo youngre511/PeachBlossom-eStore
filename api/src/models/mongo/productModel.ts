@@ -13,10 +13,10 @@ export interface Promotion {
 }
 
 export interface ProductItem extends Document {
-    _id: Schema.Types.ObjectId;
+    _id: Types.ObjectId;
     productNo: string;
     name: string;
-    category: Schema.Types.ObjectId;
+    category: Types.ObjectId;
     subcategory: Types.ObjectId;
     description: string;
     attributes: Attributes;
@@ -31,7 +31,7 @@ export interface ProductItem extends Document {
 }
 
 export interface PopulatedProductItem extends Document {
-    _id: Schema.Types.ObjectId;
+    _id: Types.ObjectId;
     productNo: string;
     name: string;
     category: CategoryItem;
@@ -176,7 +176,7 @@ const ProductSchema: Schema = new Schema(
             ref: "Category",
         },
         subcategory: {
-            type: Types.ObjectId,
+            type: Schema.Types.ObjectId,
             ref: "Category.subcategories",
         },
         tags: [

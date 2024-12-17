@@ -6,7 +6,7 @@ import mongoose from "mongoose";
 import { ClientSession } from "mongoose";
 import { ProductItem, Promotion } from "../models/mongo/productModel.js";
 import { CreatePromo } from "../controllers/promotionController.js";
-import { Types, Schema } from "mongoose";
+import { Types } from "mongoose";
 
 type PromoUpdate = Partial<Promotion>;
 type BooleString = { success: boolean; message: string };
@@ -208,7 +208,7 @@ export const addCategoriesToPromo = async (
     }
 
     try {
-        const categoryIdArr: Array<{ _id: Schema.Types.ObjectId }> =
+        const categoryIdArr: Array<{ _id: Types.ObjectId }> =
             await Category.find({ name: { $in: categoryNames } })
                 .select("_id")
                 .session(session)
@@ -458,7 +458,7 @@ export const removeCategoriesFromPromo = async (
     }
 
     try {
-        const categoryIdArr: Array<{ _id: Schema.Types.ObjectId }> =
+        const categoryIdArr: Array<{ _id: Types.ObjectId }> =
             await Category.find({ name: { $in: categoryNames } })
                 .select("_id")
                 .session(session)

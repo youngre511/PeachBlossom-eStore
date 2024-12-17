@@ -1,7 +1,7 @@
-import { Document, Schema, model } from "mongoose";
+import { Document, Schema, model, Types } from "mongoose";
 
 export interface TagItem extends Document {
-    _id: Schema.Types.ObjectId;
+    _id: Types.ObjectId;
     name: string;
     createdAt?: Date;
     updatedAt?: Date;
