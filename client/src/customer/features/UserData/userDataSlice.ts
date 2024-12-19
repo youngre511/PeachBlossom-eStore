@@ -4,7 +4,6 @@ import { UserDataState } from "./UserDataTypes";
 
 const initialState: UserDataState = {
     data: {
-        firstName: null,
         orderList: [],
         addressList: [],
     },

@@ -1,6 +1,5 @@
 export interface UserDataState {
     data: {
-        firstName: string | null;
         orderList: CustomerOrder[];
         addressList: CustomerAddress[];
     };

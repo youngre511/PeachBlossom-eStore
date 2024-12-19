@@ -1,10 +1,12 @@
 /// <reference types="vite-plugin-svgr/client" />
-import React, { SetStateAction } from "react";
+import React, { SetStateAction, useContext, useState } from "react";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import AccountButton from "../../../../assets/img/account.svg?react";
 import "./account-management.css";
 import { ExpandMoreSharp } from "@mui/icons-material";
+import { AuthContext } from "../../../../common/contexts/authContext";
+import PeachButton from "../../../../common/components/PeachButton";
 
 interface Props {
     accountsTabVisible: boolean;
@@ -15,6 +17,12 @@ const AccountManagement: React.FC<Props> = ({
     setAccountsTabVisible,
 }) => {
     const navigate = useNavigate();
+    const auth = useContext(AuthContext);
+    const [logoutVisible, setLogoutVisible] = useState<boolean>(false);
+
+    const logOut = () => {
+        auth?.logout();
+    };
 
     return (
         <div className="account-management">
@@ -23,8 +31,18 @@ const AccountManagement: React.FC<Props> = ({
                 <div className="account-icon">
                     <AccountButton />
                 </div>{" "}
-                <div className="user-greeting-text">
-                    Hello, Ryan
+                <div
+                    className="user-greeting-text"
+                    onClick={() => setLogoutVisible(!logoutVisible)}
+                >
+                    Hello,
+                    {auth &&
+                        auth.user &&
+                        ` ${
+                            auth.user.firstName
+                                ? auth.user.firstName
+                                : auth.user.username
+                        }`}
                     <ExpandMoreSharp sx={{ marginTop: "3.5px" }} />
                 </div>
             </div>
@@ -45,6 +63,16 @@ const AccountManagement: React.FC<Props> = ({
                         <li>Login & Security</li>
                     </ul>
                 </div>
+            </div>
+            <div
+                className="customer-logout"
+                style={
+                    logoutVisible
+                        ? undefined
+                        : { transform: "translateY(100px)" }
+                }
+            >
+                <PeachButton text="log out" width="300px" onClick={logOut} />
             </div>
         </div>
     );
