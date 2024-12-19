@@ -106,6 +106,8 @@ const Signup: React.FC<Props> = ({ setCreating, accountsTabVisible }) => {
     useEffect(() => {
         if (auth && auth.error) {
             setSignupError(auth.error);
+        } else {
+            setSignupError(null);
         }
     }, [auth]);
 
