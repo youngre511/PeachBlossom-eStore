@@ -305,6 +305,74 @@ export const changePassword = async (
     }
 };
 
+export const changeUsername = async (
+    user: ReceivedUser,
+    newUsername: string,
+    password: string
+) => {
+    const sqlTransaction = await sequelize.transaction();
+    try {
+        const foundUser = await sqlUser.findOne({
+            where: { user_id: user.username },
+        });
+        if (!foundUser) {
+            throw new Error(`User does not exist`);
+        }
+
+        if (await argon2.verify(foundUser.password, password)) {
+            console.log("Password verified");
+        } else {
+            return false;
+        }
+
+        const [affectedCount] = await sqlUser.update(
+            { username: newUsername },
+            {
+                where: { user_id: foundUser.user_id },
+                transaction: sqlTransaction,
+            }
+        );
+        if (!affectedCount) {
+            throw new Error(
+                "Something went wrong when changing username. Unable to update sqlUser table."
+            );
+        }
+
+        const [customerAffectedCount] = await sqlCustomer.update(
+            { email: newUsername },
+            {
+                where: { user_id: foundUser.user_id },
+                transaction: sqlTransaction,
+            }
+        );
+
+        if (!customerAffectedCount) {
+            throw new Error(
+                "Something went wrong when changing username. Unable to update sqlCustomer table."
+            );
+        }
+
+        await sqlTransaction.commit();
+        const newTokenPayload: any = { ...user, defaultPassword: false };
+        delete newTokenPayload.iat;
+        delete newTokenPayload.exp;
+        const updatedAccessToken = generateAccessToken(
+            newTokenPayload as UserPayload
+        );
+
+        return updatedAccessToken;
+    } catch (error) {
+        await sqlTransaction.rollback();
+        if (error instanceof Error) {
+            throw new Error("Error changing username: " + error.message);
+        } else {
+            throw new Error(
+                "An unknown error occurred while changing username"
+            );
+        }
+    }
+};
+
 export const deleteUser = async (
     userId: string,
     accessLevel: "full" | "limited" | "view only" | undefined

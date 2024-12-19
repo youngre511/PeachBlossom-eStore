@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
     changeAdminAccessLevel,
     changePassword,
+    changeUsername,
     deleteUser,
     getAdmins,
     getCustomers,
@@ -40,6 +41,8 @@ router.put(
 );
 
 router.put("/changePassword", authMiddleware, changePassword);
+
+router.put("/changeUsername", authMiddleware, changeUsername);
 
 router.delete(
     "/delete/:userId",

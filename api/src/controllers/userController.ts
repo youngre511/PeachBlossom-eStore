@@ -16,9 +16,15 @@ interface ResetPasswordRequest extends Request {
 
 interface ChangePasswordRequest extends Request {
     body: {
-        user_id: number;
         oldPassword: string;
         newPassword: string;
+    };
+}
+
+interface ChangeUsernameRequest extends Request {
+    body: {
+        newUsername: string;
+        password: string;
     };
 }
 
@@ -156,6 +162,41 @@ export const changePassword = async (
             req.user,
             oldPassword,
             newPassword
+        );
+
+        if (!accessToken) {
+            res.status(403).json({ message: "Invalid password." });
+        }
+
+        res.json({
+            accessToken,
+        });
+    } catch (error) {
+        let errorObj = {
+            message: "change password failure",
+            payload: error,
+        };
+
+        console.error(errorObj);
+
+        res.status(500).json(errorObj);
+    }
+};
+
+export const changeUsername = async (
+    req: ChangeUsernameRequest,
+    res: Response
+) => {
+    try {
+        const { newUsername, password } = req.body;
+        if (!req.user) {
+            throw new Error("No user token");
+        }
+
+        const accessToken = await userService.changeUsername(
+            req.user,
+            newUsername,
+            password
         );
 
         if (!accessToken) {

@@ -113,6 +113,7 @@ export const createUser = async (
             username: userData.username,
             role: userData.role,
             customer_id: customer?.customer_id,
+            firstName: customer?.firstName,
             admin_id: admin?.admin_id,
             accessLevel: admin?.accessLevel,
             defaultPassword: userData.defaultPassword,
@@ -177,11 +178,15 @@ export const login = async (username: string, password: string) => {
             });
         }
 
+        console.log("CUSTOMER:", customer);
+        console.log(customer?.firstName);
+
         const accessTokenPayload = {
             user_id: user.user_id,
             username: user.username,
             role: user.role,
             customer_id: customer?.customer_id,
+            firstName: customer?.firstName,
             admin_id: admin?.admin_id,
             accessLevel: admin?.accessLevel,
             defaultPassword: user.defaultPassword,
@@ -247,6 +252,7 @@ export const refreshAccessToken = async (user_id: number, oldJti: string) => {
             username: user.username,
             role: user.role,
             customer_id: customer?.customer_id,
+            firstName: customer?.firstName,
             admin_id: admin?.admin_id,
             accessLevel: admin?.accessLevel,
         };
