@@ -14,6 +14,7 @@ interface IUserToken {
     role: "customer" | "admin";
     customer_id?: number;
     firstName?: string;
+    lastName?: string;
     admin_id?: number;
     accessLevel?: "full" | "limited" | "view only";
     exp: number;
@@ -28,7 +29,7 @@ export interface CreateAccountData {
     email?: string;
     defaultPassword?: boolean;
     firstName?: string;
-    lastName: string;
+    lastName?: string;
 }
 
 interface AuthContextProps {
