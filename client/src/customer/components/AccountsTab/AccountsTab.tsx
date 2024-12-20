@@ -12,6 +12,7 @@ import { AuthContext } from "../../../common/contexts/authContext";
 import Login from "./LogIn/Login";
 import Signup from "./SignUp/Signup";
 import AccountManagement from "./AccountManagement/AccountManagement";
+import Security from "./Security/Security";
 
 interface Props {
     setAccountsTabVisible: React.Dispatch<SetStateAction<boolean>>;
@@ -48,11 +49,11 @@ const AccountsTab: React.FC<Props> = ({
                 </IconButton>
             </div>
             {loggedIn && (
-                // <AccountManagement
-                //     accountsTabVisible={accountsTabVisible}
-                //     setAccountsTabVisible={setAccountsTabVisible}
-                // />
-                <div>Account Management features are not yet available.</div>
+                <AccountManagement
+                    accountsTabVisible={accountsTabVisible}
+                    setAccountsTabVisible={setAccountsTabVisible}
+                />
+                // <div>Account Management features are not yet available.</div>
             )}
             {!loggedIn && !creating && (
                 <Login

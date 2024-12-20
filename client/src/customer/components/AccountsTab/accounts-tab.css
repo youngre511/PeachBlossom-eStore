@@ -14,16 +14,36 @@
     transition: all 0.3s ease-in-out;
 }
 
+.customer-accounts div {
+    user-select: none;
+}
+
 .close-accounts-tab-btn {
     position: absolute;
     top: 10px;
     right: 10px;
+    z-index: 10;
+}
+
+.customer-logout {
+    width: calc(100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    border-top: 1px solid lightgray;
+    /* transform: translateY(100px); */
+    transition: all 0.3s ease-in-out;
 }
 
 @media (min-width: 600px) {
     .customer-accounts {
         width: 40vw;
         min-width: 350px;
+        max-width: 500px;
         transform: translateX(90vw);
     }
 }

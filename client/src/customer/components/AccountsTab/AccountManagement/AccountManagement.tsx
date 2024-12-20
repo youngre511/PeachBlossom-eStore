@@ -7,6 +7,7 @@ import "./account-management.css";
 import { ExpandMoreSharp } from "@mui/icons-material";
 import { AuthContext } from "../../../../common/contexts/authContext";
 import PeachButton from "../../../../common/components/PeachButton";
+import Security from "../Security/Security";
 
 interface Props {
     accountsTabVisible: boolean;
@@ -19,10 +20,21 @@ const AccountManagement: React.FC<Props> = ({
     const navigate = useNavigate();
     const auth = useContext(AuthContext);
     const [logoutVisible, setLogoutVisible] = useState<boolean>(false);
-
+    const [showSecurity, setShowSecurity] = useState<boolean>(false);
     const logOut = () => {
         auth?.logout();
     };
+
+    useEffect(() => {
+        setShowSecurity(false);
+        setLogoutVisible(false);
+    }, [accountsTabVisible]);
+
+    useEffect(() => {
+        if (showSecurity) {
+            setLogoutVisible(false);
+        }
+    }, [showSecurity]);
 
     return (
         <div className="account-management">
@@ -60,7 +72,9 @@ const AccountManagement: React.FC<Props> = ({
                             Your Orders
                         </li>
                         <li>Your Addresses</li>
-                        <li>Login & Security</li>
+                        <li onClick={() => setShowSecurity(true)}>
+                            Login & Security
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -74,6 +88,7 @@ const AccountManagement: React.FC<Props> = ({
             >
                 <PeachButton text="log out" width="300px" onClick={logOut} />
             </div>
+            {showSecurity && <Security setShowSecurity={setShowSecurity} />}
         </div>
     );
 };

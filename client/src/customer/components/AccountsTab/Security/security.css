@@ -1,6 +1,13 @@
 .security {
     width: 100%;
     height: 100%;
+    transform: translateX(40vw);
+    transition: all 0.3s ease-in-out;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: white;
+    padding: 30px;
 }
 
 .security-content {
@@ -20,4 +27,27 @@
     position: relative;
     display: flex;
     align-items: flex-start;
+}
+
+.customer-name {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+}
+
+.sec-back-btn {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    font-size: 1.1rem;
+    position: absolute;
+    top: 18px;
+    left: 18px;
+}
+
+@media (min-width: 1100px) {
+    .customer-name {
+        flex-direction: row;
+        gap: 20px;
+    }
 }
