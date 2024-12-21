@@ -193,34 +193,6 @@ export const syncCart = createAsyncThunk<
     }
 });
 
-export const mergeCart = createAsyncThunk<
-    CartResponsePayload,
-    number,
-    { state: RootState; rejectValue: string }
->("cart/mergeCart", async (cartId, { getState, rejectWithValue }) => {
-    console.log("running merge cart");
-    try {
-        const state = getState() as RootState;
-        if (state.cart.cartId) {
-            const actionData: MergeActionData = {
-                cartId1: cartId,
-                cartId2: state.cart.cartId,
-            };
-            const response = await axios.put<CartResponse>(
-                `${import.meta.env.VITE_API_URL}/cart/merge-carts`,
-                actionData
-            );
-            return response.data.payload;
-        } else {
-            throw new Error("No cart to merge with. Sync cart instead.");
-        }
-    } catch (error: any) {
-        return rejectWithValue(
-            error.response?.data || ("Error removing item from cart" as string)
-        );
-    }
-});
-
 export const holdCartStock = createAsyncThunk<
     HoldResponsePayload,
     void,
@@ -294,6 +266,7 @@ const cartSlice = createSlice({
         },
         setCartId: (state, action: PayloadAction<{ cartId: number }>) => {
             state.cartId = action.payload.cartId;
+            console.log("set id:", state.cartId);
         },
         setExpirationTime: (
             state,
@@ -348,19 +321,6 @@ const cartSlice = createSlice({
                 state.error = null;
             })
             .addCase(syncCart.rejected, (state, action) => {
-                state.error = action.payload || "Failed to fetch products";
-            })
-            .addCase(mergeCart.pending, (state) => {
-                state.error = null;
-            })
-            .addCase(mergeCart.fulfilled, (state, action) => {
-                state.items = action.payload.cart.items;
-                state.subTotal = action.payload.cart.subTotal;
-                state.cartId = action.payload.cart.cartId;
-                state.numberOfItems = action.payload.cart.numberOfItems;
-                state.error = null;
-            })
-            .addCase(mergeCart.rejected, (state, action) => {
                 state.error = action.payload || "Failed to fetch products";
             })
             .addCase(holdCartStock.pending, (state) => {
