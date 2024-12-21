@@ -28,6 +28,14 @@ interface ChangeUsernameRequest extends Request {
     };
 }
 
+interface ChangeDisplayNameRequest extends Request {
+    body: {
+        newFirstName: string;
+        newLastName: string;
+        password: string;
+    };
+}
+
 interface UserIdParamsRequest extends Request {
     params: {
         userId: string;
@@ -208,7 +216,43 @@ export const changeUsername = async (
         });
     } catch (error) {
         let errorObj = {
-            message: "change password failure",
+            message: "change username failure",
+            payload: error,
+        };
+
+        console.error(errorObj);
+
+        res.status(500).json(errorObj);
+    }
+};
+
+export const changeDisplayName = async (
+    req: ChangeDisplayNameRequest,
+    res: Response
+) => {
+    try {
+        const { newFirstName, newLastName, password } = req.body;
+        if (!req.user) {
+            throw new Error("No user token");
+        }
+
+        const accessToken = await userService.changeDisplayName(
+            req.user,
+            newFirstName,
+            newLastName,
+            password
+        );
+
+        if (!accessToken) {
+            res.status(403).json({ message: "Invalid password." });
+        }
+
+        res.json({
+            accessToken,
+        });
+    } catch (error) {
+        let errorObj = {
+            message: "change display name failure",
             payload: error,
         };
 

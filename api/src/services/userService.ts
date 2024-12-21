@@ -373,6 +373,62 @@ export const changeUsername = async (
     }
 };
 
+export const changeDisplayName = async (
+    user: ReceivedUser,
+    newFirstName: string,
+    newLastName: string,
+    password: string
+) => {
+    const sqlTransaction = await sequelize.transaction();
+    try {
+        const foundUser = await sqlUser.findOne({
+            where: { user_id: user.username },
+        });
+        if (!foundUser) {
+            throw new Error(`User does not exist`);
+        }
+
+        if (await argon2.verify(foundUser.password, password)) {
+            console.log("Password verified");
+        } else {
+            return false;
+        }
+
+        const [customerAffectedCount] = await sqlCustomer.update(
+            { firstName: newFirstName, lastName: newLastName },
+            {
+                where: { user_id: foundUser.user_id },
+                transaction: sqlTransaction,
+            }
+        );
+
+        if (!customerAffectedCount) {
+            throw new Error(
+                "Something went wrong when changing display name. Unable to update sqlCustomer table."
+            );
+        }
+
+        await sqlTransaction.commit();
+        const newTokenPayload: any = { ...user, defaultPassword: false };
+        delete newTokenPayload.iat;
+        delete newTokenPayload.exp;
+        const updatedAccessToken = generateAccessToken(
+            newTokenPayload as UserPayload
+        );
+
+        return updatedAccessToken;
+    } catch (error) {
+        await sqlTransaction.rollback();
+        if (error instanceof Error) {
+            throw new Error("Error changing display name: " + error.message);
+        } else {
+            throw new Error(
+                "An unknown error occurred while changing display name"
+            );
+        }
+    }
+};
+
 export const deleteUser = async (
     userId: string,
     accessLevel: "full" | "limited" | "view only" | undefined

@@ -49,9 +49,13 @@ const ChangeCustomerName: React.FC<ChangeCustomerNameProps> = () => {
     const saveData = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        // if (auth) {
-        //     auth.changePassword(formData.currentPass, formData.newPass);
-        // }
+        if (auth) {
+            auth.changeDisplayName(
+                formData.firstName,
+                formData.lastName,
+                formData.password
+            );
+        }
     };
 
     useEffect(() => {

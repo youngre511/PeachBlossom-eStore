@@ -13,6 +13,7 @@ interface IUserToken {
     username: string;
     role: "customer" | "admin";
     customer_id?: number;
+    cart_id?: number;
     firstName?: string;
     lastName?: string;
     admin_id?: number;
@@ -34,14 +35,25 @@ export interface CreateAccountData {
 
 interface AuthContextProps {
     user: IUserToken | undefined;
-    login: (username: string, password: string) => Promise<void>;
+    cartId: number | null;
+    login: (username: string, password: string, cartId?: number) => void;
     logout: () => void;
+    clearAuthCart: () => void;
     createAccount: (data: CreateAccountData) => Promise<void>;
     isTokenExpired: () => boolean;
     requestAccessTokenRefresh: () => void;
     changePassword: (
         oldPassword: string,
         newPassword: string
+    ) => Promise<string | undefined>;
+    changeUsername: (
+        newUsername: string,
+        password: string
+    ) => Promise<string | undefined>;
+    changeDisplayName: (
+        firstName: string,
+        lastName: string,
+        password: string
     ) => Promise<string | undefined>;
     error: string;
 }
@@ -56,6 +68,7 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [user, setUser] = useState<IUserToken | undefined>(undefined);
+    const [cartId, setCartId] = useState<number | null>(null);
     const navigate = useNavigate();
     const [error, setError] = useState<string>("");
     const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
@@ -250,16 +263,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
     };
 
-    const login = async (username: string, password: string) => {
+    const login = async (
+        username: string,
+        password: string,
+        cartId?: number
+    ) => {
         setError("");
         try {
             const response = await axios.post(
                 `${import.meta.env.VITE_API_URL}/auth/login`,
-                { username, password },
+                { username, password, cartId: cartId ? cartId : undefined },
                 { withCredentials: true }
             );
 
-            const { accessToken } = response.data;
+            const { accessToken, newCartId } = response.data;
             const decodedToken = jwtDecode<IUserToken>(accessToken);
             if (!decodedToken.exp) {
                 throw new Error("Token does not have an expiration date");
@@ -274,6 +291,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             if (user && user.role === "admin") {
                 navigate("/");
             }
+
+            setCartId(newCartId);
         } catch (error) {
             if (error instanceof AxiosError) {
                 setError(
@@ -291,6 +310,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         localStorage.removeItem("jwtToken");
         localStorage.removeItem("jwtExpiration");
         setUser(undefined);
+        setCartId(null);
         try {
             await axios.put(
                 `${import.meta.env.VITE_API_URL}/auth/revoke-refresh-token`,
@@ -310,6 +330,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
         setLoggingOut(false);
         if (window.location.hostname.startsWith("admin")) navigate("/login"); // Redirect to the login page
+    };
+
+    const clearAuthCart = () => {
+        setCartId(null);
     };
 
     const changePassword = async (
@@ -361,16 +385,120 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
     };
 
+    const changeUsername = async (
+        newUsername: string,
+        password: string
+    ): Promise<string | undefined> => {
+        const token = localStorage.getItem("jwtToken");
+        try {
+            const response = await axios.put(
+                `${import.meta.env.VITE_API_URL}/user/changeUsername`,
+                {
+                    newUsername,
+                    password,
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+                    },
+                    withCredentials: true,
+                }
+            );
+
+            console.log("changeResponse:", response);
+
+            const { accessToken } = response.data;
+            const decodedToken = jwtDecode<IUserToken>(accessToken);
+            if (!decodedToken.exp) {
+                throw new Error("Token does not have an expiration date");
+            }
+            const expirationTime = decodedToken.exp * 1000;
+
+            localStorage.setItem("jwtToken", accessToken);
+            localStorage.setItem("jwtExpiration", expirationTime.toString());
+
+            setUser(decodedToken);
+            return "Success";
+        } catch (error) {
+            if (error instanceof AxiosError) {
+                console.error(error.message);
+                if (error.status === 404) {
+                    return "Invalid";
+                }
+            } else {
+                console.error(
+                    "An unknown error occurred while attempting to change email"
+                );
+                return "An unknown error occurred while attempting to change email";
+            }
+        }
+    };
+
+    const changeDisplayName = async (
+        firstName: string,
+        lastName: string,
+        password: string
+    ): Promise<string | undefined> => {
+        const token = localStorage.getItem("jwtToken");
+        try {
+            const response = await axios.put(
+                `${import.meta.env.VITE_API_URL}/user/changeDisplayName`,
+                {
+                    newFirstName: firstName,
+                    newLastName: lastName,
+                    password,
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+                    },
+                    withCredentials: true,
+                }
+            );
+
+            console.log("changeResponse:", response);
+
+            const { accessToken } = response.data;
+            const decodedToken = jwtDecode<IUserToken>(accessToken);
+            if (!decodedToken.exp) {
+                throw new Error("Token does not have an expiration date");
+            }
+            const expirationTime = decodedToken.exp * 1000;
+
+            localStorage.setItem("jwtToken", accessToken);
+            localStorage.setItem("jwtExpiration", expirationTime.toString());
+
+            setUser(decodedToken);
+            return "Success";
+        } catch (error) {
+            if (error instanceof AxiosError) {
+                console.error(error.message);
+                if (error.status === 404) {
+                    return "Invalid";
+                }
+            } else {
+                console.error(
+                    "An unknown error occurred while attempting to change display name"
+                );
+                return "An unknown error occurred while attempting to change display name";
+            }
+        }
+    };
+
     return (
         <AuthContext.Provider
             value={{
                 user,
+                cartId,
                 createAccount,
                 login,
                 logout,
+                clearAuthCart,
                 isTokenExpired,
                 requestAccessTokenRefresh,
                 changePassword,
+                changeUsername,
+                changeDisplayName,
                 error,
             }}
         >

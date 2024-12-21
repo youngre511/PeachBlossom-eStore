@@ -12,7 +12,8 @@ import { AuthContext } from "../../../common/contexts/authContext";
 import Login from "./LogIn/Login";
 import Signup from "./SignUp/Signup";
 import AccountManagement from "./AccountManagement/AccountManagement";
-import Security from "./Security/Security";
+import { setCartId, syncCart } from "../../features/Cart/cartSlice";
+import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
 
 interface Props {
     setAccountsTabVisible: React.Dispatch<SetStateAction<boolean>>;
@@ -23,8 +24,18 @@ const AccountsTab: React.FC<Props> = ({
     accountsTabVisible,
 }) => {
     const auth = useContext(AuthContext);
+    const dispatch = useAppDispatch();
     const [creating, setCreating] = useState<boolean>(false);
     const loggedIn = auth && auth.user && !auth.isTokenExpired();
+
+    useEffect(() => {
+        if (auth && auth.cartId) {
+            console.log("Syncing");
+            dispatch(setCartId({ cartId: auth.cartId }));
+            dispatch(syncCart());
+            auth.clearAuthCart();
+        }
+    }, [auth]);
 
     useEffect(() => {
         if (!accountsTabVisible) {

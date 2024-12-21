@@ -3,6 +3,7 @@ import {
     changeAdminAccessLevel,
     changePassword,
     changeUsername,
+    changeDisplayName,
     deleteUser,
     getAdmins,
     getCustomers,
@@ -43,6 +44,8 @@ router.put(
 router.put("/changePassword", authMiddleware, changePassword);
 
 router.put("/changeUsername", authMiddleware, changeUsername);
+
+router.put("/changeDisplayName", authMiddleware, changeDisplayName);
 
 router.delete(
     "/delete/:userId",
