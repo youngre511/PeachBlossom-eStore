@@ -11,6 +11,8 @@ import { useEffect } from "react";
 import PeachButton from "../../../../common/components/PeachButton";
 import "./login.css";
 import { AuthContext } from "../../../../common/contexts/authContext";
+import { useAppSelector } from "../../../hooks/reduxHooks";
+import { RootState } from "../../../store/customerStore";
 
 interface Props {
     setCreating: React.Dispatch<SetStateAction<boolean>>;
@@ -18,6 +20,7 @@ interface Props {
 }
 const Login: React.FC<Props> = ({ setCreating, accountsTabVisible }) => {
     const auth = useContext(AuthContext);
+    const cart = useAppSelector((state: RootState) => state.cart);
 
     const [emailError, setEmailError] = useState<boolean>(false);
     const [emailErrorMsg, setEmailErrorMsg] = useState<string | null>(null);
@@ -32,7 +35,11 @@ const Login: React.FC<Props> = ({ setCreating, accountsTabVisible }) => {
     const logIn = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (auth) {
-            auth.login(formData.email, formData.password);
+            if (cart.cartId) {
+                auth.login(formData.email, formData.password, cart.cartId);
+            } else {
+                auth.login(formData.email, formData.password);
+            }
         }
     };
 

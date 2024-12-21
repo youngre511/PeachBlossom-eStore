@@ -8,6 +8,8 @@ import { sqlAdmin } from "../models/mysql/sqlAdminModel.js";
 import { generateAccessToken, generateRefreshToken } from "../utils/jwt.js";
 import { v4 as uuidv4 } from "uuid";
 import { sqlRefreshToken } from "../models/mysql/sqlRefreshTokenModel.js";
+import { sqlCart } from "../models/mysql/sqlCartModel.js";
+import { assignCartToCustomer, mergeCarts } from "./cartService.js";
 
 interface IUser extends Model {
     user_id: number;
@@ -153,7 +155,14 @@ export const createUser = async (
     }
 };
 
-export const login = async (username: string, password: string) => {
+export const login = async (
+    username: string,
+    password: string,
+    cartId: number | null
+) => {
+    console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
+    console.log("CART ID:", cartId);
+    console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
     const sqlTransaction = await sequelize.transaction();
     try {
         const user = await sqlUser.findOne({ where: { username: username } });
@@ -168,19 +177,47 @@ export const login = async (username: string, password: string) => {
 
         let customer = null;
         let admin = null;
+        let newCartId: number | null = null;
 
         if (user.role === "customer") {
             customer = await sqlCustomer.findOne({
                 where: { user_id: user.user_id },
             });
+
+            if (!customer) throw new Error("Unable to find customer record");
+
+            let userCart = await sqlCart.findOne({
+                where: { customer_id: customer.customer_id },
+            });
+
+            if (cartId) {
+                let cart = await sqlCart.findOne({
+                    where: { cart_id: cartId },
+                });
+
+                if (!cart) throw new Error("Unable to retrieve cart");
+
+                if (cart && userCart) {
+                    newCartId = await mergeCarts(
+                        cartId,
+                        userCart.dataValues.cart_id,
+                        sqlTransaction
+                    );
+                } else if (cart && !userCart) {
+                    newCartId = await assignCartToCustomer(
+                        cartId,
+                        customer.customer_id,
+                        sqlTransaction
+                    );
+                }
+            } else if (userCart) {
+                newCartId = userCart.dataValues.cart_id;
+            }
         } else if (user.role === "admin") {
             admin = await sqlAdmin.findOne({
                 where: { user_id: user.user_id },
             });
         }
-
-        console.log("CUSTOMER:", customer);
-        console.log(customer?.firstName);
 
         const accessTokenPayload = {
             user_id: user.user_id,
@@ -216,8 +253,8 @@ export const login = async (username: string, password: string) => {
         await sqlTransaction.commit();
 
         const role = user.role;
-
-        return { accessToken, refreshToken, role };
+        console.log("NEW CART ID:", newCartId);
+        return { accessToken, refreshToken, role, newCartId };
     } catch (error) {
         await sqlTransaction.rollback();
         if (error instanceof Error) {

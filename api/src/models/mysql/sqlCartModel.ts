@@ -22,7 +22,7 @@ export class sqlCart extends Model {
     @PrimaryKey
     @AutoIncrement
     @Column(DataType.BIGINT)
-    cart_id!: number;
+    declare cart_id: number;
 
     @Unique
     @ForeignKey(() => sqlCustomer)
@@ -30,21 +30,21 @@ export class sqlCart extends Model {
         type: DataType.BIGINT,
         allowNull: true,
     })
-    customer_id?: number;
+    declare customer_id?: number;
 
     @Column({
         type: DataType.DATE,
         allowNull: true,
     })
-    checkoutExpiration!: Date;
+    declare checkoutExpiration: Date;
 
     @HasMany(() => sqlCartItem, { as: "CartItem", foreignKey: "cart_id" })
-    cartItems!: sqlCartItem[];
+    declare cartItems: sqlCartItem[];
 
     @BelongsTo(() => sqlCustomer, {
         as: "Customer",
         foreignKey: "customer_id",
         targetKey: "customer_id",
     })
-    customer?: sqlCustomer;
+    declare customer?: sqlCustomer;
 }

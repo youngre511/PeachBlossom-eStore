@@ -7,6 +7,7 @@ import { sqlCartItem } from "../models/mysql/sqlCartItemModel.js";
 import { sqlInventory } from "../models/mysql/sqlInventoryModel.js";
 import { Op, Transaction, WhereOptions } from "sequelize";
 import { JoinReqCart, RawJoinReqProduct } from "./serviceTypes.js";
+import { sqlCustomer } from "../models/mysql/sqlCustomerModel.js";
 
 // Types and Interfaces
 
@@ -34,6 +35,7 @@ export const extractCartData = (cartData: JoinReqCart) => {
 export const getCart = async (Args: {
     cartId?: number;
     customerId?: number;
+    transaction?: Transaction;
 }) => {
     try {
         if (!Args.cartId && !Args.customerId) {
@@ -68,12 +70,22 @@ export const getCart = async (Args: {
                 },
             ],
             nest: true,
+            transaction: Args.transaction,
         })) as unknown as JoinReqCart;
+
+        if (!updatedCartRaw) {
+            throw new Error("Unable to retrieve cart state");
+        }
 
         const updatedCart = extractCartData(updatedCartRaw);
 
         if (!updatedCart) {
-            throw new Error("Unable to retrieve cart state");
+            return {
+                items: [],
+                subTotal: "0.00",
+                cartId: null,
+                numberOfItems: 0,
+            };
         }
 
         let subTotal = 0;
@@ -318,7 +330,15 @@ export const updateItemQuantity = async (
         })) as any;
 
         if (!cart) {
-            throw new Error("Invalid Cart Id");
+            const returnCartObj = getCart({
+                cartId: cartId,
+                transaction: sqlTransaction,
+            });
+            return {
+                success: false,
+                message: "CartId is no longer valid",
+                cart: returnCartObj,
+            };
         }
 
         await cart.reload({
@@ -372,8 +392,14 @@ export const updateItemQuantity = async (
     }
 };
 
-export const deleteFromCart = async (productNo: string, cartId: number) => {
-    const sqlTransaction = await sequelize.transaction();
+export const deleteFromCart = async (
+    productNo: string,
+    cartId: number,
+    transaction?: Transaction
+) => {
+    const sqlTransaction = transaction
+        ? transaction
+        : await sequelize.transaction();
 
     try {
         const product = await sqlProduct.findOne({
@@ -395,7 +421,15 @@ export const deleteFromCart = async (productNo: string, cartId: number) => {
         })) as unknown as JoinReqCart;
 
         if (!cart) {
-            throw new Error("Invalid Cart Id");
+            const returnCartObj = getCart({
+                cartId: cartId,
+                transaction: sqlTransaction,
+            });
+            return {
+                success: false,
+                message: "CartId no longer exists",
+                cart: returnCartObj,
+            };
         }
 
         await cart.reload({
@@ -432,7 +466,9 @@ export const deleteFromCart = async (productNo: string, cartId: number) => {
             throw new Error("Cart item not found or already deleted");
         }
 
-        await sqlTransaction.commit();
+        if (!transaction) {
+            await sqlTransaction.commit();
+        }
 
         // Fetch the updated cart. Format and return data to update store.
         const returnCartObj = await getCart({ cartId });
@@ -446,50 +482,104 @@ export const deleteFromCart = async (productNo: string, cartId: number) => {
             cart: returnCartObj,
         };
     } catch (error) {
-        await sqlTransaction.rollback();
+        if (!transaction) {
+            await sqlTransaction.rollback();
+        }
         throw error;
     }
 };
 
-export const mergeCarts = async (cartId1: number, cartId2: number) => {
-    const sqlTransaction = await sequelize.transaction();
-
+export const mergeCarts = async (
+    primeCartId: number,
+    secondaryCartId: number,
+    sqlTransaction: Transaction
+) => {
     try {
-        const cart2 = (await sqlCart.findOne({
-            where: { cart_id: cartId2 },
+        const primaryCart = (await sqlCart.findOne({
+            where: { cart_id: primeCartId },
             include: [{ model: sqlCartItem, as: "CartItem" }],
             transaction: sqlTransaction,
+            lock: true,
         })) as unknown as JoinReqCart;
-        if (!cart2) {
-            throw new Error("Invalid Cart Id");
+        if (!primaryCart) {
+            throw new Error("Invalid Primary Cart Id");
         }
 
-        for (const item of cart2.CartItem) {
-            await addToCart(
+        const productNos = primaryCart.CartItem.map(
+            (item) => item.dataValues.productNo
+        );
+
+        const secondaryCart = (await sqlCart.findOne({
+            where: { cart_id: secondaryCartId },
+            include: [{ model: sqlCartItem, as: "CartItem" }],
+            transaction: sqlTransaction,
+            lock: true,
+        })) as unknown as JoinReqCart;
+        if (!secondaryCart) {
+            throw new Error("Invalid Secondary Cart Id");
+        }
+
+        for (const item of secondaryCart.CartItem) {
+            if (!productNos.includes(item.dataValues.productNo)) {
+                await addToCart(
+                    item.dataValues.productNo,
+                    primeCartId,
+                    item.dataValues.quantity,
+                    item.dataValues.thumbnailUrl as string,
+                    sqlTransaction
+                );
+            }
+            await deleteFromCart(
                 item.dataValues.productNo,
-                cartId1,
-                item.dataValues.quantity,
-                item.dataValues.thumbnailUrl as string,
+                secondaryCartId,
                 sqlTransaction
             );
         }
 
-        // Fetch the updated cart. Format and return data to update store.
-        const returnCartObj = await getCart({ cartId: cartId1 });
+        await secondaryCart.destroy({ transaction: sqlTransaction });
 
-        if (!returnCartObj) {
-            throw new Error(
-                "Unable to retrieve new cart state during cart merge"
-            );
-        }
-        await sqlTransaction.commit();
-        return {
-            success: true,
-            message: "Carts successfully merged",
-            cart: returnCartObj,
-        };
+        return primeCartId;
     } catch (error) {
-        await sqlTransaction.rollback();
+        throw error;
+    }
+};
+
+export const assignCartToCustomer = async (
+    cartId: number,
+    customerId: number,
+    sqlTransaction: Transaction
+) => {
+    try {
+        const customer = await sqlCustomer.findOne({
+            where: { customer_id: customerId },
+            transaction: sqlTransaction,
+        });
+        if (!customer) throw new Error("Invalid customer id");
+
+        const cart = await sqlCart.findOne({
+            where: { cart_id: cartId },
+            transaction: sqlTransaction,
+        });
+
+        if (!cart) {
+            throw new Error("Invalid Cart Id");
+        }
+
+        if (
+            cart.dataValues.customer_id &&
+            cart.dataValues.customer_id !== customerId
+        ) {
+            throw new Error("Cart already associated with another customer");
+        } else if (cart.dataValues.customer_id) {
+            throw new Error("Cart already assigned to customer");
+        }
+
+        await cart.update({ customer_id: customerId });
+
+        // Fetch the updated cart. Format and return data to update store.
+
+        return cartId;
+    } catch (error) {
         throw error;
     }
 };

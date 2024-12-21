@@ -17,13 +17,6 @@ interface CustomerIdBodyRequest extends Request {
     };
 }
 
-interface MergeCartsRequest extends Request {
-    body: {
-        cartId1: number;
-        cartId2: number;
-    };
-}
-
 interface AddItemRequest extends Request {
     body: {
         productNo: string;
@@ -197,30 +190,6 @@ export const deleteFromCart: RequestHandler = async (
     } catch (error) {
         let errorObj = {
             message: "remove from cart failure",
-            payload: error,
-        };
-
-        console.error(errorObj);
-
-        res.status(500).json(errorObj);
-    }
-};
-
-export const mergeCarts: RequestHandler = async (
-    req: MergeCartsRequest,
-    res: Response
-) => {
-    try {
-        const { cartId1, cartId2 } = req.body;
-        const result = await cartService.mergeCarts(cartId1, cartId2);
-
-        (res as CartResponse).json({
-            message: "success",
-            payload: result,
-        });
-    } catch (error) {
-        let errorObj = {
-            message: "merge cart failure",
             payload: error,
         };
 

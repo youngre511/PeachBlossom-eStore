@@ -18,6 +18,7 @@ interface LoginRequest extends Request {
     body: {
         username: string;
         password: string;
+        cartId?: string;
     };
 }
 
@@ -68,11 +69,13 @@ export const createUser = async (req: CreateAccountRequest, res: Response) => {
 
 export const login = async (req: LoginRequest, res: Response) => {
     try {
-        const { username, password } = req.body;
-        const { accessToken, refreshToken, role } = await authService.login(
-            username,
-            password
-        );
+        const { username, password, cartId } = req.body;
+        const { accessToken, refreshToken, role, newCartId } =
+            await authService.login(
+                username,
+                password,
+                cartId ? +cartId : null
+            );
         // Store refresh token in http-only cookie
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
@@ -84,7 +87,7 @@ export const login = async (req: LoginRequest, res: Response) => {
             maxAge: 7 * 24 * 60 * 60 * 1000, //7 days
         });
 
-        res.json({ accessToken });
+        res.json({ accessToken, newCartId });
     } catch (error) {
         if (error instanceof Error) {
             if (error.message === "Invalid username or password.") {
