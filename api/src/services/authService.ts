@@ -186,24 +186,37 @@ export const login = async (
 
             if (!customer) throw new Error("Unable to find customer record");
 
+            console.log("checking for userCart");
             let userCart = await sqlCart.findOne({
                 where: { customer_id: customer.customer_id },
             });
 
             if (cartId) {
+                console.log("checking for current cart");
                 let cart = await sqlCart.findOne({
                     where: { cart_id: cartId },
                 });
 
-                if (!cart) throw new Error("Unable to retrieve cart");
-
-                if (cart && userCart) {
+                if (!cart && userCart) {
+                    console.log(
+                        "Unable to retrieve current cart. Loading user cart instead."
+                    );
+                    newCartId = userCart.dataValues.cart_id;
+                } else if (cart && userCart) {
+                    console.log("existing user cart exists");
+                    console.log("merging carts");
                     newCartId = await mergeCarts(
-                        cartId,
                         userCart.dataValues.cart_id,
+                        cartId,
                         sqlTransaction
                     );
                 } else if (cart && !userCart) {
+                    console.log(
+                        "No user cart exists. Assigning cart " +
+                            cartId +
+                            "to user" +
+                            customer.email
+                    );
                     newCartId = await assignCartToCustomer(
                         cartId,
                         customer.customer_id,
@@ -211,6 +224,7 @@ export const login = async (
                     );
                 }
             } else if (userCart) {
+                console.log("No current cart. Loading user");
                 newCartId = userCart.dataValues.cart_id;
             }
         } else if (user.role === "admin") {

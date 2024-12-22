@@ -74,18 +74,19 @@ export const getCart = async (Args: {
         })) as unknown as JoinReqCart;
 
         if (!updatedCartRaw) {
-            throw new Error("Unable to retrieve cart state");
-        }
-
-        const updatedCart = extractCartData(updatedCartRaw);
-
-        if (!updatedCart) {
+            console.log("Sending back blank");
             return {
                 items: [],
                 subTotal: "0.00",
                 cartId: null,
                 numberOfItems: 0,
             };
+        }
+
+        const updatedCart = extractCartData(updatedCartRaw);
+
+        if (!updatedCart) {
+            throw new Error("Unable to parse cart state");
         }
 
         let subTotal = 0;
@@ -127,6 +128,7 @@ export const addToCart = async (
     cartId: number | null,
     quantity: number,
     thumbnailUrl: string,
+    customerId: number | null,
     transaction?: Transaction
 ) => {
     const sqlTransaction = transaction
@@ -209,7 +211,10 @@ export const addToCart = async (
 
         // If cartExists is false, create new cart.
         if (!cartExists) {
-            cart = await sqlCart.create({}, { transaction: sqlTransaction });
+            cart = await sqlCart.create(
+                { customer_id: customerId },
+                { transaction: sqlTransaction }
+            );
             cartId = cart.cart_id;
         }
 
@@ -330,7 +335,7 @@ export const updateItemQuantity = async (
         })) as any;
 
         if (!cart) {
-            const returnCartObj = getCart({
+            const returnCartObj = await getCart({
                 cartId: cartId,
                 transaction: sqlTransaction,
             });
@@ -361,16 +366,23 @@ export const updateItemQuantity = async (
         );
 
         if (!cartItem) {
-            throw new Error("Item not in cart");
+            await addToCart(
+                productNo,
+                cartId,
+                quantity,
+                product.thumbnailUrl || "",
+                null,
+                sqlTransaction
+            );
+        } else {
+            await sqlCartItem.update(
+                { quantity: quantity },
+                {
+                    where: { cart_id: cartId, productNo: productNo },
+                    transaction: sqlTransaction,
+                }
+            );
         }
-
-        await sqlCartItem.update(
-            { quantity: quantity },
-            {
-                where: { cart_id: cartId, productNo: productNo },
-                transaction: sqlTransaction,
-            }
-        );
 
         await sqlTransaction.commit();
 
@@ -383,7 +395,7 @@ export const updateItemQuantity = async (
 
         return {
             success: true,
-            message: "Item added to cart successfully",
+            message: "Item quantity successfully updated",
             cart: returnCartObj,
         };
     } catch (error) {
@@ -421,10 +433,11 @@ export const deleteFromCart = async (
         })) as unknown as JoinReqCart;
 
         if (!cart) {
-            const returnCartObj = getCart({
+            const returnCartObj = await getCart({
                 cartId: cartId,
                 transaction: sqlTransaction,
             });
+            console.log("RECEIVED CART OBJ:", returnCartObj);
             return {
                 success: false,
                 message: "CartId no longer exists",
@@ -526,6 +539,7 @@ export const mergeCarts = async (
                     primeCartId,
                     item.dataValues.quantity,
                     item.dataValues.thumbnailUrl as string,
+                    null,
                     sqlTransaction
                 );
             }

@@ -38,6 +38,7 @@ export const addItemToCart = createAsyncThunk<
         const state = getState() as RootState;
         const currentCartItems = [...state.cart.items];
         const currentNumberOfItems = state.cart.numberOfItems;
+        const token = localStorage.getItem("jwtToken");
         let productThumbnail: string | null = null;
         const indexInCart = state.cart.items.findIndex(
             (item: any) => item.productNo === productNo
@@ -83,7 +84,13 @@ export const addItemToCart = createAsyncThunk<
 
             const response = await axios.put<CartResponse>(
                 `${import.meta.env.VITE_API_URL}/cart/add-to-cart`,
-                actionData
+                actionData,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+                    },
+                    withCredentials: true,
+                }
             );
 
             if (!response.data.payload.cart) {
@@ -305,7 +312,6 @@ const cartSlice = createSlice({
                 state.cartId = action.payload.cart.cartId;
                 state.numberOfItems = action.payload.cart.numberOfItems;
                 state.error = null;
-                console.log(action.payload.cart.subTotal);
             })
             .addCase(updateItemQuantity.rejected, (state, action) => {
                 state.error = action.payload || "Failed to fetch products";
@@ -327,12 +333,10 @@ const cartSlice = createSlice({
                 state.error = null;
             })
             .addCase(holdCartStock.fulfilled, (state, action) => {
-                console.log("cart:", action.payload.cart);
                 state.items = action.payload.cart.items;
                 state.subTotal = action.payload.cart.subTotal;
                 state.cartId = action.payload.cart.cartId;
                 state.numberOfItems = action.payload.cart.numberOfItems;
-                console.log(action.payload.expirationTime);
                 state.expirationTime = action.payload.expirationTime;
                 state.cartChangesMade = action.payload.cartChangesMade;
                 state.error = null;

@@ -124,11 +124,16 @@ export const addToCart: RequestHandler = async (
 ) => {
     try {
         const { productNo, cartId, quantity, thumbnailUrl } = req.body;
+        let customerId = null;
+        if (req.user && req.user.customer_id) {
+            customerId = req.user.customer_id;
+        }
         const result = await cartService.addToCart(
             productNo,
             cartId,
             quantity,
-            thumbnailUrl
+            thumbnailUrl,
+            customerId
         );
 
         (res as CartResponse).json({
