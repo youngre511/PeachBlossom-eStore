@@ -29,8 +29,7 @@ const AccountsTab: React.FC<Props> = ({
     const loggedIn = auth && auth.user && !auth.isTokenExpired();
 
     useEffect(() => {
-        if (auth && auth.cartId) {
-            console.log("Syncing");
+        if (auth && auth.user && auth.cartId) {
             dispatch(setCartId({ cartId: auth.cartId }));
             dispatch(syncCart());
             auth.clearAuthCart();

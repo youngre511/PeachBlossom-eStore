@@ -160,9 +160,6 @@ export const login = async (
     password: string,
     cartId: number | null
 ) => {
-    console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
-    console.log("CART ID:", cartId);
-    console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
     const sqlTransaction = await sequelize.transaction();
     try {
         const user = await sqlUser.findOne({ where: { username: username } });

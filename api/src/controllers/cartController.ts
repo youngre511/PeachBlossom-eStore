@@ -2,6 +2,7 @@ import Product from "../models/mongo/productModel.js";
 import Category from "../models/mongo/categoryModel.js";
 import * as cartService from "../services/cartService.js";
 import { Request, RequestHandler, Response } from "express";
+import { verifyToken } from "../utils/jwt.js";
 
 interface CartIdRequestParams extends Request {
     cartId: string;
@@ -123,11 +124,18 @@ export const addToCart: RequestHandler = async (
     res: Response
 ) => {
     try {
-        const { productNo, cartId, quantity, thumbnailUrl } = req.body;
+        // Check token here instead of using middleware because the action is valid with or without a token. AuthMiddleware is designed to prevent access without a token.
+        const token = req.headers.authorization?.split(" ")[1];
         let customerId = null;
-        if (req.user && req.user.customer_id) {
-            customerId = req.user.customer_id;
+        if (token && token !== "null") {
+            const decoded = verifyToken(token);
+            if (decoded && decoded.customer_id) {
+                customerId = decoded.customer_id;
+            }
         }
+
+        const { productNo, cartId, quantity, thumbnailUrl } = req.body;
+
         const result = await cartService.addToCart(
             productNo,
             cartId,
