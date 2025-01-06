@@ -53,6 +53,7 @@ export interface GetOrdersFilters {
     orderStatus?: string[];
     search?: string;
     state?: string[];
+    customerId?: number;
     startDate?: string;
     endDate?: string;
     page: string;

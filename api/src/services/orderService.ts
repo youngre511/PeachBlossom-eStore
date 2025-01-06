@@ -9,12 +9,13 @@ import { sqlOrder } from "../models/mysql/sqlOrderModel.js";
 import { sqlOrderItem } from "../models/mysql/sqlOrderItemModel.js";
 import { generateOrderNo } from "../utils/generateOrderNo.js";
 import { sqlProduct } from "../models/mysql/sqlProductModel.js";
-import { Model, Op, Order } from "sequelize";
+import { Includeable, Model, Op, Order } from "sequelize";
 import { sqlCartItem } from "../models/mysql/sqlCartItemModel.js";
 import { sqlCart } from "../models/mysql/sqlCartModel.js";
 import { sqlAddress } from "../models/mysql/sqlAddressModel.js";
 import { JoinReqProduct, RawJoinReqProduct } from "./serviceTypes.js";
 import { sqlInventory } from "../models/mysql/sqlInventoryModel.js";
+import { calculatePagination } from "../utils/sqlSearchHelpers.js";
 
 interface JoinReqOrderItem extends Model {
     order_item_id: number;
@@ -98,6 +99,21 @@ const extractOrderData = (
     }
 };
 
+const formatOrderList = (orders: any) => {
+    for (let order of orders) {
+        let numberOfItems = 0;
+        for (let item of order.OrderItem) {
+            numberOfItems += item.quantity;
+        }
+        order.numberOfItems = numberOfItems;
+        order.thumbnailUrl = order.OrderItem[0].Product.thumbnailUrl;
+        delete order.OrderItem;
+        delete order.Address;
+        delete order.address_id;
+    }
+    return orders;
+};
+
 export const placeOrder = async (orderData: OrderData) => {
     const sqlTransaction = await sequelize.transaction();
 
@@ -127,8 +143,9 @@ export const placeOrder = async (orderData: OrderData) => {
         console.log(
             `Successfully found or created address ${address.address_id}`
         );
+
         const newOrder = {
-            customerId: orderData.customerId,
+            customer_id: orderData.customerId,
             orderNo: orderNo,
             email: orderData.email,
             address_id: address.address_id,
@@ -243,22 +260,46 @@ export const getOrders = async (filters: GetOrdersFilters) => {
         if (!filters.sort) {
             filters.sort = "orderDate-descend";
         }
-
-        const page = +filters.page || 1;
-        const offset = (page - 1) * +filters.itemsPerPage;
+        const { page, offset } = calculatePagination(
+            +filters.page || 1,
+            +filters.itemsPerPage
+        );
 
         console.log("Constructing order query from filters:", filters);
         const whereClause: any = {};
         const addressWhereClause: any = {};
+        const andConditions = [];
+        const orCondition: any = {};
+
+        // If there are search terms, construct an "or" clause to add within the "and" clause
         if (filters.search) {
-            whereClause[Op.or] = [
-                { customer_id: { [Op.like]: `%${filters.search}%` } },
-                { email: { [Op.like]: `%${filters.search}%` } },
+            orCondition[Op.or] = [
                 { orderNo: { [Op.like]: `%${filters.search}%` } },
             ];
+
+            if (filters.customerId) {
+                //Construct a subquery that returns a list of orderIds with orderItems whose productNames match the search terms.
+                const subquery = `
+                    SELECT oi.order_id FROM OrderItems oi
+                    INNER JOIN Products p ON p.productNo = oi.productNo
+                    WHERE p.productName LIKE '%${filters.search}%'
+                `;
+                // Add a check in the or clause for any orders whose ids are contained within the list generated above
+                orCondition[Op.or].push({
+                    order_id: { [Op.in]: sequelize.literal(`(${subquery})`) },
+                });
+            } else {
+                orCondition[Op.or].push(
+                    { customer_id: { [Op.like]: `%${filters.search}%` } },
+                    { email: { [Op.like]: `%${filters.search}%` } }
+                );
+            }
+            andConditions.push(orCondition);
         }
 
-        const andConditions = [];
+        if (filters.customerId) {
+            andConditions.push({ customer_id: filters.customerId });
+        }
 
         if (filters.orderStatus) {
             console.log("orderStatus", filters.orderStatus);
@@ -315,9 +356,29 @@ export const getOrders = async (filters: GetOrdersFilters) => {
             orderArray.push(["orderDate", "DESC"]);
         }
 
-        console.log("WHERE:", whereClause);
-        console.log("ORDER:", orderArray);
-        console.log("ADDRESS WHERE:", addressWhereClause);
+        console.log("Building include clause.");
+        const includeClause: Includeable[] = [
+            {
+                model: sqlAddress,
+                as: "Address",
+                where: addressWhereClause,
+            },
+        ];
+
+        if (filters.customerId) {
+            includeClause.push({
+                model: sqlOrderItem,
+                as: "OrderItem",
+                required: false,
+                include: [
+                    {
+                        model: sqlProduct,
+                        as: "Product",
+                        required: false,
+                    },
+                ],
+            });
+        }
 
         console.log("Finding and counting results");
         const ordersData = (await sqlOrder.findAndCountAll({
@@ -325,15 +386,11 @@ export const getOrders = async (filters: GetOrdersFilters) => {
             order: orderArray,
             limit: +filters.itemsPerPage,
             offset: offset,
-            include: [
-                {
-                    model: sqlAddress,
-                    as: "Address",
-                    where: addressWhereClause,
-                },
-            ],
+            include: includeClause,
             subQuery: false,
             nest: true,
+            distinct: true,
+            col: "order_id",
         })) as unknown as JoinReqFilteredOrders;
 
         const totalCount = ordersData.count;
@@ -351,6 +408,9 @@ export const getOrders = async (filters: GetOrdersFilters) => {
             );
         }
 
+        if (filters.customerId) {
+            orders = formatOrderList(orders);
+        }
         return { totalCount, orders };
     } catch (error) {
         throw error;
