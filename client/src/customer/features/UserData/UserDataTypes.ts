@@ -1,11 +1,15 @@
 export interface UserDataState {
     data: {
         orderList: CustomerOrder[];
+        numberResults: number;
         addressList: CustomerAddress[];
+        orderFilter: CustomerOrderFilter;
     };
     preferences: {
         itemsPerPage: 24 | 48 | 96;
     };
+    loading: boolean;
+    error: string | null;
 }
 
 export interface CustomerOrder {
@@ -24,6 +28,14 @@ export interface CustomerOrder {
     phoneNumber: string;
     email: string;
     orderStatus: string;
+    numberOfItems: number;
+    thumbnailUrl: string;
+}
+
+export interface OrdersResponse {
+    filter: CustomerOrderFilter;
+    numberOfResults: number;
+    orders: CustomerOrder[];
 }
 
 export interface CustomerAddress {
@@ -34,4 +46,14 @@ export interface CustomerAddress {
     stateAbbr: string;
     zipCode: string;
     phoneNumber: string;
+}
+
+export interface CustomerOrderFilter {
+    sort: string;
+    orderStatus?: string[];
+    search?: string;
+    state?: string[];
+    startDate?: string;
+    endDate?: string;
+    page: string;
 }
