@@ -56,7 +56,7 @@ const OrderManagement: React.FC<Props> = () => {
         const initialParams: Record<string, string> = {};
 
         if (!searchParams.get("sort")) {
-            initialParams.sort = "orderDate-ascend";
+            initialParams.sort = "orderDate-descend";
         }
         if (!searchParams.get("page")) {
             initialParams.page = "1";
