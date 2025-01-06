@@ -351,6 +351,10 @@ const Checkout: React.FC = () => {
     const handlePlaceOrder = async () => {
         const orderData: OrderData = {
             cartId: cart.cartId,
+            customerId:
+                auth && auth.user && auth.user.customer_id
+                    ? auth.user.customer_id
+                    : undefined,
             shipping: shippingDetails,
             email: email,
             orderDetails: {
@@ -372,6 +376,8 @@ const Checkout: React.FC = () => {
                 }),
             },
         };
+
+        console.log(orderData);
 
         try {
             const response = await axios.post(
