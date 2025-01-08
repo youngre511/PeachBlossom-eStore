@@ -25,12 +25,6 @@ export class sqlAddress extends Model {
 
     @Column({
         type: DataType.STRING(255),
-        allowNull: true,
-    })
-    declare nickname: string;
-
-    @Column({
-        type: DataType.STRING(255),
         allowNull: false,
     })
     declare shippingAddress: string;

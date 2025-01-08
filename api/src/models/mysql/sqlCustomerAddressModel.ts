@@ -14,10 +14,13 @@ import { sqlAddress } from "./sqlAddressModel.js";
 })
 export class sqlCustomerAddress extends Model {
     @ForeignKey(() => sqlCustomer)
-    @Column(DataType.BIGINT)
+    @Column({ type: DataType.BIGINT, primaryKey: true })
     declare customer_id: number;
 
     @ForeignKey(() => sqlAddress)
-    @Column(DataType.BIGINT)
+    @Column({ type: DataType.BIGINT, primaryKey: true })
     declare address_id: number;
+
+    @Column({ type: DataType.STRING(255), allowNull: true })
+    declare nickname: string;
 }
