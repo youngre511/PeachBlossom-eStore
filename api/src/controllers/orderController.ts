@@ -2,7 +2,7 @@ import { Request, Response, RequestHandler } from "express";
 import * as orderService from "../services/orderService.js";
 import { verifyToken } from "../utils/jwt.js";
 
-interface ShippingDetails {
+export interface ShippingDetails {
     shippingAddress: string;
     shippingAddress2: string;
     firstName: string;

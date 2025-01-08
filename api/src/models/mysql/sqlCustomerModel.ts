@@ -14,6 +14,12 @@ import { sqlUser } from "./sqlUserModel.js";
 import { sqlAddress } from "./sqlAddressModel.js";
 import { sqlCustomerAddress } from "./sqlCustomerAddressModel.js";
 import { sqlOrder } from "./sqlOrderModel.js";
+import { Transaction } from "sequelize";
+
+export interface AddAddressOptions {
+    transaction: Transaction;
+    through?: { nickname: string };
+}
 
 @Table({
     tableName: "Customers",
@@ -53,6 +59,16 @@ export class sqlCustomer extends Model {
 
     @BelongsToMany(() => sqlAddress, () => sqlCustomerAddress)
     declare addresses: sqlAddress[];
+
+    declare addAddress: (
+        address: sqlAddress | number,
+        options: AddAddressOptions
+    ) => Promise<void>;
+
+    declare removeAddress: (
+        address_id: number,
+        options: { transaction: Transaction }
+    ) => Promise<void>;
 
     @HasMany(() => sqlOrder)
     declare orders: sqlOrder[];

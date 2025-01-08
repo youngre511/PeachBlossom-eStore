@@ -27,9 +27,11 @@ interface JoinReqOrderItem extends Model {
     fulfillmentStatus: string;
 }
 
-interface AddressDetails {
+export interface AddressDetails {
     address_id: number;
     shippingAddress: string;
+    firstName: string;
+    lastName: string;
     city: string;
     stateAbbr: string;
     zipCode: string;
@@ -81,6 +83,8 @@ const extractOrderData = (
         if (parsedOrder.Address) {
             const address = parsedOrder.Address.get();
             parsedOrder.shippingAddress = address.shippingAddress;
+            parsedOrder.firstName = address.firstName;
+            parsedOrder.lastName = address.lastName;
             parsedOrder.city = address.city;
             parsedOrder.stateAbbr = address.stateAbbr;
             parsedOrder.zipCode = address.zipCode;
@@ -134,6 +138,8 @@ export const placeOrder = async (orderData: OrderData) => {
                 stateAbbr: shipping.state,
                 zipCode: shipping.zipCode,
                 phoneNumber: shipping.phoneNumber,
+                firstName: shipping.firstName,
+                lastName: shipping.lastName,
             },
             transaction: sqlTransaction,
         });

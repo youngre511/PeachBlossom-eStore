@@ -1,22 +1,20 @@
 import { sqlUser } from "../models/mysql/sqlUserModel.js";
 import argon2 from "argon2";
 import sequelize from "../models/mysql/index.js";
-import { Model } from "sequelize";
-import { sqlCustomer } from "../models/mysql/sqlCustomerModel.js";
+import { AssociationOptions, Transaction } from "sequelize";
+import {
+    AddAddressOptions,
+    sqlCustomer,
+} from "../models/mysql/sqlCustomerModel.js";
 import { sqlAdmin } from "../models/mysql/sqlAdminModel.js";
 import { Op } from "sequelize";
 import { generateAccessToken, UserPayload } from "../utils/jwt.js";
 import { sqlRefreshToken } from "../models/mysql/sqlRefreshTokenModel.js";
 import { ReceivedUser } from "../middleware/authMiddleware.js";
+import { ShippingDetails } from "../controllers/orderController.js";
+import { sqlAddress } from "../models/mysql/sqlAddressModel.js";
 import { sqlOrder } from "../models/mysql/sqlOrderModel.js";
-
-interface IUser extends Model {
-    user_id: number;
-    username: string;
-    password: string;
-    defaultPassword: boolean;
-    role: "customer" | "admin";
-}
+import { sqlCustomerAddress } from "../models/mysql/sqlCustomerAddressModel.js";
 
 export const getAdmins = async (
     page: number,
@@ -444,43 +442,13 @@ export const deleteUser = async (
             throw new Error("Cannot delete site administrator");
         }
 
-        let deleteCount: number;
-        if (foundUser.dataValues.role === "admin") {
-            if (!accessLevel || accessLevel !== "full") {
-                throw new Error(
-                    "Insufficient permissions to perform this action"
-                );
-            }
-            deleteCount = await sqlAdmin.destroy({
-                where: { user_id: userId },
-                transaction: sqlTransaction,
-            });
-        } else {
-            deleteCount = await sqlCustomer.destroy({
-                where: { user_id: userId },
-                transaction: sqlTransaction,
-            });
-        }
-
-        if (!deleteCount) {
-            throw new Error(
-                `Something went wrong when deleting user account: unable to delete user from ${foundUser.role} table.`
-            );
-        }
-
-        await sqlRefreshToken.destroy({
-            where: { user_id: userId },
-            transaction: sqlTransaction,
-        });
-
         const userDeleteCount = await sqlUser.destroy({
             where: { user_id: userId },
             transaction: sqlTransaction,
         });
+
         if (!userDeleteCount) {
-            throw new Error(
-                `Something went wrong when deleting user account: unable to delete user from user table.`
-            );
+            throw new Error(`Unable to delete user.`);
         }
         await sqlTransaction.commit();
     } catch (error) {
@@ -490,6 +458,238 @@ export const deleteUser = async (
         } else {
             throw new Error(
                 "An unknown error occurred while deleting user account"
+            );
+        }
+    }
+};
+
+export const getCustomerAddresses = async (
+    customerId: number,
+    transaction?: Transaction
+) => {
+    try {
+        const addresses = await sqlAddress.findAll({
+            attributes: [
+                [
+                    sequelize.col("customers.sqlCustomerAddress.nickname"),
+                    "nickname",
+                ],
+                "address_id",
+                "shippingAddress",
+                "firstName",
+                "lastName",
+                "city",
+                "stateAbbr",
+                "zipCode",
+                "phoneNumber",
+            ],
+            include: [
+                {
+                    model: sqlCustomer,
+                    where: { customer_id: customerId },
+                    through: {
+                        attributes: ["nickname"],
+                    },
+                    attributes: [],
+                    required: true,
+                },
+            ],
+            transaction,
+        });
+        return addresses;
+    } catch (error) {
+        if (error instanceof Error) {
+            throw new Error(
+                "Error fetching customer address: " + error.message
+            );
+        } else {
+            throw new Error(
+                "An unknown error occurred while fetching customer addresses"
+            );
+        }
+    }
+};
+
+export const removeCustomerAddress = async (
+    customerId: number,
+    addressId: number,
+    transaction?: Transaction
+) => {
+    const sqlTransaction = transaction
+        ? transaction
+        : await sequelize.transaction();
+    try {
+        const foundCustomer = await sqlCustomer.findByPk(customerId);
+        if (!foundCustomer) throw new Error("Customer not found");
+
+        await foundCustomer.removeAddress(addressId, {
+            transaction: sqlTransaction,
+        });
+
+        const newAddressList = await getCustomerAddresses(
+            customerId,
+            sqlTransaction
+        );
+
+        if (!transaction) await sqlTransaction.commit();
+
+        return newAddressList;
+    } catch (error) {
+        if (!transaction) await sqlTransaction.rollback();
+        if (error instanceof Error) {
+            throw new Error(
+                "Error removing customer address: " + error.message
+            );
+        } else {
+            throw new Error(
+                "An unknown error occurred while removing customer address"
+            );
+        }
+    }
+};
+
+export const addCustomerAddress = async (
+    customerId: number,
+    address: ShippingDetails,
+    nickname: string | null,
+    transaction?: Transaction
+) => {
+    const sqlTransaction = transaction
+        ? transaction
+        : await sequelize.transaction();
+    try {
+        const foundCustomer = await sqlCustomer.findByPk(customerId, {
+            transaction: sqlTransaction,
+        });
+        if (!foundCustomer) {
+            throw new Error("Customer_id not found");
+        }
+
+        const addressData = JSON.parse(JSON.stringify(address));
+        if (addressData.shippingAddress2)
+            addressData.shippingAddress = `${addressData.shippingAddress} | ${addressData.shippingAddress2}`;
+        delete addressData.shippingAddress2;
+
+        let addressRecord = await sqlAddress.findOne({
+            where: addressData,
+            transaction: sqlTransaction,
+        });
+
+        if (!addressRecord) {
+            addressRecord = await sqlAddress.create(addressData, {
+                transaction: sqlTransaction,
+            });
+        }
+
+        if (!addressRecord) {
+            throw new Error("Unable to add address to database");
+        }
+
+        const options: AddAddressOptions = { transaction: sqlTransaction };
+        if (nickname && nickname !== "null" && nickname.trim() !== "")
+            options.through = { nickname: nickname };
+        await foundCustomer.addAddress(addressRecord.address_id, options);
+
+        const newAddressList = await getCustomerAddresses(
+            customerId,
+            sqlTransaction
+        );
+
+        if (!transaction) await sqlTransaction.commit();
+
+        return newAddressList;
+    } catch (error) {
+        if (!transaction) await sqlTransaction.rollback();
+        if (error instanceof Error) {
+            throw new Error("Error adding customer address: " + error.message);
+        } else {
+            throw new Error(
+                "An unknown error occurred while adding customer address"
+            );
+        }
+    }
+};
+
+export const editCustomerAddress = async (
+    customerId: number,
+    addressId: number,
+    newAddress: ShippingDetails,
+    newNickname: string | null
+) => {
+    const sqlTransaction = await sequelize.transaction();
+    try {
+        const associatedOrders = await sqlOrder.findAll({
+            where: { address_id: addressId },
+            transaction: sqlTransaction,
+        });
+        const associatedCustomers = await sqlCustomer.findAll({
+            include: [{ model: sqlAddress, where: { address_id: addressId } }],
+            transaction: sqlTransaction,
+        });
+
+        const foundAddress = await sqlAddress.findByPk(addressId, {
+            transaction: sqlTransaction,
+        });
+
+        if (!foundAddress) {
+            const addressList = await addCustomerAddress(
+                customerId,
+                newAddress,
+                newNickname,
+                sqlTransaction
+            );
+            return addressList;
+        }
+
+        if (associatedCustomers.length > 0 || associatedOrders.length > 0) {
+            await removeCustomerAddress(customerId, addressId, sqlTransaction);
+            const addressList = await addCustomerAddress(
+                customerId,
+                newAddress,
+                newNickname,
+                sqlTransaction
+            );
+            return addressList;
+        }
+
+        const addressData = JSON.parse(JSON.stringify(newAddress));
+        if (addressData.shippingAddress2)
+            addressData.shippingAddress = `${addressData.shippingAddress} | ${addressData.shippingAddress2}`;
+        delete addressData.shippingAddress2;
+
+        await foundAddress.update(addressData, { transaction: sqlTransaction });
+
+        const joinEntry = await sqlCustomerAddress.findOne({
+            where: { customer_id: customerId, address_id: addressId },
+            transaction: sqlTransaction,
+        });
+        if (!joinEntry)
+            throw new Error(
+                "Unable to find or access customer address association"
+            );
+
+        if (joinEntry.nickname !== newNickname) {
+            await joinEntry.update(
+                { nickname: newNickname },
+                { transaction: sqlTransaction }
+            );
+        }
+
+        const newAddressList = await getCustomerAddresses(
+            customerId,
+            sqlTransaction
+        );
+
+        await sqlTransaction.commit();
+
+        return newAddressList;
+    } catch (error) {
+        await sqlTransaction.rollback();
+        if (error instanceof Error) {
+            throw new Error("Error editing customer address: " + error.message);
+        } else {
+            throw new Error(
+                "An unknown error occurred while editing customer address"
             );
         }
     }
