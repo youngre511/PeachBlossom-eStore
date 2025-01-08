@@ -8,15 +8,15 @@ import {
     TableRow,
     Typography,
 } from "@mui/material";
-import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
-import { OrderItem } from "./OrderStatus";
+import { useWindowSizeContext } from "../../../../common/contexts/windowSizeContext";
+import { OrderItem } from "../OrderStatus";
 import KeyboardArrowUpSharpIcon from "@mui/icons-material/KeyboardArrowUpSharp";
 import KeyboardArrowDownSharpIcon from "@mui/icons-material/KeyboardArrowDownSharp";
 
 interface Props {
     item: OrderItem;
 }
-const OrderStatusProductRow: React.FC<Props> = ({ item }) => {
+const OrderDetailsProductRow: React.FC<Props> = ({ item }) => {
     const { width } = useWindowSizeContext();
     const [open, setOpen] = useState<boolean>(false);
 
@@ -137,4 +137,4 @@ const OrderStatusProductRow: React.FC<Props> = ({ item }) => {
         </React.Fragment>
     );
 };
-export default OrderStatusProductRow;
+export default OrderDetailsProductRow;

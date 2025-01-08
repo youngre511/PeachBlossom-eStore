@@ -7,7 +7,7 @@ import {
     StepContent,
     StepIconProps,
 } from "@mui/material";
-import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
+import { useWindowSizeContext } from "../../../../common/contexts/windowSizeContext";
 import CheckIcon from "@mui/icons-material/Check";
 import StepperIcon from "@mui/icons-material/Circle";
 
@@ -17,8 +17,8 @@ interface Props {
 }
 export const StatusStepper: React.FC<Props> = ({ steps, activeStep }) => {
     const { width } = useWindowSizeContext();
-    const CustomStepIcon = (props: StepIconProps) => {
-        const { active, completed, className } = props;
+    const CustomStepIcon = (props: StepIconProps & { stepIndex: number }) => {
+        const { active, completed, className, stepIndex } = props;
 
         return completed || active ? (
             <CheckIcon
@@ -45,7 +45,7 @@ export const StatusStepper: React.FC<Props> = ({ steps, activeStep }) => {
                     fontWeight: 600,
                 }}
             >
-                {activeStep + 1}
+                {stepIndex + 1}
             </div>
         );
     };
@@ -58,7 +58,11 @@ export const StatusStepper: React.FC<Props> = ({ steps, activeStep }) => {
             >
                 {steps.map((step, index) => (
                     <Step key={step.label}>
-                        <StepLabel StepIconComponent={CustomStepIcon}>
+                        <StepLabel
+                            StepIconComponent={(props) => (
+                                <CustomStepIcon {...props} stepIndex={index} />
+                            )}
+                        >
                             {step.label}
                         </StepLabel>
                         {width && width < 600 && (
