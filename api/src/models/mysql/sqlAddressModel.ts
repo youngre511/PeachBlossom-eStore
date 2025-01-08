@@ -30,6 +30,18 @@ export class sqlAddress extends Model {
     declare shippingAddress: string;
 
     @Column({
+        type: DataType.STRING(255),
+        allowNull: true,
+    })
+    declare firstName: string;
+
+    @Column({
+        type: DataType.STRING(255),
+        allowNull: true,
+    })
+    declare lastName: string;
+
+    @Column({
         type: DataType.STRING(60),
         allowNull: false,
     })
