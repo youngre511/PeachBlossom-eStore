@@ -38,7 +38,7 @@
         align-items: center;
         justify-content: space-between;
         flex-direction: column;
-        box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.434);
+        box-shadow: var(--light-box-shadow);
         margin: 0;
     }
 
