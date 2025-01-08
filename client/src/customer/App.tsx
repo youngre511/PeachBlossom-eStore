@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import { Routes, Route } from "react-router-dom";
+import React, { useContext, useEffect } from "react";
+import { Routes, Route, useNavigate } from "react-router-dom";
 // import "./style/general.css";
 import { ThemeProvider } from "@mui/material/styles";
 import theme from "../common/utils/materialUITheme";
@@ -31,9 +31,12 @@ import { useNavigationContext } from "../common/contexts/navContext";
 import Support from "./components/Support/Support";
 import CustomerOrders from "./components/CustomerOrders/CustomerOrders";
 import ProtectedRoute from "../common/components/ProtectedRoute/ProtectedRoute";
+import { AuthContext } from "../common/contexts/authContext";
 
 const CustomerApp: React.FC = () => {
     const dispatch = useAppDispatch();
+    const auth = useContext(AuthContext);
+    const navigate = useNavigate();
     const { currentRoute, previousRoute } = useNavigationContext();
     useEffect(() => {
         dispatch(fetchCategories());
@@ -72,6 +75,27 @@ const CustomerApp: React.FC = () => {
                 : pbtext2x;
         img2.src = src2;
     }, []);
+
+    if (auth) {
+        const loggingInReroutes = ["/order-status"];
+        const loggingOutReroutes = ["/order-status"];
+        useEffect(() => {
+            if (
+                auth.user &&
+                currentRoute &&
+                loggingInReroutes.includes(currentRoute)
+            ) {
+                navigate("/orders");
+            }
+            if (
+                !auth.user &&
+                currentRoute &&
+                loggingOutReroutes.includes(currentRoute)
+            ) {
+                navigate("/");
+            }
+        }, [auth.user, navigate]);
+    }
 
     return (
         <ThemeProvider theme={theme}>
