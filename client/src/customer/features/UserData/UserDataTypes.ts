@@ -4,6 +4,7 @@ export interface UserDataState {
         numberResults: number;
         addressList: CustomerAddress[];
         orderFilter: CustomerOrderFilter;
+        currentOrderNo: string | null;
     };
     preferences: {
         itemsPerPage: 24 | 48 | 96;

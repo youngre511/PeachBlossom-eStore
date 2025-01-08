@@ -5,9 +5,9 @@ import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
 import { RootState } from "../../store/customerStore";
 import { getUserOrders } from "../../features/UserData/userDataSlice";
 import { AuthContext } from "../../../common/contexts/authContext";
-import CustomerOrdersList from "./CustomerOrdersList";
 import { useSearchParams } from "react-router-dom";
 import { CustomerOrderFilter } from "../../features/UserData/UserDataTypes";
+import CustomerOrderRow from "./CustomerOrderRow";
 
 interface CustomerOrdersProps {}
 const CustomerOrders: React.FC<CustomerOrdersProps> = () => {
@@ -92,19 +92,16 @@ const CustomerOrders: React.FC<CustomerOrdersProps> = () => {
     };
     console.log("PAGE:", page);
     return (
-        <div>
+        <div className="order-history">
             <h1>Orders</h1>
             <div className="past-orders">
-                <div className="ordersContainer">
+                <div className="orders-container">
                     {orders.length === 0 ? (
                         <div>You have no past orders.</div>
                     ) : (
-                        <CustomerOrdersList
-                            page={Number(page)}
-                            numberOfResults={numberOfResults}
-                            results={orders}
-                            updateSearchParams={updateSearchParams}
-                        />
+                        orders.map((order) => (
+                            <CustomerOrderRow order={order} />
+                        ))
                     )}
                 </div>
             </div>

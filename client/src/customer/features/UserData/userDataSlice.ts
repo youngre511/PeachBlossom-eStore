@@ -15,6 +15,7 @@ const initialState: UserDataState = {
         numberResults: 0,
         addressList: [],
         orderFilter: { sort: "orderDate-descend", page: "1" },
+        currentOrderNo: null,
     },
     preferences: {
         itemsPerPage: 24,
@@ -109,6 +110,19 @@ const userDataSlice = createSlice({
         setItemsPerPage: (state, action: PayloadAction<24 | 48 | 96>) => {
             state.preferences.itemsPerPage = action.payload;
         },
+        setCurrentOrderNo: (state, action: PayloadAction<string>) => {
+            state.data.currentOrderNo = action.payload;
+        },
+        clearCurrentOrderNo: (state) => {
+            state.data.currentOrderNo = null;
+        },
+        resetUserData: (state) => {
+            let currentPreferences = state.preferences;
+            state = {
+                ...initialState,
+                preferences: currentPreferences,
+            };
+        },
     },
     extraReducers: (builder) => {
         builder
@@ -130,5 +144,10 @@ const userDataSlice = createSlice({
     },
 });
 
-export const { setItemsPerPage } = userDataSlice.actions;
+export const {
+    setItemsPerPage,
+    setCurrentOrderNo,
+    clearCurrentOrderNo,
+    resetUserData,
+} = userDataSlice.actions;
 export default userDataSlice.reducer;
