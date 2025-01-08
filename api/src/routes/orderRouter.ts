@@ -1,6 +1,7 @@
 import {
     placeOrder,
     getOneOrder,
+    getOneCustomerOrder,
     getOrders,
     updateOrder,
 } from "../controllers/orderController.js";
@@ -12,6 +13,8 @@ const orderRouter = Router();
 orderRouter.get("/", getOrders);
 
 orderRouter.get("/:orderNo", getOneOrder);
+
+orderRouter.get("/customer/:orderNo", authMiddleware, getOneCustomerOrder);
 
 orderRouter.post("/create", placeOrder);
 

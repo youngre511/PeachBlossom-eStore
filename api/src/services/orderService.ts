@@ -417,10 +417,13 @@ export const getOrders = async (filters: GetOrdersFilters) => {
     }
 };
 
-export const getOneOrder = async (
-    orderNo: string,
-    email: string | undefined
-) => {
+export const getOneOrder = async (data: {
+    orderNo: string;
+    email: string | undefined;
+    customerId: number | null;
+    loggedIn: boolean;
+}) => {
+    const { orderNo, email, customerId, loggedIn } = data;
     try {
         console.log(`Fetching order ${orderNo}`);
         const orderData = (await sqlOrder.findOne({
@@ -451,7 +454,7 @@ export const getOneOrder = async (
         console.log("Extracting order data");
         const parsedOrderData = extractOrderData(orderData);
 
-        console.log("Will verify email:", email ? true : false);
+        console.log("Will verify email:", loggedIn ? false : true);
         // Check to see that email address matches record if supplied by front end.
         if (
             email &&
@@ -459,6 +462,14 @@ export const getOneOrder = async (
         ) {
             throw new Error(
                 `Order ${orderNo} is not associated with ${email}.`
+            );
+        }
+
+        console.log("Will verify customerId:", loggedIn ? true : false);
+        // If user is logged in, check to see that customerId matches record if supplied by front end.
+        if (email && parsedOrderData.customer_id !== customerId) {
+            throw new Error(
+                `Order ${orderNo} is not associated with customer ${customerId}.`
             );
         }
         return parsedOrderData;

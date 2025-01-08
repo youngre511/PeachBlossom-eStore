@@ -1,5 +1,6 @@
 import { Request, Response, RequestHandler } from "express";
 import * as orderService from "../services/orderService.js";
+import { verifyToken } from "../utils/jwt.js";
 
 interface ShippingDetails {
     shippingAddress: string;
@@ -125,7 +126,13 @@ export const getOneOrder = async (req: GetOneOrderRequest, res: Response) => {
     try {
         const { orderNo } = req.params;
         const { email } = req.query;
-        const result = await orderService.getOneOrder(orderNo, email);
+
+        const result = await orderService.getOneOrder({
+            orderNo,
+            email,
+            customerId: null,
+            loggedIn: false,
+        });
         res.setHeader(
             "Cache-Control",
             "no-store, no-cache, must-revalidate, proxy-revalidate"
@@ -139,6 +146,51 @@ export const getOneOrder = async (req: GetOneOrderRequest, res: Response) => {
     } catch (error) {
         let errorObj = {
             message: "get one order failure",
+            reason: error instanceof Error ? error.message : String(error),
+        };
+        console.log(errorObj);
+        console.error(errorObj);
+
+        res.status(500).json(errorObj);
+    }
+};
+
+export const getOneCustomerOrder = async (
+    req: GetOneOrderRequest,
+    res: Response
+) => {
+    try {
+        const { orderNo } = req.params;
+
+        if (!req.user) {
+            throw new Error("No user token");
+        }
+
+        const { customer_id } = req.user;
+
+        if (!customer_id) {
+            throw new Error("No customer id supplied");
+        }
+
+        const result = await orderService.getOneOrder({
+            orderNo,
+            email: undefined,
+            customerId: customer_id,
+            loggedIn: true,
+        });
+        res.setHeader(
+            "Cache-Control",
+            "no-store, no-cache, must-revalidate, proxy-revalidate"
+        );
+        res.setHeader("Pragma", "no-cache");
+        res.setHeader("Expires", "0");
+        res.setHeader("Surrogate-Control", "no-store");
+
+        // (res as PlaceOrderResponse).json(result);
+        res.json(result);
+    } catch (error) {
+        let errorObj = {
+            message: "get one customer order failure",
             reason: error instanceof Error ? error.message : String(error),
         };
         console.log(errorObj);
