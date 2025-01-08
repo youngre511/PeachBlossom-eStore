@@ -1,5 +1,5 @@
 /// <reference types="vite-plugin-svgr/client" />
-import React, { ChangeEvent } from "react";
+import React, { ChangeEvent, useContext } from "react";
 import "./nav.css";
 import { useEffect, useRef, useState } from "react";
 import { useAppSelector } from "../../hooks/reduxHooks";
@@ -23,6 +23,7 @@ import pblogo3x from "../../../assets/peachblossomlogo-3x.webp";
 import { useNavigationContext } from "../../../common/contexts/navContext";
 import AccountsTab from "../AccountsTab/AccountsTab";
 import RecentlyViewed from "../../features/RecentlyViewed/RecentlyViewed";
+import { AuthContext } from "../../../common/contexts/authContext";
 
 interface Props {}
 const Nav: React.FC<Props> = () => {
@@ -33,6 +34,8 @@ const Nav: React.FC<Props> = () => {
         (state: RootState) => state.searchOptions
     );
     const cartContents = cart.numberOfItems;
+    const auth = useContext(AuthContext);
+    const loggedIn = auth && auth.user && !auth.isTokenExpired();
 
     const header = useRef<HTMLElement>(null);
 
@@ -286,7 +289,13 @@ const Nav: React.FC<Props> = () => {
                     <li
                         className="nav-text"
                         role="button"
-                        onClick={() => navigate("/order-status")}
+                        onClick={() => {
+                            if (loggedIn) {
+                                navigate("/orders");
+                            } else {
+                                navigate("/order-status");
+                            }
+                        }}
                     >
                         Orders
                     </li>
