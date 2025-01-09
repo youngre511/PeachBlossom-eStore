@@ -428,12 +428,34 @@ export const changeDisplayName = async (
 };
 
 export const deleteUser = async (
-    userId: string,
-    accessLevel: "full" | "limited" | "view only" | undefined
+    data:
+        | {
+              userId: string;
+              accessLevel: "full" | "limited" | "view only" | undefined;
+          }
+        | {
+              username: string;
+              password: string;
+          }
 ) => {
     const sqlTransaction = await sequelize.transaction();
     try {
-        const foundUser = await sqlUser.findByPk(+userId);
+        let foundUser;
+        let whereClause;
+
+        if ("userId" in data) {
+            foundUser = await sqlUser.findByPk(+data.userId, {
+                transaction: sqlTransaction,
+            });
+            whereClause = { user_id: +data.userId };
+        } else {
+            foundUser = await sqlUser.findOne({
+                where: { username: data.username },
+                transaction: sqlTransaction,
+            });
+            whereClause = { username: data.username };
+        }
+
         if (!foundUser) {
             throw new Error(`User does not exist`);
         }
@@ -442,13 +464,23 @@ export const deleteUser = async (
             throw new Error("Cannot delete site administrator");
         }
 
+        if ("password" in data) {
+            const passwordValid = await argon2.verify(
+                foundUser.password,
+                data.password
+            );
+            if (!passwordValid) {
+                throw new Error("Password is incorrect. Please try again");
+            }
+        }
+
         const userDeleteCount = await sqlUser.destroy({
-            where: { user_id: userId },
+            where: whereClause,
             transaction: sqlTransaction,
         });
 
         if (!userDeleteCount) {
-            throw new Error(`Unable to delete user.`);
+            throw new Error(`Unable to delete user account.`);
         }
         await sqlTransaction.commit();
     } catch (error) {
@@ -519,12 +551,23 @@ export const removeCustomerAddress = async (
         ? transaction
         : await sequelize.transaction();
     try {
-        const foundCustomer = await sqlCustomer.findByPk(customerId);
+        const foundCustomer = await sqlCustomer.findByPk(customerId, {
+            transaction: sqlTransaction,
+        });
         if (!foundCustomer) throw new Error("Customer not found");
 
         await foundCustomer.removeAddress(addressId, {
             transaction: sqlTransaction,
         });
+
+        const isUsed = await isAddressUsed(addressId, sqlTransaction);
+
+        if (!isUsed) {
+            await sqlAddress.destroy({
+                where: { address_id: addressId },
+                transaction: sqlTransaction,
+            });
+        }
 
         const newAddressList = await getCustomerAddresses(
             customerId,
@@ -618,15 +661,6 @@ export const editCustomerAddress = async (
 ) => {
     const sqlTransaction = await sequelize.transaction();
     try {
-        const associatedOrders = await sqlOrder.findAll({
-            where: { address_id: addressId },
-            transaction: sqlTransaction,
-        });
-        const associatedCustomers = await sqlCustomer.findAll({
-            include: [{ model: sqlAddress, where: { address_id: addressId } }],
-            transaction: sqlTransaction,
-        });
-
         const foundAddress = await sqlAddress.findByPk(addressId, {
             transaction: sqlTransaction,
         });
@@ -641,7 +675,13 @@ export const editCustomerAddress = async (
             return addressList;
         }
 
-        if (associatedCustomers.length > 0 || associatedOrders.length > 0) {
+        const isUsed = await isAddressUsed(
+            addressId,
+            sqlTransaction,
+            customerId
+        );
+
+        if (isUsed) {
             await removeCustomerAddress(customerId, addressId, sqlTransaction);
             const addressList = await addCustomerAddress(
                 customerId,
@@ -693,4 +733,31 @@ export const editCustomerAddress = async (
             );
         }
     }
+};
+
+const isAddressUsed = async (
+    addressId: number,
+    sqlTransaction: Transaction,
+    customerId?: number
+) => {
+    const associatedOrders = await sqlOrder.findOne({
+        where: { address_id: addressId },
+        transaction: sqlTransaction,
+    });
+
+    const customerWhereClause = customerId
+        ? { customer_id: { [Op.ne]: customerId } }
+        : undefined;
+
+    const associatedCustomers = await sqlCustomer.findOne({
+        where: customerWhereClause,
+        include: [{ model: sqlAddress, where: { address_id: addressId } }],
+        transaction: sqlTransaction,
+    });
+
+    if (associatedCustomers || associatedOrders) {
+        return true;
+    }
+
+    return false;
 };

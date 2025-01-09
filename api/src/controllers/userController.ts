@@ -1,5 +1,6 @@
 import { Request, RequestHandler, Response } from "express";
 import * as userService from "../services/userService.js";
+import { ShippingDetails } from "./orderController.js";
 
 interface ChangeLevelRequest extends Request {
     body: {
@@ -48,6 +49,41 @@ interface GetRequest extends Request {
         usersPerPage: string;
         accessLevel?: string;
         searchString?: string;
+    };
+}
+
+interface AddCustomerAddressRequest extends Request {
+    body: {
+        address: ShippingDetails;
+        nickname: string | null;
+    };
+}
+
+interface EditCustomerAddressRequest extends Request {
+    body: {
+        address: ShippingDetails;
+        nickname: string | null;
+        addressId: number;
+    };
+}
+
+interface RemoveCustomerAddressRequest extends Request {
+    body: {
+        addressId: number;
+    };
+}
+
+interface CloseAccountRequest extends Request {
+    body: {
+        password: string;
+    };
+}
+
+interface ChangeDisplayNameRequest extends Request {
+    body: {
+        newFirstName: string;
+        newLastName: string;
+        password: string;
     };
 }
 
@@ -266,7 +302,186 @@ export const deleteUser = async (req: UserIdParamsRequest, res: Response) => {
     try {
         const { userId } = req.params;
         const accessLevel = req.user?.accessLevel;
-        const results = await userService.deleteUser(userId, accessLevel);
+        const results = await userService.deleteUser({ userId, accessLevel });
+
+        res.json({
+            message: "success",
+            payload: results,
+        });
+    } catch (error) {
+        let errorObj = {
+            message: "delete user failure",
+            payload: error,
+        };
+
+        console.error(errorObj);
+
+        res.status(500).json(errorObj);
+    }
+};
+
+export const closeAccount = async (req: CloseAccountRequest, res: Response) => {
+    try {
+        if (!req.user) {
+            throw new Error("No user token provided");
+        }
+        const { username, role } = req.user;
+
+        const { password } = req.body;
+
+        if (role !== "customer") {
+            throw new Error(
+                "closeAccount api endpoint can only be used with customer accounts"
+            );
+        }
+        const results = await userService.deleteUser({ username, password });
+
+        res.json({
+            message: "success",
+            payload: results,
+        });
+    } catch (error) {
+        let errorObj = {
+            message: "delete user failure",
+            payload: error,
+        };
+
+        console.error(errorObj);
+
+        res.status(500).json(errorObj);
+    }
+};
+
+export const getCustomerAddresses = async (req: Request, res: Response) => {
+    try {
+        if (!req.user) {
+            throw new Error("No user token");
+        }
+
+        const { customer_id } = req.user;
+
+        if (!customer_id) {
+            throw new Error("No customer_id in token");
+        }
+
+        const results = await userService.getCustomerAddresses(customer_id);
+
+        res.json({
+            message: "success",
+            payload: results,
+        });
+    } catch (error) {
+        let errorObj = {
+            message: "delete user failure",
+            payload: error,
+        };
+
+        console.error(errorObj);
+
+        res.status(500).json(errorObj);
+    }
+};
+
+export const addCustomerAddress = async (
+    req: AddCustomerAddressRequest,
+    res: Response
+) => {
+    try {
+        if (!req.user) {
+            throw new Error("No user token");
+        }
+
+        const { customer_id } = req.user;
+
+        if (!customer_id) {
+            throw new Error("No customer_id in token");
+        }
+
+        const { address, nickname } = req.body;
+
+        const results = await userService.addCustomerAddress(
+            customer_id,
+            address,
+            nickname
+        );
+
+        res.json({
+            message: "success",
+            payload: results,
+        });
+    } catch (error) {
+        let errorObj = {
+            message: "add customer address failure",
+            payload: error,
+        };
+
+        console.error(errorObj);
+
+        res.status(500).json(errorObj);
+    }
+};
+
+export const removeCustomerAddress = async (
+    req: RemoveCustomerAddressRequest,
+    res: Response
+) => {
+    try {
+        if (!req.user) {
+            throw new Error("No user token");
+        }
+
+        const { customer_id } = req.user;
+
+        if (!customer_id) {
+            throw new Error("No customer_id in token");
+        }
+
+        const { addressId } = req.body;
+
+        const results = await userService.removeCustomerAddress(
+            customer_id,
+            addressId
+        );
+
+        res.json({
+            message: "success",
+            payload: results,
+        });
+    } catch (error) {
+        let errorObj = {
+            message: "remove customer address failure",
+            payload: error,
+        };
+
+        console.error(errorObj);
+
+        res.status(500).json(errorObj);
+    }
+};
+
+export const editCustomerAddress = async (
+    req: EditCustomerAddressRequest,
+    res: Response
+) => {
+    try {
+        if (!req.user) {
+            throw new Error("No user token");
+        }
+
+        const { customer_id } = req.user;
+
+        if (!customer_id) {
+            throw new Error("No customer_id in token");
+        }
+
+        const { addressId, address, nickname } = req.body;
+
+        const results = await userService.editCustomerAddress(
+            customer_id,
+            addressId,
+            address,
+            nickname
+        );
 
         res.json({
             message: "success",

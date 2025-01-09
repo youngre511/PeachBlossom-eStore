@@ -8,6 +8,11 @@ import {
     getAdmins,
     getCustomers,
     resetPassword,
+    getCustomerAddresses,
+    removeCustomerAddress,
+    addCustomerAddress,
+    editCustomerAddress,
+    closeAccount,
 } from "../controllers/userController.js";
 import { authorizeRoles } from "../middleware/authorize.js";
 import { authMiddleware } from "../middleware/authMiddleware.js";
@@ -26,6 +31,8 @@ router.get(
     authorizeRoles(["admin"]),
     getCustomers
 );
+
+router.get("/customer/addresses", authMiddleware, getCustomerAddresses);
 
 router.put(
     "/accessLevel",
@@ -46,6 +53,14 @@ router.put("/changePassword", authMiddleware, changePassword);
 router.put("/changeUsername", authMiddleware, changeUsername);
 
 router.put("/changeDisplayName", authMiddleware, changeDisplayName);
+
+router.put("/customer/removeAddress", authMiddleware, removeCustomerAddress);
+
+router.put("/customer/editAddress", authMiddleware, editCustomerAddress);
+
+router.post("/customer/addAddress", authMiddleware, addCustomerAddress);
+
+router.delete("customer/delete", authMiddleware, closeAccount);
 
 router.delete(
     "/delete/:userId",
