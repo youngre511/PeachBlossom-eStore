@@ -136,6 +136,7 @@ const Login: React.FC<Props> = ({ setCreating, accountsTabVisible }) => {
                     </FormControl>
 
                     <PeachButton
+                        className="login-btn"
                         text="Sign in"
                         type="submit"
                         width="100%"
