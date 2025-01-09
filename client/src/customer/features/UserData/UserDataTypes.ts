@@ -40,7 +40,10 @@ export interface OrdersResponse {
 }
 
 export interface CustomerAddress {
-    nickName: string | null;
+    addressId: number;
+    nickname: string | null;
+    firstName: string;
+    lastName: string;
     shippingAddress1: string;
     shippingAddress2: string;
     city: string;

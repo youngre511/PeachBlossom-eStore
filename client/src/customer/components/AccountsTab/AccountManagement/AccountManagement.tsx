@@ -8,6 +8,7 @@ import { ExpandMoreSharp } from "@mui/icons-material";
 import { AuthContext } from "../../../../common/contexts/authContext";
 import PeachButton from "../../../../common/components/PeachButton";
 import Security from "../Security/Security";
+import AddressManagement from "../AddressManagement/AddressManagement";
 
 interface Props {
     accountsTabVisible: boolean;
@@ -21,6 +22,7 @@ const AccountManagement: React.FC<Props> = ({
     const auth = useContext(AuthContext);
     const [logoutVisible, setLogoutVisible] = useState<boolean>(false);
     const [showSecurity, setShowSecurity] = useState<boolean>(false);
+    const [showAddresses, setShowAddresses] = useState<boolean>(false);
     const logOut = () => {
         auth?.logout();
     };
@@ -28,13 +30,14 @@ const AccountManagement: React.FC<Props> = ({
     useEffect(() => {
         setShowSecurity(false);
         setLogoutVisible(false);
+        setShowAddresses(false);
     }, [accountsTabVisible]);
 
     useEffect(() => {
-        if (showSecurity) {
+        if (showSecurity || showAddresses) {
             setLogoutVisible(false);
         }
-    }, [showSecurity]);
+    }, [showSecurity, showAddresses]);
 
     return (
         <div className="account-management">
@@ -71,8 +74,13 @@ const AccountManagement: React.FC<Props> = ({
                         >
                             Your Orders
                         </li>
-                        <li>Your Addresses</li>
-                        <li onClick={() => setShowSecurity(true)}>
+                        <li
+                            onClick={() => setShowAddresses(true)}
+                            role="button"
+                        >
+                            Your Addresses
+                        </li>
+                        <li onClick={() => setShowSecurity(true)} role="button">
                             Login & Security
                         </li>
                     </ul>
@@ -89,6 +97,9 @@ const AccountManagement: React.FC<Props> = ({
                 <PeachButton text="log out" width="300px" onClick={logOut} />
             </div>
             {showSecurity && <Security setShowSecurity={setShowSecurity} />}
+            {showAddresses && (
+                <AddressManagement setShowAddresses={setShowAddresses} />
+            )}
         </div>
     );
 };

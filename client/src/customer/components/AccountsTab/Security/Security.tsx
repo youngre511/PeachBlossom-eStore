@@ -13,10 +13,6 @@ const Security: React.FC<SecurityProps> = ({ setShowSecurity }) => {
     const [securityVisible, setSecurityVisible] = useState<boolean>(false);
     const [fullyOpen, setFullyOpen] = useState<boolean>(false);
 
-    // useEffect(() => {
-
-    // }, []);
-
     useEffect(() => {
         if (!securityVisible && fullyOpen) {
             setTimeout(() => {
