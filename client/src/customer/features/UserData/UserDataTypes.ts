@@ -40,7 +40,7 @@ export interface OrdersResponse {
 }
 
 export interface CustomerAddress {
-    addressId: number;
+    address_id: number;
     nickname: string | null;
     firstName: string;
     lastName: string;

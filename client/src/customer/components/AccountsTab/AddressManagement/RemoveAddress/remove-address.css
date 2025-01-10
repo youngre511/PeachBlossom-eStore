@@ -1,0 +1,15 @@
+.remove-dialog {
+    margin-top: 30vh;
+    margin-top: 25dvh;
+}
+
+.remove-dialog h1 {
+    text-align: center;
+    font-size: 1.5rem;
+}
+
+.remove-btns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+}

@@ -1,0 +1,43 @@
+.edit-add-address {
+    margin-top: 5vh;
+    margin-top: 5dvh;
+}
+
+.edit-add-address-form {
+    overflow: scroll;
+    height: calc(100vh - 160px);
+    scrollbar-width: none; /* Firefox: Hides scrollbar */
+    -ms-overflow-style: none; /* IE and Edge: Hides scrollbar */
+    padding-right: 5px;
+}
+
+.edit-add-address-form::-webkit-scrollbar {
+    display: none; /* Hides scrollbar */
+}
+
+.edit-add-btns {
+    margin-top: 30px;
+    margin-bottom: 5px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+}
+
+.loading-overlay {
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    height: 100dvh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #fbeee550;
+    backdrop-filter: blur(2px);
+}
+
+.save-error {
+    color: red;
+    margin-bottom: 15px;
+}

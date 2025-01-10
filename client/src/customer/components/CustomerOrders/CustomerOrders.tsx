@@ -8,6 +8,9 @@ import { AuthContext } from "../../../common/contexts/authContext";
 import { useSearchParams } from "react-router-dom";
 import { CustomerOrderFilter } from "../../features/UserData/UserDataTypes";
 import CustomerOrderRow from "./CustomerOrderRow";
+import PageSelector from "../Shop/PageSelector";
+import SortMethodSelector from "../../features/SortMethodSelector/SortMethodSelector";
+import { InputLabel } from "@mui/material";
 
 interface CustomerOrdersProps {}
 const CustomerOrders: React.FC<CustomerOrdersProps> = () => {
@@ -90,21 +93,32 @@ const CustomerOrders: React.FC<CustomerOrdersProps> = () => {
         });
         setSearchParams(searchParams);
     };
-    console.log("PAGE:", page);
+
     return (
         <div className="order-history">
-            <h1>Orders</h1>
+            <div className="order-header">
+                <h1>Orders</h1>
+            </div>
             <div className="past-orders">
                 <div className="orders-container">
                     {orders.length === 0 ? (
                         <div>You have no past orders.</div>
                     ) : (
                         orders.map((order) => (
-                            <CustomerOrderRow order={order} />
+                            <CustomerOrderRow
+                                order={order}
+                                key={order.orderNo}
+                            />
                         ))
                     )}
                 </div>
             </div>
+            <PageSelector
+                numberOfResults={numberOfResults}
+                currentPage={+page}
+                updateSearchParams={updateSearchParams}
+                itemsPerPage={10}
+            />
         </div>
     );
 };

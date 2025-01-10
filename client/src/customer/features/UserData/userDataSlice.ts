@@ -9,6 +9,7 @@ import {
 } from "./UserDataTypes";
 import axios from "axios";
 import { arraysEqual } from "../../../common/utils/arraysEqual";
+import { ShippingDetails } from "../../components/Checkout/Checkout";
 
 const initialState: UserDataState = {
     data: {
@@ -39,7 +40,6 @@ export const getUserOrders = createAsyncThunk<
             const token = localStorage.getItem("jwtToken");
             const state = getState() as RootState;
             const existingFilters = state.userData.data.orderFilter;
-            const itemsPerPage = state.userData.preferences.itemsPerPage;
             let filterUnchanged = true;
 
             if (!filter.sort) {
@@ -84,7 +84,7 @@ export const getUserOrders = createAsyncThunk<
 
             const params = {
                 customerId: String(customerId),
-                itemsPerPage: itemsPerPage,
+                itemsPerPage: 10,
                 ...filter,
             };
             const response = await axios.get(
@@ -109,14 +109,13 @@ export const getUserOrders = createAsyncThunk<
 );
 
 export const getCustomerAddresses = createAsyncThunk<
-    CustomerAddress[], // Replace with the return type of the thunk
-    { force?: boolean }, // Replace with the type of the argument passed to the thunk
+    CustomerAddress[],
+    { force?: boolean },
     { state: RootState }
 >(
     "userData/getCustomerAddresses",
     async ({ force = false }, { getState, rejectWithValue }) => {
         try {
-            console.log("Getting Addresses");
             const state = getState() as RootState;
             const addresses = state.userData.data.addressList;
             const token = localStorage.getItem("jwtToken");
@@ -136,7 +135,6 @@ export const getCustomerAddresses = createAsyncThunk<
 
             const addressList = response.data.payload;
 
-            console.log("addresslist before:", addressList);
             for (let address of addressList) {
                 const splitShippingAddress =
                     address.shippingAddress.split(" | ");
@@ -146,13 +144,124 @@ export const getCustomerAddresses = createAsyncThunk<
                 delete address.shippingAddress;
             }
 
-            console.log("addressListAfter:", addressList);
             return addressList;
         } catch (error: any) {
             return rejectWithValue(error.response?.data || error);
         }
     }
 );
+
+export const removeAddress = createAsyncThunk<
+    CustomerAddress[],
+    { addressId: number },
+    { state: RootState }
+>(
+    "userData/removeAddress",
+    async ({ addressId }, { rejectWithValue, dispatch }) => {
+        try {
+            dispatch(removeAddressOptimistic(addressId));
+
+            const token = localStorage.getItem("jwtToken");
+
+            const response = await axios.put(
+                `${import.meta.env.VITE_API_URL}/user/customer/removeAddress`,
+                { addressId },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+                    },
+                }
+            );
+
+            const addressList = response.data.payload;
+
+            for (let address of addressList) {
+                const splitShippingAddress =
+                    address.shippingAddress.split(" | ");
+                address.shippingAddress1 = splitShippingAddress[0];
+                if (splitShippingAddress[1])
+                    address.shippingAddress2 = splitShippingAddress[1];
+                delete address.shippingAddress;
+            }
+
+            return addressList;
+        } catch (error: any) {
+            return rejectWithValue(error.response?.data || error);
+        }
+    }
+);
+
+export const editAddress = createAsyncThunk<
+    CustomerAddress[],
+    { addressId: number; address: ShippingDetails; nickname: string },
+    { state: RootState }
+>(
+    "userData/editAddress",
+    async ({ addressId, address, nickname }, { rejectWithValue }) => {
+        try {
+            const token = localStorage.getItem("jwtToken");
+
+            const response = await axios.put(
+                `${import.meta.env.VITE_API_URL}/user/customer/editAddress`,
+                { address, nickname, addressId },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+                    },
+                }
+            );
+
+            const addressList = response.data.payload;
+
+            for (let address of addressList) {
+                const splitShippingAddress =
+                    address.shippingAddress.split(" | ");
+                address.shippingAddress1 = splitShippingAddress[0];
+                if (splitShippingAddress[1])
+                    address.shippingAddress2 = splitShippingAddress[1];
+                delete address.shippingAddress;
+            }
+
+            return addressList;
+        } catch (error: any) {
+            return rejectWithValue(error.response?.data || error);
+        }
+    }
+);
+
+export const addAddress = createAsyncThunk<
+    CustomerAddress[],
+    { address: ShippingDetails; nickname: string },
+    { state: RootState }
+>("userData/addAddress", async ({ address, nickname }, { rejectWithValue }) => {
+    try {
+        const token = localStorage.getItem("jwtToken");
+
+        const response = await axios.post(
+            `${import.meta.env.VITE_API_URL}/user/customer/addAddress`,
+            { address, nickname },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+                },
+            }
+        );
+
+        const addressList = response.data.payload;
+
+        for (let address of addressList) {
+            const splitShippingAddress = address.shippingAddress.split(" | ");
+            address.shippingAddress1 = splitShippingAddress[0];
+            if (splitShippingAddress[1])
+                address.shippingAddress2 = splitShippingAddress[1];
+            delete address.shippingAddress;
+        }
+
+        return addressList;
+    } catch (error: any) {
+        return rejectWithValue(error.response?.data || error);
+    }
+});
 
 const userDataSlice = createSlice({
     name: "userData",
@@ -173,6 +282,11 @@ const userDataSlice = createSlice({
                 ...initialState,
                 preferences: currentPreferences,
             };
+        },
+        removeAddressOptimistic: (state, action: PayloadAction<number>) => {
+            state.data.addressList = state.data.addressList.filter(
+                (address) => address.address_id !== action.payload
+            );
         },
     },
     extraReducers: (builder) => {
@@ -204,6 +318,45 @@ const userDataSlice = createSlice({
                 state.loading = false;
                 state.error =
                     action.error.message || "Failed to fetch user orders";
+            })
+            .addCase(removeAddress.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(removeAddress.fulfilled, (state, action) => {
+                state.data.addressList = action.payload;
+                state.loading = false;
+            })
+            .addCase(removeAddress.rejected, (state, action) => {
+                state.loading = false;
+                state.error =
+                    action.error.message || "Failed to fetch user orders";
+            })
+            .addCase(editAddress.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(editAddress.fulfilled, (state, action) => {
+                state.data.addressList = action.payload;
+                state.loading = false;
+            })
+            .addCase(editAddress.rejected, (state, action) => {
+                state.loading = false;
+                state.error =
+                    action.error.message || "Failed to fetch user orders";
+            })
+            .addCase(addAddress.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(addAddress.fulfilled, (state, action) => {
+                state.data.addressList = action.payload;
+                state.loading = false;
+            })
+            .addCase(addAddress.rejected, (state, action) => {
+                state.loading = false;
+                state.error =
+                    action.error.message || "Failed to fetch user orders";
             });
     },
 });
@@ -213,5 +366,6 @@ export const {
     setCurrentOrderNo,
     clearCurrentOrderNo,
     resetUserData,
+    removeAddressOptimistic,
 } = userDataSlice.actions;
 export default userDataSlice.reducer;
