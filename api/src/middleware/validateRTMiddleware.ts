@@ -6,12 +6,13 @@ export const validateRT = async (
     req: Request,
     res: Response,
     next: NextFunction
-) => {
+): Promise<void> => {
     const refreshToken = req.cookies.refreshToken;
     if (!refreshToken) {
-        return res
-            .status(401)
-            .json({ message: "Operation denied, no refresh token provided." });
+        res.status(401).json({
+            message: "Operation denied, no refresh token provided.",
+        });
+        return;
     }
 
     try {
@@ -30,20 +31,21 @@ export const validateRT = async (
                 tokenRecord.token !== refreshToken ||
                 tokenRecord.expires_at < new Date()
             ) {
-                return res.status(401).json({
+                res.status(401).json({
                     message:
                         "Operation denied, invalid or expired refresh token.",
                 });
+                return;
             }
             req.refreshToken = decoded;
             console.log("token validated");
             next();
         } else {
-            return res
-                .status(401)
-                .json({ message: "Invalid refreshToken structure" });
+            res.status(401).json({ message: "Invalid refreshToken structure" });
+            return;
         }
     } catch (error) {
-        return res.status(401).json({ message: "Invalid refreshToken" });
+        res.status(401).json({ message: "Invalid refreshToken" });
+        return;
     }
 };
