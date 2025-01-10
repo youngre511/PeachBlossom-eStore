@@ -3,6 +3,7 @@ import React, {
     ReactNode,
     useContext,
     useEffect,
+    useRef,
     useState,
 } from "react";
 import { useLocation } from "react-router-dom";
@@ -34,17 +35,17 @@ export const NavigationHistoryProvider: React.FC<
     NavigationHistoryProviderProps
 > = ({ children }) => {
     const location = useLocation();
-    const [previousRoute, setPreviousRoute] = useState<string | null>(null);
+    const previousRouteRef = useRef<string | null>(null);
     const [currentRoute, setCurrentRoute] = useState<string | null>(null);
 
     useEffect(() => {
+        previousRouteRef.current = currentRoute;
         setCurrentRoute(location.pathname + location.search);
-        return () => setPreviousRoute(location.pathname + location.search);
     }, [location]);
 
     return (
         <NavigationHistoryContext.Provider
-            value={{ previousRoute, currentRoute }}
+            value={{ previousRoute: previousRouteRef.current, currentRoute }}
         >
             {children}
         </NavigationHistoryContext.Provider>

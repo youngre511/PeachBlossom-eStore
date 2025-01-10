@@ -108,7 +108,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 if (!madeInitialCheck) {
                     proceed = true;
                     setMadeInitialCheck(true);
-                } else if (window.location.hostname.startsWith("admin")) {
+                } else if (
+                    window.location.hostname.startsWith("admin") &&
+                    location.pathname !== "/login"
+                ) {
                     navigate("/login");
                 }
             } else {
