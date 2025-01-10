@@ -135,7 +135,7 @@ export const placeOrder = async (orderData: OrderData) => {
             where: {
                 shippingAddress: shippingAddressFull,
                 city: shipping.city,
-                stateAbbr: shipping.state,
+                stateAbbr: shipping.stateAbbr,
                 zipCode: shipping.zipCode,
                 phoneNumber: shipping.phoneNumber,
                 firstName: shipping.firstName,

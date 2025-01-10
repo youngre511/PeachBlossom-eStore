@@ -17,7 +17,7 @@ import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 import ChevronLeftRoundedIcon from "@mui/icons-material/ChevronLeftRounded";
 import ChevronRightRoundedIcon from "@mui/icons-material/ChevronRightRounded";
 
-import AddressForm from "./AddressForm";
+import AddressForm from "../AddressForm/AddressForm";
 import Info from "./Info";
 import InfoMobile from "./InfoMobile";
 import PaymentForm from "./PaymentForm";
@@ -37,6 +37,7 @@ import "./checkout.css";
 import { useCheckoutTimer } from "../../../common/contexts/checkoutTimerContext";
 import BlankPopup from "../../../common/components/BlankPopup";
 import { AuthContext } from "../../../common/contexts/authContext";
+import { validStates } from "../AddressForm/AddressForm";
 
 export interface PaymentDetails {
     cardType: string;
@@ -53,7 +54,7 @@ export interface ShippingDetails {
     lastName: string;
     zipCode: string;
     phoneNumber: string;
-    state: string;
+    stateAbbr: string;
     city: string;
 }
 
@@ -95,7 +96,7 @@ const Checkout: React.FC = () => {
         lastName: "",
         zipCode: "",
         phoneNumber: "",
-        state: "",
+        stateAbbr: "",
         city: "",
     });
     const [email, setEmail] = useState<string>("");
@@ -122,59 +123,6 @@ const Checkout: React.FC = () => {
     const [dismissedRenewDialogue, setDismissedRenewDialogue] =
         useState<boolean>(false);
     const [cartEdited, setCartEdited] = useState<boolean>(false);
-
-    const validStates = [
-        "AK",
-        "AL",
-        "AR",
-        "AZ",
-        "CA",
-        "CO",
-        "CT",
-        "DE",
-        "FL",
-        "GA",
-        "HI",
-        "IA",
-        "ID",
-        "IL",
-        "IN",
-        "KS",
-        "KY",
-        "LA",
-        "MA",
-        "MD",
-        "ME",
-        "MI",
-        "MN",
-        "MO",
-        "MS",
-        "MT",
-        "NC",
-        "ND",
-        "NE",
-        "NH",
-        "NJ",
-        "NM",
-        "NV",
-        "NY",
-        "OH",
-        "OK",
-        "OR",
-        "PA",
-        "RI",
-        "SC",
-        "SD",
-        "TN",
-        "TX",
-        "UT",
-        "VA",
-        "VT",
-        "WA",
-        "WI",
-        "WV",
-        "WY",
-    ];
 
     // Hold stock till checkout is complete or user navigates away from page.
     useEffect(() => {
@@ -218,7 +166,7 @@ const Checkout: React.FC = () => {
                 canProceed = false;
                 break;
             } else if (
-                key === "state" &&
+                key === "stateAbbr" &&
                 !validStates.includes(shippingDetails[key])
             ) {
                 canProceed = false;
@@ -290,7 +238,6 @@ const Checkout: React.FC = () => {
                     <AddressForm
                         setShippingDetails={setShippingDetails}
                         shippingDetails={shippingDetails}
-                        validStates={validStates}
                     />
                 );
             case 1:

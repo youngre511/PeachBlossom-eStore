@@ -9,7 +9,7 @@ export interface ShippingDetails {
     lastName: string;
     zipCode: string;
     phoneNumber: string;
-    state: string;
+    stateAbbr: string;
     city: string;
 }
 export interface OrderData {
