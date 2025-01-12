@@ -104,7 +104,7 @@ export class sqlProduct extends Model {
     declare status: string;
 
     @BelongsToMany(() => sqlPromotion, () => sqlProductPromotion)
-    declare productPromotions: sqlProductPromotion[];
+    declare promotions: sqlPromotion[];
 
     @HasMany(() => sqlCartItem, { as: "CartItem", foreignKey: "productNo" })
     declare cartItem: sqlCartItem;

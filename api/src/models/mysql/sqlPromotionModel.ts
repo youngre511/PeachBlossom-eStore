@@ -80,5 +80,5 @@ export class sqlPromotion extends Model {
     declare active: boolean;
 
     @BelongsToMany(() => sqlProduct, () => sqlProductPromotion)
-    declare productPromotions: sqlProductPromotion[];
+    declare products: sqlProduct[];
 }
