@@ -5,6 +5,8 @@ import PeachButton from "../../../common/components/PeachButton";
 import { useAppDispatch } from "../../hooks/reduxHooks";
 import { setCurrentOrderNo } from "../../features/UserData/userDataSlice";
 import { useNavigate } from "react-router-dom";
+import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
+import { ChevronRight } from "@mui/icons-material";
 
 interface CustomerOrderRowProps {
     order: CustomerOrder;
@@ -24,6 +26,7 @@ const CustomerOrderRow: React.FC<CustomerOrderRowProps> = ({ order }) => {
     const time = dateObj.toLocaleTimeString("en-us", timeOptions);
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
+    const { width } = useWindowSizeContext();
 
     const handleClick = () => {
         dispatch(setCurrentOrderNo(order.orderNo));
@@ -31,46 +34,71 @@ const CustomerOrderRow: React.FC<CustomerOrderRowProps> = ({ order }) => {
     };
 
     return (
-        <div className="order-row">
-            <div className="order-top-bar">
-                <div className="top-bar-left">
-                    <div className="placed-on">
-                        <div className="placed-on-label">Placed on</div>
-                        <div className="placed-on-date">
-                            <span className="date">{date}</span>
-                            <span className="time">{time}</span>
+        <div
+            className="order-row"
+            onClick={width && width < 600 ? handleClick : undefined}
+        >
+            {width && width >= 600 && (
+                <div className="order-top-bar">
+                    <div className="top-bar-left">
+                        <div className="placed-on">
+                            <div className="placed-on-label">Placed on</div>
+                            <div className="placed-on-date">
+                                <span className="date">{date}</span>
+                                <span className="time">{time}</span>
+                            </div>
+                        </div>
+                        <div className="order-row-total">
+                            <div className="order-row-total-label">Total</div>
+                            <div className="order-row-total-amount">
+                                ${order.totalAmount}
+                            </div>
                         </div>
                     </div>
-                    <div className="order-row-total">
-                        <div className="order-row-total-label">Total</div>
-                        <div className="order-row-total-amount">
-                            ${order.totalAmount}
+                    <div className="customer-order-no">
+                        <div className="customer-order-no-label">
+                            Order number
+                        </div>
+                        <div className="customer-order-no-number">
+                            #{order.orderNo}
                         </div>
                     </div>
                 </div>
-                <div className="customer-order-no">
-                    <div className="customer-order-no-label">Order number</div>
-                    <div className="customer-order-no-number">
-                        #{order.orderNo}
-                    </div>
-                </div>
-            </div>
+            )}
             <div className="order-content">
                 <div className="order-description">
                     <img
                         className="order-thumbnail"
                         src={`${order.thumbnailUrl}_300.webp`}
                     />
-                    <div className="item-number">
-                        {order.numberOfItems} items
+                    <div className="customer-order-details">
+                        {width && width < 600 && (
+                            <div className="placed-on">
+                                <div className="placed-on-label">
+                                    {width && width < 600 ? "Order p" : "P"}
+                                    laced on
+                                </div>
+                                <div className="placed-on-date">
+                                    <span className="date">{date}</span>
+                                    <span className="time">{time}</span>
+                                </div>
+                            </div>
+                        )}
+                        <div className="item-number">
+                            {order.numberOfItems} items
+                        </div>
                     </div>
                 </div>
                 <div className="order-options">
-                    <PeachButton
-                        text="view details"
-                        onClick={handleClick}
-                        width="150px"
-                    />
+                    {width && width >= 600 ? (
+                        <PeachButton
+                            text="view details"
+                            onClick={handleClick}
+                            width="150px"
+                        />
+                    ) : (
+                        <ChevronRight />
+                    )}
                 </div>
             </div>
         </div>

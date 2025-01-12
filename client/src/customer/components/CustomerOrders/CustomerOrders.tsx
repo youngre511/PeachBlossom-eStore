@@ -97,7 +97,7 @@ const CustomerOrders: React.FC<CustomerOrdersProps> = () => {
     return (
         <div className="order-history">
             <div className="order-header">
-                <h1>Orders</h1>
+                <h1>Your Orders</h1>
             </div>
             <div className="past-orders">
                 <div className="orders-container">
@@ -113,12 +113,14 @@ const CustomerOrders: React.FC<CustomerOrdersProps> = () => {
                     )}
                 </div>
             </div>
-            <PageSelector
-                numberOfResults={numberOfResults}
-                currentPage={+page}
-                updateSearchParams={updateSearchParams}
-                itemsPerPage={10}
-            />
+            <div className="order-history-page">
+                <PageSelector
+                    numberOfResults={numberOfResults}
+                    currentPage={+page}
+                    updateSearchParams={updateSearchParams}
+                    itemsPerPage={10}
+                />
+            </div>
         </div>
     );
 };
