@@ -244,7 +244,7 @@ export const addToCart = async (
                 include: [
                     {
                         model: sqlProduct,
-                        as: "productPromotions",
+                        as: "products",
                         where: { productNo: product.productNo },
                         through: {
                             attributes: [],
