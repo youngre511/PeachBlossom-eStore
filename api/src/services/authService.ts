@@ -30,7 +30,6 @@ export const createUser = async (
     lastName: string | null
 ) => {
     const sqlTransaction = await sequelize.transaction();
-    const sqlTransaction2 = await sequelize.transaction();
 
     try {
         if (role === "customer" && !email) {
@@ -108,8 +107,6 @@ export const createUser = async (
             }
         }
 
-        await sqlTransaction.commit();
-
         const accessTokenPayload = {
             user_id: userData.user_id,
             username: userData.username,
@@ -133,20 +130,22 @@ export const createUser = async (
         const accessToken = generateAccessToken(accessTokenPayload);
         const refreshToken = generateRefreshToken(refreshTokenPayload);
 
-        await sqlRefreshToken.create({
-            user_id: userData.user_id,
-            token: refreshToken,
-            jti: jti,
-            expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-            revoked: false,
-        });
+        await sqlRefreshToken.create(
+            {
+                user_id: userData.user_id,
+                token: refreshToken,
+                jti: jti,
+                expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+                revoked: false,
+            },
+            { transaction: sqlTransaction }
+        );
 
-        await sqlTransaction2.commit();
+        await sqlTransaction.commit();
 
         return { accessToken, refreshToken };
     } catch (error) {
         await sqlTransaction.rollback();
-        await sqlTransaction2.rollback();
         if (error instanceof Error) {
             throw new Error("Error creating new user: " + error.message);
         } else {
