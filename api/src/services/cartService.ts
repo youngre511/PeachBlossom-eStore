@@ -8,6 +8,7 @@ import { sqlInventory } from "../models/mysql/sqlInventoryModel.js";
 import { Op, Transaction, WhereOptions } from "sequelize";
 import { JoinReqCart, RawJoinReqProduct } from "./serviceTypes.js";
 import { sqlCustomer } from "../models/mysql/sqlCustomerModel.js";
+import { calculateFinalPrice } from "../utils/calculateFinalPrice.js";
 
 // Types and Interfaces
 
@@ -171,13 +172,18 @@ export const addToCart = async (
                     `Insufficient stock. Tried add ${quantity} ${product.productName} unit(s) to cart, but only ${product["Inventory.available"]} are available.`
                 );
             }
-            await sqlTransaction.commit();
+
             // Fetch the updated cart. Format and return data to update store.
-            const returnCartObj = await getCart({ cartId: cartId as number });
+            const returnCartObj = await getCart({
+                cartId: cartId as number,
+                transaction: sqlTransaction,
+            });
 
             if (!returnCartObj) {
                 throw new Error("Unable to retrieve new cart state");
             }
+
+            await sqlTransaction.commit();
 
             return {
                 success: false,
@@ -252,23 +258,9 @@ export const addToCart = async (
                 },
             });
 
-            const promotionId =
-                promotions.length > 0 ? promotions[0].promotionId : undefined;
-
-            let finalPrice: number;
-
-            // If there is an active promotion, calculate final price. Otherwise, set final price equal to regular price
-            if (promotionId) {
-                const promo = promotions[0];
-                if (promo.discountType === "percentage") {
-                    finalPrice =
-                        product.price - promo.discountValue * product.price;
-                } else {
-                    finalPrice = product.price - promo.discountValue;
-                }
-            } else {
-                finalPrice = product.price;
-            }
+            const { finalPrice, promotionId } = await calculateFinalPrice(
+                product
+            );
 
             await sqlCartItem.create(
                 {
