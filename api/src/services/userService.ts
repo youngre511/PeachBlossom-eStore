@@ -1,7 +1,7 @@
 import { sqlUser } from "../models/mysql/sqlUserModel.js";
 import argon2 from "argon2";
 import sequelize from "../models/mysql/index.js";
-import { AssociationOptions, Transaction } from "sequelize";
+import { Transaction } from "sequelize";
 import {
     AddAddressOptions,
     sqlCustomer,
@@ -9,7 +9,6 @@ import {
 import { sqlAdmin } from "../models/mysql/sqlAdminModel.js";
 import { Op } from "sequelize";
 import { generateAccessToken, UserPayload } from "../utils/jwt.js";
-import { sqlRefreshToken } from "../models/mysql/sqlRefreshTokenModel.js";
 import { ReceivedUser } from "../middleware/authMiddleware.js";
 import { ShippingDetails } from "../controllers/orderController.js";
 import { sqlAddress } from "../models/mysql/sqlAddressModel.js";
