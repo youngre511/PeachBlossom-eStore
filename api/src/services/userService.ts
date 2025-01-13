@@ -560,7 +560,7 @@ export const removeCustomerAddress = async (
             transaction: sqlTransaction,
         });
 
-        const isUsed = await isAddressUsed(addressId, sqlTransaction);
+        const isUsed = await isAddressUsed(addressId, customerId);
 
         if (!isUsed) {
             await sqlAddress.destroy({
@@ -609,8 +609,8 @@ export const addCustomerAddress = async (
         }
 
         const addressData = JSON.parse(JSON.stringify(address));
-        if (addressData.shippingAddress2)
-            addressData.shippingAddress = `${addressData.shippingAddress} | ${addressData.shippingAddress2}`;
+
+        addressData.shippingAddress = `${addressData.shippingAddress} | ${addressData.shippingAddress2}`;
         delete addressData.shippingAddress2;
 
         let addressRecord = await sqlAddress.findOne({
@@ -629,8 +629,10 @@ export const addCustomerAddress = async (
         }
 
         const options: AddAddressOptions = { transaction: sqlTransaction };
-        if (nickname && nickname !== "null" && nickname.trim() !== "")
+        if (nickname && nickname !== "null" && nickname.trim() !== "") {
             options.through = { nickname: nickname };
+        }
+
         await foundCustomer.addAddress(addressRecord.address_id, options);
 
         const newAddressList = await getCustomerAddresses(
@@ -660,6 +662,7 @@ export const editCustomerAddress = async (
     newNickname: string | null
 ) => {
     const sqlTransaction = await sequelize.transaction();
+
     try {
         const foundAddress = await sqlAddress.findByPk(addressId, {
             transaction: sqlTransaction,
@@ -672,14 +675,11 @@ export const editCustomerAddress = async (
                 newNickname,
                 sqlTransaction
             );
+            await sqlTransaction.commit();
             return addressList;
         }
 
-        const isUsed = await isAddressUsed(
-            addressId,
-            sqlTransaction,
-            customerId
-        );
+        const isUsed = await isAddressUsed(addressId, customerId);
 
         if (isUsed) {
             await removeCustomerAddress(customerId, addressId, sqlTransaction);
@@ -689,12 +689,14 @@ export const editCustomerAddress = async (
                 newNickname,
                 sqlTransaction
             );
+
+            await sqlTransaction.commit();
             return addressList;
         }
 
         const addressData = JSON.parse(JSON.stringify(newAddress));
-        if (addressData.shippingAddress2)
-            addressData.shippingAddress = `${addressData.shippingAddress} | ${addressData.shippingAddress2}`;
+
+        addressData.shippingAddress = `${addressData.shippingAddress} | ${addressData.shippingAddress2}`;
         delete addressData.shippingAddress2;
 
         await foundAddress.update(addressData, { transaction: sqlTransaction });
@@ -735,14 +737,9 @@ export const editCustomerAddress = async (
     }
 };
 
-const isAddressUsed = async (
-    addressId: number,
-    sqlTransaction: Transaction,
-    customerId?: number
-) => {
+const isAddressUsed = async (addressId: number, customerId?: number) => {
     const associatedOrders = await sqlOrder.findOne({
         where: { address_id: addressId },
-        transaction: sqlTransaction,
     });
 
     const customerWhereClause = customerId
@@ -752,7 +749,6 @@ const isAddressUsed = async (
     const associatedCustomers = await sqlCustomer.findOne({
         where: customerWhereClause,
         include: [{ model: sqlAddress, where: { address_id: addressId } }],
-        transaction: sqlTransaction,
     });
 
     if (associatedCustomers || associatedOrders) {

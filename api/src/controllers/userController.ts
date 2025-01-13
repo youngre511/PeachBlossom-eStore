@@ -489,7 +489,7 @@ export const editCustomerAddress = async (
         });
     } catch (error) {
         let errorObj = {
-            message: "delete user failure",
+            message: "edit customer address failure",
             payload: error,
         };
 
