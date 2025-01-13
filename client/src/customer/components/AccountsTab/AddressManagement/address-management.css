@@ -10,8 +10,8 @@
     padding: 30px;
 }
 
-.address-list-content {
-    margin-top: 50px;
+.address-list-cont {
+    margin-top: 29px;
 }
 
 .ca-header {
@@ -23,10 +23,6 @@
 .ca-add-btn {
     margin-top: 5px;
     margin-right: 10px;
-}
-
-.address-list-content h1 {
-    margin-bottom: 50px;
 }
 
 .address-list {
