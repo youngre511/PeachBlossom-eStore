@@ -36,9 +36,14 @@ const Login: React.FC<Props> = ({ setCreating, accountsTabVisible }) => {
         e.preventDefault();
         if (auth) {
             if (cart.cartId) {
-                auth.login(formData.email, formData.password, cart.cartId);
+                auth.login(
+                    formData.email,
+                    formData.password,
+                    "customer",
+                    cart.cartId
+                );
             } else {
-                auth.login(formData.email, formData.password);
+                auth.login(formData.email, formData.password, "customer");
             }
         }
     };

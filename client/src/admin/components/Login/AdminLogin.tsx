@@ -24,7 +24,7 @@ export default function AdminLogin() {
         const username = data.get("username");
         const password = data.get("password");
         if (auth && username && password) {
-            auth.login(username as string, password as string);
+            auth.login(username as string, password as string, "admin");
         }
     };
 

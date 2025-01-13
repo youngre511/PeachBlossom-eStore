@@ -157,13 +157,16 @@ export const createUser = async (
 export const login = async (
     username: string,
     password: string,
+    requiredRole: "customer" | "admin",
     cartId: number | null
 ) => {
     const sqlTransaction = await sequelize.transaction();
     try {
-        const user = await sqlUser.findOne({ where: { username: username } });
+        const user = await sqlUser.findOne({
+            where: { username: username, role: requiredRole },
+        });
         if (!user) {
-            throw new Error("Invalid username or password.");
+            throw new Error(`Invalid ${requiredRole} username or password.`);
         }
 
         const isValidPassword = await argon2.verify(user.password, password);

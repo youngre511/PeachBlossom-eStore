@@ -74,6 +74,7 @@ export const login = async (req: LoginRequest, res: Response) => {
             await authService.login(
                 username,
                 password,
+                "customer",
                 cartId ? +cartId : null
             );
         // Store refresh token in http-only cookie
@@ -82,8 +83,40 @@ export const login = async (req: LoginRequest, res: Response) => {
             secure: true, //Only use secure in production mode, not local dev mode
             sameSite: "none",
             path: "/",
-            domain:
-                role === "admin" ? ".pb.ryanyoung.codes" : ".ryanyoung.codes",
+            domain: ".ryanyoung.codes",
+            maxAge: 7 * 24 * 60 * 60 * 1000, //7 days
+        });
+
+        res.json({ accessToken, newCartId });
+    } catch (error) {
+        if (error instanceof Error) {
+            if (error.message === "Invalid username or password.") {
+                res.status(401).json({
+                    message: `Error logging in: ${error.message}`,
+                });
+            } else {
+                res.status(500).json({ message: error.message });
+            }
+        } else {
+            res.status(500).json({
+                message: "An unknown error occurred when logging in.",
+            });
+        }
+    }
+};
+
+export const adminLogin = async (req: LoginRequest, res: Response) => {
+    try {
+        const { username, password } = req.body;
+        const { accessToken, refreshToken, role, newCartId } =
+            await authService.login(username, password, "admin", null);
+        // Store refresh token in http-only cookie
+        res.cookie("refreshToken", refreshToken, {
+            httpOnly: true,
+            secure: true, //Only use secure in production mode, not local dev mode
+            sameSite: "none",
+            path: "/",
+            domain: ".pb.ryanyoung.codes",
             maxAge: 7 * 24 * 60 * 60 * 1000, //7 days
         });
 

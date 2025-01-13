@@ -36,7 +36,12 @@ export interface CreateAccountData {
 interface AuthContextProps {
     user: IUserToken | undefined;
     cartId: number | null;
-    login: (username: string, password: string, cartId?: number) => void;
+    login: (
+        username: string,
+        password: string,
+        role: "customer" | "admin",
+        cartId?: number
+    ) => void;
     logout: () => void;
     clearAuthCart: () => void;
     createAccount: (data: CreateAccountData) => Promise<void>;
@@ -269,12 +274,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const login = async (
         username: string,
         password: string,
+        role: "customer" | "admin",
         cartId?: number
     ) => {
         setError("");
         try {
             const response = await axios.post(
-                `${import.meta.env.VITE_API_URL}/auth/login`,
+                `${import.meta.env.VITE_API_URL}/auth/${
+                    role === "admin" ? "admin/" : ""
+                }login`,
                 { username, password, cartId: cartId ? cartId : undefined },
                 { withCredentials: true }
             );
