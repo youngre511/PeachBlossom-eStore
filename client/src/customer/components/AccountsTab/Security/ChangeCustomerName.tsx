@@ -1,12 +1,4 @@
-import React, {
-    ChangeEvent,
-    FocusEvent,
-    FormEvent,
-    lazy,
-    Suspense,
-    useContext,
-    useState,
-} from "react";
+import React, { ChangeEvent, FormEvent, useContext, useState } from "react";
 import { useEffect } from "react";
 import ChangeUserData from "./ChangeUserData";
 import { FormControl, FormLabel, TextField } from "@mui/material";

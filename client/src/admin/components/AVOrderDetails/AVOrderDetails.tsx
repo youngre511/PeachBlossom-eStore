@@ -1012,14 +1012,12 @@ const AVOrderDetails: React.FC = () => {
                                         required={editMode}
                                         defaultCountry="US"
                                         forceCallingCode
-                                        inputProps={{
-                                            readOnly: editMode ? false : true,
-                                            sx: editMode
-                                                ? {
-                                                      backgroundColor:
-                                                          "white !important",
-                                                  }
-                                                : undefined,
+                                        slotProps={{
+                                            htmlInput: {
+                                                readOnly: editMode
+                                                    ? false
+                                                    : true,
+                                            },
                                         }}
                                         variant={
                                             editMode ? "filled" : "standard"

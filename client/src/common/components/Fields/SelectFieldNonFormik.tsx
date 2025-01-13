@@ -59,7 +59,6 @@ export const SelectFieldNonFormik: React.FC<SelectFieldProps> = ({
                 variant={variant}
                 multiple={multiple}
                 id={name}
-                placeholder={options === "disabled" ? "N/A" : undefined}
                 label={label}
                 disabled={options === "disabled"}
                 required={required}
@@ -77,7 +76,9 @@ export const SelectFieldNonFormik: React.FC<SelectFieldProps> = ({
                         setAction(e.target.value);
                     }
                 }}
-                inputProps={{ readOnly: readOnly }}
+                inputProps={{
+                    readOnly: readOnly,
+                }}
             >
                 {Array.isArray(options) &&
                     options.map((option: string) => (

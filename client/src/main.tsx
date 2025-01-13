@@ -26,7 +26,12 @@ if (isAdmin) {
         ).render(
             <StrictMode>
                 <Provider store={adminStore}>
-                    <BrowserRouter>
+                    <BrowserRouter
+                        future={{
+                            v7_relativeSplatPath: true,
+                            v7_startTransition: true,
+                        }}
+                    >
                         <AuthProvider>
                             <NavigationHistoryProvider>
                                 <WindowSizeProvider>

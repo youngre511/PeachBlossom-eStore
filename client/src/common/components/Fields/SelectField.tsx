@@ -59,7 +59,6 @@ export const SelectField: React.FC<SelectFieldProps> = ({
                 variant="filled"
                 multiple={multiple}
                 id={name}
-                placeholder={options === "disabled" ? "N/A" : undefined}
                 label={label}
                 disabled={options === "disabled"}
                 error={meta.touched && Boolean(meta.error)}
