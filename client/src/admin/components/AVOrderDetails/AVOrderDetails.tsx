@@ -489,13 +489,22 @@ const AVOrderDetails: React.FC = () => {
 
             updateInfo["items"] = itemUpdates;
 
+            const valMap: Record<string, any> = {
+                subTotal,
+                shipping,
+                tax,
+                city,
+                zipCode,
+                email,
+            };
+
             for (const key of orderParams) {
-                if (eval(key) && eval(key) !== currentDetails[key]) {
+                if (valMap[key] && valMap[key] !== currentDetails[key]) {
                     thereAreChanges = true;
                     if (["subTotal", "tax", "shipping"].includes(key)) {
-                        updateInfo[key] = +eval(key);
+                        updateInfo[key] = +valMap[key];
                     } else {
-                        updateInfo[key] = eval(key);
+                        updateInfo[key] = valMap[key];
                     }
                 } else {
                     updateInfo[key] = currentDetails[key] as string;
