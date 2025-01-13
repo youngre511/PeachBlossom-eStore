@@ -96,7 +96,7 @@ const Review: React.FC<ReviewProps> = ({
                     </Typography>
                     <Typography color="text.secondary" gutterBottom>
                         {streetAddress}, {shippingDetails.city},{" "}
-                        {shippingDetails.state} {shippingDetails.zipCode}
+                        {shippingDetails.stateAbbr} {shippingDetails.zipCode}
                     </Typography>
                 </div>
                 <div>
