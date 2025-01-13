@@ -68,6 +68,7 @@
     -   Order History [COMPLETE]
     -   Account Closure [INPROCESS]
 -   Account-linked Carts [COMPLETE]
+-   Customer Address Checkout Integration
 -   User Preferences
 
 ### Phase 4: Advanced Admin UI
