@@ -59,17 +59,20 @@
 
 ### Phase 3: Customer Accounts
 
--   LogIn/LogOut
+-   LogIn/LogOut [COMPLETE]
 -   SQL Tables [COMPLETE]
     -   Customer [COMPLETE]
     -   Customer Address [COMPLETE]
--   Account Management
--   Account-linked Carts
+-   Account Management [COMPLETE]
+    -   Address Management [COMPLETE]
+    -   Order History [COMPLETE]
+    -   Account Closure [INPROCESS]
+-   Account-linked Carts [COMPLETE]
 -   User Preferences
 
 ### Phase 4: Advanced Admin UI
 
--   Customer Management
+-   Customer Management [COMPLETE]
 -   Marketing and Promotions Management
 
 ### Phase 5: Customer Activity Logging
