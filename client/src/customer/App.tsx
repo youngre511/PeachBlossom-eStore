@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
 // import "./style/general.css";
 import { ThemeProvider } from "@mui/material/styles";
@@ -32,6 +32,9 @@ import Support from "./components/Support/Support";
 import CustomerOrders from "./components/CustomerOrders/CustomerOrders";
 import ProtectedRoute from "../common/components/ProtectedRoute/ProtectedRoute";
 import { AuthContext } from "../common/contexts/authContext";
+import { getCookie, renewConsentCookie } from "../common/utils/cookieUtils";
+import { Button } from "@mui/material";
+import CookieConsent from "../common/components/CookieConsent/CookieConsent";
 
 const CustomerApp: React.FC = () => {
     const dispatch = useAppDispatch();
@@ -42,6 +45,7 @@ const CustomerApp: React.FC = () => {
         dispatch(fetchCategories());
         dispatch(fetchSearchOptions());
     }, [dispatch]);
+    const [showConsentBanner, setShowConsentBanner] = useState<boolean>(false);
 
     const { width, pixelDensity } = useWindowSizeContext();
 
@@ -97,6 +101,16 @@ const CustomerApp: React.FC = () => {
         }, [auth.user, navigate]);
     }
 
+    // Cookie logic
+    useEffect(() => {
+        const consent = getCookie("cookieConsent");
+        if (!consent) {
+            setShowConsentBanner(true);
+        } else {
+            renewConsentCookie();
+        }
+    }, []);
+
     return (
         <ThemeProvider theme={theme}>
             <div className="App">
@@ -139,6 +153,11 @@ const CustomerApp: React.FC = () => {
                         />
                     </Routes>
                 </main>
+                {showConsentBanner && (
+                    <CookieConsent
+                        setShowConsentBanner={setShowConsentBanner}
+                    />
+                )}
                 <Footer />
             </div>
         </ThemeProvider>

@@ -1,0 +1,30 @@
+.consent-banner {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100vw;
+    padding: 20px;
+    background-color: var(--peaches-and-cream);
+}
+
+.consent-content {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.consent-content h1 {
+    font-size: 1.5rem;
+}
+
+.consent-buttons {
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.consent-banner-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    cursor: pointer;
+}
