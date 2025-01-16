@@ -1,9 +1,11 @@
-import React from "react";
+import React, { SetStateAction } from "react";
 import "./footer.css";
 import { Link } from "react-router-dom";
 
-interface Props {}
-const Footer: React.FC<Props> = () => {
+interface Props {
+    setShowConsentBanner: React.Dispatch<SetStateAction<boolean>>;
+}
+const Footer: React.FC<Props> = ({ setShowConsentBanner }) => {
     return (
         <footer>
             <div className="links">
@@ -16,6 +18,14 @@ const Footer: React.FC<Props> = () => {
                     </li>
                     <li>
                         <Link to="/privacy">Privacy & Cookies</Link>
+                    </li>
+                    <li>
+                        <div
+                            className="manage-cookies"
+                            onClick={() => setShowConsentBanner(true)}
+                        >
+                            Manage Cookies
+                        </div>
                     </li>
                 </ul>
             </div>

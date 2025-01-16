@@ -3,6 +3,8 @@ import React, { SetStateAction } from "react";
 import "./cookie-consent.css";
 import CloseSharpIcon from "@mui/icons-material/CloseSharp";
 import { setCookieConsent } from "../../utils/cookieUtils";
+import { useAppDispatch } from "../../../customer/hooks/reduxHooks";
+import { setAllowTracking } from "../../../customer/features/UserData/userDataSlice";
 
 interface CookieConsentProps {
     setShowConsentBanner: React.Dispatch<SetStateAction<boolean>>;
@@ -10,8 +12,11 @@ interface CookieConsentProps {
 const CookieConsent: React.FC<CookieConsentProps> = ({
     setShowConsentBanner,
 }) => {
+    const dispatch = useAppDispatch();
+
     const handleAllowAll = () => {
         setCookieConsent({ allowAll: true, userChosen: true });
+        dispatch(setAllowTracking(true));
         setShowConsentBanner(false);
     };
 

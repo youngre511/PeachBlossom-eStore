@@ -21,7 +21,9 @@ const initialState: UserDataState = {
     },
     preferences: {
         itemsPerPage: 24,
+        allowTracking: false,
     },
+    activity: [],
     loading: false,
     error: null,
 };
@@ -288,6 +290,9 @@ const userDataSlice = createSlice({
                 (address) => address.address_id !== action.payload
             );
         },
+        setAllowTracking: (state, action: PayloadAction<boolean>) => {
+            state.preferences.allowTracking = action.payload;
+        },
     },
     extraReducers: (builder) => {
         builder
@@ -367,5 +372,6 @@ export const {
     clearCurrentOrderNo,
     resetUserData,
     removeAddressOptimistic,
+    setAllowTracking,
 } = userDataSlice.actions;
 export default userDataSlice.reducer;

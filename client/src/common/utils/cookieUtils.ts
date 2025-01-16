@@ -22,11 +22,19 @@ export const renewCookie = (name: string, days: number) => {
 };
 
 export const setCookieConsent = (preferences: ConsentPreferences) => {
-    setCookie(
-        "cookieConsent",
-        JSON.stringify(preferences),
-        preferences.userChosen ? 365 : 30
-    );
+    const existingCookie = getCookie("cookieConsent");
+
+    if (
+        !existingCookie ||
+        !JSON.parse(existingCookie).userChosen ||
+        preferences.userChosen
+    ) {
+        setCookie(
+            "cookieConsent",
+            JSON.stringify(preferences),
+            preferences.userChosen ? 365 : 30
+        );
+    }
 };
 
 export const renewConsentCookie = () => {

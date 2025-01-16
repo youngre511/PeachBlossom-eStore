@@ -35,6 +35,7 @@ import { AuthContext } from "../common/contexts/authContext";
 import { getCookie, renewConsentCookie } from "../common/utils/cookieUtils";
 import { Button } from "@mui/material";
 import CookieConsent from "../common/components/CookieConsent/CookieConsent";
+import { setAllowTracking } from "./features/UserData/userDataSlice";
 
 const CustomerApp: React.FC = () => {
     const dispatch = useAppDispatch();
@@ -108,6 +109,8 @@ const CustomerApp: React.FC = () => {
             setShowConsentBanner(true);
         } else {
             renewConsentCookie();
+            const parsedCookie = JSON.parse(consent);
+            dispatch(setAllowTracking(parsedCookie.allowAll));
         }
     }, []);
 
@@ -158,7 +161,7 @@ const CustomerApp: React.FC = () => {
                         setShowConsentBanner={setShowConsentBanner}
                     />
                 )}
-                <Footer />
+                <Footer setShowConsentBanner={setShowConsentBanner} />
             </div>
         </ThemeProvider>
     );

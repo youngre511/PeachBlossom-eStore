@@ -8,9 +8,20 @@ export interface UserDataState {
     };
     preferences: {
         itemsPerPage: 24 | 48 | 96;
+        allowTracking: boolean;
     };
+    activity: ActivityRecord[];
     loading: boolean;
     error: string | null;
+}
+
+export interface ActivityRecord {
+    activityType: "productView" | "search" | "cartAdd" | "purchase";
+    timestamp: Date;
+    details: {
+        productNo?: string;
+        searchTerm?: string;
+    };
 }
 
 export interface CustomerOrder {
