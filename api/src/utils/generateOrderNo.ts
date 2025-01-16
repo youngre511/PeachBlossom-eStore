@@ -3,17 +3,25 @@ import { sqlOrder } from "../models/mysql/sqlOrderModel.js";
 const nanoid = customAlphabet("1234567890ABCDEF", 8);
 
 export const generateOrderNo = async (): Promise<string> => {
-    let orderNo: string;
-    let isUnique = false;
+    try {
+        while (true) {
+            const orderNo = nanoid();
 
-    do {
-        orderNo = nanoid();
-        const existingOrder = await sqlOrder.findOne({
-            where: { orderNo: orderNo },
-        });
-        if (!existingOrder) {
-            isUnique = true;
+            try {
+                const existingOrder = await sqlOrder.findOne({
+                    where: { orderNo },
+                });
+                if (!existingOrder) {
+                    return orderNo; // Unique order number found
+                }
+            } catch (dbError) {
+                throw new Error(
+                    `Database validation failed. Proceeding with unverified orderNo: ${dbError}`
+                );
+            }
         }
-    } while (!isUnique);
-    return orderNo;
+    } catch (error) {
+        console.error("Error generating orderNo:", error);
+        throw new Error("Critical failure generating orderNo");
+    }
 };
