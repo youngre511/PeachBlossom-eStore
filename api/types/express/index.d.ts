@@ -15,5 +15,6 @@ declare namespace Express {
             jti: string;
             iat: number;
         };
+        trackingId?: string;
     }
 }
