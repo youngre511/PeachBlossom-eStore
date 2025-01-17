@@ -1,4 +1,10 @@
-import { configureStore, combineReducers } from "@reduxjs/toolkit";
+import {
+    configureStore,
+    combineReducers,
+    ThunkAction,
+    AnyAction,
+    PayloadAction,
+} from "@reduxjs/toolkit";
 import {
     persistStore,
     persistReducer,
@@ -55,5 +61,12 @@ export type AppStore = typeof customerStore;
 // Infer the `RootState` and `AppDispatch` types from the store itself
 export type RootState = ReturnType<AppStore["getState"]>;
 export type AppDispatch = AppStore["dispatch"];
+
+export type AppThunk<ReturnType = void> = ThunkAction<
+    ReturnType,
+    RootState,
+    undefined,
+    PayloadAction<any> // The type of actions that can be dispatched
+>;
 
 export default customerStore;

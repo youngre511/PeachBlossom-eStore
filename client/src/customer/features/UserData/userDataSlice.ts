@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { RootState } from "../../store/customerStore";
+import { AppDispatch, AppThunk, RootState } from "../../store/customerStore";
 import {
     CustomerAddress,
     CustomerOrder,
@@ -265,6 +265,61 @@ export const addAddress = createAsyncThunk<
     }
 });
 
+export const pushActivityLogs = createAsyncThunk<
+    void,
+    void,
+    { state: RootState }
+>("userData/pushActivityLogs", async (_, { getState, rejectWithValue }) => {
+    try {
+        const token = localStorage.getItem("jwtToken");
+        const state = getState() as RootState;
+        const allowed = state.userData.preferences.allowTracking;
+        if (!allowed) return;
+
+        const records = state.userData.activity;
+        const response = await axios.post(
+            `${import.meta.env.VITE_API_URL}/activity/addLogs`,
+            { logs: records },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+                },
+                withCredentials: true,
+            }
+        );
+        console.log(response);
+
+        return;
+    } catch (error: any) {
+        return rejectWithValue(error.response?.data || error);
+    }
+});
+
+export const startActivityLogPusher =
+    (): AppThunk<() => void> => (dispatch: AppDispatch, getState) => {
+        let interval: NodeJS.Timeout | null = null;
+        const checkAndPushLogs = () => {
+            const state = getState();
+            const allowed = state.userData.preferences.allowTracking;
+
+            if (allowed) {
+                dispatch(pushActivityLogs());
+            } else {
+                if (interval) {
+                    clearInterval(interval);
+                    interval = null;
+                }
+                return;
+            }
+        };
+
+        interval = setInterval(checkAndPushLogs, 60000);
+
+        return () => {
+            if (interval) clearInterval(interval);
+        };
+    };
+
 const userDataSlice = createSlice({
     name: "userData",
     initialState,
@@ -359,6 +414,19 @@ const userDataSlice = createSlice({
                 state.loading = false;
             })
             .addCase(addAddress.rejected, (state, action) => {
+                state.loading = false;
+                state.error =
+                    action.error.message || "Failed to fetch user orders";
+            })
+            .addCase(pushActivityLogs.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(pushActivityLogs.fulfilled, (state) => {
+                state.activity = [];
+                state.loading = false;
+            })
+            .addCase(pushActivityLogs.rejected, (state, action) => {
                 state.loading = false;
                 state.error =
                     action.error.message || "Failed to fetch user orders";

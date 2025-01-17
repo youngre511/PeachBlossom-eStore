@@ -14,7 +14,7 @@ import TermsAndConditions from "./components/TermsAndConditions/TermsAndConditio
 import ShippingAndReturns from "./components/ShippingAndReturns/ShippingAndReturns";
 import PrivacyAndCookies from "./components/PrivacyAndCookies/PrivacyAndCookies";
 import Shop from "./components/Shop/Shop";
-import { useAppDispatch } from "./hooks/reduxHooks";
+import { useAppDispatch, useAppSelector } from "./hooks/reduxHooks";
 import { fetchCategories } from "./features/Categories/categoriesSlice";
 import { fetchSearchOptions } from "./features/SearchOptions/searchOptionsSlice";
 import Cart from "./features/Cart/Cart";
@@ -35,12 +35,19 @@ import { AuthContext } from "../common/contexts/authContext";
 import { getCookie, renewConsentCookie } from "../common/utils/cookieUtils";
 import { Button } from "@mui/material";
 import CookieConsent from "../common/components/CookieConsent/CookieConsent";
-import { setAllowTracking } from "./features/UserData/userDataSlice";
+import {
+    setAllowTracking,
+    startActivityLogPusher,
+} from "./features/UserData/userDataSlice";
+import { RootState } from "./store/customerStore";
 
 const CustomerApp: React.FC = () => {
     const dispatch = useAppDispatch();
     const auth = useContext(AuthContext);
     const navigate = useNavigate();
+    const allowTracking = useAppSelector(
+        (state: RootState) => state.userData.preferences.allowTracking
+    );
     const { currentRoute, previousRoute } = useNavigationContext();
     useEffect(() => {
         dispatch(fetchCategories());
@@ -113,6 +120,16 @@ const CustomerApp: React.FC = () => {
             dispatch(setAllowTracking(parsedCookie.allowAll));
         }
     }, []);
+
+    useEffect(() => {
+        if (allowTracking) {
+            const clearIntervalFunc = dispatch(startActivityLogPusher());
+
+            return () => {
+                clearIntervalFunc();
+            };
+        }
+    }, [allowTracking, dispatch]);
 
     return (
         <ThemeProvider theme={theme}>

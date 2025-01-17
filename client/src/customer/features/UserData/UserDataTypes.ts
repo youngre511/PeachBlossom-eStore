@@ -18,10 +18,8 @@ export interface UserDataState {
 export interface ActivityRecord {
     activityType: "productView" | "search" | "cartAdd" | "purchase";
     timestamp: Date;
-    details: {
-        productNo?: string;
-        searchTerm?: string;
-    };
+    productNo?: string;
+    searchTerm?: string;
 }
 
 export interface CustomerOrder {
