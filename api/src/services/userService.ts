@@ -756,3 +756,87 @@ const isAddressUsed = async (addressId: number, customerId?: number) => {
 
     return false;
 };
+
+export const getIdFromUsername = async (
+    username: string,
+    transaction?: Transaction
+) => {
+    try {
+        const foundUser = await sqlUser.findOne({
+            where: { username },
+            transaction,
+        });
+
+        if (!foundUser) {
+            return null;
+        } else {
+            return foundUser.user_id;
+        }
+    } catch (error) {
+        if (error instanceof Error) {
+            throw new Error(
+                "Error retrieving user_id from username: " + error.message
+            );
+        } else {
+            throw new Error(
+                "An unknown error occurred while retrieving user_id from username"
+            );
+        }
+    }
+};
+
+export const getCustomerIdFromUsername = async (
+    username: string,
+    transaction?: Transaction
+) => {
+    try {
+        const user_id = getIdFromUsername(username, transaction);
+        const foundCustomer = await sqlCustomer.findOne({
+            where: { user_id },
+            transaction,
+        });
+        if (!foundCustomer) {
+            return null;
+        } else {
+            return foundCustomer.customer_id;
+        }
+    } catch (error) {
+        if (error instanceof Error) {
+            throw new Error(
+                "Error retrieving customer_id from username: " + error.message
+            );
+        } else {
+            throw new Error(
+                "An unknown error occurred while retrieving customer_id from username"
+            );
+        }
+    }
+};
+
+export const getAdminIdFromUsername = async (
+    username: string,
+    transaction?: Transaction
+) => {
+    try {
+        const user_id = getIdFromUsername(username, transaction);
+        const foundAdmin = await sqlAdmin.findOne({
+            where: { user_id },
+            transaction,
+        });
+        if (!foundAdmin) {
+            return null;
+        } else {
+            return foundAdmin.admin_id;
+        }
+    } catch (error) {
+        if (error instanceof Error) {
+            throw new Error(
+                "Error retrieving admin_id from username: " + error.message
+            );
+        } else {
+            throw new Error(
+                "An unknown error occurred while retrieving admin_id from username"
+            );
+        }
+    }
+};
