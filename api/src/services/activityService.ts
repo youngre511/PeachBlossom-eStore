@@ -1,35 +1,81 @@
-import type { PipelineStage } from "mongoose";
-import Activity from "../models/mongo/activityModel.js";
+import type { ClientSession, PipelineStage } from "mongoose";
+import Activity, { IActivity } from "../models/mongo/activityModel.js";
 import { generateActivityId } from "../utils/generateActivityId.js";
+import { getIdFromUsername } from "./userService.js";
+import {
+    ProductInteractionLog,
+    SearchLog,
+} from "../controllers/activityController.js";
+import mongoose from "mongoose";
 
-export const assignVisitorId = async (userId?: number) => {
+export const assignTrackingId = async (username?: string) => {
     try {
-        let id;
-        if (userId) {
-            const record = await Activity.findOne({ userId: userId });
-            if (record) {
-                id = record.visitorActivityId;
+        let trackingId;
+        if (username) {
+            const userId = await getIdFromUsername(username);
+            if (userId) {
+                const record = await Activity.findOne({
+                    userId,
+                });
+                if (record) {
+                    trackingId = record.trackingId;
+                }
             }
         }
-        if (!id) {
-            id = await generateActivityId();
+        if (!trackingId) {
+            trackingId = await generateActivityId();
         }
 
-        return id;
+        return trackingId;
     } catch (error) {
         if (error instanceof Error) {
-            // Rollback the transaction in case of any errors
-            throw new Error("Error assigning VisitorId: " + error.message);
+            throw new Error("Error assigning tracking id: " + error.message);
         } else {
-            // Rollback the transaction in case of any non-Error errors
             throw new Error(
-                "An unknown error occurred while assigning a visitorId"
+                "An unknown error occurred while assigning a tracking id"
             );
         }
     }
 };
 
-// export const logActivity = async (activity:)
+export const logActivity = async (
+    activity: Array<ProductInteractionLog | SearchLog>,
+    trackingId: string,
+    userId?: number
+) => {
+    const session: ClientSession = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+        const newLogs = activity.map(
+            (record: SearchLog | ProductInteractionLog): IActivity => ({
+                trackingId,
+                userId,
+                activityType: record.activityType,
+                productNo: "productNo" in record ? record.productNo : undefined,
+                searchTerm:
+                    "searchTerm" in record ? record.searchTerm : undefined,
+                timestamp: record.timestamp,
+            })
+        );
+
+        const result = await Activity.insertMany(newLogs, { session });
+
+        await session.commitTransaction();
+
+        return result.length;
+    } catch (error) {
+        await session.abortTransaction();
+        if (error instanceof Error) {
+            console.error("Error logging activity: " + error.message);
+            throw new Error("Error logging activity: " + error.message);
+        } else {
+            throw new Error("An unknown error occurred while logging activity");
+        }
+    } finally {
+        await session.endSession();
+    }
+};
 
 export const mapSearchToCart = async () => {
     const pipeline: PipelineStage[] = [
@@ -46,7 +92,7 @@ export const mapSearchToCart = async () => {
         // Group by id
         {
             $group: {
-                _id: "$visitorActivityId",
+                _id: "$trackingId",
                 activities: {
                     $push: {
                         productNo: "$productNo",

@@ -1,8 +1,11 @@
 import { Document, Schema, model, Types } from "mongoose";
 
-export interface IActivity extends Document {
+export interface IActivityDoc extends Document, IActivity {
     _id: Types.ObjectId;
-    visitorActivityId: string;
+}
+
+export interface IActivity {
+    trackingId: string;
     userId?: number;
     activityType: "productView" | "search" | "cartAdd" | "purchase";
     timestamp: Date;
@@ -10,9 +13,9 @@ export interface IActivity extends Document {
     searchTerm?: string;
 }
 
-const ActivitySchema: Schema = new Schema<IActivity>(
+const ActivitySchema: Schema = new Schema<IActivityDoc>(
     {
-        visitorActivityId: {
+        trackingId: {
             type: String,
             required: true,
         },
@@ -34,7 +37,7 @@ const ActivitySchema: Schema = new Schema<IActivity>(
             type: String,
             validate: {
                 validator: function (
-                    this: IActivity,
+                    this: IActivityDoc,
                     value: string | undefined
                 ) {
                     // Check if `productNo` is required based on `activityType`
@@ -55,7 +58,7 @@ const ActivitySchema: Schema = new Schema<IActivity>(
             type: String,
             validate: {
                 validator: function (
-                    this: IActivity,
+                    this: IActivityDoc,
                     value: string | undefined
                 ) {
                     // Check if `searchTerm` is required based on `activityType`
@@ -71,16 +74,16 @@ const ActivitySchema: Schema = new Schema<IActivity>(
     { timestamps: false }
 );
 
-ActivitySchema.index({ visitorActivityId: 1, timestamp: -1, activityType: 1 });
-ActivitySchema.index({ productNo: 1, activityType: 1, visitorActivityId: 1 });
+ActivitySchema.index({ trackingId: 1, timestamp: -1, activityType: 1 });
+ActivitySchema.index({ productNo: 1, activityType: 1, trackingId: 1 });
 ActivitySchema.index({
-    visitorActivityId: 1,
+    trackingId: 1,
     searchTerm: 1,
     timestamp: 1,
     activityType: 1,
 });
 ActivitySchema.index({ userId: 1 });
 
-const Activity = model<IActivity>("Activity", ActivitySchema);
+const Activity = model<IActivityDoc>("Activity", ActivitySchema);
 
 export default Activity;

@@ -19,6 +19,7 @@ import orderRouter from "./routes/orderRouter.js";
 import authRouter from "./routes/authRoutes.js";
 import userRouter from "./routes/userRoutes.js";
 import analyticsRouter from "./routes/analyticsRoutes.js";
+import activityRouter from "./routes/activityRoutes.js";
 
 //Cors settings
 const allowedOrigins: string[] = [
@@ -80,6 +81,8 @@ app.use("/auth", authRouter);
 app.use("/user", userRouter);
 
 app.use("/analytics", analyticsRouter);
+
+app.use("/activity", activityRouter);
 
 const PORT = process.env.PORT;
 
