@@ -2,7 +2,7 @@
 import React, { ChangeEvent } from "react";
 import "./mobile-nav.css";
 import { useEffect, useRef, useState } from "react";
-import { useAppSelector } from "../../hooks/reduxHooks";
+import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
 import { useNavigate } from "react-router-dom";
 import SearchButton from "../../../assets/img/search.svg?react";
 import CartButton from "../../../assets/img/cart.svg?react";
@@ -36,6 +36,7 @@ import {
 import MobileShopCategoryBlock from "./MobileShopCategoryBlock";
 import { useNavigationContext } from "../../../common/contexts/navContext";
 import AccountsTab from "../AccountsTab/AccountsTab";
+import { logActivity } from "../../features/UserData/userDataTrackingThunks";
 gsap.registerPlugin(ScrollTrigger);
 gsap.registerPlugin(useGSAP);
 
@@ -68,6 +69,7 @@ const MobileNav: React.FC<Props> = () => {
     const [menusExpanded, setMenusExpanded] = useState<Array<string>>([]);
     const [accountsTabVisible, setAccountsTabVisible] =
         useState<boolean>(false);
+    const dispatch = useAppDispatch();
 
     // State tracks whether full logo should be visible based on scroll position
     const [showFullLogo, setShowFullLogo] = useState<boolean>(true);
@@ -310,6 +312,9 @@ const MobileNav: React.FC<Props> = () => {
             " ",
             "%20"
         )}`;
+        dispatch(
+            logActivity({ activityType: "search", searchTerm: searchQuery })
+        );
         navigate(path);
         setSearchQuery("");
     };
