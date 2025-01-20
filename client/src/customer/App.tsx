@@ -33,13 +33,13 @@ import CustomerOrders from "./components/CustomerOrders/CustomerOrders";
 import ProtectedRoute from "../common/components/ProtectedRoute/ProtectedRoute";
 import { AuthContext } from "../common/contexts/authContext";
 import { getCookie, renewConsentCookie } from "../common/utils/cookieUtils";
-import { Button } from "@mui/material";
 import CookieConsent from "../common/components/CookieConsent/CookieConsent";
-import {
-    setAllowTracking,
-    startActivityLogPusher,
-} from "./features/UserData/userDataSlice";
+import { setAllowTracking } from "./features/UserData/userDataSlice";
 import { RootState } from "./store/customerStore";
+import {
+    startActivityLogPusher,
+    syncRecentlyViewed,
+} from "./features/UserData/userDataTrackingThunks";
 
 const CustomerApp: React.FC = () => {
     const dispatch = useAppDispatch();
@@ -111,6 +111,8 @@ const CustomerApp: React.FC = () => {
 
     // Cookie logic
     useEffect(() => {
+        dispatch(syncRecentlyViewed());
+
         const consent = getCookie("cookieConsent");
         if (!consent) {
             setShowConsentBanner(true);
