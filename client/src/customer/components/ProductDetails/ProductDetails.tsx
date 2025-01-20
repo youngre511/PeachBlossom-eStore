@@ -133,8 +133,10 @@ const ProductDetails: React.FC<Props> = () => {
     }, [productState]);
 
     useEffect(() => {
-        if (productNo && (!product || product.productNo !== productNo)) {
-            setProduct(null);
+        if (productNo) {
+            if (!product || product.productNo !== productNo) {
+                setProduct(null);
+            }
             dispatch(fetchOneProduct(productNo));
         }
     }, [productNo, dispatch]);
