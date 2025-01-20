@@ -4,12 +4,12 @@ import { getIdFromUsername } from "../services/userService.js";
 
 export interface SearchLog {
     activityType: "search";
-    timestamp: Date;
+    timestamp: string;
     searchTerm: string;
 }
 export interface ProductInteractionLog {
     activityType: "productView" | "cartAdd" | "purchase";
-    timestamp: Date;
+    timestamp: string;
     productNo: string;
 }
 
@@ -22,20 +22,25 @@ export interface LogRequest extends Request {
 export const verifyTrackingId = async (req: Request, res: Response) => {
     try {
         if (!req.trackingId) {
-            const trackingId = activityService.assignTrackingId(
+            const trackingId = await activityService.assignTrackingId(
                 req.user ? req.user.username : undefined
             );
+
             res.cookie("trackingId", trackingId, {
                 httpOnly: true,
                 secure: true, //Only use secure in production mode, not local dev mode
-                sameSite: "none",
+                sameSite:
+                    process.env.NODE_ENV === "development" ? "none" : "lax",
                 path: "/",
-                domain: ".pb.ryanyoung.codes",
-                maxAge: 365 * 7 * 24 * 60 * 60 * 1000, //7 days
+                domain:
+                    process.env.NODE_ENV !== "development"
+                        ? ".pb.ryanyoung.codes"
+                        : undefined,
+                maxAge: 365 * 24 * 60 * 60 * 1000,
             });
         }
 
-        res.status(200).json();
+        res.status(200).json({ success: true });
     } catch (error) {
         if (error instanceof Error) {
             res.status(500).json({ message: error.message });
@@ -50,16 +55,20 @@ export const verifyTrackingId = async (req: Request, res: Response) => {
 
 export const assignTrackingId = async (req: Request, res: Response) => {
     try {
-        const trackingId = activityService.assignTrackingId(
+        const trackingId = await activityService.assignTrackingId(
             req.user ? req.user.username : undefined
         );
+
         res.cookie("trackingId", trackingId, {
             httpOnly: true,
             secure: true, //Only use secure in production mode, not local dev mode
-            sameSite: "none",
+            sameSite: process.env.NODE_ENV === "development" ? "none" : "lax",
             path: "/",
-            domain: ".pb.ryanyoung.codes",
-            maxAge: 365 * 7 * 24 * 60 * 60 * 1000, //7 days
+            domain:
+                process.env.NODE_ENV !== "development"
+                    ? ".pb.ryanyoung.codes"
+                    : undefined,
+            maxAge: 365 * 24 * 60 * 60 * 1000,
         });
 
         res.status(200).json();
@@ -77,12 +86,16 @@ export const assignTrackingId = async (req: Request, res: Response) => {
 
 export const deleteActivityTracker = async (req: Request, res: Response) => {
     try {
-        res.cookie("visitorId", "", {
+        res.cookie("trackingId", "", {
             httpOnly: true,
             secure: true, //Only use secure in production mode, not local dev mode
-            sameSite: "none",
+            sameSite: process.env.NODE_ENV === "development" ? "none" : "lax",
             path: "/",
-            domain: ".pb.ryanyoung.codes",
+            domain:
+                process.env.NODE_ENV !== "development"
+                    ? ".pb.ryanyoung.codes"
+                    : undefined,
+
             expires: new Date(0),
         });
 
@@ -108,6 +121,7 @@ export const logActivity = async (req: LogRequest, res: Response) => {
             res.status(400).json({
                 message: "No identifier included. Unable to log activity.",
             });
+            return;
         }
         let userId;
         if (req.user) {
