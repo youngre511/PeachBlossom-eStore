@@ -7,7 +7,7 @@ import React, {
 } from "react";
 import "./add-product.css";
 import {
-    Grid,
+    Grid2 as Grid,
     Container,
     InputAdornment,
     TextField,
@@ -331,9 +331,6 @@ const AddProduct: React.FC = () => {
                         }}
                     >
                         <Grid
-                            item
-                            xs={12}
-                            lg={5}
                             sx={{
                                 paddingTop: "0 !important",
                                 alignItems: "stretch",
@@ -348,6 +345,10 @@ const AddProduct: React.FC = () => {
                                     lg: 0,
                                 },
                             }}
+                            size={{
+                                xs: 12,
+                                lg: 5,
+                            }}
                         >
                             <ImageUploader
                                 setImages={setImages}
@@ -356,13 +357,14 @@ const AddProduct: React.FC = () => {
                         </Grid>
                         <Grid
                             container
-                            item
-                            xs={12}
-                            lg={7}
                             rowSpacing={3}
                             sx={{
                                 alignItems: "space-between",
                                 height: "auto",
+                            }}
+                            size={{
+                                xs: 12,
+                                lg: 7,
                             }}
                         >
                             <FormField
@@ -376,11 +378,10 @@ const AddProduct: React.FC = () => {
                             <Grid
                                 columnSpacing={3}
                                 sx={{ display: "flex", flexWrap: "wrap" }}
-                                item
                                 container
-                                xs={12}
+                                size={12}
                             >
-                                <Grid item xs={6}>
+                                <Grid size={6}>
                                     <FormField
                                         label="Prefix"
                                         name="prefix"
@@ -390,7 +391,7 @@ const AddProduct: React.FC = () => {
                                         inputSx={{ backgroundColor: "white" }}
                                     />
                                 </Grid>
-                                <Grid item xs={6}>
+                                <Grid size={6}>
                                     <FormField
                                         label="Price"
                                         name="price"
@@ -429,11 +430,15 @@ const AddProduct: React.FC = () => {
                             <Grid
                                 spacing={3}
                                 sx={{ display: "flex", flexWrap: "wrap" }}
-                                item
-                                xs={12}
                                 container
+                                size={12}
                             >
-                                <Grid item xs={12} sm={6}>
+                                <Grid
+                                    size={{
+                                        xs: 12,
+                                        sm: 6,
+                                    }}
+                                >
                                     <DynamicCategory
                                         label="Category"
                                         name="category"
@@ -445,7 +450,12 @@ const AddProduct: React.FC = () => {
                                         sx={inputStyle}
                                     />
                                 </Grid>
-                                <Grid item xs={12} sm={6}>
+                                <Grid
+                                    size={{
+                                        xs: 12,
+                                        sm: 6,
+                                    }}
+                                >
                                     <SelectField
                                         label="Subcategory"
                                         name="subcategory"
@@ -459,11 +469,15 @@ const AddProduct: React.FC = () => {
                             <Grid
                                 spacing={3}
                                 sx={{ display: "flex", flexWrap: "wrap" }}
-                                item
-                                xs={12}
                                 container
+                                size={12}
                             >
-                                <Grid item xs={12} sm={6}>
+                                <Grid
+                                    size={{
+                                        xs: 12,
+                                        sm: 6,
+                                    }}
+                                >
                                     <SelectField
                                         label="Color"
                                         name="color"
@@ -473,7 +487,12 @@ const AddProduct: React.FC = () => {
                                         sx={inputStyle}
                                     />
                                 </Grid>
-                                <Grid item xs={12} sm={6}>
+                                <Grid
+                                    size={{
+                                        xs: 12,
+                                        sm: 6,
+                                    }}
+                                >
                                     <SelectField
                                         label="Material"
                                         name="material"
@@ -485,13 +504,14 @@ const AddProduct: React.FC = () => {
                                 </Grid>
                             </Grid>
                         </Grid>
-                        <Grid container item xs={12} rowSpacing={3}>
+                        <Grid container rowSpacing={3} size={12}>
                             <Grid
-                                item
-                                xs={6}
-                                lg={3}
                                 sx={{
                                     paddingRight: { xs: "12px", lg: "36px" },
+                                }}
+                                size={{
+                                    xs: 6,
+                                    lg: 3,
                                 }}
                             >
                                 <FormField
@@ -528,12 +548,13 @@ const AddProduct: React.FC = () => {
                                 />
                             </Grid>
                             <Grid
-                                item
-                                xs={6}
-                                lg={3}
                                 sx={{
                                     paddingLeft: { xs: "12px", lg: "12px" },
                                     paddingRight: { lg: "24px" },
+                                }}
+                                size={{
+                                    xs: 6,
+                                    lg: 3,
                                 }}
                             >
                                 <FormField
@@ -570,12 +591,13 @@ const AddProduct: React.FC = () => {
                                 />
                             </Grid>
                             <Grid
-                                item
-                                xs={6}
-                                lg={3}
                                 sx={{
                                     paddingLeft: { lg: "24px" },
                                     paddingRight: "12px",
+                                }}
+                                size={{
+                                    xs: 6,
+                                    lg: 3,
                                 }}
                             >
                                 <FormField
@@ -612,10 +634,11 @@ const AddProduct: React.FC = () => {
                                 />
                             </Grid>
                             <Grid
-                                item
-                                xs={6}
-                                lg={3}
                                 sx={{ paddingLeft: { xs: "12px", lg: "36px" } }}
+                                size={{
+                                    xs: 6,
+                                    lg: 3,
+                                }}
                             >
                                 <FormField
                                     label="Weight"
@@ -651,7 +674,7 @@ const AddProduct: React.FC = () => {
                                 />
                             </Grid>
                         </Grid>
-                        <Grid item xs={12}>
+                        <Grid size={12}>
                             <FormField
                                 label="Description"
                                 name="description"
@@ -665,7 +688,6 @@ const AddProduct: React.FC = () => {
                             />
                         </Grid>
                         <Grid
-                            item
                             sx={{
                                 display: "flex",
                                 justifyContent: "space-between",

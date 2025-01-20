@@ -1,18 +1,13 @@
-import React, { SetStateAction, useState } from "react";
+import React, { useState } from "react";
 
 import FormLabel from "@mui/material/FormLabel";
-import Grid from "@mui/material/Grid";
+import Grid from "@mui/material/Grid2";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import { styled } from "@mui/system";
 import { MuiTelInput } from "mui-tel-input";
 
-import { Checkbox, FormControlLabel, TextField } from "@mui/material";
+import { TextField } from "@mui/material";
 import { ShippingDetails } from "../Checkout/Checkout";
-
-const FormGrid = styled(Grid)(() => ({
-    display: "flex",
-    flexDirection: "column",
-}));
 
 interface AddressFormProps {
     setShippingDetails: React.Dispatch<React.SetStateAction<ShippingDetails>>;
@@ -21,6 +16,11 @@ interface AddressFormProps {
     setNickname?: React.Dispatch<React.SetStateAction<string>>;
     sidebar?: boolean;
 }
+
+const FormGrid = styled(Grid)(() => ({
+    display: "flex",
+    flexDirection: "column",
+}));
 
 export const validStates = [
     "AK",
@@ -125,9 +125,14 @@ const AddressForm: React.FC<AddressFormProps> = ({
 
     return (
         <form>
-            <Grid container spacing={3}>
+            <FormGrid container spacing={3}>
                 {sidebar && (
-                    <FormGrid item xs={12} md={sidebar ? undefined : 6}>
+                    <FormGrid
+                        size={{
+                            xs: 12,
+                            md: sidebar ? undefined : 6,
+                        }}
+                    >
                         <FormLabel htmlFor="first-name">
                             Address Nickname
                         </FormLabel>
@@ -142,7 +147,12 @@ const AddressForm: React.FC<AddressFormProps> = ({
                         />
                     </FormGrid>
                 )}
-                <FormGrid item xs={12} md={sidebar ? undefined : 6}>
+                <FormGrid
+                    size={{
+                        xs: 12,
+                        md: sidebar ? undefined : 6,
+                    }}
+                >
                     <FormLabel htmlFor="first-name" required>
                         First name
                     </FormLabel>
@@ -157,7 +167,12 @@ const AddressForm: React.FC<AddressFormProps> = ({
                         required
                     />
                 </FormGrid>
-                <FormGrid item xs={12} md={sidebar ? undefined : 6}>
+                <FormGrid
+                    size={{
+                        xs: 12,
+                        md: sidebar ? undefined : 6,
+                    }}
+                >
                     <FormLabel htmlFor="last-name" required>
                         Last name
                     </FormLabel>
@@ -172,7 +187,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
                         required
                     />
                 </FormGrid>
-                <FormGrid item xs={12}>
+                <FormGrid size={12}>
                     <FormLabel htmlFor="address1" required>
                         Address line 1
                     </FormLabel>
@@ -187,7 +202,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
                         required
                     />
                 </FormGrid>
-                <FormGrid item xs={12}>
+                <FormGrid size={12}>
                     <FormLabel htmlFor="address2">Address line 2</FormLabel>
                     <OutlinedInput
                         id="address2"
@@ -200,7 +215,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
                         required
                     />
                 </FormGrid>
-                <FormGrid item xs={sidebar ? 12 : 6}>
+                <FormGrid size={sidebar ? 12 : 6}>
                     <FormLabel htmlFor="city" required>
                         City
                     </FormLabel>
@@ -215,7 +230,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
                         required
                     />
                 </FormGrid>
-                <FormGrid item xs={6}>
+                <FormGrid size={6}>
                     <FormLabel
                         htmlFor="state"
                         required
@@ -237,7 +252,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
                         required
                     />
                 </FormGrid>
-                <FormGrid item xs={6}>
+                <FormGrid size={6}>
                     <FormLabel htmlFor="zip" required>
                         Zip / Postal code
                     </FormLabel>
@@ -252,7 +267,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
                         required
                     />
                 </FormGrid>
-                <FormGrid item xs={sidebar ? 12 : 6}>
+                <FormGrid size={sidebar ? 12 : 6}>
                     <FormLabel htmlFor="phone" required>
                         Phone Number
                     </FormLabel>
@@ -273,7 +288,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
                         label="Save address for future use"
                     />
                 </FormGrid> */}
-            </Grid>
+            </FormGrid>
         </form>
     );
 };

@@ -3,7 +3,7 @@ import * as React from "react";
 import { styled } from "@mui/system";
 import { FormLabel, OutlinedInput } from "@mui/material";
 import Divider from "@mui/material/Divider";
-import Grid from "@mui/material/Grid";
+import Grid from "@mui/material/Grid2";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
@@ -160,7 +160,7 @@ const Review: React.FC<ReviewProps> = ({
                     </Grid>
                 </div>
                 <div>
-                    <FormGrid item xs={12} md={6}>
+                    <FormGrid size={{ xs: 12, md: 6 }}>
                         <FormLabel htmlFor="email" required>
                             Email
                         </FormLabel>

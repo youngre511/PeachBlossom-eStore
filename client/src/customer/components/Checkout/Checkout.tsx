@@ -6,7 +6,7 @@ import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import CssBaseline from "@mui/material/CssBaseline";
-import Grid from "@mui/material/Grid";
+import Grid from "@mui/material/Grid2";
 import Stack from "@mui/material/Stack";
 import Step from "@mui/material/Step";
 import StepLabel from "@mui/material/StepLabel";
@@ -418,10 +418,6 @@ const Checkout: React.FC = () => {
                 sx={{ height: { xs: "100%" }, minHeight: { sm: "80vh" } }}
             >
                 <Grid
-                    item
-                    xs={12}
-                    sm={5}
-                    lg={4}
                     sx={{
                         display: { xs: "none", md: "flex" },
                         flexDirection: "column",
@@ -432,6 +428,11 @@ const Checkout: React.FC = () => {
                         pt: 4,
                         px: 10,
                         gap: 4,
+                    }}
+                    size={{
+                        xs: 12,
+                        sm: 5,
+                        lg: 4,
                     }}
                 >
                     <Box
@@ -490,10 +491,6 @@ const Checkout: React.FC = () => {
                     </Box>
                 </Grid>
                 <Grid
-                    item
-                    sm={12}
-                    md={7}
-                    lg={8}
                     sx={{
                         display: "flex",
                         flexDirection: "column",
@@ -507,6 +504,11 @@ const Checkout: React.FC = () => {
                         pt: { xs: 2, sm: 4 },
                         px: { xs: 2, sm: 10 },
                         gap: { xs: 4, md: 8 },
+                    }}
+                    size={{
+                        sm: 12,
+                        md: 7,
+                        lg: 8,
                     }}
                 >
                     <Box
