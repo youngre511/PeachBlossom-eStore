@@ -5,6 +5,7 @@ import CloseSharpIcon from "@mui/icons-material/CloseSharp";
 import { setCookieConsent } from "../../utils/cookieUtils";
 import { useAppDispatch } from "../../../customer/hooks/reduxHooks";
 import { setAllowTracking } from "../../../customer/features/UserData/userDataSlice";
+import axios, { AxiosError } from "axios";
 
 interface CookieConsentProps {
     setShowConsentBanner: React.Dispatch<SetStateAction<boolean>>;
@@ -14,20 +15,53 @@ const CookieConsent: React.FC<CookieConsentProps> = ({
 }) => {
     const dispatch = useAppDispatch();
 
-    const handleAllowAll = () => {
+    const handleAllowAll = async () => {
         setCookieConsent({ allowAll: true, userChosen: true });
         dispatch(setAllowTracking(true));
         setShowConsentBanner(false);
+        try {
+            await axios.get(`${import.meta.env.VITE_API_URL}/activity/assign`, {
+                withCredentials: true,
+            });
+        } catch (error) {
+            if (error instanceof AxiosError) {
+                console.error("Error placing order", error);
+            } else {
+                console.error(
+                    "An unknown error has occurred while placing order"
+                );
+            }
+        }
+    };
+
+    const revokeActivityId = async () => {
+        try {
+            dispatch(setAllowTracking(false));
+            await axios.delete(
+                `${import.meta.env.VITE_API_URL}/activity/deleteId`,
+                { withCredentials: true }
+            );
+        } catch (error) {
+            if (error instanceof AxiosError) {
+                console.error("Error revoking activityId", error);
+            } else {
+                console.error(
+                    "An unknown error has occurred while revoking activityId"
+                );
+            }
+        }
     };
 
     const handleClose = () => {
         setCookieConsent({ allowAll: false, userChosen: false });
         setShowConsentBanner(false);
+        revokeActivityId();
     };
 
     const handleRequiredOnly = () => {
         setCookieConsent({ allowAll: false, userChosen: true });
         setShowConsentBanner(false);
+        revokeActivityId();
     };
 
     return (

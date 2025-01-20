@@ -1,3 +1,6 @@
+import axios, { AxiosError } from "axios";
+import { RecentView } from "../../customer/features/UserData/UserDataTypes";
+
 export interface ConsentPreferences {
     allowAll: boolean;
     userChosen: boolean;
@@ -42,24 +45,57 @@ export const renewConsentCookie = () => {
     if (cookie) {
         const parsedCookie = JSON.parse(cookie);
         if (parsedCookie.userChosen) {
-            renewCookie(cookie, 365);
+            renewCookie("cookieConsent", 365);
+            if (parsedCookie.allowAll) {
+            }
         }
     }
 };
 
-export const addToRecentCookie = (productId: string) => {
+export const verifyActivityId = async () => {
+    try {
+        const response = await axios.get(
+            `${import.meta.env.VITE_API_URL}/activity/verify`,
+            { withCredentials: true }
+        );
+        console.log("Verifying activity id:", response.data);
+    } catch (error) {
+        if (error instanceof AxiosError) {
+            console.error("Error placing order", error);
+        } else {
+            console.error("An unknown error has occurred while placing order");
+        }
+    }
+};
+
+export const addToRecentCookie = (product: RecentView) => {
     const recent = getCookie("recentlyViewed");
     if (!recent) {
-        setCookie("recentlyViewed", JSON.stringify([productId]), 30);
+        setCookie("recentlyViewed", JSON.stringify([product]), 60);
     } else {
         const productArray = JSON.parse(recent);
-        if (productArray.includes(productId)) {
-            productArray.splice(productArray.indexOf(productId));
-            productArray.unshift(productId);
-        } else {
-            if (productArray.length === 5) productArray.pop();
-            productArray.unshift(productId);
+        const existingRecord = productArray.findIndex(
+            (record: RecentView) => record.productNo === product.productNo
+        );
+        if (existingRecord !== -1) {
+            productArray.splice(existingRecord);
+        } else if (productArray.length === 5) {
+            productArray.pop();
         }
-        setCookie("recentlyViewed", JSON.stringify(productArray), 30);
+        productArray.unshift(product);
+        setCookie("recentlyViewed", JSON.stringify(productArray), 60);
+    }
+};
+
+export const syncRecentCookie = (recentList: RecentView[]) => {
+    setCookie("recentlyViewed", JSON.stringify(recentList), 60);
+};
+
+export const getRecentCookie = (): RecentView[] | null => {
+    const recent = getCookie("recentlyViewed");
+    if (!recent) {
+        return null;
+    } else {
+        return JSON.parse(recent);
     }
 };
