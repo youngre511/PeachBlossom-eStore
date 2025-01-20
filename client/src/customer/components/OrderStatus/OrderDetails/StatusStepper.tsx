@@ -59,9 +59,14 @@ export const StatusStepper: React.FC<Props> = ({ steps, activeStep }) => {
                 {steps.map((step, index) => (
                     <Step key={step.label}>
                         <StepLabel
-                            StepIconComponent={(props) => (
-                                <CustomStepIcon {...props} stepIndex={index} />
-                            )}
+                            slots={{
+                                stepIcon: (props) => (
+                                    <CustomStepIcon
+                                        {...props}
+                                        stepIndex={index}
+                                    />
+                                ),
+                            }}
                         >
                             {step.label}
                         </StepLabel>

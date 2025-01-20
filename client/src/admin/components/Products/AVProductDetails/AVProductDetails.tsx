@@ -903,17 +903,19 @@ const AVProductDetails: React.FC = () => {
                         multiline={true}
                         rows={5}
                         required={editMode ? true : false}
-                        inputProps={{
-                            sx: editMode
-                                ? {
-                                      backgroundColor: "white !important",
-                                  }
-                                : undefined,
-                            readOnly: editMode ? false : true,
-                        }}
                         sx={editMode ? inputStyle : readOnlyStyle}
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
+                        slotProps={{
+                            htmlInput: {
+                                sx: editMode
+                                    ? {
+                                          backgroundColor: "white !important",
+                                      }
+                                    : undefined,
+                                readOnly: editMode ? false : true,
+                            },
+                        }}
                     />
                 </Grid>
                 <Grid
