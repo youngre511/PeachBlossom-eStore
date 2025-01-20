@@ -11,7 +11,7 @@ const activityRouter = Router();
 
 activityRouter.get("/assign", activityMiddleware, assignTrackingId);
 activityRouter.get("/verify", activityMiddleware, verifyTrackingId);
-activityRouter.get("/deleteId", deleteActivityTracker);
+activityRouter.delete("/deleteId", deleteActivityTracker);
 activityRouter.post("/addLogs", activityMiddleware, logActivity);
 
 export default activityRouter;
