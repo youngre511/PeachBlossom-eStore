@@ -2,7 +2,6 @@ import {
     configureStore,
     combineReducers,
     ThunkAction,
-    AnyAction,
     PayloadAction,
 } from "@reduxjs/toolkit";
 import {
@@ -21,6 +20,7 @@ import catalogReducer from "../features/ProductCatalog/catalogSlice";
 import userDataReducer from "../features/UserData/userDataSlice";
 import categoriesReducer from "../features/Categories/categoriesSlice";
 import searchOptionsReducer from "../features/SearchOptions/searchOptionsSlice";
+import { PersistPartial } from "redux-persist/lib/persistReducer";
 
 const persistConfig = {
     key: "root",
@@ -64,8 +64,8 @@ export type AppDispatch = AppStore["dispatch"];
 
 export type AppThunk<ReturnType = void> = ThunkAction<
     ReturnType,
-    RootState,
-    undefined,
+    RootState & PersistPartial,
+    unknown,
     PayloadAction<any> // The type of actions that can be dispatched
 >;
 
