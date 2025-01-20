@@ -5,7 +5,9 @@ export interface UserDataState {
         addressList: CustomerAddress[];
         orderFilter: CustomerOrderFilter;
         currentOrderNo: string | null;
+        recentlyViewed: RecentView[];
     };
+
     preferences: {
         itemsPerPage: 24 | 48 | 96;
         allowTracking: boolean;
@@ -15,11 +17,23 @@ export interface UserDataState {
     error: string | null;
 }
 
+export type ActivityType = "productView" | "search" | "cartAdd" | "purchase";
+
 export interface ActivityRecord {
-    activityType: "productView" | "search" | "cartAdd" | "purchase";
-    timestamp: Date;
+    activityType: ActivityType;
+    timestamp: string;
     productNo?: string;
     searchTerm?: string;
+}
+
+export interface RecentViewInput {
+    productNo: string;
+    thumbnailUrl: string;
+    productName: string;
+}
+
+export interface RecentView extends RecentViewInput {
+    timestamp: string;
 }
 
 export interface CustomerOrder {
