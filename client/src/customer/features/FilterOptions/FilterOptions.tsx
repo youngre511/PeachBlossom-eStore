@@ -572,7 +572,10 @@ const FilterOptions: React.FC<Props> = ({
                                 },
                             }}
                         >
-                            <AccordionSummary sx={{ width: "320px" }}>
+                            <AccordionSummary
+                                sx={{ width: "320px" }}
+                                component="div"
+                            >
                                 <div className="filter-submit">
                                     <PeachButton
                                         text="Filter"
