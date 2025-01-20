@@ -48,8 +48,8 @@ const AVOrderItemQuantity: React.FC<Props> = ({
             onChange={(e) => quantityChange(e)}
             onBlur={(e) => quantityBlur(e)}
             fullWidth
-            inputProps={{
-                inputMode: "numeric",
+            slotProps={{
+                htmlInput: { inputMode: "numeric" },
             }}
         />
     );

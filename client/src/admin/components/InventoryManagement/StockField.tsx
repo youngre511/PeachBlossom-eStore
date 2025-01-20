@@ -38,9 +38,11 @@ const StockField: React.FC<NumberTextFieldProps> = ({
         <TextField
             value={value}
             onChange={handleInputChange}
-            inputProps={{
-                inputMode: "numeric",
-                pattern: "[0-9]*\\.?[0-9]{0,2}",
+            slotProps={{
+                htmlInput: {
+                    inputMode: "numeric",
+                    pattern: "[0-9]*\\.?[0-9]{0,2}",
+                },
             }}
             type="number"
             sx={style}

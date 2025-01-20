@@ -62,7 +62,9 @@ const AddAdminPopup: React.FC<Props> = ({ setAddingUser, handleAddAdmin }) => {
                         name="username"
                         required={true}
                         sx={inputStyle}
-                        inputProps={{ sx: { backgroundColor: "white" } }}
+                        slotProps={{
+                            htmlInput: { sx: { backgroundColor: "white" } },
+                        }}
                     />
                     <FormControl>
                         <FormLabel id="accessLevelLabel">

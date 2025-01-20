@@ -2,7 +2,7 @@
 import React, { ChangeEvent, useContext } from "react";
 import "./nav.css";
 import { useEffect, useRef, useState } from "react";
-import { useAppSelector } from "../../hooks/reduxHooks";
+import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
 import { useNavigate, useLocation } from "react-router-dom";
 import SearchButton from "../../../assets/img/search.svg?react";
 import CartButton from "../../../assets/img/cart.svg?react";
@@ -24,6 +24,7 @@ import { useNavigationContext } from "../../../common/contexts/navContext";
 import AccountsTab from "../AccountsTab/AccountsTab";
 import RecentlyViewed from "../../features/RecentlyViewed/RecentlyViewed";
 import { AuthContext } from "../../../common/contexts/authContext";
+import { logActivity } from "../../features/UserData/userDataTrackingThunks";
 
 interface Props {}
 const Nav: React.FC<Props> = () => {
@@ -52,6 +53,7 @@ const Nav: React.FC<Props> = () => {
     const { contextSafe } = useGSAP({ scope: header });
     const navigate = useNavigate();
     const location = useLocation();
+    const dispatch = useAppDispatch();
     const [searchQuery, setSearchQuery] = useState<string>("");
     const [accountsTabVisible, setAccountsTabVisible] =
         useState<boolean>(false);
@@ -138,6 +140,9 @@ const Nav: React.FC<Props> = () => {
             " ",
             "%20"
         )}`;
+        dispatch(
+            logActivity({ activityType: "search", searchTerm: searchQuery })
+        );
         navigate(path);
         setSearchQuery("");
     };
@@ -434,14 +439,15 @@ const Nav: React.FC<Props> = () => {
                                             backgroundColor: "white",
                                         }}
                                         size="small"
-                                        InputProps={{
-                                            ...params.InputProps,
-                                            type: "search",
-                                        }}
-                                        inputProps={{
-                                            ...params.inputProps,
-                                            inputMode: "search",
-                                            // sx: { backgroundColor: "white" },
+                                        slotProps={{
+                                            input: {
+                                                ...params.InputProps,
+                                                type: "search",
+                                            },
+                                            htmlInput: {
+                                                ...params.inputProps,
+                                                inputMode: "search",
+                                            },
                                         }}
                                     />
                                 )}

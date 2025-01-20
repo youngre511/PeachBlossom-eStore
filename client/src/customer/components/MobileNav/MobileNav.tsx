@@ -595,14 +595,16 @@ const MobileNav: React.FC<Props> = () => {
                                             backgroundColor: "white",
                                         }}
                                         size="small"
-                                        InputProps={{
-                                            ...params.InputProps,
-                                            type: "search",
-                                        }}
-                                        inputProps={{
-                                            ...params.inputProps,
-                                            inputMode: "search",
-                                            // sx: { backgroundColor: "white" },
+                                        slotProps={{
+                                            input: {
+                                                ...params.InputProps,
+                                                type: "search",
+                                            },
+                                            htmlInput: {
+                                                ...params.inputProps,
+                                                inputMode: "search",
+                                                // sx: { backgroundColor: "white" },
+                                            },
                                         }}
                                     />
                                 )}

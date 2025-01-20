@@ -4,6 +4,7 @@ import {
     InputAdornment,
     SvgIcon,
     Autocomplete,
+    AutocompleteInputChangeReason,
 } from "@mui/material";
 import React from "react";
 import { ChangeEvent, FormEvent, useState, ComponentProps } from "react";
@@ -36,7 +37,7 @@ const SearchField: React.FC<Props> = ({
                     onInputChange={(
                         e: React.SyntheticEvent,
                         value: string,
-                        reason: string
+                        reason: AutocompleteInputChangeReason
                     ) => {
                         if (reason === "clear") {
                             setSearchQuery("");
@@ -62,23 +63,25 @@ const SearchField: React.FC<Props> = ({
                                 setSearchQuery(e.target.value)
                             }
                             fullWidth
-                            InputProps={{
-                                ...params.InputProps,
-                                type: "search",
-                                startAdornment: (
-                                    <InputAdornment position="start">
-                                        <SvgIcon>
-                                            <SearchSharpIcon />
-                                        </SvgIcon>
-                                    </InputAdornment>
-                                ),
+                            slotProps={{
+                                input: {
+                                    ...params.InputProps,
+                                    type: "search",
+                                    startAdornment: (
+                                        <InputAdornment position="start">
+                                            <SvgIcon>
+                                                <SearchSharpIcon />
+                                            </SvgIcon>
+                                        </InputAdornment>
+                                    ),
+                                },
+                                htmlInput: {
+                                    ...params.inputProps,
+                                    sx: inputSx,
+                                    inputMode: "search",
+                                },
                             }}
                             sx={sx}
-                            inputProps={{
-                                ...params.inputProps,
-                                sx: inputSx,
-                                inputMode: "search",
-                            }}
                         />
                     )}
                 />

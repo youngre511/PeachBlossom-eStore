@@ -84,12 +84,14 @@ export const FormField: React.FC<FormFieldProps> = ({
             multiline={multiline || false}
             rows={rows || 1}
             required={required}
-            InputProps={InputProps}
-            inputProps={{
-                pattern: pattern ? pattern : undefined,
-                onInput: handleInput,
-                inputMode: inputMode ? inputMode : undefined,
-                sx: inputSx ? inputSx : undefined,
+            slotProps={{
+                input: InputProps,
+                htmlInput: {
+                    pattern: pattern ? pattern : undefined,
+                    onInput: handleInput,
+                    inputMode: inputMode ? inputMode : undefined,
+                    sx: inputSx ? inputSx : undefined,
+                },
             }}
             sx={sx}
             value={field.value}

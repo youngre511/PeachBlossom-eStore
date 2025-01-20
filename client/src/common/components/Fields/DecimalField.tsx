@@ -36,16 +36,18 @@ const DecimalField: React.FC<DecimalTextFieldProps> = ({
             label={label}
             value={value}
             onChange={handleInputChange}
-            inputProps={{
-                inputMode: "decimal",
-                pattern: "[0-9]*\\.?[0-9]{0,2}",
-            }}
-            InputProps={{
-                endAdornment: endAdornment ? (
-                    <InputAdornment position="end">
-                        {endAdornment}
-                    </InputAdornment>
-                ) : undefined,
+            slotProps={{
+                input: {
+                    endAdornment: endAdornment ? (
+                        <InputAdornment position="end">
+                            {endAdornment}
+                        </InputAdornment>
+                    ) : undefined,
+                },
+                htmlInput: {
+                    inputMode: "decimal",
+                    pattern: "[0-9]*\\.?[0-9]{0,2}",
+                },
             }}
             sx={style}
             size="small"

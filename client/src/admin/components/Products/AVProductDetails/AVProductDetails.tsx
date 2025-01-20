@@ -580,11 +580,13 @@ const AVProductDetails: React.FC = () => {
                         id="name"
                         label="ProductName"
                         required={editMode ? true : false}
-                        inputProps={{
-                            sx: editMode
-                                ? { backgroundColor: "white" }
-                                : undefined,
-                            readOnly: editMode ? false : true,
+                        slotProps={{
+                            htmlInput: {
+                                sx: editMode
+                                    ? { backgroundColor: "white" }
+                                    : undefined,
+                                readOnly: editMode ? false : true,
+                            },
                         }}
                         sx={editMode ? inputStyle : readOnlyStyle}
                         value={productName}
@@ -605,11 +607,13 @@ const AVProductDetails: React.FC = () => {
                                 id="productNo"
                                 label="Product Number"
                                 required={false}
-                                inputProps={{
-                                    sx: editMode
-                                        ? { backgroundColor: "white" }
-                                        : undefined,
-                                    readOnly: true,
+                                slotProps={{
+                                    htmlInput: {
+                                        sx: editMode
+                                            ? { backgroundColor: "white" }
+                                            : undefined,
+                                        readOnly: true,
+                                    },
                                 }}
                                 sx={editMode ? inputStyle : readOnlyStyle}
                                 value={productNo}
@@ -622,23 +626,25 @@ const AVProductDetails: React.FC = () => {
                                 id="price"
                                 label="Price"
                                 required={editMode ? true : false}
-                                InputProps={{
-                                    startAdornment: (
-                                        <InputAdornment position="start">
-                                            $
-                                        </InputAdornment>
-                                    ),
-                                }}
-                                inputProps={{
-                                    pattern: "^d*.?d{0,2}$",
-                                    inputMode: "decimal",
-                                    sx: editMode
-                                        ? {
-                                              backgroundColor:
-                                                  "white !important",
-                                          }
-                                        : undefined,
-                                    readOnly: editMode ? false : true,
+                                slotProps={{
+                                    input: {
+                                        startAdornment: (
+                                            <InputAdornment position="start">
+                                                $
+                                            </InputAdornment>
+                                        ),
+                                    },
+                                    htmlInput: {
+                                        pattern: "^d*.?d{0,2}$",
+                                        inputMode: "decimal",
+                                        sx: editMode
+                                            ? {
+                                                  backgroundColor:
+                                                      "white !important",
+                                              }
+                                            : undefined,
+                                        readOnly: editMode ? false : true,
+                                    },
                                 }}
                                 sx={editMode ? inputStyle : readOnlyStyle}
                                 value={price}
@@ -741,22 +747,25 @@ const AVProductDetails: React.FC = () => {
                             id="height"
                             label="Height"
                             required={editMode ? true : false}
-                            InputProps={{
-                                endAdornment: (
-                                    <InputAdornment position="end">
-                                        in.
-                                    </InputAdornment>
-                                ),
-                            }}
-                            inputProps={{
-                                pattern: "^d*.?d{0,2}$",
-                                inputMode: "decimal",
-                                sx: editMode
-                                    ? {
-                                          backgroundColor: "white !important",
-                                      }
-                                    : undefined,
-                                readOnly: editMode ? false : true,
+                            slotProps={{
+                                input: {
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            in.
+                                        </InputAdornment>
+                                    ),
+                                },
+                                htmlInput: {
+                                    pattern: "^d*.?d{0,2}$",
+                                    inputMode: "decimal",
+                                    sx: editMode
+                                        ? {
+                                              backgroundColor:
+                                                  "white !important",
+                                          }
+                                        : undefined,
+                                    readOnly: editMode ? false : true,
+                                },
                             }}
                             sx={editMode ? inputStyle : readOnlyStyle}
                             value={height}
@@ -779,22 +788,25 @@ const AVProductDetails: React.FC = () => {
                             id="width"
                             label="Width"
                             required={editMode ? true : false}
-                            InputProps={{
-                                endAdornment: (
-                                    <InputAdornment position="end">
-                                        in.
-                                    </InputAdornment>
-                                ),
-                            }}
-                            inputProps={{
-                                pattern: "^d*.?d{0,2}$",
-                                inputMode: "decimal",
-                                sx: editMode
-                                    ? {
-                                          backgroundColor: "white !important",
-                                      }
-                                    : undefined,
-                                readOnly: editMode ? false : true,
+                            slotProps={{
+                                input: {
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            in.
+                                        </InputAdornment>
+                                    ),
+                                },
+                                htmlInput: {
+                                    pattern: "^d*.?d{0,2}$",
+                                    inputMode: "decimal",
+                                    sx: editMode
+                                        ? {
+                                              backgroundColor:
+                                                  "white !important",
+                                          }
+                                        : undefined,
+                                    readOnly: editMode ? false : true,
+                                },
                             }}
                             sx={editMode ? inputStyle : readOnlyStyle}
                             value={width}
@@ -817,22 +829,25 @@ const AVProductDetails: React.FC = () => {
                             id="depth"
                             label="Depth"
                             required={editMode ? true : false}
-                            InputProps={{
-                                endAdornment: (
-                                    <InputAdornment position="end">
-                                        in.
-                                    </InputAdornment>
-                                ),
-                            }}
-                            inputProps={{
-                                pattern: "^d*.?d{0,2}$",
-                                inputMode: "decimal",
-                                sx: editMode
-                                    ? {
-                                          backgroundColor: "white !important",
-                                      }
-                                    : undefined,
-                                readOnly: editMode ? false : true,
+                            slotProps={{
+                                input: {
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            in.
+                                        </InputAdornment>
+                                    ),
+                                },
+                                htmlInput: {
+                                    pattern: "^d*.?d{0,2}$",
+                                    inputMode: "decimal",
+                                    sx: editMode
+                                        ? {
+                                              backgroundColor:
+                                                  "white !important",
+                                          }
+                                        : undefined,
+                                    readOnly: editMode ? false : true,
+                                },
                             }}
                             sx={editMode ? inputStyle : readOnlyStyle}
                             value={depth}
@@ -852,22 +867,25 @@ const AVProductDetails: React.FC = () => {
                             id="weight"
                             label="Weight"
                             required={editMode ? true : false}
-                            InputProps={{
-                                endAdornment: (
-                                    <InputAdornment position="end">
-                                        lbs.
-                                    </InputAdornment>
-                                ),
-                            }}
-                            inputProps={{
-                                pattern: "^d*.?d{0,2}$",
-                                inputMode: "decimal",
-                                sx: editMode
-                                    ? {
-                                          backgroundColor: "white !important",
-                                      }
-                                    : undefined,
-                                readOnly: editMode ? false : true,
+                            slotProps={{
+                                input: {
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            lbs.
+                                        </InputAdornment>
+                                    ),
+                                },
+                                htmlInput: {
+                                    pattern: "^d*.?d{0,2}$",
+                                    inputMode: "decimal",
+                                    sx: editMode
+                                        ? {
+                                              backgroundColor:
+                                                  "white !important",
+                                          }
+                                        : undefined,
+                                    readOnly: editMode ? false : true,
+                                },
                             }}
                             sx={editMode ? inputStyle : readOnlyStyle}
                             value={weight}
