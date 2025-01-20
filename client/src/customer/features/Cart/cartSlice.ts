@@ -15,6 +15,7 @@ import {
 } from "./CartTypes";
 import { RootState } from "../../store/customerStore";
 import axios from "axios";
+import { logActivity } from "../UserData/userDataTrackingThunks";
 
 const initialState: CartState = {
     items: [],
@@ -40,6 +41,10 @@ export const addItemToCart = createAsyncThunk<
         const currentNumberOfItems = state.cart.numberOfItems;
         const token = localStorage.getItem("jwtToken");
         let productThumbnail: string | null = null;
+
+        // Log action
+        dispatch(logActivity({ activityType: "cartAdd", productNo }));
+
         const indexInCart = state.cart.items.findIndex(
             (item: any) => item.productNo === productNo
         );

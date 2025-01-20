@@ -38,6 +38,10 @@ import { useCheckoutTimer } from "../../../common/contexts/checkoutTimerContext"
 import BlankPopup from "../../../common/components/BlankPopup";
 import { AuthContext } from "../../../common/contexts/authContext";
 import { validStates } from "../AddressForm/AddressForm";
+import {
+    logActivity,
+    pushActivityLogs,
+} from "../../features/UserData/userDataTrackingThunks";
 
 export interface PaymentDetails {
     cardType: string;
@@ -139,7 +143,7 @@ const Checkout: React.FC = () => {
                     console.error("Error holding stock", error);
                 } else {
                     console.error(
-                        "An unknown error has ocurred while placing hold on stock"
+                        "An unknown error has occurred while placing hold on stock"
                     );
                 }
             }
@@ -324,8 +328,6 @@ const Checkout: React.FC = () => {
             },
         };
 
-        console.log(orderData);
-
         try {
             const response = await axios.post(
                 `${import.meta.env.VITE_API_URL}/order/create`,
@@ -333,6 +335,16 @@ const Checkout: React.FC = () => {
             );
             if (response.data.orderNo) {
                 setOrderPlaced(true);
+
+                dispatch(
+                    logActivity({
+                        activityType: "purchase",
+                        productNo: orderData.orderDetails.items.map(
+                            (item) => item.productNo
+                        ),
+                    })
+                );
+                dispatch(pushActivityLogs());
                 dispatch(clearCart());
                 return response.data.orderNo;
             } else {
@@ -343,7 +355,7 @@ const Checkout: React.FC = () => {
                 console.error("Error placing order", error);
             } else {
                 console.error(
-                    "An unknown error has ocurred while placing order"
+                    "An unknown error has occurred while placing order"
                 );
             }
         }

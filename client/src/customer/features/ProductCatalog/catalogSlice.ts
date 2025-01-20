@@ -8,6 +8,7 @@ import {
     FetchProductsResponse,
 } from "./CatalogTypes";
 import { arraysEqual } from "../../../common/utils/arraysEqual";
+import { addProductView } from "../UserData/userDataTrackingThunks";
 
 const initialState: CatalogState = {
     singleProduct: null,
@@ -34,6 +35,11 @@ const initialState: CatalogState = {
     loading: false,
     error: null,
 };
+
+let lastLoggedProduct: {
+    timestamp: string | null;
+    productNo: string | null;
+} = { timestamp: null, productNo: null };
 
 //Thunks//
 
@@ -120,12 +126,54 @@ export const fetchOneProduct = createAsyncThunk<
     { state: RootState }
 >(
     "catalog/fetchOneProduct",
-    async (productNo: string, { getState, rejectWithValue }) => {
+    async (productNo: string, { dispatch, getState, rejectWithValue }) => {
+        const state = getState();
+        const currentProduct = state.catalog.singleProduct;
+        const now = new Date().toISOString();
+        const debounceTime = 500;
+
+        if (
+            currentProduct &&
+            currentProduct.productNo === productNo &&
+            (!lastLoggedProduct.timestamp ||
+                new Date(now).getTime() -
+                    new Date(lastLoggedProduct.timestamp).getTime() >
+                    debounceTime)
+        ) {
+            dispatch(
+                addProductView({
+                    productNo,
+                    productName: currentProduct.name,
+                    thumbnailUrl: currentProduct.images[0],
+                })
+            );
+            lastLoggedProduct = { timestamp: now, productNo: productNo };
+            return currentProduct;
+        }
+
         try {
             const response = await axios.get(
                 `${import.meta.env.VITE_API_URL}/product/catalog/${productNo}`
             );
-            return response.data.payload;
+
+            const payload = response.data.payload;
+            if (
+                !lastLoggedProduct.timestamp ||
+                lastLoggedProduct.productNo !== productNo ||
+                new Date(now).getTime() -
+                    new Date(lastLoggedProduct.timestamp).getTime() >
+                    debounceTime
+            ) {
+                dispatch(
+                    addProductView({
+                        productNo,
+                        productName: payload.name,
+                        thumbnailUrl: payload.images[0],
+                    })
+                );
+                lastLoggedProduct = { timestamp: now, productNo: productNo };
+            }
+            return payload;
         } catch (error: any) {
             return rejectWithValue(
                 error.response?.data || "Error fetching products"
