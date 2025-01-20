@@ -55,7 +55,7 @@ export const logActivity = async (
                 productNo: "productNo" in record ? record.productNo : undefined,
                 searchTerm:
                     "searchTerm" in record ? record.searchTerm : undefined,
-                timestamp: record.timestamp,
+                timestamp: new Date(record.timestamp),
             })
         );
 
