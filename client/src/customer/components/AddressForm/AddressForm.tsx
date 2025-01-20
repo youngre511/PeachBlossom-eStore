@@ -125,7 +125,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
 
     return (
         <form>
-            <FormGrid container spacing={3}>
+            <Grid container spacing={3}>
                 {sidebar && (
                     <FormGrid
                         size={{
@@ -150,7 +150,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
                 <FormGrid
                     size={{
                         xs: 12,
-                        md: sidebar ? undefined : 6,
+                        md: 6,
                     }}
                 >
                     <FormLabel htmlFor="first-name" required>
@@ -170,7 +170,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
                 <FormGrid
                     size={{
                         xs: 12,
-                        md: sidebar ? undefined : 6,
+                        md: 6,
                     }}
                 >
                     <FormLabel htmlFor="last-name" required>
@@ -288,7 +288,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
                         label="Save address for future use"
                     />
                 </FormGrid> */}
-            </FormGrid>
+            </Grid>
         </form>
     );
 };
