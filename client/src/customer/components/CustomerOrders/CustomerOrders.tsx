@@ -36,10 +36,9 @@ const CustomerOrders: React.FC<CustomerOrdersProps> = () => {
     ];
 
     const fetchOrders = (filter: CustomerOrderFilter) => {
-        if (auth && auth.user && auth.user.customer_id) {
+        if (auth && auth.user) {
             dispatch(
                 getUserOrders({
-                    customerId: auth.user.customer_id,
                     filter,
                     force: true,
                 })

@@ -5,8 +5,8 @@ const secret = process.env.JWT_SECRET as string;
 export interface UserPayload {
     username: string;
     role: "customer" | "admin";
-    customer_id?: number;
-    admin_id?: number;
+    lastName?: string;
+    firstName?: string;
     accessLevel?: "full" | "limited" | "view only";
     defaultPassword: boolean;
 }

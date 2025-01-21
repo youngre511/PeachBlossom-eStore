@@ -261,8 +261,14 @@ export const placeOrder = async (orderData: OrderData) => {
     }
 };
 
-export const getOrders = async (filters: GetOrdersFilters) => {
+export const getOrders = async (
+    filters: GetOrdersFilters,
+    customerId: number | null = null
+) => {
     try {
+        if (customerId) {
+            filters.customerId = customerId;
+        }
         if (!filters.sort) {
             filters.sort = "orderDate-descend";
         }

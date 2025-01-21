@@ -6,7 +6,7 @@ export interface ReceivedUser extends UserPayload {
     exp?: number;
 }
 
-export const authMiddleware = (
+export const passiveTokenVerification = (
     req: Request,
     res: Response,
     next: NextFunction
@@ -14,7 +14,7 @@ export const authMiddleware = (
     const token = req.headers.authorization?.split(" ")[1];
 
     if (!token || token === "null") {
-        res.status(401).json({ message: "Access denied, no token provided." });
+        next();
         return;
     }
 
@@ -26,11 +26,12 @@ export const authMiddleware = (
             "role" in decoded
         ) {
             req.user = decoded;
-            next();
         } else {
-            throw new Error("Invalid token structure");
+            console.error("Invalid token structure");
         }
+        next();
     } catch (err) {
-        res.status(401).json({ message: "Invalid token." });
+        console.error("Invalid token");
+        next();
     }
 };

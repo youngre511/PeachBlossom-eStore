@@ -1,6 +1,7 @@
 import { Request, Response, RequestHandler } from "express";
 import * as orderService from "../services/orderService.js";
 import { verifyToken } from "../utils/jwt.js";
+import { getCustomerIdFromUsername } from "../services/userService.js";
 
 export interface ShippingDetails {
     shippingAddress: string;
@@ -107,6 +108,15 @@ export const placeOrder: RequestHandler = async (
 ) => {
     try {
         const orderData = req.body;
+        if (req.user) {
+            const customer_id = await getCustomerIdFromUsername(
+                req.user.username
+            );
+            if (customer_id) {
+                orderData.customerId = +customer_id;
+            }
+        }
+
         const result = await orderService.placeOrder(orderData);
 
         (res as PlaceOrderResponse).json(result);
@@ -166,7 +176,7 @@ export const getOneCustomerOrder = async (
             throw new Error("No user token");
         }
 
-        const { customer_id } = req.user;
+        const customer_id = await getCustomerIdFromUsername(req.user.username);
 
         if (!customer_id) {
             throw new Error("No customer id supplied");
@@ -175,7 +185,7 @@ export const getOneCustomerOrder = async (
         const result = await orderService.getOneOrder({
             orderNo,
             email: undefined,
-            customerId: customer_id,
+            customerId: +customer_id,
             loggedIn: true,
         });
         res.setHeader(
@@ -203,6 +213,33 @@ export const getOneCustomerOrder = async (
 export const getOrders = async (req: GetOrdersRequest, res: Response) => {
     try {
         const result = await orderService.getOrders(req.query);
+        res.json(result);
+    } catch (error) {
+        let errorObj = {
+            message: "get orders failure",
+            payload: error,
+        };
+
+        console.error(errorObj);
+
+        res.status(500).json(errorObj);
+    }
+};
+
+export const getCustomerOrders = async (
+    req: GetOrdersRequest,
+    res: Response
+) => {
+    try {
+        if (!req.user) {
+            throw new Error("No user token provided");
+        }
+        console.log("USERNAME:", req.user.username);
+        const customerId = await getCustomerIdFromUsername(req.user.username);
+        if (!customerId) {
+            throw new Error("Unable to extract customerId from username");
+        }
+        const result = await orderService.getOrders(req.query, +customerId);
         res.json(result);
     } catch (error) {
         let errorObj = {

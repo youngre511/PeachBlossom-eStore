@@ -12,11 +12,9 @@ import { jwtDecode } from "jwt-decode";
 interface IUserToken {
     username: string;
     role: "customer" | "admin";
-    customer_id?: number;
     cart_id?: number;
     firstName?: string;
     lastName?: string;
-    admin_id?: number;
     accessLevel?: "full" | "limited" | "view only";
     exp: number;
     defaultPassword: boolean;

@@ -3,8 +3,8 @@ declare namespace Express {
         user?: {
             username: string;
             role: "customer" | "admin";
-            customer_id?: number;
-            admin_id?: number;
+            lastName?: string;
+            firstName?: string;
             accessLevel?: "full" | "limited" | "view only";
             defaultPassword: boolean;
             iat?: number;

@@ -302,10 +302,6 @@ const Checkout: React.FC = () => {
     const handlePlaceOrder = async () => {
         const orderData: OrderData = {
             cartId: cart.cartId,
-            customerId:
-                auth && auth.user && auth.user.customer_id
-                    ? auth.user.customer_id
-                    : undefined,
             shipping: shippingDetails,
             email: email,
             orderDetails: {
@@ -327,11 +323,18 @@ const Checkout: React.FC = () => {
                 }),
             },
         };
+        const token = localStorage.getItem("jwtToken");
 
         try {
             const response = await axios.post(
                 `${import.meta.env.VITE_API_URL}/order/create`,
-                orderData
+                orderData,
+                {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                        Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+                    },
+                }
             );
             if (response.data.orderNo) {
                 setOrderPlaced(true);

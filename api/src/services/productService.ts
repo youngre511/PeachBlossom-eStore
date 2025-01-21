@@ -35,6 +35,7 @@ import {
     JoinReqCountAdminProduct,
 } from "./serviceTypes.js";
 import processImages from "../utils/processImages.js";
+import { calculatePagination } from "../utils/sqlSearchHelpers.js";
 
 ////// TYPES AND INTERFACES //////
 
@@ -318,8 +319,10 @@ export const getAdminProducts = async (filters: AdminFilterObj) => {
             filters.sort = "name-ascend";
         }
 
-        const page = +filters.page || 1;
-        const offset = (page - 1) * +filters.itemsPerPage;
+        const { page, offset } = calculatePagination(
+            +filters.page || 1,
+            +filters.itemsPerPage
+        );
 
         const whereClause: any = {};
         if (filters.search) {

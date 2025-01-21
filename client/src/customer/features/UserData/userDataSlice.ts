@@ -33,14 +33,11 @@ const initialState: UserDataState = {
 
 export const getUserOrders = createAsyncThunk<
     OrdersResponse,
-    { customerId: number; force?: boolean; filter: CustomerOrderFilter },
+    { force?: boolean; filter: CustomerOrderFilter },
     { state: RootState }
 >(
     "userData/getUserOrders",
-    async (
-        { customerId, force = false, filter },
-        { getState, rejectWithValue }
-    ) => {
+    async ({ force = false, filter }, { getState, rejectWithValue }) => {
         try {
             const token = localStorage.getItem("jwtToken");
             const state = getState() as RootState;
@@ -85,15 +82,13 @@ export const getUserOrders = createAsyncThunk<
                     numberOfResults: state.userData.data.numberResults,
                 };
             }
-            console.log("customerId:", customerId);
 
             const params = {
-                customerId: String(customerId),
                 itemsPerPage: 10,
                 ...filter,
             };
             const response = await axios.get(
-                `${import.meta.env.VITE_API_URL}/order/`,
+                `${import.meta.env.VITE_API_URL}/order/customerOrders`,
                 {
                     params: params,
                     headers: {
@@ -101,7 +96,7 @@ export const getUserOrders = createAsyncThunk<
                     },
                 }
             );
-
+            console.log(response);
             return {
                 filter: filter,
                 orders: response.data.orders,

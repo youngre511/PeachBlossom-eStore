@@ -358,13 +358,15 @@ export const getCustomerAddresses = async (req: Request, res: Response) => {
             throw new Error("No user token");
         }
 
-        const { customer_id } = req.user;
+        const customer_id = await userService.getCustomerIdFromUsername(
+            req.user.username
+        );
 
         if (!customer_id) {
             throw new Error("No customer_id in token");
         }
 
-        const results = await userService.getCustomerAddresses(customer_id);
+        const results = await userService.getCustomerAddresses(+customer_id);
 
         res.json({
             message: "success",
@@ -391,7 +393,9 @@ export const addCustomerAddress = async (
             throw new Error("No user token");
         }
 
-        const { customer_id } = req.user;
+        const customer_id = userService.getCustomerIdFromUsername(
+            req.user.username
+        );
 
         if (!customer_id) {
             throw new Error("No customer_id in token");
@@ -400,7 +404,7 @@ export const addCustomerAddress = async (
         const { address, nickname } = req.body;
 
         const results = await userService.addCustomerAddress(
-            customer_id,
+            +customer_id,
             address,
             nickname
         );
@@ -430,7 +434,9 @@ export const removeCustomerAddress = async (
             throw new Error("No user token");
         }
 
-        const { customer_id } = req.user;
+        const customer_id = await userService.getCustomerIdFromUsername(
+            req.user.username
+        );
 
         if (!customer_id) {
             throw new Error("No customer_id in token");
@@ -439,7 +445,7 @@ export const removeCustomerAddress = async (
         const { addressId } = req.body;
 
         const results = await userService.removeCustomerAddress(
-            customer_id,
+            +customer_id,
             addressId
         );
 
@@ -468,7 +474,9 @@ export const editCustomerAddress = async (
             throw new Error("No user token");
         }
 
-        const { customer_id } = req.user;
+        const customer_id = await userService.getCustomerIdFromUsername(
+            req.user.username
+        );
 
         if (!customer_id) {
             throw new Error("No customer_id in token");
@@ -477,7 +485,7 @@ export const editCustomerAddress = async (
         const { addressId, address, nickname } = req.body;
 
         const results = await userService.editCustomerAddress(
-            customer_id,
+            +customer_id,
             addressId,
             address,
             nickname

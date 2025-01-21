@@ -8,14 +8,13 @@ import {
     updateItemQuantity,
 } from "../controllers/cartController.js";
 import { authMiddleware } from "../middleware/authMiddleware.js";
-
-function dummyFunc() {}
+import { passiveTokenVerification } from "../middleware/passiveTokenVerification.js";
 
 cartRouter.get("/cartId/:cartId", getCartById);
 
-cartRouter.get("/customerId/:customerId", getCustomerCart);
+cartRouter.get("/customer/", authMiddleware, getCustomerCart);
 
-cartRouter.put("/add-to-cart", addToCart);
+cartRouter.put("/add-to-cart", passiveTokenVerification, addToCart);
 
 cartRouter.put("/update-quantity", updateItemQuantity);
 

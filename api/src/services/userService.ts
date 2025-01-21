@@ -14,6 +14,7 @@ import { ShippingDetails } from "../controllers/orderController.js";
 import { sqlAddress } from "../models/mysql/sqlAddressModel.js";
 import { sqlOrder } from "../models/mysql/sqlOrderModel.js";
 import { sqlCustomerAddress } from "../models/mysql/sqlCustomerAddressModel.js";
+import { calculatePagination } from "../utils/sqlSearchHelpers.js";
 
 export const getAdmins = async (
     page: number,
@@ -22,7 +23,7 @@ export const getAdmins = async (
     searchString?: string
 ) => {
     try {
-        const offset = (page - 1) * usersPerPage;
+        const { offset } = calculatePagination(+page || 1, +usersPerPage);
         const whereClause: any = { [Op.and]: [{ role: "admin" }] };
         const adminWhereClause: any = {
             [Op.and]: [{ accessLevel: { [Op.in]: accessLevel } }],
@@ -84,7 +85,8 @@ export const getCustomers = async (
 ) => {
     try {
         console.log("Searchstring:", searchString);
-        const offset = (page - 1) * usersPerPage;
+
+        const { offset } = calculatePagination(+page || 1, +usersPerPage);
         const whereClause: any = { [Op.and]: [{ role: "customer" }] };
         const customerWhereClause: any = {};
         if (searchString) {
@@ -790,7 +792,9 @@ export const getCustomerIdFromUsername = async (
     transaction?: Transaction
 ) => {
     try {
-        const user_id = getIdFromUsername(username, transaction);
+        console.log("USERNAME:", username);
+        const user_id = await getIdFromUsername(username, transaction);
+        console.log("USER_ID:", user_id);
         const foundCustomer = await sqlCustomer.findOne({
             where: { user_id },
             transaction,
@@ -798,6 +802,7 @@ export const getCustomerIdFromUsername = async (
         if (!foundCustomer) {
             return null;
         } else {
+            console.log(foundCustomer.customer_id);
             return foundCustomer.customer_id;
         }
     } catch (error) {
@@ -818,7 +823,7 @@ export const getAdminIdFromUsername = async (
     transaction?: Transaction
 ) => {
     try {
-        const user_id = getIdFromUsername(username, transaction);
+        const user_id = await getIdFromUsername(username, transaction);
         const foundAdmin = await sqlAdmin.findOne({
             where: { user_id },
             transaction,

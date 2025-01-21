@@ -3,19 +3,10 @@ import Category from "../models/mongo/categoryModel.js";
 import * as cartService from "../services/cartService.js";
 import { Request, RequestHandler, Response } from "express";
 import { verifyToken } from "../utils/jwt.js";
+import { getCustomerIdFromUsername } from "../services/userService.js";
 
 interface CartIdRequestParams extends Request {
     cartId: string;
-}
-
-interface CustomerCartRequestParams extends Request {
-    customerId: string;
-}
-
-interface CustomerIdBodyRequest extends Request {
-    body: {
-        customerId: number;
-    };
 }
 
 interface AddItemRequest extends Request {
@@ -92,11 +83,16 @@ export const getCartById: RequestHandler<CartIdRequestParams> = async (
     }
 };
 
-export const getCustomerCart: RequestHandler<
-    CustomerCartRequestParams
-> = async (req: Request<CustomerCartRequestParams>, res: Response) => {
+export const getCustomerCart: RequestHandler = async (
+    req: Request,
+    res: Response
+) => {
     try {
-        const { customerId } = req.params;
+        if (!req.user) {
+            throw new Error("No valid token/username provided.");
+        }
+        const { username } = req.user;
+        const customerId = getCustomerIdFromUsername(username);
         const result = await cartService.getCart({ customerId: +customerId });
 
         (res as CartResponse).json({
@@ -125,12 +121,13 @@ export const addToCart: RequestHandler = async (
 ) => {
     try {
         // Check token here instead of using middleware because the action is valid with or without a token. AuthMiddleware is designed to prevent access without a token.
-        const token = req.headers.authorization?.split(" ")[1];
         let customerId = null;
-        if (token && token !== "null") {
-            const decoded = verifyToken(token);
-            if (decoded && decoded.customer_id) {
-                customerId = decoded.customer_id;
+        if (req.user) {
+            const customer_id = await getCustomerIdFromUsername(
+                req.user.username
+            );
+            if (customer_id) {
+                customerId = +customer_id;
             }
         }
 
