@@ -16,7 +16,7 @@ export const activityMiddleware = async (
 
         const token = req.headers.authorization?.split(" ")[1];
 
-        if (token && token !== null && token !== "null") {
+        if (token && token !== "null") {
             const decoded = verifyToken(token) as ReceivedUser;
             if (
                 typeof decoded === "object" &&
