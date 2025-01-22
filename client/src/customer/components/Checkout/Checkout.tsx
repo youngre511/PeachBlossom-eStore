@@ -331,7 +331,7 @@ const Checkout: React.FC = () => {
                 orderData,
                 {
                     headers: {
-                        "Content-Type": "multipart/form-data",
+                        "Content-Type": "application/json",
                         Authorization: `Bearer ${token}`, // Include the token in the Authorization header
                     },
                 }
@@ -703,6 +703,7 @@ const Checkout: React.FC = () => {
                                                     sm: "auto",
                                                 },
                                             }}
+                                            onClick={() => navigate("/orders")}
                                         >
                                             Go to my orders
                                         </Button>
