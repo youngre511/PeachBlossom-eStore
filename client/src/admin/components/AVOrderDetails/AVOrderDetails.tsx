@@ -6,7 +6,7 @@ import React, {
     useContext,
 } from "react";
 import {
-    Grid,
+    Grid2 as Grid,
     Container,
     InputAdornment,
     TextField,
@@ -32,6 +32,7 @@ import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
 import { RootState } from "../../store/store";
 import { avFetchOrderDetails } from "../../features/AVOrders/avOrdersSlice";
 import { AuthContext } from "../../../common/contexts/authContext";
+import { useNavigationContext } from "../../../common/contexts/navContext";
 dayjs.extend(customParseFormat);
 dayjs.extend(updateLocale);
 dayjs.updateLocale("en", {
@@ -190,9 +191,27 @@ const AVOrderDetails: React.FC = () => {
         "cancelled",
         "back ordered",
     ];
+    const { previousRoute } = useNavigationContext();
+    const [previous, setPrevious] = useState<string>("/products/manage");
+    const [lockedPrevious, setLockedPrevious] = useState<boolean>(false);
 
     const limitedStatusOptions = ["in process", "cancelled"];
     const backOrderedStatusOptions = ["cancelled", "back ordered"];
+
+    useEffect(() => {
+        if (
+            previousRoute &&
+            !lockedPrevious &&
+            !previousRoute.includes("order-details")
+        ) {
+            if (previousRoute.includes("orders/manage")) {
+                setPrevious(previousRoute);
+            } else {
+                setPrevious(previousRoute);
+            }
+            setLockedPrevious(true);
+        }
+    }, [previousRoute, lockedPrevious]);
 
     useEffect(() => {
         if (orderNo) {
@@ -618,8 +637,8 @@ const AVOrderDetails: React.FC = () => {
             {!loading && currentDetails && (
                 <Container
                     sx={{
-                        pl: { xs: 3, sm: 0, md: 2 },
-                        pr: { xs: 3, sm: 0, md: 2 },
+                        pl: { xs: 1, sm: 0, md: 2 },
+                        pr: { xs: 4, sm: 2 },
                     }}
                 >
                     <Grid
@@ -630,21 +649,21 @@ const AVOrderDetails: React.FC = () => {
                     >
                         <Grid
                             container
-                            item
                             sx={{
                                 justifyContent: "space-between",
                             }}
-                            xs={12}
+                            size={12}
                         >
                             <Grid
-                                item
-                                xs={12}
-                                md={6}
                                 sx={{
                                     order: {
                                         xs: 2,
                                         md: 1,
                                     },
+                                }}
+                                size={{
+                                    xs: 12,
+                                    md: 6,
                                 }}
                             >
                                 <h1
@@ -657,10 +676,7 @@ const AVOrderDetails: React.FC = () => {
                                 </h1>
                             </Grid>
                             <Grid
-                                item
                                 container
-                                xs={12}
-                                md={6}
                                 spacing={1}
                                 sx={{
                                     justifyContent: "flex-end",
@@ -670,27 +686,32 @@ const AVOrderDetails: React.FC = () => {
                                         md: 2,
                                     },
                                 }}
+                                size={{
+                                    xs: 12,
+                                    md: 6,
+                                }}
                             >
                                 <Grid
-                                    item
                                     container
-                                    xs={12}
                                     sx={{
                                         justifyContent: {
                                             xs: "space-between",
                                             md: "flex-end",
                                         },
                                     }}
+                                    size={12}
                                 >
                                     <Button
                                         variant="outlined"
-                                        onClick={() =>
-                                            navigate("/orders/manage")
-                                        }
                                         sx={{
                                             color: "black",
                                             marginBottom: "20px",
                                         }}
+                                        onClick={() =>
+                                            navigate(
+                                                previous || "/orders/manage"
+                                            )
+                                        }
                                     >
                                         &lt; Back
                                     </Button>
@@ -746,14 +767,13 @@ const AVOrderDetails: React.FC = () => {
                             </Grid>
                             <Grid
                                 container
-                                item
-                                xs={12}
                                 sx={{
                                     justifyContent: "space-between",
                                     order: 3,
                                 }}
+                                size={12}
                             >
-                                <Grid item xs={6}>
+                                <Grid size={6}>
                                     <div className="date">
                                         <span style={{ fontWeight: 700 }}>
                                             Order Date
@@ -770,7 +790,7 @@ const AVOrderDetails: React.FC = () => {
                                         </span>
                                     </div>
                                 </Grid>
-                                <Grid item xs={6}>
+                                <Grid size={6}>
                                     <div
                                         style={{
                                             display: "flex",
@@ -823,8 +843,15 @@ const AVOrderDetails: React.FC = () => {
                                 </Grid>
                             </Grid>
                         </Grid>
-                        <Grid container item xs={12} lg={8} rowSpacing={3}>
-                            <Grid item xs={12}>
+                        <Grid
+                            container
+                            rowSpacing={3}
+                            size={{
+                                xs: 12,
+                                lg: 8,
+                            }}
+                        >
+                            <Grid size={12}>
                                 <TextField
                                     fullWidth
                                     variant={editMode ? "filled" : "standard"}
@@ -846,7 +873,7 @@ const AVOrderDetails: React.FC = () => {
                                     }
                                 />
                             </Grid>
-                            <Grid item xs={12}>
+                            <Grid size={12}>
                                 <TextField
                                     fullWidth
                                     variant={editMode ? "filled" : "standard"}
@@ -868,8 +895,8 @@ const AVOrderDetails: React.FC = () => {
                                     }
                                 />
                             </Grid>
-                            <Grid spacing={3} item container xs={12}>
-                                <Grid item xs={5}>
+                            <Grid spacing={3} container size={12}>
+                                <Grid size={5}>
                                     <TextField
                                         fullWidth
                                         variant={
@@ -899,7 +926,7 @@ const AVOrderDetails: React.FC = () => {
                                         value={city}
                                     />
                                 </Grid>
-                                <Grid item xs={3}>
+                                <Grid size={3}>
                                     <TextField
                                         fullWidth
                                         variant={
@@ -935,7 +962,7 @@ const AVOrderDetails: React.FC = () => {
                                         }
                                     />
                                 </Grid>
-                                <Grid item xs={4}>
+                                <Grid size={4}>
                                     <TextField
                                         fullWidth
                                         variant={
@@ -973,11 +1000,15 @@ const AVOrderDetails: React.FC = () => {
                             <Grid
                                 spacing={3}
                                 sx={{ display: "flex", flexWrap: "wrap" }}
-                                item
-                                xs={12}
                                 container
+                                size={12}
                             >
-                                <Grid item xs={12} md={6}>
+                                <Grid
+                                    size={{
+                                        xs: 12,
+                                        md: 6,
+                                    }}
+                                >
                                     <TextField
                                         fullWidth
                                         variant={
@@ -1024,7 +1055,12 @@ const AVOrderDetails: React.FC = () => {
                                         }
                                     />
                                 </Grid>
-                                <Grid item xs={12} md={6}>
+                                <Grid
+                                    size={{
+                                        xs: 12,
+                                        md: 6,
+                                    }}
+                                >
                                     <MuiTelInput
                                         id="phone"
                                         name="phoneNumber"
@@ -1054,13 +1090,21 @@ const AVOrderDetails: React.FC = () => {
                                 </Grid>
                             </Grid>
                         </Grid>
-                        <Grid item xs={0} lg={1}></Grid>
-                        <Grid spacing={3} item xs={12} lg={3} container>
-                            <Grid
-                                item
-                                xs={12}
-                                // sx={{ paddingLeft: { xs: "24px", md: "48px" } }}
-                            >
+                        <Grid
+                            size={{
+                                xs: 0,
+                                lg: 1,
+                            }}
+                        ></Grid>
+                        <Grid
+                            spacing={3}
+                            container
+                            size={{
+                                xs: 12,
+                                lg: 3,
+                            }}
+                        >
+                            <Grid size={12}>
                                 <TextField
                                     fullWidth
                                     variant={editMode ? "filled" : "standard"}
@@ -1092,7 +1136,7 @@ const AVOrderDetails: React.FC = () => {
                                     value={subTotal}
                                 />
                             </Grid>
-                            <Grid item xs={12}>
+                            <Grid size={12}>
                                 <TextField
                                     fullWidth
                                     variant={editMode ? "filled" : "standard"}
@@ -1131,7 +1175,7 @@ const AVOrderDetails: React.FC = () => {
                                     }
                                 />
                             </Grid>
-                            <Grid item xs={12}>
+                            <Grid size={12}>
                                 <TextField
                                     fullWidth
                                     variant={editMode ? "filled" : "standard"}
@@ -1162,7 +1206,7 @@ const AVOrderDetails: React.FC = () => {
                                     value={subTotal !== "0.00" ? tax : "0.00"}
                                 />
                             </Grid>
-                            <Grid item xs={12}>
+                            <Grid size={12}>
                                 <TextField
                                     fullWidth
                                     variant={editMode ? "filled" : "standard"}
@@ -1194,7 +1238,7 @@ const AVOrderDetails: React.FC = () => {
                                 />
                             </Grid>
                         </Grid>
-                        <Grid item xs={12}>
+                        <Grid size={12}>
                             <AVOrderItemList
                                 orderItems={items}
                                 setOrderItems={setItems}

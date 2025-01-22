@@ -6,7 +6,7 @@ import React, {
     useContext,
 } from "react";
 import {
-    Grid,
+    Grid2 as Grid,
     Container,
     InputAdornment,
     TextField,
@@ -250,7 +250,7 @@ const AVProductDetails: React.FC = () => {
         ) {
             if (previousRoute.includes("products/manage")) {
                 setPrevious({
-                    path: "/products/manage",
+                    path: previousRoute,
                     name: "Product Management",
                 });
             } else if (
@@ -536,9 +536,6 @@ const AVProductDetails: React.FC = () => {
                 }}
             >
                 <Grid
-                    item
-                    xs={12}
-                    lg={5}
                     sx={{
                         paddingTop: "0 !important",
                         alignItems: "stretch",
@@ -553,6 +550,10 @@ const AVProductDetails: React.FC = () => {
                             lg: 0,
                         },
                     }}
+                    size={{
+                        xs: 12,
+                        lg: 5,
+                    }}
                 >
                     <ImageUploader
                         setImages={setImages}
@@ -565,13 +566,14 @@ const AVProductDetails: React.FC = () => {
                 </Grid>
                 <Grid
                     container
-                    item
-                    xs={12}
-                    lg={7}
                     rowSpacing={3}
                     sx={{
                         alignItems: "space-between",
                         height: "auto",
+                    }}
+                    size={{
+                        xs: 12,
+                        lg: 7,
                     }}
                 >
                     <TextField
@@ -596,11 +598,10 @@ const AVProductDetails: React.FC = () => {
                     <Grid
                         columnSpacing={3}
                         sx={{ display: "flex", flexWrap: "wrap" }}
-                        item
                         container
-                        xs={12}
+                        size={12}
                     >
-                        <Grid item xs={6}>
+                        <Grid size={6}>
                             <TextField
                                 fullWidth
                                 variant={editMode ? "filled" : "standard"}
@@ -619,7 +620,7 @@ const AVProductDetails: React.FC = () => {
                                 value={productNo}
                             />
                         </Grid>
-                        <Grid item xs={6}>
+                        <Grid size={6}>
                             <TextField
                                 fullWidth
                                 variant={editMode ? "filled" : "standard"}
@@ -658,11 +659,15 @@ const AVProductDetails: React.FC = () => {
                     <Grid
                         spacing={3}
                         sx={{ display: "flex", flexWrap: "wrap" }}
-                        item
-                        xs={12}
                         container
+                        size={12}
                     >
-                        <Grid item xs={12} sm={6}>
+                        <Grid
+                            size={{
+                                xs: 12,
+                                sm: 6,
+                            }}
+                        >
                             <SelectFieldNonFormik
                                 label="Category"
                                 name="category"
@@ -676,7 +681,12 @@ const AVProductDetails: React.FC = () => {
                                 variant={editMode ? "filled" : "standard"}
                             />
                         </Grid>
-                        <Grid item xs={12} sm={6}>
+                        <Grid
+                            size={{
+                                xs: 12,
+                                sm: 6,
+                            }}
+                        >
                             <SelectFieldNonFormik
                                 label="Subcategory"
                                 name="subcategory"
@@ -698,11 +708,15 @@ const AVProductDetails: React.FC = () => {
                     <Grid
                         spacing={3}
                         sx={{ display: "flex", flexWrap: "wrap" }}
-                        item
-                        xs={12}
                         container
+                        size={12}
                     >
-                        <Grid item xs={12} sm={6}>
+                        <Grid
+                            size={{
+                                xs: 12,
+                                sm: 6,
+                            }}
+                        >
                             <SelectFieldNonFormik
                                 label="Color"
                                 name="color"
@@ -716,7 +730,12 @@ const AVProductDetails: React.FC = () => {
                                 variant={editMode ? "filled" : "standard"}
                             />
                         </Grid>
-                        <Grid item xs={12} sm={6}>
+                        <Grid
+                            size={{
+                                xs: 12,
+                                sm: 6,
+                            }}
+                        >
                             <SelectFieldNonFormik
                                 label="Material"
                                 name="material"
@@ -732,13 +751,14 @@ const AVProductDetails: React.FC = () => {
                         </Grid>
                     </Grid>
                 </Grid>
-                <Grid container item xs={12} rowSpacing={3}>
+                <Grid container rowSpacing={3} size={12}>
                     <Grid
-                        item
-                        xs={6}
-                        lg={3}
                         sx={{
                             paddingRight: { xs: "12px", lg: "36px" },
+                        }}
+                        size={{
+                            xs: 6,
+                            lg: 3,
                         }}
                     >
                         <TextField
@@ -774,12 +794,13 @@ const AVProductDetails: React.FC = () => {
                         />
                     </Grid>
                     <Grid
-                        item
-                        xs={6}
-                        lg={3}
                         sx={{
                             paddingLeft: { xs: "12px", lg: "12px" },
                             paddingRight: { lg: "24px" },
+                        }}
+                        size={{
+                            xs: 6,
+                            lg: 3,
                         }}
                     >
                         <TextField
@@ -815,12 +836,13 @@ const AVProductDetails: React.FC = () => {
                         />
                     </Grid>
                     <Grid
-                        item
-                        xs={6}
-                        lg={3}
                         sx={{
                             paddingRight: "12px",
                             paddingLeft: { lg: "24px" },
+                        }}
+                        size={{
+                            xs: 6,
+                            lg: 3,
                         }}
                     >
                         <TextField
@@ -856,10 +878,11 @@ const AVProductDetails: React.FC = () => {
                         />
                     </Grid>
                     <Grid
-                        item
-                        xs={6}
-                        lg={3}
                         sx={{ paddingLeft: { xs: "12px", lg: "36px" } }}
+                        size={{
+                            xs: 6,
+                            lg: 3,
+                        }}
                     >
                         <TextField
                             fullWidth
@@ -894,7 +917,7 @@ const AVProductDetails: React.FC = () => {
                         />
                     </Grid>
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={12}>
                     <TextField
                         fullWidth
                         variant={editMode ? "filled" : "standard"}
@@ -919,7 +942,6 @@ const AVProductDetails: React.FC = () => {
                     />
                 </Grid>
                 <Grid
-                    item
                     sx={{
                         display: "flex",
                         justifyContent: "space-between",
