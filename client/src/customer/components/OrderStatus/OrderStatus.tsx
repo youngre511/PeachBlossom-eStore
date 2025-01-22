@@ -41,6 +41,8 @@ export interface IOrderDetails {
     shipping: number;
     city: string;
     tax: number;
+    firstName?: string;
+    lastName?: string;
     totalAmount: number;
     shippingAddress: string;
     stateAbbr: string;

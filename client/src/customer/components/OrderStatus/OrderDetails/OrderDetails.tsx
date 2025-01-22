@@ -152,6 +152,9 @@ const OrderDetails: React.FC<Props> = ({ orderDetails }) => {
                                     <div className="os-shipping-label">
                                         Shipping Address
                                     </div>
+                                    {orderDetails.firstName && (
+                                        <div>{`${orderDetails.firstName} ${orderDetails.lastName}`}</div>
+                                    )}
                                     <div>
                                         {splitShippingAddress[0]}
                                         {splitShippingAddress[1] !== "" && (
@@ -162,9 +165,9 @@ const OrderDetails: React.FC<Props> = ({ orderDetails }) => {
                                     </div>
                                     <div>
                                         {orderDetails.city},{" "}
-                                        {orderDetails.stateAbbr}
+                                        {orderDetails.stateAbbr}{" "}
+                                        {orderDetails.zipCode}
                                     </div>
-                                    <div>{orderDetails.zipCode}</div>
                                 </div>
                             </TableCell>
                             {width && width > 1000 && <TableCell></TableCell>}
