@@ -18,9 +18,11 @@ footer a {
 
 footer ul {
     list-style: none;
-    display: flex;
-    justify-content: center;
+    display: grid;
     padding: 0;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    width: 295px;
 }
 
 footer li {
@@ -30,6 +32,15 @@ footer li {
 
 .copyright {
     text-align: center;
+}
+
+@media (min-width: 471px) {
+    footer ul {
+        display: flex;
+        justify-content: center;
+        gap: 0;
+        width: auto;
+    }
 }
 
 @media (min-width: 600px) {
