@@ -9,8 +9,9 @@ export const activityMiddleware = async (
 ): Promise<void> => {
     try {
         const trackingId = req.cookies.trackingId;
+        const { allowAll } = JSON.parse(req.cookies.cookieConsent);
 
-        if (trackingId) {
+        if (trackingId && allowAll) {
             req.trackingId = trackingId;
         }
 
