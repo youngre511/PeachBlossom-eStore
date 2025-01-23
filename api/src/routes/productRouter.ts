@@ -15,6 +15,7 @@ import {
 import upload from "../middleware/uploadMiddleware.js";
 import { authMiddleware } from "../middleware/authMiddleware.js";
 import { authorizeRoles } from "../middleware/authorize.js";
+import { passiveTokenVerification } from "../middleware/passiveTokenVerification.js";
 
 productRouter.get("/", getProducts);
 
@@ -59,6 +60,10 @@ productRouter.delete(
 
 productRouter.get("/:productNo", getOneProduct);
 
-productRouter.get("/catalog/:productNo", getCatalogProductDetails);
+productRouter.get(
+    "/catalog/:productNo",
+    passiveTokenVerification,
+    getCatalogProductDetails
+);
 
 export default productRouter;

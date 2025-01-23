@@ -36,6 +36,11 @@ import {
 } from "./serviceTypes.js";
 import processImages from "../utils/processImages.js";
 import { calculatePagination } from "../utils/sqlSearchHelpers.js";
+import { getCustomerIdFromUsername } from "./userService.js";
+import {
+    RecentlyViewedItem,
+    sqlCustomer,
+} from "../models/mysql/sqlCustomerModel.js";
 
 ////// TYPES AND INTERFACES //////
 
@@ -464,6 +469,7 @@ export const getOneProduct = async (productNo: string) => {
             images: result.images,
             tags: result.tags || null,
         };
+
         return productData;
     } catch (error) {
         if (error instanceof Error) {
@@ -476,7 +482,11 @@ export const getOneProduct = async (productNo: string) => {
 
 //////////////////////////////////////////////////////////////////////////
 
-export const getCatalogProductDetails = async (productNo: string) => {
+export const getCatalogProductDetails = async (
+    productNo: string,
+    username: string | null = null
+) => {
+    const sqlTransaction = await sequelize.transaction();
     try {
         const result: PopulatedProductItem | null = await Product.findOne({
             productNo: productNo,
@@ -544,8 +554,45 @@ export const getCatalogProductDetails = async (productNo: string) => {
             tags: result.tags || null,
         };
 
+        if (username) {
+            const customerId = await getCustomerIdFromUsername(username);
+            if (customerId) {
+                const foundCustomer = await sqlCustomer.findOne({
+                    where: { customer_id: customerId },
+                    transaction: sqlTransaction,
+                });
+                if (foundCustomer) {
+                    const timestamp = new Date().toISOString();
+                    const recentlyViewed: Array<RecentlyViewedItem> =
+                        foundCustomer.recentlyViewed || [];
+
+                    const foundIndex = recentlyViewed.findIndex(
+                        (product) => product.productNo === result.productNo
+                    );
+                    if (foundIndex !== -1) {
+                        recentlyViewed.splice(foundIndex, 1);
+                    }
+                    if (recentlyViewed.length > 5) {
+                        recentlyViewed.pop();
+                    }
+                    recentlyViewed.unshift({
+                        productNo: result.productNo,
+                        productName: result.name,
+                        thumbnailUrl: result.images[0],
+                        timestamp,
+                    });
+
+                    foundCustomer.set("recentlyViewed", recentlyViewed);
+                    foundCustomer.changed("recentlyViewed", true);
+
+                    await foundCustomer.save({ transaction: sqlTransaction });
+                }
+            }
+        }
+        await sqlTransaction.commit();
         return productData;
     } catch (error) {
+        await sqlTransaction.rollback();
         throw error;
     }
 };

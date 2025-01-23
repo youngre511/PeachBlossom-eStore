@@ -186,6 +186,7 @@ export const getOneProduct = async (
 ) => {
     try {
         const { productNo } = req.params;
+
         const result = await productService.getOneProduct(productNo);
 
         res.json({
@@ -210,7 +211,15 @@ export const getCatalogProductDetails = async (
 ) => {
     try {
         const { productNo } = req.params;
-        const result = await productService.getCatalogProductDetails(productNo);
+        let username = null;
+        if (req.user) {
+            username = req.user.username;
+        }
+
+        const result = await productService.getCatalogProductDetails(
+            productNo,
+            username
+        );
 
         res.json({
             message: "success",
