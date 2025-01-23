@@ -14,6 +14,7 @@ import Signup from "./SignUp/Signup";
 import AccountManagement from "./AccountManagement/AccountManagement";
 import { setCartId, syncCart } from "../../features/Cart/cartSlice";
 import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
+import { syncRecentlyViewed } from "../../features/UserData/userDataTrackingThunks";
 
 interface Props {
     setAccountsTabVisible: React.Dispatch<SetStateAction<boolean>>;
@@ -43,6 +44,14 @@ const AccountsTab: React.FC<Props> = ({
             }, 301);
         }
     }, [accountsTabVisible]);
+
+    useEffect(() => {
+        console.log("LoggedIn Changed");
+        if (loggedIn) {
+            console.log("dispatching sync");
+            dispatch(syncRecentlyViewed());
+        }
+    }, [loggedIn]);
 
     return (
         <div

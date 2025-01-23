@@ -160,38 +160,82 @@ export const logActivity =
     };
 
 /**
- * @description This is a function to fetch the value of the recentlyViewed cookie and compare it to the userData.data.recentlyViewed array.
- * It creates a combined list containing the five most recently viewed items and dispatches calls to update the userData slice and the cookie with the new combined list.
+ * @description This is a function to bring recentCookie, the recentlyViewed list in userData slice, and (if applicable) the recentlyViewed array in the sqlCustomer table into sync.
+ * If the user is logged in, it combines the recently viewed lists in the recentCookie and userData slice and sends the data to an apiEndpoint for syncing cookie data, which compares it to the list recorded in the customer table.
+ * That api call returns a list of the five most recently viewed items.
+ * If the user is not logged in (and there is therefore no token), it creates a combined list containing the five most recently viewed items and dispatches calls to update the userData slice and the cookie with the new combined list.
  */
-export const syncRecentlyViewed =
-    (): AppThunk<void> => (dispatch, getState) => {
-        const cookieList = getRecentCookie();
-        const state = getState();
-        const recentList = state.userData.data.recentlyViewed;
 
-        if (cookieList) {
-            if (recentList.length === 0) {
-                dispatch(updateRecent(cookieList));
+export const syncRecentlyViewed = createAsyncThunk<
+    void,
+    void,
+    { state: RootState }
+>(
+    "userData/syncRecentlyViewed",
+    async (_, { dispatch, getState, rejectWithValue }) => {
+        try {
+            const cookieList = getRecentCookie();
+            const token = localStorage.getItem("jwtToken");
+            const state = getState() as RootState;
+            const recentList = state.userData.data.recentlyViewed;
+            let syncedList;
+
+            if (token) {
+                let combinedList;
+
+                if (cookieList) {
+                    combinedList = [...recentList, ...cookieList];
+                } else {
+                    combinedList = recentList;
+                }
+
+                const response = await axios.put(
+                    `${import.meta.env.VITE_API_URL}/user/syncRecent`,
+                    { recentlyViewed: combinedList },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+                        },
+                        withCredentials: true,
+                    }
+                );
+
+                syncedList = response.data;
             } else {
-                const newList = [...cookieList];
+                if (cookieList) {
+                    if (recentList.length === 0) {
+                        dispatch(updateRecent(cookieList));
+                    } else {
+                        const newList = [
+                            ...cookieList,
+                            ...recentList.filter(
+                                (view) =>
+                                    !cookieList.some(
+                                        (record) =>
+                                            record.timestamp ===
+                                                view.timestamp &&
+                                            record.productNo === view.productNo
+                                    )
+                            ),
+                        ];
 
-                for (let view of recentList) {
-                    const exists = newList.some(
-                        (record) =>
-                            record.timestamp === view.timestamp &&
-                            record.productNo === view.productNo
-                    );
-                    if (!exists) {
-                        newList.push(view);
+                        newList.sort((a, b) =>
+                            b.timestamp.localeCompare(a.timestamp)
+                        );
+
+                        syncedList = newList.slice(0, 5);
                     }
                 }
-                newList.sort((a, b) => b.timestamp.localeCompare(a.timestamp));
+            }
 
-                const syncedList = newList.slice(0, 5);
+            if (syncedList) {
                 syncRecentCookie(syncedList);
                 dispatch(updateRecent(syncedList));
             }
-        }
 
-        return;
-    };
+            return;
+        } catch (error: any) {
+            return rejectWithValue(error.response?.data || error);
+        }
+    }
+);
