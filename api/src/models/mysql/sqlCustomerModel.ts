@@ -21,6 +21,13 @@ export interface AddAddressOptions {
     through?: { nickname: string };
 }
 
+export interface RecentlyViewedItem {
+    thumbnailUrl: string;
+    productName: string;
+    productNo: string;
+    timestamp: string; // ISO date string
+}
+
 @Table({
     tableName: "Customers",
     timestamps: false,
@@ -53,6 +60,13 @@ export class sqlCustomer extends Model {
         allowNull: false,
     })
     declare lastName: string;
+
+    @Column({
+        type: DataType.JSON,
+        allowNull: false,
+        defaultValue: [],
+    })
+    declare recentlyViewed: RecentlyViewedItem[];
 
     @BelongsTo(() => sqlUser, { as: "CustomerUser" })
     declare user: sqlUser;
