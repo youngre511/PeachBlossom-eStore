@@ -95,6 +95,7 @@ export const createUser = async (
                     email: email,
                     firstName: firstName,
                     lastName: lastName,
+                    recentlyViewed: [],
                 },
                 { transaction: sqlTransaction }
             );
@@ -166,7 +167,7 @@ export const login = async (
     password: string,
     requiredRole: "customer" | "admin",
     cartId: number | null,
-    trackingId?: string | null
+    trackingId: string | null = null
 ) => {
     const sqlTransaction = await sequelize.transaction();
     try {
@@ -289,7 +290,13 @@ export const login = async (
 
         const role = user.role;
 
-        return { accessToken, refreshToken, role, newCartId, newTrackingId };
+        return {
+            accessToken,
+            refreshToken,
+            role,
+            newCartId,
+            newTrackingId,
+        };
     } catch (error) {
         await sqlTransaction.rollback();
         if (error instanceof Error) {
