@@ -128,6 +128,7 @@ export const fetchOneProduct = createAsyncThunk<
     "catalog/fetchOneProduct",
     async (productNo: string, { dispatch, getState, rejectWithValue }) => {
         const state = getState();
+        const token = localStorage.getItem("jwtToken");
         const currentProduct = state.catalog.singleProduct;
         const now = new Date().toISOString();
         const debounceTime = 500;
@@ -153,7 +154,12 @@ export const fetchOneProduct = createAsyncThunk<
 
         try {
             const response = await axios.get(
-                `${import.meta.env.VITE_API_URL}/product/catalog/${productNo}`
+                `${import.meta.env.VITE_API_URL}/product/catalog/${productNo}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+                    },
+                }
             );
 
             const payload = response.data.payload;
