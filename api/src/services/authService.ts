@@ -10,6 +10,7 @@ import { v4 as uuidv4 } from "uuid";
 import { sqlRefreshToken } from "../models/mysql/sqlRefreshTokenModel.js";
 import { sqlCart } from "../models/mysql/sqlCartModel.js";
 import { assignCartToCustomer, mergeCarts } from "./cartService.js";
+import { associateUserId } from "./activityService.js";
 
 interface IUser extends Model {
     user_id: number;
@@ -27,7 +28,8 @@ export const createUser = async (
     email: string | null,
     defaultPassword: boolean,
     firstName: string | null,
-    lastName: string | null
+    lastName: string | null,
+    trackingId: string | null
 ) => {
     const sqlTransaction = await sequelize.transaction();
 
@@ -74,6 +76,11 @@ export const createUser = async (
 
         if (!createdUser) {
             throw new Error("Something went wrong while creating user");
+        }
+
+        let newTrackingId = null;
+        if (trackingId && role === "customer") {
+            newTrackingId = await associateUserId(username, trackingId);
         }
 
         const userData = createdUser.get();
@@ -143,7 +150,7 @@ export const createUser = async (
 
         await sqlTransaction.commit();
 
-        return { accessToken, refreshToken };
+        return { accessToken, refreshToken, newTrackingId };
     } catch (error) {
         await sqlTransaction.rollback();
         if (error instanceof Error) {
@@ -158,7 +165,8 @@ export const login = async (
     username: string,
     password: string,
     requiredRole: "customer" | "admin",
-    cartId: number | null
+    cartId: number | null,
+    trackingId?: string | null
 ) => {
     const sqlTransaction = await sequelize.transaction();
     try {
@@ -177,6 +185,7 @@ export const login = async (
         let customer = null;
         let admin = null;
         let newCartId: number | null = null;
+        let newTrackingId: string | null = null;
 
         if (user.role === "customer") {
             customer = await sqlCustomer.findOne({
@@ -226,6 +235,19 @@ export const login = async (
                 console.log("No current cart. Loading user");
                 newCartId = userCart.dataValues.cart_id;
             }
+
+            // Associating existing or assigning new trackingId
+
+            if (trackingId) {
+                console.log(
+                    `Associating trackingId ${trackingId} with ${username}`
+                );
+                newTrackingId =
+                    (await associateUserId(username, trackingId)) || null;
+                if (newTrackingId) {
+                    console.log("Association failed. Assigning new trackingId");
+                }
+            }
         } else if (user.role === "admin") {
             admin = await sqlAdmin.findOne({
                 where: { user_id: user.user_id },
@@ -267,7 +289,7 @@ export const login = async (
 
         const role = user.role;
         console.log("NEW CART ID:", newCartId);
-        return { accessToken, refreshToken, role, newCartId };
+        return { accessToken, refreshToken, role, newCartId, newTrackingId };
     } catch (error) {
         await sqlTransaction.rollback();
         if (error instanceof Error) {

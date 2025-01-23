@@ -1,6 +1,6 @@
 import type { ClientSession, PipelineStage } from "mongoose";
 import Activity, { IActivity } from "../models/mongo/activityModel.js";
-import { generateActivityId } from "../utils/generateActivityId.js";
+import { generateTrackingId } from "../utils/generateTrackingId.js";
 import { getIdFromUsername } from "./userService.js";
 import {
     ProductInteractionLog,
@@ -23,7 +23,7 @@ export const assignTrackingId = async (username?: string) => {
             }
         }
         if (!trackingId) {
-            trackingId = await generateActivityId();
+            trackingId = await generateTrackingId();
         }
 
         return trackingId;
@@ -61,6 +61,8 @@ export const logActivity = async (
 
         const result = await Activity.insertMany(newLogs, { session });
 
+        console.log(`Successfully added ${result.length} new logs`);
+
         await session.commitTransaction();
 
         return result.length;
@@ -74,6 +76,71 @@ export const logActivity = async (
         }
     } finally {
         await session.endSession();
+    }
+};
+
+export const associateUserId = async (
+    username: string,
+    trackingId: string,
+    passedSession?: ClientSession
+) => {
+    const session: ClientSession = passedSession
+        ? passedSession
+        : await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+        const userId = await getIdFromUsername(username);
+        if (!userId) {
+            console.error("Unable to retrieve userId from username");
+            return;
+        }
+        const existingRecord = await Activity.findOne(
+            { trackingId: trackingId },
+            null,
+            { session }
+        );
+        if (
+            existingRecord &&
+            existingRecord.userId &&
+            existingRecord.userId !== userId
+        ) {
+            console.log(
+                "TrackingId associated with another user. Assigning new trackingId."
+            );
+            const newTrackingId = await assignTrackingId(username);
+            return newTrackingId;
+        }
+
+        await Activity.updateMany(
+            { trackingId: trackingId },
+            { $set: { userId: userId } },
+            { session, upsert: false }
+        );
+
+        if (!passedSession) {
+            await session.commitTransaction();
+        }
+
+        return;
+    } catch (error) {
+        if (!passedSession) {
+            await session.abortTransaction();
+        }
+
+        if (error instanceof Error) {
+            console.error(
+                "Error associating userId with trackingId: " + error.message
+            );
+        } else {
+            console.error(
+                "An unknown error occurred while associating userId with trackingId"
+            );
+        }
+    } finally {
+        if (!passedSession) {
+            await session.endSession();
+        }
     }
 };
 

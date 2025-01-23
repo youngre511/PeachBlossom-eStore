@@ -34,16 +34,19 @@ export const createUser = async (req: CreateAccountRequest, res: Response) => {
             firstName = null,
             lastName = null,
         } = req.body;
-        const { accessToken, refreshToken } = await authService.createUser(
-            username,
-            password,
-            role,
-            accessLevel,
-            email,
-            defaultPassword,
-            firstName,
-            lastName
-        );
+        const trackingId = req.trackingId;
+        const { accessToken, refreshToken, newTrackingId } =
+            await authService.createUser(
+                username,
+                password,
+                role,
+                accessLevel,
+                email,
+                defaultPassword,
+                firstName,
+                lastName,
+                trackingId ? trackingId : null
+            );
         // Store refresh token in http-only cookie
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
@@ -54,6 +57,22 @@ export const createUser = async (req: CreateAccountRequest, res: Response) => {
                 role === "admin" ? ".pb.ryanyoung.codes" : ".ryanyoung.codes",
             maxAge: 7 * 24 * 60 * 60 * 1000, //7 days
         });
+
+        if (newTrackingId) {
+            res.cookie("trackingId", newTrackingId, {
+                httpOnly: true,
+                secure: true, //Only use secure in production mode, not local dev mode
+                sameSite:
+                    process.env.NODE_ENV === "development" ? "none" : "lax",
+                path: "/",
+                domain:
+                    process.env.NODE_ENV !== "development"
+                        ? ".pb.ryanyoung.codes"
+                        : undefined,
+                maxAge: 365 * 24 * 60 * 60 * 1000,
+            });
+        }
+
         res.status(201).json({ accessToken });
     } catch (error) {
         let errorObj = {
@@ -70,12 +89,14 @@ export const createUser = async (req: CreateAccountRequest, res: Response) => {
 export const login = async (req: LoginRequest, res: Response) => {
     try {
         const { username, password, cartId } = req.body;
-        const { accessToken, refreshToken, role, newCartId } =
+        const trackingId = req.trackingId;
+        const { accessToken, refreshToken, newCartId, newTrackingId } =
             await authService.login(
                 username,
                 password,
                 "customer",
-                cartId ? +cartId : null
+                cartId ? +cartId : null,
+                trackingId ? trackingId : null
             );
         // Store refresh token in http-only cookie
         res.cookie("refreshToken", refreshToken, {
@@ -86,6 +107,21 @@ export const login = async (req: LoginRequest, res: Response) => {
             domain: ".ryanyoung.codes",
             maxAge: 7 * 24 * 60 * 60 * 1000, //7 days
         });
+
+        if (newTrackingId) {
+            res.cookie("trackingId", newTrackingId, {
+                httpOnly: true,
+                secure: true, //Only use secure in production mode, not local dev mode
+                sameSite:
+                    process.env.NODE_ENV === "development" ? "none" : "lax",
+                path: "/",
+                domain:
+                    process.env.NODE_ENV !== "development"
+                        ? ".pb.ryanyoung.codes"
+                        : undefined,
+                maxAge: 365 * 24 * 60 * 60 * 1000,
+            });
+        }
 
         res.json({ accessToken, newCartId });
     } catch (error) {
@@ -109,7 +145,7 @@ export const adminLogin = async (req: LoginRequest, res: Response) => {
     try {
         const { username, password } = req.body;
         const { accessToken, refreshToken, role, newCartId } =
-            await authService.login(username, password, "admin", null);
+            await authService.login(username, password, "admin", null, null);
         // Store refresh token in http-only cookie
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,

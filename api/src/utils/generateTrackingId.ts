@@ -1,17 +1,17 @@
 import { v4 as uuidv4 } from "uuid";
 import Activity from "../models/mongo/activityModel.js";
 
-export const generateActivityId = async (): Promise<string> => {
+export const generateTrackingId = async (): Promise<string> => {
     try {
         while (true) {
-            const activityId = uuidv4();
+            const trackingId = uuidv4();
             try {
                 // Attempt to validate ID uniqueness against the database
                 const existingId = await Activity.findOne({
-                    visitorActivityId: activityId,
+                    trackingId: trackingId,
                 });
                 if (!existingId) {
-                    return activityId; // Unique ID found
+                    return trackingId; // Unique ID found
                 }
             } catch (dbError) {
                 console.warn(
@@ -19,11 +19,11 @@ export const generateActivityId = async (): Promise<string> => {
                     dbError
                 );
                 // Return the generated ID directly if validation fails
-                return activityId;
+                return trackingId;
             }
         }
     } catch (error) {
-        console.error("Critical failure in activity ID generation:", error);
+        console.error("Critical failure in tracking ID generation:", error);
         // Assign a fallback ID as a last resort
         return uuidv4();
     }
