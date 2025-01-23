@@ -13,6 +13,7 @@ import {
     addCustomerAddress,
     editCustomerAddress,
     closeAccount,
+    syncRecentlyViewed,
 } from "../controllers/userController.js";
 import { authorizeRoles } from "../middleware/authorize.js";
 import { authMiddleware } from "../middleware/authMiddleware.js";
@@ -57,6 +58,8 @@ router.put("/changeDisplayName", authMiddleware, changeDisplayName);
 router.put("/customer/removeAddress", authMiddleware, removeCustomerAddress);
 
 router.put("/customer/editAddress", authMiddleware, editCustomerAddress);
+
+router.put("/syncRecent", authMiddleware, syncRecentlyViewed);
 
 router.post("/customer/addAddress", authMiddleware, addCustomerAddress);
 

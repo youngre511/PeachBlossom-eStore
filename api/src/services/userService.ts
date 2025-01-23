@@ -4,6 +4,7 @@ import sequelize from "../models/mysql/index.js";
 import { Transaction } from "sequelize";
 import {
     AddAddressOptions,
+    RecentlyViewedItem,
     sqlCustomer,
 } from "../models/mysql/sqlCustomerModel.js";
 import { sqlAdmin } from "../models/mysql/sqlAdminModel.js";
@@ -841,6 +842,72 @@ export const getAdminIdFromUsername = async (
         } else {
             throw new Error(
                 "An unknown error occurred while retrieving admin_id from username"
+            );
+        }
+    }
+};
+
+export const syncRecentlyViewed = async (
+    customerId: number,
+    recentlyViewed: Array<RecentlyViewedItem>,
+    transaction?: Transaction
+) => {
+    const sqlTransaction = transaction
+        ? transaction
+        : await sequelize.transaction();
+
+    try {
+        const customer = await sqlCustomer.findByPk(customerId, {
+            transaction: sqlTransaction,
+        });
+        if (!customer) {
+            throw new Error("Unable to find customer record");
+        }
+        const customerRecents = customer.recentlyViewed;
+
+        let newRecents: Array<RecentlyViewedItem> = [];
+
+        if (recentlyViewed.length === 0) {
+            newRecents = customerRecents;
+        } else {
+            const combinedList = [...recentlyViewed, ...customerRecents];
+
+            // Use a map to ensure that if multiple entries for the same productNo exist, only the most recent is kept
+            const combinedMap = new Map<string, RecentlyViewedItem>();
+
+            combinedList.forEach((item) => {
+                const existing = combinedMap.get(item.productNo);
+                if (
+                    !existing ||
+                    new Date(item.timestamp) > new Date(existing.timestamp)
+                ) {
+                    combinedMap.set(item.productNo, item);
+                }
+            });
+            newRecents = Array.from(combinedMap.values());
+            newRecents.sort(
+                (a, b) =>
+                    new Date(b.timestamp).getTime() -
+                    new Date(a.timestamp).getTime()
+            );
+            newRecents.splice(5);
+        }
+
+        if (!transaction) {
+            await sqlTransaction.commit();
+        }
+
+        return newRecents;
+    } catch (error) {
+        if (!transaction) {
+            await sqlTransaction.rollback();
+        }
+
+        if (error instanceof Error) {
+            throw new Error("Error syncing recent views: " + error.message);
+        } else {
+            throw new Error(
+                "An unknown error occurred while syncing recent views"
             );
         }
     }

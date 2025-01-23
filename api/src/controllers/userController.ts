@@ -1,6 +1,7 @@
 import { Request, RequestHandler, Response } from "express";
 import * as userService from "../services/userService.js";
 import { ShippingDetails } from "./orderController.js";
+import { RecentlyViewedItem } from "../models/mysql/sqlCustomerModel.js";
 
 interface ChangeLevelRequest extends Request {
     body: {
@@ -84,6 +85,12 @@ interface ChangeDisplayNameRequest extends Request {
         newFirstName: string;
         newLastName: string;
         password: string;
+    };
+}
+
+interface SyncReviewedRequest extends Request {
+    body: {
+        recentlyViewed: Array<RecentlyViewedItem>;
     };
 }
 
@@ -498,6 +505,43 @@ export const editCustomerAddress = async (
     } catch (error) {
         let errorObj = {
             message: "edit customer address failure",
+            payload: error,
+        };
+
+        console.error(errorObj);
+
+        res.status(500).json(errorObj);
+    }
+};
+
+export const syncRecentlyViewed = async (
+    req: SyncReviewedRequest,
+    res: Response
+) => {
+    try {
+        if (!req.user) {
+            throw new Error("No user token");
+        }
+
+        const customerId = await userService.getCustomerIdFromUsername(
+            req.user.username
+        );
+
+        if (!customerId) {
+            throw new Error("No customer_id in token");
+        }
+
+        const { recentlyViewed } = req.body;
+
+        const newRecentList = await userService.syncRecentlyViewed(
+            +customerId,
+            recentlyViewed
+        );
+
+        res.json(newRecentList);
+    } catch (error) {
+        let errorObj = {
+            message: "sync recently viewed failure",
             payload: error,
         };
 
