@@ -288,7 +288,7 @@ export const login = async (
         await sqlTransaction.commit();
 
         const role = user.role;
-        console.log("NEW CART ID:", newCartId);
+
         return { accessToken, refreshToken, role, newCartId, newTrackingId };
     } catch (error) {
         await sqlTransaction.rollback();
