@@ -84,7 +84,7 @@ const Nav: React.FC<Props> = () => {
             cartAnimationRef.current = gsap
                 .timeline({ paused: true })
                 .to(".drop-cart", {
-                    duration: 0.2,
+                    duration: 0.3,
                     opacity: 1,
                     scale: 1,
                     ease: "power1.inOut",
@@ -98,7 +98,7 @@ const Nav: React.FC<Props> = () => {
             recentAnimationRef.current = gsap
                 .timeline({ paused: true })
                 .to(".recent-items", {
-                    duration: 0.2,
+                    duration: 0.3,
                     opacity: 1,
                     scale: 1,
                     ease: "power1.inOut",
@@ -339,23 +339,19 @@ const Nav: React.FC<Props> = () => {
                             <AccountButton />
                         </div>
                     </li>
-                    <li>
-                        <Tooltip
-                            title="Feature coming soon!"
-                            enterTouchDelay={100}
+                    <li
+                        onMouseEnter={handleRecentMouseEnter}
+                        onMouseLeave={handleRecentMouseLeave}
+                    >
+                        <div
+                            className="nav-icon"
+                            id="recents"
+                            aria-label="recently viewed"
+                            tabIndex={0}
+                            role="button"
                         >
-                            <div
-                                className="nav-icon"
-                                id="recents"
-                                aria-label="recently viewed"
-                                tabIndex={0}
-                                role="button"
-                                onMouseEnter={handleRecentMouseEnter}
-                                onMouseLeave={handleRecentMouseLeave}
-                            >
-                                <RecentButton />
-                            </div>
-                        </Tooltip>
+                            <RecentButton />
+                        </div>
                     </li>
                     <li
                         onMouseEnter={() => handleCartMouseEnter()}

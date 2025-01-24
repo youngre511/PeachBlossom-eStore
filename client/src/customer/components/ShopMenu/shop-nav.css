@@ -1,0 +1,25 @@
+.shop-nav-container ul {
+    padding: 0;
+}
+
+.shop-nav-container li {
+    margin-top: 8px;
+}
+
+.shop-nav-container a {
+    padding: 0;
+}
+
+.shop-all {
+    font-family: var(--Playfair);
+    font-weight: 700;
+}
+
+.shopnav-options li {
+    display: block;
+}
+
+.shopnav-subcategory-list {
+    font-size: 0.75rem;
+    margin-left: 15px;
+}

@@ -1,0 +1,83 @@
+.dropdown {
+    position: fixed;
+    width: 300px;
+    top: 112px;
+    display: none;
+    opacity: 0;
+    scale: 0.6;
+    z-index: 4;
+}
+
+.dropdown-bkg {
+    position: absolute;
+    width: 300px;
+    background-color: var(--pale-gold);
+    top: 15px;
+    z-index: 4;
+    box-shadow: 2px 2px 2px 0 rgba(0, 0, 0, 0.406);
+    left: 0;
+}
+
+.dropdown-bkg::after {
+    content: "";
+    background-color: var(--pale-gold);
+    height: 15px;
+    width: 30px;
+    position: absolute;
+    top: -15px;
+    clip-path: polygon(50% 0, 100% 100%, 0 100%);
+    z-index: 4;
+    inset-inline: var(--arrow-inset);
+}
+
+.dropdown-bkg-overlay {
+    position: absolute;
+    width: 300px;
+    background: var(--metallic-overlay);
+    background-size: 200%;
+    background-position: 50% 50%;
+    top: 15px;
+    z-index: 6;
+    mix-blend-mode: luminosity;
+    opacity: 0.4;
+    left: 0;
+}
+
+.dropdown-bkg-overlay::after {
+    content: "";
+    background: var(--metallic-overlay);
+    background-size: var(--after-size);
+    background-position: var(--after-pos);
+    height: 15px;
+    width: 30px;
+    position: absolute;
+    top: -15px;
+    clip-path: polygon(50% 0, 100% 100%, 0 100%);
+    z-index: 6;
+    mix-blend-mode: luminosity;
+    inset-inline: var(--arrow-inset);
+}
+
+.dropdown-container {
+    position: absolute;
+    width: 292px;
+    background-color: var(--peach-blossom);
+    top: 19px;
+    left: 4px;
+    padding: 0 10px 5px 10px;
+    z-index: 7;
+}
+
+.dropdown-container::after {
+    content: "";
+    background-color: var(--peach-blossom);
+    height: 15px;
+    width: 30px;
+    position: absolute;
+    top: -13px;
+    clip-path: polygon(50% 0, 100% 100%, 0 100%);
+    z-index: 7;
+    background-position: var(--after-pos);
+    background-size: var(--after-size);
+    inset-inline: var(--arrow-inset);
+}
