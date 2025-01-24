@@ -13,6 +13,7 @@ interface DropdownMenuProps {
     leftPx?: number;
     rightPx?: number;
     minHeightPx?: number;
+    maxHeight?: string;
 }
 const DropdownMenu: React.FC<DropdownMenuProps> = ({
     children,
@@ -23,11 +24,13 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
     arrowLeft,
     heightPx,
     minHeightPx,
+    maxHeight,
     leftPx,
     rightPx,
 }) => {
     const bkgStyle: React.CSSProperties & { [key: `--${string}`]: string } = {
         height: `${heightPx}px`,
+        maxHeight: maxHeight,
         "--arrow-inset": arrowLeft ? "12px auto" : "auto 6px",
     };
 
@@ -36,11 +39,13 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
             "--after-pos": arrowLeft ? `10% 20%` : "10% 10%",
             "--after-size": arrowLeft ? `600px ${heightPx * 2}px` : `200%`,
             height: `${heightPx}px`,
+            maxHeight: maxHeight,
             "--arrow-inset": arrowLeft ? "12px auto" : "auto 6px",
         };
 
     const foreStyle: React.CSSProperties & { [key: `--${string}`]: string } = {
         height: `${heightPx - 8}px`,
+        maxHeight: maxHeight ? `calc(${maxHeight} - 8px)` : undefined,
         "--arrow-inset": arrowLeft ? "8px auto" : "auto 2px",
     };
 
@@ -55,6 +60,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
                 right: rightPx ? `${rightPx}px` : undefined,
                 height: minHeightPx ? undefined : `${heightPx + 15}px`,
                 minHeight: minHeightPx ? `${minHeightPx}px` : undefined,
+                maxHeight: maxHeight ? maxHeight : undefined,
             }}
         >
             <div

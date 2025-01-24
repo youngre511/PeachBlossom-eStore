@@ -1,0 +1,31 @@
+.recent-wrapper {
+    padding: 0 10px;
+}
+.recent-wrapper h1 {
+    font-size: 1.2rem;
+    margin-top: 20px;
+}
+
+.recent-list {
+    width: 100%;
+    max-height: calc(80dvh - 80px);
+    overflow-y: auto;
+}
+
+.recent-item {
+    display: flex;
+    justify-content: space-between;
+    background-color: white;
+    padding: 10px;
+    margin: 10px 0;
+    cursor: pointer;
+}
+
+.recent-thumb {
+    width: 100px;
+    height: auto;
+}
+
+.recent-name {
+    margin-left: 20px;
+}
