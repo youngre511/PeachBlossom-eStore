@@ -494,6 +494,65 @@ export const deleteFromCart = async (
     }
 };
 
+/**
+ * @description This function handles cart logic for login.
+ * It takes in a customerId, an optional cartId, and an sql transaction. It then checks for the existence of carts associated with the provided cartId and the provided customer record.
+ * It returns the existing cartId (if no customer-associated cartId is found) or the customer cartId. If both customer and existing cartIds exist, the latter is merged into the former.
+ */
+
+export const loginCartProcessing = async (
+    customerId: number,
+    cartId: number | null,
+    transaction: Transaction
+) => {
+    let newCartId: number | null = null;
+
+    console.log("checking for userCart");
+    let userCart = await sqlCart.findOne({
+        where: { customer_id: customerId },
+    });
+
+    if (cartId) {
+        console.log("checking for current cart");
+        let cart = await sqlCart.findOne({
+            where: { cart_id: cartId },
+        });
+
+        if (!cart && userCart) {
+            console.log(
+                "Unable to retrieve current cart. Loading user cart instead."
+            );
+            newCartId = userCart.dataValues.cart_id;
+        } else if (cart && userCart) {
+            console.log("existing user cart exists");
+            console.log("merging carts");
+            newCartId = await mergeCarts(
+                userCart.dataValues.cart_id,
+                cartId,
+                transaction
+            );
+        } else if (cart && !userCart) {
+            console.log(
+                "No user cart exists. Assigning cart " + cartId + "to user"
+            );
+            newCartId = await assignCartToCustomer(
+                cartId,
+                customerId,
+                transaction
+            );
+        }
+    } else if (userCart) {
+        console.log("No current cart. Loading user");
+        newCartId = userCart.dataValues.cart_id;
+    }
+
+    return newCartId;
+};
+
+/**
+ * @description This function takes two valid cartIds and merges the second cart into the first cart, privileging the quantities contained in the first cart if the same productNo is found in both. The second cart is destroyed.
+ */
+
 export const mergeCarts = async (
     primeCartId: number,
     secondaryCartId: number,

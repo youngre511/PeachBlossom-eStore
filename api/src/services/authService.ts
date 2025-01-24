@@ -9,7 +9,11 @@ import { generateAccessToken, generateRefreshToken } from "../utils/jwt.js";
 import { v4 as uuidv4 } from "uuid";
 import { sqlRefreshToken } from "../models/mysql/sqlRefreshTokenModel.js";
 import { sqlCart } from "../models/mysql/sqlCartModel.js";
-import { assignCartToCustomer, mergeCarts } from "./cartService.js";
+import {
+    assignCartToCustomer,
+    loginCartProcessing,
+    mergeCarts,
+} from "./cartService.js";
 import { associateUserId } from "./activityService.js";
 
 interface IUser extends Model {
@@ -20,6 +24,11 @@ interface IUser extends Model {
     defaultPassword: boolean;
 }
 
+/**
+ * @description This function creates a new user record and an associated customer or admin record (depending on input).
+ * It first ensures that all necessary data is present for the role being created and then confirms that the specified username (and email, in the case of customer accounts) is not already in use.
+ * In addition to user and customer/admin records, the function also generates access and refresh tokens for the user and returns them.
+ */
 export const createUser = async (
     username: string,
     password: string,
@@ -78,6 +87,12 @@ export const createUser = async (
             throw new Error("Something went wrong while creating user");
         }
 
+        /**
+         * @description If a trackingId has been assigned to the user prior to account creation and has been provided through the activityMiddleware,
+         * this step calls the associateUserId function to add the userId to all existing activity log records matching that tracking Id.
+         * If the tracking id is already associated with another user, it assigns a new tracking id.
+         * ActivityMiddleware ensures that a trackingId is only passed on to this function if the cookieConsent cookie indicates that the user has opted in to tracking.
+         */
         let newTrackingId = null;
         if (trackingId && role === "customer") {
             newTrackingId = await associateUserId(username, trackingId);
@@ -162,6 +177,18 @@ export const createUser = async (
     }
 };
 
+/**
+ * @description This function manages the multi-step process of logging in.
+ * It finds the user account associated with the provided username and verifies that the provided password matches the password associated with the account.
+ *
+ * If the user in question is a customer, it looks up the customer_id and uses it to check for an existing associated cart_id.
+ * Since a user can add items to the cart before logging in, and thereby generate a new cart_id, the function accepts an existing cart_id.
+ * The function then returns a cartId, privileging the cartId associated with the user (if it exists). If both existing and user-associated cartIds exist, the function calls an external function to merge them.
+ *
+ * If there is an existing trackingId, the function then associates the user account with the trackingId.
+ *
+ * Finally, it generates a new accessToken and refreshToken.
+ */
 export const login = async (
     username: string,
     password: string,
@@ -195,47 +222,11 @@ export const login = async (
 
             if (!customer) throw new Error("Unable to find customer record");
 
-            console.log("checking for userCart");
-            let userCart = await sqlCart.findOne({
-                where: { customer_id: customer.customer_id },
-            });
-
-            if (cartId) {
-                console.log("checking for current cart");
-                let cart = await sqlCart.findOne({
-                    where: { cart_id: cartId },
-                });
-
-                if (!cart && userCart) {
-                    console.log(
-                        "Unable to retrieve current cart. Loading user cart instead."
-                    );
-                    newCartId = userCart.dataValues.cart_id;
-                } else if (cart && userCart) {
-                    console.log("existing user cart exists");
-                    console.log("merging carts");
-                    newCartId = await mergeCarts(
-                        userCart.dataValues.cart_id,
-                        cartId,
-                        sqlTransaction
-                    );
-                } else if (cart && !userCart) {
-                    console.log(
-                        "No user cart exists. Assigning cart " +
-                            cartId +
-                            "to user" +
-                            customer.email
-                    );
-                    newCartId = await assignCartToCustomer(
-                        cartId,
-                        customer.customer_id,
-                        sqlTransaction
-                    );
-                }
-            } else if (userCart) {
-                console.log("No current cart. Loading user");
-                newCartId = userCart.dataValues.cart_id;
-            }
+            newCartId = await loginCartProcessing(
+                customer.customer_id,
+                cartId,
+                sqlTransaction
+            );
 
             // Associating existing or assigning new trackingId
 
