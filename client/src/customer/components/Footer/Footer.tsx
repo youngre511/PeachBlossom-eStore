@@ -23,7 +23,10 @@ const Footer: React.FC<Props> = ({ setShowConsentBanner }) => {
                         <div
                             className="manage-cookies"
                             onClick={() => setShowConsentBanner(true)}
-                            style={{ textDecoration: "underline" }}
+                            style={{
+                                textDecoration: "underline",
+                                cursor: "pointer",
+                            }}
                         >
                             Manage Cookies
                         </div>
