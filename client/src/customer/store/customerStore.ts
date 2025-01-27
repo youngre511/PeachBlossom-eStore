@@ -22,9 +22,12 @@ import categoriesReducer from "../features/Categories/categoriesSlice";
 import searchOptionsReducer from "../features/SearchOptions/searchOptionsSlice";
 import { PersistPartial } from "redux-persist/lib/persistReducer";
 
+const PERSIST_VERSION = 1;
+
 const persistConfig = {
     key: "root",
     storage,
+    version: PERSIST_VERSION,
 };
 
 const rootReducer = combineReducers({
@@ -55,6 +58,17 @@ export const customerStore = configureStore({
 });
 
 export const persistor = persistStore(customerStore);
+
+persistor.subscribe(() => {
+    const state = customerStore.getState();
+    const currentVersion = state._persist?.version;
+
+    if (!currentVersion || currentVersion !== PERSIST_VERSION) {
+        console.log("Version mismatch detected. Clearing persisted store...");
+        persistor.purge();
+        window.location.reload();
+    }
+});
 
 // Get the type of  store variable
 export type AppStore = typeof customerStore;
