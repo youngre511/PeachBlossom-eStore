@@ -13,11 +13,36 @@ const PrivacyAndCookies: React.FC<Props> = () => {
                         protecting the privacy and security of your personal
                         information. This privacy policy explains how we
                         collect, use, and share information about you when you
-                        visit or make a purchase from peachblossom.fakedomain.
+                        visit or make a purchase from pb.ryanyoung.codes.
                     </p>
                 </li>
                 <li>
-                    <h2>2. Information We Collect</h2>
+                    <h2>2. Site Nature Disclosure</h2>
+                    <p>
+                        This website is a portfolio project. It is not a truly
+                        functioning e-store, in that none of the products are
+                        real and the site will neither accept nor process actual
+                        payment data. In all other respects, however, the site
+                        is fully functional.
+                    </p>
+                    <p>
+                        The text below that describes the collection and use of
+                        private data is <strong>filler text</strong> and does
+                        not reflect the actual behavior of the site. No data
+                        collected by any cookie on this website is shared with
+                        third parties or used for the purposes of marketing or
+                        targeted advertising.
+                    </p>
+                    <p>
+                        Data will not be used outside of the Peach Blossom web
+                        app. It is collected solely for the purpose of providing
+                        a dataset that I can use to experiment with writing
+                        algorithms, and that dataset is supplemented with AI
+                        generated content.
+                    </p>
+                </li>
+                <li>
+                    <h2>3. Information We Collect</h2>
                     <p>
                         When you visit the site, we automatically collect
                         certain information about your device, including
@@ -39,7 +64,7 @@ const PrivacyAndCookies: React.FC<Props> = () => {
                     </p>
                 </li>
                 <li>
-                    <h2>3. How We Use Your Information</h2>
+                    <h2>4. How We Use Your Information</h2>
                     <p>
                         We use the Order Information that we collect generally
                         to fulfill any orders placed through the site (including
@@ -70,7 +95,7 @@ const PrivacyAndCookies: React.FC<Props> = () => {
                     </p>
                 </li>
                 <li>
-                    <h2>4. Sharing Your Information</h2>
+                    <h2>5. Sharing Your Information</h2>
                     <p>
                         We share your Personal Information with third parties to
                         help us use your Personal Information, as described
@@ -86,7 +111,7 @@ const PrivacyAndCookies: React.FC<Props> = () => {
                     </p>
                 </li>
                 <li>
-                    <h2>5. Cookies</h2>
+                    <h2>6. Cookies</h2>
                     <p>
                         A cookie is a small amount of information that’s
                         downloaded to your computer or device when you visit our
@@ -104,7 +129,7 @@ const PrivacyAndCookies: React.FC<Props> = () => {
                     </p>
                 </li>
                 <li>
-                    <h2>6. Your Rights</h2>
+                    <h2>7. Your Rights</h2>
                     <p>
                         If you are a resident of the European Economic Area
                         (EEA), you have the right to access personal information
@@ -125,7 +150,7 @@ const PrivacyAndCookies: React.FC<Props> = () => {
                     </p>
                 </li>
                 <li>
-                    <h2>7. Data Retention</h2>
+                    <h2>8. Data Retention</h2>
                     <p>
                         When you place an order through the Site, we will
                         maintain your Order Information for our records unless
@@ -133,7 +158,7 @@ const PrivacyAndCookies: React.FC<Props> = () => {
                     </p>
                 </li>
                 <li>
-                    <h2>8. Changes</h2>
+                    <h2>9. Changes</h2>
                     <p>
                         We may update this privacy policy from time to time in
                         order to reflect, for example, changes to our practices
@@ -141,7 +166,7 @@ const PrivacyAndCookies: React.FC<Props> = () => {
                     </p>
                 </li>
                 <li>
-                    <h2>9. Contact Us</h2>
+                    <h2>10. Contact Us</h2>
                     <p>
                         For more information about our privacy practices, if you
                         have questions, or if you would like to make a
