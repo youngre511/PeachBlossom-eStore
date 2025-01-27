@@ -1,12 +1,14 @@
 import type { ClientSession, PipelineStage } from "mongoose";
 import Activity, { IActivity } from "../models/mongo/activityModel.js";
 import { generateTrackingId } from "../utils/generateTrackingId.js";
-import { getIdFromUsername } from "./userService.js";
+import { getCustomerIdFromUsername, getIdFromUsername } from "./userService.js";
 import {
     ProductInteractionLog,
     SearchLog,
 } from "../controllers/activityController.js";
 import mongoose from "mongoose";
+import sequelize from "../models/mysql/index.js";
+import { sqlCustomer } from "../models/mysql/sqlCustomerModel.js";
 
 export const assignTrackingId = async (username?: string) => {
     try {
@@ -141,6 +143,56 @@ export const associateUserId = async (
         if (!passedSession) {
             await session.endSession();
         }
+    }
+};
+
+export const setCookieConsent = async (username: string, consent: boolean) => {
+    const sqlTransaction = await sequelize.transaction();
+    try {
+        const customerId = await getCustomerIdFromUsername(username);
+        if (!customerId) {
+            throw new Error("Username not recognized");
+        }
+
+        const result = await sqlCustomer.update(
+            { allowTracking: consent, madeCookieDecision: true },
+            { where: { customer_id: customerId }, transaction: sqlTransaction }
+        );
+
+        if (result[0] !== 1) {
+            throw new Error("Unable to update sqlCustomer table");
+        }
+
+        await sqlTransaction.commit();
+        return { success: true };
+    } catch (error) {
+        await sqlTransaction.rollback();
+        throw error;
+    }
+};
+
+export const retrieveCookieConsent = async (username: string) => {
+    const sqlTransaction = await sequelize.transaction();
+    try {
+        const customerId = await getCustomerIdFromUsername(username);
+        if (!customerId) {
+            throw new Error("Username not recognized");
+        }
+
+        const customer = await sqlCustomer.findByPk(customerId);
+
+        if (!customer) {
+            throw new Error("Unable to retrieve customer record");
+        }
+
+        await sqlTransaction.commit();
+        return {
+            allowAll: customer.allowTracking,
+            userChosen: customer.madeCookieDecision,
+        };
+    } catch (error) {
+        await sqlTransaction.rollback();
+        throw error;
     }
 };
 

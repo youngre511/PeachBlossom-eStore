@@ -62,6 +62,20 @@ export class sqlCustomer extends Model {
     declare lastName: string;
 
     @Column({
+        type: DataType.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+    })
+    declare allowTracking: boolean;
+
+    @Column({
+        type: DataType.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+    })
+    declare madeCookieDecision: boolean;
+
+    @Column({
         type: DataType.JSON,
         allowNull: false,
         defaultValue: [],
