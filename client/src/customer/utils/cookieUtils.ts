@@ -1,10 +1,8 @@
-import axios, { AxiosError, isAxiosError } from "axios";
+import axios from "axios";
 import { RecentView } from "../features/UserData/UserDataTypes";
-import { useContext } from "react";
-import { AuthContext } from "../../common/contexts/authContext";
-import { useAppDispatch, useAppSelector } from "../hooks/reduxHooks";
+import { AuthContextProps } from "../../common/contexts/authContext";
 import { setAllowTracking } from "../features/UserData/userDataSlice";
-import { RootState } from "../store/customerStore";
+import { AppDispatch } from "../store/customerStore";
 import { logAxiosError } from "../../common/utils/logAxiosError";
 
 export interface ConsentPreferences {
@@ -32,11 +30,11 @@ export const renewCookie = (name: string, days: number) => {
 
 export const setCookieConsent = async (
     preferences: ConsentPreferences,
+    dispatch: AppDispatch,
+    auth: AuthContextProps | undefined,
     syncing?: boolean
 ) => {
     const existingCookie = getCookie("cookieConsent");
-    const auth = useContext(AuthContext);
-    const dispatch = useAppDispatch();
 
     // Check if a new cookie needs to be set or updated
     const shouldSetCookie = (
@@ -96,16 +94,15 @@ export const setCookieConsent = async (
         dispatch(setAllowTracking(preferences.allowAll));
         await updateServerConsent();
     } else {
-        renewConsentCookie();
+        renewConsentCookie(dispatch);
     }
 };
 
-export const renewConsentCookie = () => {
+export const renewConsentCookie = (dispatch: AppDispatch) => {
     const cookie = getCookie("cookieConsent");
-    const dispatch = useAppDispatch();
     if (cookie) {
         const parsedCookie = JSON.parse(cookie);
-        dispatch(setAllowTracking(parsedCookie(parsedCookie.allowAll)));
+        dispatch(setAllowTracking(parsedCookie.allowAll));
         if (parsedCookie.userChosen) {
             renewCookie("cookieConsent", 365);
         }
@@ -171,13 +168,20 @@ export const getRecentCookie = (): RecentView[] | null => {
  * @returns true if sync has overridden local settings, false if user settings match local settings
  * Response is used to determine whether or not to display a banner notifying user of local machine changes.
  */
-export const syncCookieConsent = async () => {
+export const syncCookieConsent = async (
+    dispatch: AppDispatch,
+    auth: AuthContextProps | undefined
+) => {
     try {
         const token = localStorage.getItem("jwtToken");
-        const cookie = getCookie("consentCookie");
+        const cookie = getCookie("cookieConsent");
+        let parsed;
+        if (cookie) {
+            parsed = JSON.parse(cookie);
+        }
 
         const response = await axios.get(
-            `${import.meta.env.VITE_API_URL}/activity/retrieveCookieConsent`,
+            `${import.meta.env.VITE_API_URL}/activity/cookieConsent`,
             {
                 headers: {
                     Authorization: `Bearer ${token}`, // Include the token in the Authorization header
@@ -185,13 +189,14 @@ export const syncCookieConsent = async () => {
             }
         );
 
+        console.log(response.data);
         const { allowAll, userChosen } = response.data;
 
         if (userChosen) {
-            setCookieConsent({ allowAll, userChosen }, true);
+            setCookieConsent({ allowAll, userChosen }, dispatch, auth, true);
         }
 
-        if (cookie && JSON.parse(cookie).allowAll !== allowAll) {
+        if (parsed && parsed.allowAll !== allowAll) {
             return true;
         } else {
             return false;

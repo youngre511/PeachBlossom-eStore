@@ -32,7 +32,7 @@ export interface CreateAccountData {
     lastName?: string;
 }
 
-interface AuthContextProps {
+export interface AuthContextProps {
     user: IUserToken | undefined;
     cartId: number | null;
     login: (

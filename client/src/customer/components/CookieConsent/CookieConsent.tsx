@@ -17,18 +17,25 @@ interface CookieConsentProps {
 const CookieConsent: React.FC<CookieConsentProps> = ({
     setShowConsentBanner,
 }) => {
+    const dispatch = useAppDispatch();
+    const auth = useContext(AuthContext);
+
     const handleAllowAll = async () => {
-        setCookieConsent({ allowAll: true, userChosen: true });
+        setCookieConsent({ allowAll: true, userChosen: true }, dispatch, auth);
         setShowConsentBanner(false);
     };
 
     const handleClose = async () => {
-        setCookieConsent({ allowAll: false, userChosen: false });
+        setCookieConsent(
+            { allowAll: false, userChosen: false },
+            dispatch,
+            auth
+        );
         setShowConsentBanner(false);
     };
 
     const handleRequiredOnly = async () => {
-        setCookieConsent({ allowAll: false, userChosen: true });
+        setCookieConsent({ allowAll: false, userChosen: true }, dispatch, auth);
         setShowConsentBanner(false);
     };
 
