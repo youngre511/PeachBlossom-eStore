@@ -17,10 +17,12 @@ interface RefreshTokenPayload {
     jti: string;
 }
 
-export const generateToken = (payload: object, expiresIn: string) => {
-    console.log("payload:", payload);
-    console.log("returning:", jwt.sign(payload, secret, { expiresIn }));
-    return jwt.sign(payload, secret, { expiresIn });
+type StringValue = `${number}${"s" | "m" | "h" | "d" | "w" | "y"}`;
+
+export const generateToken = (payload: object, expiresIn: StringValue) => {
+    const token = jwt.sign(payload, secret, { expiresIn });
+
+    return token;
 };
 
 export const generateAccessToken = (payload: object) => {
