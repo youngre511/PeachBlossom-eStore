@@ -32,18 +32,25 @@ import Support from "./components/Support/Support";
 import CustomerOrders from "./components/CustomerOrders/CustomerOrders";
 import ProtectedRoute from "../common/components/ProtectedRoute/ProtectedRoute";
 import { AuthContext } from "../common/contexts/authContext";
-import { getCookie, renewConsentCookie } from "../common/utils/cookieUtils";
-import CookieConsent from "../common/components/CookieConsent/CookieConsent";
+import {
+    getCookie,
+    renewConsentCookie,
+    syncCookieConsent,
+} from "./utils/cookieUtils";
 import { setAllowTracking } from "./features/UserData/userDataSlice";
 import { RootState } from "./store/customerStore";
 import {
     startActivityLogPusher,
     syncRecentlyViewed,
 } from "./features/UserData/userDataTrackingThunks";
+import CookieConsent from "./components/CookieConsent/CookieConsent";
+import { Fade, IconButton, Snackbar } from "@mui/material";
+import CloseSharpIcon from "@mui/icons-material/CloseSharp";
 
 const CustomerApp: React.FC = () => {
     const dispatch = useAppDispatch();
     const auth = useContext(AuthContext);
+    const loggedIn = auth && auth.user && !auth.isTokenExpired();
     const navigate = useNavigate();
     const allowTracking = useAppSelector(
         (state: RootState) => state.userData.preferences.allowTracking
@@ -54,6 +61,7 @@ const CustomerApp: React.FC = () => {
         dispatch(fetchSearchOptions());
     }, [dispatch]);
     const [showConsentBanner, setShowConsentBanner] = useState<boolean>(false);
+    const [showSyncAlert, setShowSyncAlert] = useState<boolean>(false);
 
     const { width, pixelDensity } = useWindowSizeContext();
 
@@ -117,7 +125,7 @@ const CustomerApp: React.FC = () => {
         if (!consent) {
             setShowConsentBanner(true);
         } else {
-            renewConsentCookie();
+            renewConsentCookie(dispatch);
             const parsedCookie = JSON.parse(consent);
             dispatch(setAllowTracking(parsedCookie.allowAll));
         }
@@ -132,6 +140,36 @@ const CustomerApp: React.FC = () => {
             };
         }
     }, [allowTracking, dispatch]);
+
+    /**
+     * @description When status of loggedIn changes to true, dispatch a call to sync the recently viewed list with the back end and import user cookie preferences.
+     */
+    useEffect(() => {
+        if (loggedIn) {
+            dispatch(syncRecentlyViewed());
+            syncConsent();
+        }
+    }, [loggedIn]);
+
+    const syncConsent = async () => {
+        const overridden = await syncCookieConsent(dispatch, auth);
+        if (overridden) {
+            setShowSyncAlert(true);
+        }
+    };
+
+    const closeAlertAction = (
+        <React.Fragment>
+            <IconButton
+                size="small"
+                aria-label="close"
+                color="inherit"
+                onClick={() => setShowSyncAlert(false)}
+            >
+                <CloseSharpIcon fontSize="small" />
+            </IconButton>
+        </React.Fragment>
+    );
 
     return (
         <ThemeProvider theme={theme}>
@@ -180,6 +218,24 @@ const CustomerApp: React.FC = () => {
                         setShowConsentBanner={setShowConsentBanner}
                     />
                 )}
+                <Snackbar
+                    open={showSyncAlert}
+                    onClose={() => setShowSyncAlert(false)}
+                    autoHideDuration={7000}
+                    TransitionComponent={Fade}
+                    TransitionProps={{
+                        timeout: { enter: 300, exit: 800 },
+                    }}
+                    message="We’ve applied your account's cookie preferences to this device to ensure you have a consistent experience. You can update your preferences at any time by selecting the Manage Cookies option in the footer at the bottom of the page."
+                    action={closeAlertAction}
+                    ContentProps={{
+                        sx: {
+                            backgroundColor: "rgba(243, 217, 200, 0.85)",
+                            color: "black",
+                        },
+                    }}
+                    sx={{ marginRight: { sm: "24px" }, bottom: { sm: "48px" } }}
+                />
                 <Footer setShowConsentBanner={setShowConsentBanner} />
             </div>
         </ThemeProvider>

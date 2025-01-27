@@ -1,20 +1,13 @@
-import React, {
-    FormEvent,
-    SetStateAction,
-    useContext,
-    useEffect,
-    useState,
-} from "react";
+import React, { SetStateAction, useContext, useEffect, useState } from "react";
 import "./accounts-tab.css";
 import CloseSharpIcon from "@mui/icons-material/CloseSharp";
-import { IconButton } from "@mui/material";
+import { IconButton, Snackbar } from "@mui/material";
 import { AuthContext } from "../../../common/contexts/authContext";
 import Login from "./LogIn/Login";
 import Signup from "./SignUp/Signup";
 import AccountManagement from "./AccountManagement/AccountManagement";
 import { setCartId, syncCart } from "../../features/Cart/cartSlice";
-import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
-import { syncRecentlyViewed } from "../../features/UserData/userDataTrackingThunks";
+import { useAppDispatch } from "../../hooks/reduxHooks";
 
 interface Props {
     setAccountsTabVisible: React.Dispatch<SetStateAction<boolean>>;
@@ -44,14 +37,6 @@ const AccountsTab: React.FC<Props> = ({
             }, 301);
         }
     }, [accountsTabVisible]);
-
-    useEffect(() => {
-        console.log("LoggedIn Changed");
-        if (loggedIn) {
-            console.log("dispatching sync");
-            dispatch(syncRecentlyViewed());
-        }
-    }, [loggedIn]);
 
     return (
         <div
