@@ -105,6 +105,7 @@ const CustomerManagement: React.FC = () => {
                 return newParams;
             });
         } else {
+            console.log(usersPerPage);
             const params = {
                 page: page,
                 usersPerPage: usersPerPage,

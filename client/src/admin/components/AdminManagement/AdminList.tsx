@@ -72,7 +72,7 @@ const AdminList: React.FC<AdminListProps> = ({
         setRowsPerPage(+event.target.value);
         updateSearchParams({
             page: "1",
-            itemsPerPage: String(event.target.value),
+            usersPerPage: String(event.target.value),
         });
     };
 

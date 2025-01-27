@@ -90,7 +90,7 @@ const extractOrderData = (
             parsedOrder.zipCode = address.zipCode;
             parsedOrder.phoneNumber = address.phoneNumber;
         }
-        console.log("Order Parsed.");
+
         return parsedOrder;
     } catch (error) {
         if (error instanceof Error) {
