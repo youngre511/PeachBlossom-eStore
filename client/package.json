@@ -15,12 +15,12 @@
         "@gsap/react": "^2.1.2",
         "@mui/icons-material": "^6.4.1",
         "@mui/material": "^6.4.1",
-        "@mui/x-date-pickers": "^7.24.0",
+        "@mui/x-date-pickers": "^7.24.1",
         "@nivo/bar": "^0.88.0",
         "@nivo/core": "^0.88.0",
         "@nivo/line": "^0.88.0",
         "@nivo/pie": "^0.88.0",
-        "@reduxjs/toolkit": "^2.5.0",
+        "@reduxjs/toolkit": "^2.5.1",
         "axios": "^1.7.9",
         "dayjs": "^1.11.13",
         "formik": "^2.4.6",
@@ -39,17 +39,17 @@
         "vite-plugin-svgr": "^4.3.0"
     },
     "devDependencies": {
-        "@eslint/js": "^9.18.0",
+        "@eslint/js": "^9.19.0",
         "@types/react": "^18.3.18",
         "@types/react-dom": "^18.3.5",
         "@types/react-slick": "^0.23.13",
         "@vitejs/plugin-react": "^4.3.4",
-        "eslint": "^9.18.0",
+        "eslint": "^9.19.0",
         "eslint-plugin-react-hooks": "^5.2.0-canary-fc8a898d-20241226",
         "eslint-plugin-react-refresh": "^0.4.18",
         "globals": "^15.14.0",
         "typescript": "^5.7.3",
-        "typescript-eslint": "^8.21.0",
+        "typescript-eslint": "^8.22.0",
         "vite": "^6.0.11"
     }
 }
