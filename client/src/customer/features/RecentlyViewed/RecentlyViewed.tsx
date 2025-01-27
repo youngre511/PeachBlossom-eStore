@@ -39,6 +39,7 @@ const RecentlyViewed: React.FC<Props> = ({
                         recentlyViewed.map((product) => (
                             <div
                                 className="recent-item"
+                                key={product.productNo}
                                 onClick={() => {
                                     navigate(
                                         `/product?pn=${product.productNo}`
