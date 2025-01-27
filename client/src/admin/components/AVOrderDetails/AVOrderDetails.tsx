@@ -33,6 +33,7 @@ import { RootState } from "../../store/store";
 import { avFetchOrderDetails } from "../../features/AVOrders/avOrdersSlice";
 import { AuthContext } from "../../../common/contexts/authContext";
 import { useNavigationContext } from "../../../common/contexts/navContext";
+import { axiosLogAndSetState } from "../../../common/utils/axiosLogAndSetState";
 dayjs.extend(customParseFormat);
 dayjs.extend(updateLocale);
 dayjs.updateLocale("en", {
@@ -597,11 +598,8 @@ const AVOrderDetails: React.FC = () => {
                 searchParams.delete("editing");
                 setSearchParams(searchParams);
             } catch (error) {
-                if (error instanceof AxiosError) {
-                    setError(error.message);
-                }
+                axiosLogAndSetState(error, setError, "uploading changes");
                 setStatus("failure");
-                console.error("Error uploading files:", error);
             } finally {
                 dispatch(
                     avFetchOrderDetails({

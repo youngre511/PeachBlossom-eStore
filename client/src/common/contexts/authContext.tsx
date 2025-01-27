@@ -8,6 +8,7 @@ import React, {
 import { useLocation, useNavigate } from "react-router-dom";
 import axios, { AxiosError } from "axios";
 import { jwtDecode } from "jwt-decode";
+import { logAxiosError } from "../utils/logAxiosError";
 
 interface IUserToken {
     username: string;
@@ -160,19 +161,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 setUser(decodedToken);
             }
         } catch (error) {
-            if (error instanceof AxiosError) {
-                if (error.response && error.response.status === 401) {
-                    console.error("Refresh token is invalid or expired");
-                } else {
-                    console.error(
-                        error.response
-                            ? error.response.data.message
-                            : error.message
-                    );
-                }
-            } else {
-                console.error("An unknown error occurred");
-            }
+            logAxiosError(error);
             if (isTokenExpired()) {
                 setUser(undefined);
                 localStorage.removeItem("jwtToken");
@@ -259,13 +248,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 navigate("/");
             }
         } catch (error) {
-            if (error instanceof AxiosError) {
-                setError(
-                    error.response ? error.response.data.message : error.message
-                );
-            } else {
-                setError("An unknown error occurred");
-            }
+            logAxiosError(error);
         }
     };
 
@@ -303,13 +286,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
             setCartId(newCartId);
         } catch (error) {
-            if (error instanceof AxiosError) {
-                setError(
-                    error.response ? error.response.data.message : error.message
-                );
-            } else {
-                setError("An unknown error occurred");
-            }
+            logAxiosError(error);
         }
     };
 
@@ -329,13 +306,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 }
             );
         } catch (error) {
-            if (error instanceof AxiosError) {
-                console.error(error.message);
-            } else {
-                console.error(
-                    "An unknown error occurred while requesting refresh token revocation"
-                );
-            }
+            logAxiosError(error, "revoking refresh token");
         }
         setLoggingOut(false);
         if (window.location.hostname.startsWith("admin")) navigate("/login"); // Redirect to the login page

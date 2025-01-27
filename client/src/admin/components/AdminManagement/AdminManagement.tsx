@@ -20,6 +20,7 @@ import AddAdminPopup from "./AddAdminPopup";
 import AdminList from "./AdminList";
 import AddCircleOutlineSharpIcon from "@mui/icons-material/AddCircleOutlineSharp";
 import VisibilitySharpIcon from "@mui/icons-material/VisibilitySharp";
+import { axiosLogAndSetState } from "../../../common/utils/axiosLogAndSetState";
 
 const inputStyle = {
     "&.MuiInputBase-root": {
@@ -180,14 +181,11 @@ const AdminManagement: React.FC = () => {
             );
         } catch (error) {
             dispatch(rollbackAccessLevel({ username, oldAccessLevel }));
-            if (error instanceof AxiosError) {
-                console.log(error);
-                setErrorMessage(error.message);
-            } else {
-                setErrorMessage(
-                    "An unknown error occurred when updating access level"
-                );
-            }
+            axiosLogAndSetState(
+                error,
+                setErrorMessage,
+                "updating access level"
+            );
             setIsError(true);
         }
     };
@@ -224,15 +222,8 @@ const AdminManagement: React.FC = () => {
                 }
             );
         } catch (error) {
-            if (error instanceof AxiosError) {
-                console.error("Error adding admin:", error.message);
-                setErrorMessage(error.message);
-                setIsError(true);
-            } else {
-                console.error("Error adding admin:", error);
-                setErrorMessage("An unknown error occurred while adding admin");
-                setIsError(true);
-            }
+            axiosLogAndSetState(error, setErrorMessage, "adding admin");
+            setIsError(true);
         } finally {
             fetchAdminData();
         }

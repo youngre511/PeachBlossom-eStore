@@ -98,7 +98,7 @@ const OrderStatus: React.FC<Props> = () => {
             console.log(response.data);
         } catch (error) {
             if (error instanceof AxiosError) {
-                console.log(error.response?.data.reason);
+                console.error(error.response?.data.reason);
                 setError(
                     error.response?.data.reason ||
                         "Unable to find specified order."

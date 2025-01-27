@@ -14,6 +14,7 @@ import { AuthContext } from "../../../common/contexts/authContext";
 import AddBoxSharpIcon from "@mui/icons-material/AddBoxSharp";
 import EditSharpIcon from "@mui/icons-material/EditSharp";
 import DeleteForeverSharpIcon from "@mui/icons-material/DeleteForeverSharp";
+import { axiosLogAndSetState } from "../../../common/utils/axiosLogAndSetState";
 
 interface Props {}
 const CategoryManagement: React.FC<Props> = () => {
@@ -213,11 +214,7 @@ const CategoryManagement: React.FC<Props> = () => {
             setStatus("success");
             dispatch(avFetchCategories());
         } catch (error) {
-            if (error instanceof AxiosError) {
-                setError(error.message);
-            } else {
-                setError("An unknown error occurred");
-            }
+            axiosLogAndSetState(error, setError);
             setStatus("failure");
         } finally {
             setPopupType(null);
@@ -246,11 +243,7 @@ const CategoryManagement: React.FC<Props> = () => {
             setStatus("success");
             dispatch(avFetchCategories());
         } catch (error) {
-            if (error instanceof AxiosError) {
-                setError(error.message);
-            } else {
-                setError("An unknown error occurred");
-            }
+            axiosLogAndSetState(error, setError);
             setStatus("failure");
         } finally {
             setPopupType(null);
@@ -278,11 +271,7 @@ const CategoryManagement: React.FC<Props> = () => {
             setStatus("success");
             dispatch(avFetchCategories());
         } catch (error) {
-            if (error instanceof AxiosError) {
-                setError(error.message);
-            } else {
-                setError("An unknown error occurred");
-            }
+            axiosLogAndSetState(error, setError);
             setStatus("failure");
         } finally {
             setPopupType(null);
@@ -313,11 +302,7 @@ const CategoryManagement: React.FC<Props> = () => {
             setStatus("success");
             dispatch(avFetchCategories());
         } catch (error) {
-            if (error instanceof AxiosError) {
-                setError(error.message);
-            } else {
-                setError("An unknown error occurred");
-            }
+            axiosLogAndSetState(error, setError);
             setStatus("failure");
         } finally {
             setPopupType(null);
@@ -347,11 +332,7 @@ const CategoryManagement: React.FC<Props> = () => {
             setStatus("success");
             dispatch(avFetchCategories());
         } catch (error) {
-            if (error instanceof AxiosError) {
-                setError(error.message);
-            } else {
-                setError("An unknown error occurred");
-            }
+            axiosLogAndSetState(error, setError);
             setStatus("failure");
         } finally {
             setPopupType(null);
@@ -381,11 +362,7 @@ const CategoryManagement: React.FC<Props> = () => {
             setStatus("success");
             dispatch(avFetchCategories());
         } catch (error) {
-            if (error instanceof AxiosError) {
-                setError(error.message);
-            } else {
-                setError("An unknown error occurred");
-            }
+            axiosLogAndSetState(error, setError);
             setStatus("failure");
         } finally {
             setPopupType(null);

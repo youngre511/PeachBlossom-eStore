@@ -5,7 +5,7 @@ import {
     addToRecentCookie,
     getRecentCookie,
     syncRecentCookie,
-} from "../../../common/utils/cookieUtils";
+} from "../../utils/cookieUtils";
 import {
     ActivityRecord,
     ActivityType,

@@ -42,6 +42,7 @@ import {
     logActivity,
     pushActivityLogs,
 } from "../../features/UserData/userDataTrackingThunks";
+import { logAxiosError } from "../../../common/utils/logAxiosError";
 
 export interface PaymentDetails {
     cardType: string;
@@ -139,13 +140,7 @@ const Checkout: React.FC = () => {
             try {
                 dispatch(holdCartStock());
             } catch (error) {
-                if (error instanceof AxiosError) {
-                    console.error("Error holding stock", error);
-                } else {
-                    console.error(
-                        "An unknown error has occurred while placing hold on stock"
-                    );
-                }
+                logAxiosError(error, "placing hold on stock");
             }
         };
 
@@ -354,13 +349,7 @@ const Checkout: React.FC = () => {
                 throw new Error("no orderNo returned");
             }
         } catch (error) {
-            if (error instanceof AxiosError) {
-                console.error("Error placing order", error);
-            } else {
-                console.error(
-                    "An unknown error has occurred while placing order"
-                );
-            }
+            logAxiosError(error, "placing order");
         }
     };
 
@@ -399,13 +388,7 @@ const Checkout: React.FC = () => {
             );
             dispatch(setExpirationTime({ expiration: response.data.payload }));
         } catch (error) {
-            if (error instanceof AxiosError) {
-                console.error("Error extending hold", error);
-            } else {
-                console.error(
-                    "An unknown error has ocurred while extending hold on stock"
-                );
-            }
+            logAxiosError(error, "extending hold on stock");
         } finally {
             setShowRenewDialogue(false);
             setDismissedRenewDialogue(false);

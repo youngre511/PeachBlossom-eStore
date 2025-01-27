@@ -27,6 +27,7 @@ import BlankPopup from "../../../../common/components/BlankPopup";
 import StatusPopup from "../../../../common/components/StatusPopup";
 import { AuthContext } from "../../../../common/contexts/authContext";
 import { useNavigationContext } from "../../../../common/contexts/navContext";
+import { axiosLogAndSetState } from "../../../../common/utils/axiosLogAndSetState";
 
 ///////////////////
 ///////TYPES///////
@@ -315,13 +316,11 @@ const AVProductDetails: React.FC = () => {
 
                     setLoading(false);
                 } catch (error) {
-                    if (error instanceof AxiosError) {
-                        console.error("Error fetching product details", error);
-                    } else {
-                        console.error(
-                            "An unknown error has ocurred while fetching product details"
-                        );
-                    }
+                    axiosLogAndSetState(
+                        error,
+                        setError,
+                        "fetching product details"
+                    );
                 }
             };
 
@@ -497,11 +496,7 @@ const AVProductDetails: React.FC = () => {
                     setMustFetchData(true);
                     setImages([]);
                 } catch (error) {
-                    if (error instanceof AxiosError) {
-                        setError(error.message);
-                    }
-                    setStatus("failure");
-                    console.error("Error uploading files:", error);
+                    axiosLogAndSetState(error, setError, "uploading files");
                 }
             } else {
                 console.log("no changes");
