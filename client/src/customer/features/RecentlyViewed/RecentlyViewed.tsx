@@ -28,7 +28,7 @@ const RecentlyViewed: React.FC<Props> = ({
             handleMouseEnter={handleRecentMouseEnter}
             handleMouseLeave={handleRecentMouseLeave}
             visibilityState={isRecentVisible}
-            heightPx={120 + recentlyViewed.length * 120}
+            heightPx={130 + recentlyViewed.length * 120}
             rightPx={55}
             maxHeight="80dvh"
         >
