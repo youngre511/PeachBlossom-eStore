@@ -43,6 +43,13 @@ import {
     pushActivityLogs,
 } from "../../features/UserData/userDataTrackingThunks";
 import { logAxiosError } from "../../../common/utils/logAxiosError";
+import {
+    addAddress,
+    getCustomerAddresses,
+} from "../../features/UserData/userDataSlice";
+import AddressSelector from "../AddressSelector/AddressSelector";
+import { Checkbox } from "@mui/material";
+import CustomEmptyCheckbox from "../../../common/components/CustomEmptyCheckbox";
 
 export interface PaymentDetails {
     cardType: string;
@@ -86,6 +93,12 @@ const steps = ["Shipping address", "Payment details", "Review your order"];
 const Checkout: React.FC = () => {
     const dispatch = useAppDispatch();
     const auth = useContext(AuthContext);
+    const loggedIn = auth && auth.user && !auth.isTokenExpired();
+    const userAddresses = useAppSelector(
+        (state: RootState) => state.userData.data.addressList
+    );
+    const [saveAddress, setSaveAddress] = useState<boolean>(true);
+    const [addNew, setAddNew] = useState<boolean>(false);
     const [activeStep, setActiveStep] = useState(0);
     const [paymentDetails, setPaymentDetails] = useState<PaymentDetails>({
         cardType: "Visa",
@@ -149,6 +162,12 @@ const Checkout: React.FC = () => {
     }, []);
 
     useEffect(() => {
+        if (auth && auth.user && !auth.isTokenExpired()) {
+            dispatch(getCustomerAddresses({ force: true }));
+        }
+    }, []);
+
+    useEffect(() => {
         if (cart.cartChangesMade) {
             setCartEdited(true);
             dispatch(setCartChangesMade(false));
@@ -197,6 +216,10 @@ const Checkout: React.FC = () => {
     }, [email]);
 
     useEffect(() => {
+        console.log(shippingDetails);
+    }, [shippingDetails]);
+
+    useEffect(() => {
         switch (activeStep) {
             case 0:
                 if (canProceedFromPayment) {
@@ -230,13 +253,25 @@ const Checkout: React.FC = () => {
         canPlaceOrder,
     ]);
 
+    useEffect(() => {
+        console.log(addNew);
+    }, [addNew]);
+
     const getStepContent = (step: number) => {
         switch (step) {
             case 0:
-                return (
+                return loggedIn && userAddresses.length > 0 && !addNew ? (
+                    <AddressSelector
+                        addressList={userAddresses}
+                        setShippingDetails={setShippingDetails}
+                        setAddNew={setAddNew}
+                    />
+                ) : (
                     <AddressForm
                         setShippingDetails={setShippingDetails}
                         shippingDetails={shippingDetails}
+                        loggedInCheckout={loggedIn && userAddresses.length > 0}
+                        setAddNew={setAddNew}
                     />
                 );
             case 1:
@@ -318,6 +353,11 @@ const Checkout: React.FC = () => {
                 }),
             },
         };
+
+        if (saveAddress) {
+            dispatch(addAddress({ address: shippingDetails, nickname: "" }));
+        }
+
         const token = localStorage.getItem("jwtToken");
 
         try {
@@ -723,18 +763,40 @@ const Checkout: React.FC = () => {
                                     sx={{
                                         display: "flex",
                                         flexDirection: {
-                                            xs: "column-reverse",
+                                            xs:
+                                                activeStep === 0 &&
+                                                addNew &&
+                                                loggedIn
+                                                    ? "column"
+                                                    : "column-reverse",
                                             sm: "row",
                                         },
                                         justifyContent:
-                                            activeStep !== 0
+                                            activeStep !== 0 ||
+                                            (addNew && loggedIn)
                                                 ? "space-between"
                                                 : "flex-end",
-                                        alignItems: "end",
+                                        alignItems: {
+                                            xs:
+                                                activeStep === 0 &&
+                                                addNew &&
+                                                loggedIn
+                                                    ? "start"
+                                                    : "end",
+                                            sm: "end",
+                                        },
                                         flexGrow: 1,
                                         gap: 1,
                                         pb: { xs: 6, sm: 0 },
-                                        mt: { xs: 2, sm: 0 },
+                                        mt: {
+                                            xs:
+                                                activeStep === 0 &&
+                                                addNew &&
+                                                loggedIn
+                                                    ? 0
+                                                    : 2,
+                                            sm: 0,
+                                        },
                                         mb: { xs: 0, md: "60px" },
                                     }}
                                 >
@@ -772,6 +834,25 @@ const Checkout: React.FC = () => {
                                         >
                                             Previous
                                         </Button>
+                                    )}
+                                    {activeStep === 0 && addNew && loggedIn && (
+                                        <div className="save-address">
+                                            <Checkbox
+                                                checked={saveAddress}
+                                                inputProps={{
+                                                    "aria-label": "controlled",
+                                                }}
+                                                icon={<CustomEmptyCheckbox />}
+                                                onChange={(
+                                                    e: React.ChangeEvent<HTMLInputElement>
+                                                ) =>
+                                                    setSaveAddress(
+                                                        e.target.checked
+                                                    )
+                                                }
+                                            />
+                                            <div>Save Address</div>
+                                        </div>
                                     )}
                                     <Button
                                         variant="contained"

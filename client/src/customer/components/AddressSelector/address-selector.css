@@ -1,0 +1,16 @@
+.new-address {
+    display: flex;
+    justify-content: space-between;
+    background-color: var(--peach-blossom);
+    padding: 10px;
+    margin-bottom: 20px;
+    height: 130px;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.new-address h2 {
+    font-size: 1.1rem;
+    margin-left: 10px;
+}

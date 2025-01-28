@@ -6,15 +6,17 @@ import OutlinedInput from "@mui/material/OutlinedInput";
 import { styled } from "@mui/system";
 import { MuiTelInput } from "mui-tel-input";
 
-import { TextField } from "@mui/material";
+import { Button, TextField } from "@mui/material";
 import { ShippingDetails } from "../Checkout/Checkout";
 
 interface AddressFormProps {
     setShippingDetails: React.Dispatch<React.SetStateAction<ShippingDetails>>;
     shippingDetails: ShippingDetails;
+    loggedInCheckout?: boolean;
     nickname?: string;
     setNickname?: React.Dispatch<React.SetStateAction<string>>;
     sidebar?: boolean;
+    setAddNew?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const FormGrid = styled(Grid)(() => ({
@@ -81,6 +83,8 @@ const AddressForm: React.FC<AddressFormProps> = ({
     nickname,
     setNickname,
     sidebar = false,
+    loggedInCheckout = false,
+    setAddNew,
 }) => {
     const [invalidStateAbbr, setInvalidStateAbbr] = useState<boolean>(false);
     const handleFieldChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -145,6 +149,16 @@ const AddressForm: React.FC<AddressFormProps> = ({
                             autoComplete="off"
                             onChange={handleNicknameChange}
                         />
+                    </FormGrid>
+                )}
+                {loggedInCheckout && setAddNew && (
+                    <FormGrid size={12}>
+                        <Button
+                            variant="outlined"
+                            onClick={() => setAddNew(false)}
+                        >
+                            Use saved address
+                        </Button>
                     </FormGrid>
                 )}
                 <FormGrid

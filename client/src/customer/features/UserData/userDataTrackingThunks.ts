@@ -33,7 +33,7 @@ export const pushActivityLogs = createAsyncThunk<
             if (!allowed) return;
 
             const records = state.userData.activity;
-            console.log("RECORDS:", records);
+
             if (records.length === 0) {
                 return;
             }
