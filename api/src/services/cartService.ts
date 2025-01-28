@@ -451,6 +451,7 @@ export const deleteFromCart = async (
                 of: sqlCartItem, // Lock the cart items
             },
         });
+        const itemsBeforeDelete = cart.CartItem.length;
 
         let cartItem = cart.CartItem.find(
             (item: any) => item.dataValues.productNo === productNo
@@ -471,16 +472,37 @@ export const deleteFromCart = async (
             throw new Error("Cart item not found or already deleted");
         }
 
+        let returnCartObj;
+        if (itemsBeforeDelete === 1) {
+            const result = await sqlCart.destroy({
+                where: { cart_id: cartId },
+                transaction: sqlTransaction,
+            });
+            if (result === 0) {
+                throw new Error("Failed to delete empty cart");
+            }
+            returnCartObj = {
+                items: [],
+                subTotal: "0.00",
+                cartId: null,
+                numberOfItems: 0,
+            };
+        } else {
+            // Fetch the updated cart. Format and return data to update store.
+            returnCartObj = await getCart({
+                cartId,
+                transaction: sqlTransaction,
+            });
+
+            if (!returnCartObj) {
+                throw new Error("Unable to retrieve new cart state");
+            }
+        }
+
         if (!transaction) {
             await sqlTransaction.commit();
         }
 
-        // Fetch the updated cart. Format and return data to update store.
-        const returnCartObj = await getCart({ cartId });
-
-        if (!returnCartObj) {
-            throw new Error("Unable to retrieve new cart state");
-        }
         return {
             success: true,
             message: "Item successfully deleted",
@@ -525,7 +547,7 @@ export const loginCartProcessing = async (
             newCartId = userCart.dataValues.cart_id;
         } else if (cart && userCart) {
             console.log("existing user cart exists");
-            console.log("merging carts");
+            console.log("merging carts:", userCart.dataValues.cart_id, cartId);
             newCartId = await mergeCarts(
                 userCart.dataValues.cart_id,
                 cartId,
