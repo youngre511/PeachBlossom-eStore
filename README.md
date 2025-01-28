@@ -78,6 +78,14 @@
 
 ### Phase 5: Customer Activity Logging
 
--   Recently Viewed Items
+-   Recently Viewed Items [COMPLETE]
+-   Cookie Preferences Banner [COMPLETE]
+-   MongoDB activity collection [COMPLETE]
+-   API Endpoints [COMPLETE]
+    -   Assign/retrieve/revoke tracking ids [COMPLETE]
+    -   Activity Logging [COMPLETE]
+    -   Associate userId with tracking id [COMPLETE]
+-   Add logs to userDataSlice [COMPLETE]
+-   Thunk pushing activity logs to back end [COMPLETE]
 
 ### Phase 6: Customer Recommendations
