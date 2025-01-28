@@ -9,10 +9,12 @@ export const activityMiddleware = async (
 ): Promise<void> => {
     try {
         const trackingId = req.cookies.trackingId;
-        const { allowAll } = JSON.parse(req.cookies.cookieConsent);
+        if (req.cookies.cookieConsent) {
+            const { allowAll } = JSON.parse(req.cookies.cookieConsent);
 
-        if (trackingId && allowAll) {
-            req.trackingId = trackingId;
+            if (trackingId && allowAll) {
+                req.trackingId = trackingId;
+            }
         }
 
         const token = req.headers.authorization?.split(" ")[1];
