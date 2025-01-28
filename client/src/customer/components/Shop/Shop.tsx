@@ -303,6 +303,16 @@ const Shop = () => {
         setSearchParams((prevParams) => {
             const newParams = new URLSearchParams(prevParams);
             newParams.delete("sub_category");
+            newParams.set("page", "1");
+            return newParams;
+        });
+    };
+
+    const removeCategory = (): void => {
+        setSearchParams((prevParams) => {
+            const newParams = new URLSearchParams(prevParams);
+            newParams.delete("category");
+            newParams.set("page", "1");
             return newParams;
         });
     };
@@ -315,6 +325,7 @@ const Shop = () => {
             const newParams = new URLSearchParams(prevParams);
             newParams.set("sub_category", subcategory);
             newParams.set("category", category);
+            newParams.set("page", "1");
             return newParams;
         });
     };
@@ -323,6 +334,7 @@ const Shop = () => {
         setSearchParams((prevParams) => {
             const newParams = new URLSearchParams(prevParams);
             newParams.set("sub_category", subcategory);
+            newParams.set("page", "1");
             return newParams;
         });
     };
@@ -331,6 +343,7 @@ const Shop = () => {
         setSearchParams((prevParams) => {
             const newParams = new URLSearchParams(prevParams);
             newParams.set("category", category);
+            newParams.set("page", "1");
             return newParams;
         });
     };
@@ -357,7 +370,20 @@ const Shop = () => {
                     )}
                     {!subcategory && !search && (
                         <h1 className="shop-heading">
-                            {category ? category : "Shop All"}
+                            {category ? (
+                                <React.Fragment>
+                                    <span
+                                        className="back-to-category"
+                                        onClick={removeCategory}
+                                        style={{ cursor: "pointer" }}
+                                    >
+                                        Shop All
+                                    </span>{" "}
+                                    / {category}
+                                </React.Fragment>
+                            ) : (
+                                "Shop All"
+                            )}
                         </h1>
                     )}
                     {subcategory && !search && (
