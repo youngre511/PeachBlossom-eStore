@@ -16,6 +16,7 @@ import { sqlAddress } from "../models/mysql/sqlAddressModel.js";
 import { JoinReqProduct, RawJoinReqProduct } from "./serviceTypes.js";
 import { sqlInventory } from "../models/mysql/sqlInventoryModel.js";
 import { calculatePagination } from "../utils/sqlSearchHelpers.js";
+import { addCustomerAddress } from "./userService.js";
 
 interface JoinReqOrderItem extends Model {
     order_item_id: number;
@@ -118,43 +119,54 @@ const formatOrderList = (orders: any) => {
     return orders;
 };
 
-export const placeOrder = async (orderData: OrderData) => {
+export const placeOrder = async (orderData: OrderData, save: boolean) => {
     const sqlTransaction = await sequelize.transaction();
 
     try {
-        const shipping = orderData.shipping;
         const orderDetails = orderData.orderDetails;
         const orderNo: string = await generateOrderNo();
         let backOrdered: boolean = false;
 
-        const shippingAddressFull = `${shipping.shippingAddress} | ${shipping.shippingAddress2}`;
-
         console.log("Attempting to find or create address table record");
-        // Find address if it already exists and create it if it doesn't.
-        const [address, created] = await sqlAddress.findOrCreate({
-            where: {
-                shippingAddress: shippingAddressFull,
-                city: shipping.city,
-                stateAbbr: shipping.stateAbbr,
-                zipCode: shipping.zipCode,
-                phoneNumber: shipping.phoneNumber,
-                firstName: shipping.firstName,
-                lastName: shipping.lastName,
-            },
-            transaction: sqlTransaction,
-        });
-        if (!address) {
-            throw new Error("Address record creation/retrieval failed.");
+        let addressId;
+        if (save && orderData.customerId) {
+            addressId = await addCustomerAddress(
+                orderData.customerId,
+                orderData.shipping,
+                null,
+                sqlTransaction,
+                true
+            );
+        } else {
+            // Find address if it already exists and create it if it doesn't.
+            const shipping = orderData.shipping;
+            const shippingAddressFull = `${shipping.shippingAddress} | ${shipping.shippingAddress2}`;
+            const [address, created] = await sqlAddress.findOrCreate({
+                where: {
+                    shippingAddress: shippingAddressFull,
+                    city: shipping.city,
+                    stateAbbr: shipping.stateAbbr,
+                    zipCode: shipping.zipCode,
+                    phoneNumber: shipping.phoneNumber,
+                    firstName: shipping.firstName,
+                    lastName: shipping.lastName,
+                },
+                transaction: sqlTransaction,
+            });
+            if (!address) {
+                throw new Error("Address record creation/retrieval failed.");
+            }
+            console.log(
+                `Successfully found or created address ${address.address_id}`
+            );
+            addressId = address.address_id;
         }
-        console.log(
-            `Successfully found or created address ${address.address_id}`
-        );
 
         const newOrder = {
             customer_id: orderData.customerId,
             orderNo: orderNo,
             email: orderData.email,
-            address_id: address.address_id,
+            address_id: addressId,
             subTotal: orderDetails.subTotal,
             shipping: orderDetails.shipping,
             tax: orderDetails.tax,

@@ -354,16 +354,12 @@ const Checkout: React.FC = () => {
             },
         };
 
-        if (saveAddress) {
-            dispatch(addAddress({ address: shippingDetails, nickname: "" }));
-        }
-
         const token = localStorage.getItem("jwtToken");
 
         try {
             const response = await axios.post(
                 `${import.meta.env.VITE_API_URL}/order/create`,
-                orderData,
+                { orderData, save: saveAddress },
                 {
                     headers: {
                         "Content-Type": "application/json",

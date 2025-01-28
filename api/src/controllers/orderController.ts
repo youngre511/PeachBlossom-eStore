@@ -32,7 +32,10 @@ export interface OrderData {
 }
 
 interface PlaceOrderRequest extends Request {
-    body: OrderData;
+    body: {
+        orderData: OrderData;
+        save?: boolean;
+    };
 }
 
 interface PlaceOrderResponse extends Response {
@@ -107,7 +110,7 @@ export const placeOrder: RequestHandler = async (
     res: Response
 ) => {
     try {
-        const orderData = req.body;
+        const { orderData, save } = req.body;
         if (req.user) {
             const customer_id = await getCustomerIdFromUsername(
                 req.user.username
@@ -117,7 +120,7 @@ export const placeOrder: RequestHandler = async (
             }
         }
 
-        const result = await orderService.placeOrder(orderData);
+        const result = await orderService.placeOrder(orderData, save || false);
 
         (res as PlaceOrderResponse).json(result);
     } catch (error) {

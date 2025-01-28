@@ -4,7 +4,6 @@ import { CustomerAddress } from "../../features/UserData/UserDataTypes";
 import { ShippingDetails } from "../Checkout/Checkout";
 import CustomerAddressBox from "../CustomerAddressBox/CustomerAddressBox";
 import { FormControl, Icon, RadioGroup } from "@mui/material";
-import AddCircleSharpIcon from "@mui/icons-material/AddCircleSharp";
 import AddCircleOutlineSharpIcon from "@mui/icons-material/AddCircleOutlineSharp";
 import "./address-selector.css";
 
@@ -23,7 +22,6 @@ const AddressSelector: React.FC<AddressSelectorProps> = ({
     );
 
     useEffect(() => {
-        console.log("New selected address:", selectedAddress);
         const address: any = {
             ...addressList.filter(
                 (address) => address.address_id === selectedAddress
@@ -32,6 +30,10 @@ const AddressSelector: React.FC<AddressSelectorProps> = ({
         address.shippingAddress = address.shippingAddress1;
         delete address.shippingAddress1;
         delete address.nickname;
+        delete address.address_id;
+        if (!address.shippingAddress2) {
+            address.shippingAddress2 = "";
+        }
         setShippingDetails(address);
     }, [selectedAddress]);
 

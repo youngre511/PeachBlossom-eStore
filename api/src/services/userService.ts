@@ -597,7 +597,8 @@ export const addCustomerAddress = async (
     customerId: number,
     address: ShippingDetails,
     nickname: string | null,
-    transaction?: Transaction
+    transaction?: Transaction,
+    fromPlaceOrder?: boolean
 ) => {
     const sqlTransaction = transaction
         ? transaction
@@ -644,6 +645,9 @@ export const addCustomerAddress = async (
 
         if (!transaction) await sqlTransaction.commit();
 
+        if (fromPlaceOrder) {
+            return addressRecord.address_id;
+        }
         return newAddressList;
     } catch (error) {
         if (!transaction) await sqlTransaction.rollback();
