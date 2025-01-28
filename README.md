@@ -1,5 +1,7 @@
 # Peach Blossom E-Store
 
+Peach Blossom is a full-stack web app and mock e-commerce site I created in order to teach myself typescript, redux, and mysql. It comprises a node/express back-end supported by lambda functions and a bifurcated front-end website consisting of a customer-facing e-store and a full-featured admin panel with sales analytics and inventory, product, and order management. The site relies on a combination of mysql and mongodb for data persistence. Most of the images and text are ai-generated. Though the products aren’t real and the site does not accept or process real payments, it is otherwise fully functional.
+
 ### Phase 1: E-Store MVP
 
 -   Minimal Front-End
@@ -68,7 +70,7 @@
     -   Order History [COMPLETE]
     -   Account Closure [INPROCESS]
 -   Account-linked Carts [COMPLETE]
--   Customer Address Checkout Integration
+-   Customer Address Checkout Integration [COMPLETE]
 -   User Preferences
 
 ### Phase 4: Advanced Admin UI
@@ -89,3 +91,7 @@
 -   Thunk pushing activity logs to back end [COMPLETE]
 
 ### Phase 6: Customer Recommendations
+
+-   Activity Data Processing Algorithms
+-   Implement search result product prioritization based on customer trends
+-   Add "you might also be interested in" to cart and/or checkout
