@@ -31,7 +31,7 @@ export const activityMiddleware = async (
         next();
     } catch (error) {
         res.status(401).json({
-            message: "Error when extracting trackingId and user data",
+            message: `Error when extracting trackingId and user data: ${error}`,
         });
         return;
     }
