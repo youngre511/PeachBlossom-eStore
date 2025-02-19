@@ -2,21 +2,10 @@ import sequelize from "../models/mysql/index.js";
 import { QueryTypes } from "sequelize";
 import { sqlOrder } from "../models/mysql/sqlOrderModel.js";
 import { sqlOrderItem } from "../models/mysql/sqlOrderItemModel.js";
-import { sqlAddress } from "../models/mysql/sqlAddressModel.js";
 import { sqlProduct } from "../models/mysql/sqlProductModel.js";
 import { sqlCategory } from "../models/mysql/sqlCategoryModel.js";
 import { sqlSubcategory } from "../models/mysql/sqlSubcategoryModel.js";
-import {
-    Op,
-    FindAttributeOptions,
-    fn,
-    literal,
-    col,
-    WhereOptions,
-    IncludeOptions,
-    GroupOption,
-    Order,
-} from "sequelize";
+import { Op, fn, col, WhereOptions } from "sequelize";
 import { ChartType } from "../controllers/analyticsController.js";
 import buildChartObjects, {
     BarChartData,
@@ -24,6 +13,7 @@ import buildChartObjects, {
     PieChartData,
 } from "../utils/buildChartObjects.js";
 import { JoinReqTopProductRaw, TopProductResponse } from "./serviceTypes.js";
+import buildDateRange from "../utils/buildDateRange.js";
 
 // Set up region case statement for creating region column in sql queries.
 type RegionMap = {
@@ -109,99 +99,11 @@ export type YValue =
     | "averageQuantityPerOrder"
     | "percentage_of_total";
 
-// Data Processing
-
-// Function to transform raw, flattened sql responses into nested, two-index data arrays. Accepts raw data and an array of sort parameters (result keys) of type SortOrder.
-// Each step transforms data into the following format: [sort parameter data, raw data minus sort parameter data].
-// E.g. groupOrder ["year", "month"] would return
-// dynamicSort function sorts data in ascending order at each step.
-const buildNestedDataArrays = (groupOrder: SortOrder[], rawData: any) => {
-    let nestedDataArray = [];
-
-    const dynamicSort = (a: any[], b: any[]) => {
-        if (typeof a[0] === "number" && typeof b[0] === "number") {
-            return (a[0] as number) - (b[0] as number);
-        } else {
-            if (a[0] < b[0]) {
-                return -1;
-            } else {
-                return 1;
-            }
-        }
-    };
-
-    const nestByType = (data: any, sortType: string) => {
-        const nestedData: Array<any> = [];
-        const key = Object.keys(data[0]).filter((key) =>
-            String(key).endsWith(sortType)
-        )[0];
-
-        if (key) {
-            for (const item of data) {
-                const foundIndex = nestedData.findIndex(
-                    (arrayItem) => arrayItem[0] === item[key]
-                );
-                if (foundIndex === -1) {
-                    nestedData.push([item[key], [item]]);
-                } else {
-                    nestedData[foundIndex][1].push(item);
-                }
-            }
-        } else {
-            console.error("Unable to find key for", sortType);
-        }
-        return nestedData.sort(dynamicSort);
-    };
-
-    let sortTypeLength = groupOrder.length;
-
-    const nested1 = nestByType(rawData, groupOrder[0]);
-
-    // Logic includes a series of ternaries to add up to 5 levels of nesting.
-    if (sortTypeLength > 1) {
-        const nested2 = nested1.map((item) => [
-            item[0],
-            sortTypeLength === 2
-                ? nestByType(item[1], groupOrder[1])
-                : nestByType(item[1], groupOrder[1]).map((item1) => [
-                      item1[0],
-                      sortTypeLength === 3
-                          ? nestByType(item1[1], groupOrder[2])
-                          : nestByType(item1[1], groupOrder[2]).map((item2) => [
-                                item2[0],
-                                sortTypeLength === 4
-                                    ? nestByType(item2[1], groupOrder[3])
-                                    : nestByType(item2[1], groupOrder[3]).map(
-                                          (item3) => [
-                                              item3[0],
-                                              sortTypeLength === 5
-                                                  ? nestByType(
-                                                        item3[1],
-                                                        groupOrder[4]
-                                                    )
-                                                  : nestByType(
-                                                        item3[1],
-                                                        groupOrder[4]
-                                                    ).map((item4) => [
-                                                        item4[0],
-                                                        nestByType(
-                                                            item4[1],
-                                                            groupOrder[5]
-                                                        ),
-                                                    ]),
-                                          ]
-                                      ),
-                            ]),
-                  ]),
-        ]);
-        nestedDataArray = nested2;
-    } else {
-        nestedDataArray = nested1;
-    }
-    return nestedDataArray;
-};
-
-// Get Revenue (by region?, by state?)
+/**
+ * @description A function to retrieve revenue data.
+ * @params Granularity: the periods by which data should be grouped. An optional start date. An optional end date.
+ *         Booleans for instructing the function to group the results by state or region. The chart type for which the data should be formatted
+ */
 
 export const getRevenueOverTime = async (
     granularity: "week" | "month" | "quarter" | "year",
@@ -212,11 +114,6 @@ export const getRevenueOverTime = async (
     chartType: ChartType
 ) => {
     try {
-        const startDateObj = startDate
-            ? new Date(startDate)
-            : new Date("01-01-2022");
-        const endDateObj = endDate ? new Date(endDate) : new Date();
-
         // Define variables based on granularity
         let intervalUnit = "";
         let selectPeriod = "";
@@ -297,10 +194,10 @@ export const getRevenueOverTime = async (
         `;
 
         // Prepare replacements
-        const replacements = {
-            startDate: startDateObj.toISOString().split("T")[0],
-            endDate: endDateObj.toISOString().split("T")[0],
-        };
+        const replacements: Record<string, any> = buildDateRange(
+            startDate,
+            endDate
+        );
 
         // Execute the raw SQL query
         const results = await sequelize.query(query, {
@@ -361,7 +258,14 @@ export const getRevenueOverTime = async (
     }
 };
 
-// Get Revenue by category/subcategory (by region? by state?)
+/**
+ * @description A function to retrieve revenue trends grouped by category or subcategory.
+ * @params Granularity: the periods by which data should be grouped. An optional start date. An optional end date.
+ *         A state abbreviation or region for narrowing results.
+ *         A boolean instructing the function to group by subcategory instead of category.
+ *         A boolean instructing the function to return revenue values or revenue percentages for each (sub)category
+ *         The chart type for which the data should be formatted
+ */
 
 export const getRevenueByCategory = async (
     granularity: "week" | "month" | "quarter" | "year" | "all",
@@ -374,11 +278,6 @@ export const getRevenueByCategory = async (
     chartType: ChartType
 ) => {
     try {
-        const startDateObj = startDate
-            ? new Date(startDate)
-            : new Date("01-01-2022");
-        const endDateObj = endDate ? new Date(endDate) : new Date();
-
         // Define the categories or subcategories CTE
         const categoryField = bySubcategory
             ? "subcategoryName"
@@ -386,10 +285,10 @@ export const getRevenueByCategory = async (
         const categoryTable = bySubcategory ? "Subcategories" : "Categories";
 
         let query = "";
-        const replacements: Record<string, any> = {
-            startDate: startDateObj.toISOString().split("T")[0],
-            endDate: endDateObj.toISOString().split("T")[0],
-        };
+        const replacements: Record<string, any> = buildDateRange(
+            startDate,
+            endDate
+        );
 
         if (stateAbbr) {
             replacements["stateAbbr"] = stateAbbr;
@@ -700,16 +599,11 @@ export const getTransactionsOverTime = async (
     chartType: ChartType
 ) => {
     try {
-        const startDateObj = startDate
-            ? new Date(startDate)
-            : new Date("01-01-2022");
-        const endDateObj = endDate ? new Date(endDate) : new Date();
-
         // Prepare replacements
-        const replacements = {
-            startDate: startDateObj.toISOString().split("T")[0],
-            endDate: endDateObj.toISOString().split("T")[0],
-        };
+        const replacements: Record<string, any> = buildDateRange(
+            startDate,
+            endDate
+        );
 
         let query = "";
 
@@ -887,11 +781,6 @@ export const getItemsPerTransaction = async (
     chartType: ChartType
 ) => {
     try {
-        const startDateObj = startDate
-            ? new Date(startDate)
-            : new Date("01-01-2022");
-        const endDateObj = endDate ? new Date(endDate) : new Date();
-
         // Define variables based on granularity
         let intervalUnit = "";
         let selectPeriodMain = "";
@@ -1000,10 +889,10 @@ export const getItemsPerTransaction = async (
         `;
 
         // Prepare replacements
-        const replacements = {
-            startDate: startDateObj.toISOString().split("T")[0],
-            endDate: endDateObj.toISOString().split("T")[0],
-        };
+        const replacements: Record<string, any> = buildDateRange(
+            startDate,
+            endDate
+        );
 
         // Execute the raw SQL query
         const results = await sequelize.query(query, {
@@ -1067,11 +956,6 @@ export const getAverageOrderValue = async (
     chartType: ChartType
 ) => {
     try {
-        const startDateObj = startDate
-            ? new Date(startDate)
-            : new Date("01-01-2022");
-        const endDateObj = endDate ? new Date(endDate) : new Date();
-
         // Define variables based on granularity
         let intervalUnit = "";
         let selectPeriodMain = "";
@@ -1171,10 +1055,10 @@ export const getAverageOrderValue = async (
         `;
 
         // Prepare replacements
-        const replacements = {
-            startDate: startDateObj.toISOString().split("T")[0],
-            endDate: endDateObj.toISOString().split("T")[0],
-        };
+        const replacements: Record<string, any> = buildDateRange(
+            startDate,
+            endDate
+        );
 
         // Execute the raw SQL query
         const results = await sequelize.query(query, {
@@ -1238,16 +1122,11 @@ export const getRegionRevenuePercentages = async (
     chartType: ChartType
 ) => {
     try {
-        const startDateObj = startDate
-            ? new Date(startDate)
-            : new Date("01-01-2022");
-        const endDateObj = endDate ? new Date(endDate) : new Date();
-
         let query = "";
-        const replacements: Record<string, any> = {
-            startDate: startDateObj.toISOString().split("T")[0],
-            endDate: endDateObj.toISOString().split("T")[0],
-        };
+        const replacements: Record<string, any> = buildDateRange(
+            startDate,
+            endDate
+        );
 
         if (granularity === "all") {
             query = `
