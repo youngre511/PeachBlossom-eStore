@@ -201,7 +201,7 @@ const TransactionData: React.FC<Props> = () => {
                         totParams.chartType === "line" && (
                             <CustomLineChart
                                 data={totData as LineData[]}
-                                idLegend={true}
+                                idLegend={totData.length > 1}
                                 enableSlices="x"
                                 margin={{
                                     top: 10,
@@ -409,7 +409,7 @@ const TransactionData: React.FC<Props> = () => {
                             iptParams.chartType === "line" && (
                                 <CustomLineChart
                                     data={iptData as LineData[]}
-                                    idLegend={true}
+                                    idLegend={iptData.length > 1}
                                     enableSlices="x"
                                     margin={{
                                         top: 10,
