@@ -25,12 +25,12 @@ const buildChartObjects = (
     rawData: any,
     chartType: ChartType,
     dataFormat: {
-        id: SortOrder;
+        id: SortOrder | null;
         id2?: SortOrder;
         x: SortOrder | "all" | null;
         y: YValue;
     },
-    altXValue?: string
+    altTopValue?: string
 ) => {
     const monthArr = [
         "Jan",
@@ -214,9 +214,11 @@ const buildChartObjects = (
         const result: any[] = [];
 
         const usedIds: string[] = [];
-        const idKey = Object.keys(rawData[0]).filter((key) =>
-            String(key).endsWith(dataFormat.id)
-        )[0];
+        const idKey = !dataFormat.id
+            ? null
+            : Object.keys(rawData[0]).filter((key) =>
+                  String(key).endsWith(dataFormat.id!)
+              )[0];
         const idKey2 = dataFormat.id2
             ? Object.keys(rawData[0]).filter((key) =>
                   String(key).endsWith(dataFormat.id2 as SortOrder)
@@ -235,22 +237,27 @@ const buildChartObjects = (
 
         rawData.forEach((dataPoint: any) => {
             // Establish data values, converting month, if present, from number to abbr
-            let idValue = dataPoint[idKey];
+            let idValue = !idKey ? altTopValue : dataPoint[idKey];
 
             if (dataFormat.id === "month" && typeof idValue === "number") {
                 idValue = monthArr[idValue - 1];
             } else if (dataFormat.id === "quarter") {
-                idValue = `Q${dataPoint[idKey]}`;
+                idValue = `Q${dataPoint[idKey!]}`;
             }
 
             if (idKey2) idValue += ` ${dataPoint[idKey2]}`;
 
             let xValue;
             if (!xKey) {
-                xValue = altXValue;
+                xValue = altTopValue;
             } else {
                 xValue = dataPoint[xKey];
             }
+
+            // Ensure that neither id nor x end up being null
+            xValue = xValue ?? "Unknown";
+            idValue = idValue ?? "N/A";
+
             const yearKey =
                 Object.keys(rawData[0]).filter((key) =>
                     String(key).endsWith("year")
@@ -274,6 +281,7 @@ const buildChartObjects = (
             } else if (xKey && dataFormat.x === "week") {
                 xValue = `Week ${dataPoint[xKey] + 1}`;
             }
+
             xValue = String(xValue);
             let yValue = dataPoint[yKey];
 

@@ -10,9 +10,14 @@ import mongoose from "mongoose";
 import sequelize from "../models/mysql/index.js";
 import { sqlCustomer } from "../models/mysql/sqlCustomerModel.js";
 
-export const assignTrackingId = async (username?: string) => {
+/**
+ * @description A function to assign a trackingId to user devices, either by generating a new trackingId or by looking up the id already associated with the user.
+ * @params An optional username, used to search for existing trackingIds associated with the user.
+ */
+
+export const assignTrackingId = async (username?: string): Promise<string> => {
     try {
-        let trackingId;
+        let trackingId: string | undefined;
         if (username) {
             const userId = await getIdFromUsername(username);
             if (userId) {
@@ -40,11 +45,17 @@ export const assignTrackingId = async (username?: string) => {
     }
 };
 
+/**
+ * @description A function to store activity logs sent from the front end in the MongoDB activity database.
+ * @params An array of product logs following the prescribed type. A unique trackingId to identify the user. An optional userId to associate the record with a customer account.
+ * @returns The number of successfully created records
+ */
+
 export const logActivity = async (
     activity: Array<ProductInteractionLog | SearchLog>,
     trackingId: string,
     userId?: number
-) => {
+): Promise<number> => {
     const session: ClientSession = await mongoose.startSession();
     session.startTransaction();
 
@@ -81,11 +92,16 @@ export const logActivity = async (
     }
 };
 
+/**
+ * @description A function to add a userId to all activity records bearing a supplied trackingId.
+ * @params The customer's username. The trackingId. An optional mongoose session.
+ * @returns A new tracking id if the supplied tracking id is already associated with another user.
+ */
 export const associateUserId = async (
     username: string,
     trackingId: string,
     passedSession?: ClientSession
-) => {
+): Promise<string | void> => {
     const session: ClientSession = passedSession
         ? passedSession
         : await mongoose.startSession();
@@ -146,7 +162,14 @@ export const associateUserId = async (
     }
 };
 
-export const setCookieConsent = async (username: string, consent: boolean) => {
+/**
+ * @description A function to store a user's cookie consent preferences in their associated row in the customer table.
+ */
+
+export const setCookieConsent = async (
+    username: string,
+    consent: boolean
+): Promise<{ success: boolean }> => {
     const sqlTransaction = await sequelize.transaction();
     try {
         const customerId = await getCustomerIdFromUsername(username);
@@ -171,7 +194,14 @@ export const setCookieConsent = async (username: string, consent: boolean) => {
     }
 };
 
-export const retrieveCookieConsent = async (username: string) => {
+/**
+ * @description A function to retrieve a user's cookie consent preferences from their associated row in the customer table.
+ * Customer rows are initialized with default values for the returned parameters, so they will never be null or undefined.
+ */
+
+export const retrieveCookieConsent = async (
+    username: string
+): Promise<{ allowAll: boolean; userChosen: boolean }> => {
     const sqlTransaction = await sequelize.transaction();
     try {
         const customerId = await getCustomerIdFromUsername(username);
@@ -196,6 +226,11 @@ export const retrieveCookieConsent = async (username: string) => {
     }
 };
 
+/**
+ * @description This algorithm looks for search/add-to-cart activity pairs among activity data to find common connections.
+ * Results are narrowed to include only search activities that immediately precede add-to-cart activities by the same user occurring within 10 minutes of the search.
+ * Data will be used to improve search results and make sure users easily find what they are looking for.
+ */
 export const mapSearchToCart = async () => {
     const pipeline: PipelineStage[] = [
         //Match "search" and "CartAdd" activities

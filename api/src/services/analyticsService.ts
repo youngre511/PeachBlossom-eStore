@@ -14,6 +14,7 @@ import buildChartObjects, {
 } from "../utils/buildChartObjects.js";
 import { JoinReqTopProductRaw, TopProductResponse } from "./serviceTypes.js";
 import buildDateRange from "../utils/buildDateRange.js";
+import getQueryVariables from "../utils/getQueryVariables.js";
 
 // Set up region case statement for creating region column in sql queries.
 type RegionMap = {
@@ -115,50 +116,17 @@ export const getRevenueOverTime = async (
 ) => {
     try {
         // Define variables based on granularity
-        let intervalUnit = "";
-        let selectPeriod = "";
-        let groupByPeriod = "";
-        let orderByPeriod = "";
-        let leftJoinCondition = "";
-
-        switch (granularity) {
-            case "year":
-                intervalUnit = "1 YEAR";
-                selectPeriod = "YEAR(p.period_date) AS year";
-                groupByPeriod = "YEAR(p.period_date)";
-                orderByPeriod = "YEAR(p.period_date)";
-                leftJoinCondition = "YEAR(o.orderDate) = YEAR(p.period_date)";
-                break;
-            case "quarter":
-                intervalUnit = "3 MONTH";
-                selectPeriod =
-                    "YEAR(p.period_date) AS year, QUARTER(p.period_date) AS quarter";
-                groupByPeriod = "YEAR(p.period_date), QUARTER(p.period_date)";
-                orderByPeriod = "YEAR(p.period_date), QUARTER(p.period_date)";
-                leftJoinCondition =
-                    "YEAR(o.orderDate) = YEAR(p.period_date) AND QUARTER(o.orderDate) = QUARTER(p.period_date)";
-                break;
-            case "month":
-                intervalUnit = "1 MONTH";
-                selectPeriod =
-                    "YEAR(p.period_date) AS year, MONTH(p.period_date) AS month";
-                groupByPeriod = "YEAR(p.period_date), MONTH(p.period_date)";
-                orderByPeriod = "YEAR(p.period_date), MONTH(p.period_date)";
-                leftJoinCondition =
-                    "YEAR(o.orderDate) = YEAR(p.period_date) AND MONTH(o.orderDate) = MONTH(p.period_date)";
-                break;
-            case "week":
-                intervalUnit = "1 WEEK";
-                selectPeriod =
-                    "YEAR(p.period_date) AS year, WEEK(p.period_date, 1) AS week"; // Using mode 1 for ISO weeks
-                groupByPeriod = "YEAR(p.period_date), WEEK(p.period_date, 1)";
-                orderByPeriod = "YEAR(p.period_date), WEEK(p.period_date, 1)";
-                leftJoinCondition =
-                    "YEAR(o.orderDate) = YEAR(p.period_date) AND WEEK(o.orderDate, 1) = WEEK(p.period_date, 1)";
-                break;
-            default:
-                throw new Error("Invalid granularity");
-        }
+        const {
+            intervalUnit,
+            selectPeriod,
+            groupByPeriod,
+            orderByPeriod,
+            leftJoinCondition,
+        } = getQueryVariables({
+            granularity,
+            sub: false,
+            joinConditions: { leftJoinCondition: "o.orderDate" },
+        });
 
         // Build the raw SQL query
         const query = `
@@ -206,7 +174,7 @@ export const getRevenueOverTime = async (
         });
 
         const dataFormat = { y: "total_revenue" } as {
-            id: SortOrder;
+            id: SortOrder | null;
             id2?: "year";
             x: SortOrder | null;
             y: YValue;
@@ -217,7 +185,11 @@ export const getRevenueOverTime = async (
             dataFormat["id"] = "stateAbbr";
         } else if (chartType === "bar") {
             dataFormat["id"] = granularity;
-            dataFormat["id2"] = "year";
+            if (granularity !== "year") {
+                dataFormat["id2"] = "year";
+            }
+        } else if (chartType === "line" && granularity === "year") {
+            dataFormat["id"] = null;
         } else {
             dataFormat["id"] = "year";
         }
@@ -356,78 +328,24 @@ export const getRevenueByCategory = async (
             `;
         } else {
             // Define variables based on granularity
-            let intervalUnit = "";
-            let selectPeriodMain = "";
-            let selectPeriodSub = "";
-            let groupByPeriodMain = "";
-            let groupByPeriodSub = "";
-            let orderByPeriod = "";
-            let periodJoinConditionRd = "";
-            let periodJoinConditionTr = "";
-
-            switch (granularity) {
-                case "year":
-                    intervalUnit = "1 YEAR";
-                    selectPeriodMain = "YEAR(p.period_date) AS year";
-                    selectPeriodSub = "YEAR(o.orderDate) AS year";
-                    groupByPeriodMain = "YEAR(p.period_date)";
-                    groupByPeriodSub = "YEAR(o.orderDate)";
-                    orderByPeriod = "YEAR(p.period_date)";
-                    periodJoinConditionRd = "rd.year = YEAR(p.period_date)";
-                    periodJoinConditionTr = "tr.year = YEAR(p.period_date)";
-                    break;
-                case "quarter":
-                    intervalUnit = "1 QUARTER";
-                    selectPeriodMain =
-                        "YEAR(p.period_date) AS year, QUARTER(p.period_date) AS quarter";
-                    selectPeriodSub =
-                        "YEAR(o.orderDate) AS year, QUARTER(o.orderDate) AS quarter";
-                    groupByPeriodMain =
-                        "YEAR(p.period_date), QUARTER(p.period_date)";
-                    groupByPeriodSub =
-                        "YEAR(o.orderDate), QUARTER(o.orderDate)";
-                    orderByPeriod =
-                        "YEAR(p.period_date), QUARTER(p.period_date)";
-                    periodJoinConditionRd =
-                        "rd.year = YEAR(p.period_date) AND rd.quarter = QUARTER(p.period_date)";
-                    periodJoinConditionTr =
-                        "tr.year = YEAR(p.period_date) AND tr.quarter = QUARTER(p.period_date)";
-                    break;
-                case "month":
-                    intervalUnit = "1 MONTH";
-                    selectPeriodMain =
-                        "YEAR(p.period_date) AS year, MONTH(p.period_date) AS month";
-                    selectPeriodSub =
-                        "YEAR(o.orderDate) AS year, MONTH(o.orderDate) AS month";
-                    groupByPeriodMain =
-                        "YEAR(p.period_date), MONTH(p.period_date)";
-                    groupByPeriodSub = "YEAR(o.orderDate), MONTH(o.orderDate)";
-                    orderByPeriod = "YEAR(p.period_date), MONTH(p.period_date)";
-                    periodJoinConditionRd =
-                        "rd.year = YEAR(p.period_date) AND rd.month = MONTH(p.period_date)";
-                    periodJoinConditionTr =
-                        "tr.year = YEAR(p.period_date) AND tr.month = MONTH(p.period_date)";
-                    break;
-                case "week":
-                    intervalUnit = "1 WEEK";
-                    selectPeriodMain =
-                        "YEAR(p.period_date) AS year, WEEK(p.period_date, 1) AS week";
-                    selectPeriodSub =
-                        "YEAR(o.orderDate) AS year, WEEK(o.orderDate, 1) AS week";
-                    groupByPeriodMain =
-                        "YEAR(p.period_date), WEEK(p.period_date, 1)";
-                    groupByPeriodSub =
-                        "YEAR(o.orderDate), WEEK(o.orderDate, 1)";
-                    orderByPeriod =
-                        "YEAR(p.period_date), WEEK(p.period_date, 1)";
-                    periodJoinConditionRd =
-                        "rd.year = YEAR(p.period_date) AND rd.week = WEEK(p.period_date, 1)";
-                    periodJoinConditionTr =
-                        "tr.year = YEAR(p.period_date) AND tr.week = WEEK(p.period_date, 1)";
-                    break;
-                default:
-                    throw new Error("Invalid granularity");
-            }
+            const {
+                intervalUnit,
+                selectPeriodMain,
+                selectPeriodSub,
+                groupByPeriodMain,
+                groupByPeriodSub,
+                orderByPeriod,
+                periodJoinConditionRd,
+                periodJoinConditionTr,
+            } = getQueryVariables({
+                granularity,
+                sub: true,
+                subField: "o.orderDate",
+                joinConditions: {
+                    periodJoinConditionRd: "rd",
+                    periodJoinConditionTr: "tr",
+                },
+            });
 
             // Build the raw SQL query
             query = `
@@ -629,55 +547,17 @@ export const getTransactionsOverTime = async (
         `;
         } else {
             // Define variables based on granularity
-            let intervalUnit = "";
-            let selectPeriod = "";
-            let groupByPeriod = "";
-            let orderByPeriod = "";
-            let leftJoinCondition = "";
-
-            switch (granularity) {
-                case "year":
-                    intervalUnit = "1 YEAR";
-                    selectPeriod = "YEAR(p.period_date) AS year";
-                    groupByPeriod = "YEAR(p.period_date)";
-                    orderByPeriod = "YEAR(p.period_date)";
-                    leftJoinCondition =
-                        "YEAR(o.orderDate) = YEAR(p.period_date)";
-                    break;
-                case "quarter":
-                    intervalUnit = "3 MONTH";
-                    selectPeriod =
-                        "YEAR(p.period_date) AS year, QUARTER(p.period_date) AS quarter";
-                    groupByPeriod =
-                        "YEAR(p.period_date), QUARTER(p.period_date)";
-                    orderByPeriod =
-                        "YEAR(p.period_date), QUARTER(p.period_date)";
-                    leftJoinCondition =
-                        "YEAR(o.orderDate) = YEAR(p.period_date) AND QUARTER(o.orderDate) = QUARTER(p.period_date)";
-                    break;
-                case "month":
-                    intervalUnit = "1 MONTH";
-                    selectPeriod =
-                        "YEAR(p.period_date) AS year, MONTH(p.period_date) AS month";
-                    groupByPeriod = "YEAR(p.period_date), MONTH(p.period_date)";
-                    orderByPeriod = "YEAR(p.period_date), MONTH(p.period_date)";
-                    leftJoinCondition =
-                        "YEAR(o.orderDate) = YEAR(p.period_date) AND MONTH(o.orderDate) = MONTH(p.period_date)";
-                    break;
-                case "week":
-                    intervalUnit = "1 WEEK";
-                    selectPeriod =
-                        "YEAR(p.period_date) AS year, WEEK(p.period_date, 1) AS week"; // Using mode 1 for ISO weeks
-                    groupByPeriod =
-                        "YEAR(p.period_date), WEEK(p.period_date, 1)";
-                    orderByPeriod =
-                        "YEAR(p.period_date), WEEK(p.period_date, 1)";
-                    leftJoinCondition =
-                        "YEAR(o.orderDate) = YEAR(p.period_date) AND WEEK(o.orderDate, 1) = WEEK(p.period_date, 1)";
-                    break;
-                default:
-                    throw new Error("Invalid granularity");
-            }
+            const {
+                intervalUnit,
+                selectPeriod,
+                groupByPeriod,
+                orderByPeriod,
+                leftJoinCondition,
+            } = getQueryVariables({
+                granularity,
+                sub: false,
+                joinConditions: { leftJoinCondition: "o.orderDate" },
+            });
 
             // Build the raw SQL query
             query = `
@@ -722,7 +602,7 @@ export const getTransactionsOverTime = async (
         // Dynamically create data format and group clause
 
         const dataFormat = { y: "count" } as {
-            id: SortOrder;
+            id: SortOrder | null;
             id2?: "year";
             x: SortOrder | null;
             y: YValue;
@@ -737,6 +617,8 @@ export const getTransactionsOverTime = async (
             if (granularity !== "year") {
                 dataFormat["id2"] = "year";
             }
+        } else if (chartType === "line" && granularity === "year") {
+            dataFormat["id"] = null;
         } else {
             dataFormat["id"] = "year";
         }
@@ -782,67 +664,20 @@ export const getItemsPerTransaction = async (
 ) => {
     try {
         // Define variables based on granularity
-        let intervalUnit = "";
-        let selectPeriodMain = "";
-        let selectPeriodSub = "";
-        let groupByPeriodMain = "";
-        let groupByPeriodSub = "";
-        let orderByPeriod = "";
-        let periodJoinCondition = "";
-
-        switch (granularity) {
-            case "year":
-                intervalUnit = "1 YEAR";
-                selectPeriodMain = "YEAR(p.period_date) AS year";
-                selectPeriodSub = "YEAR(o.orderDate) AS year";
-                groupByPeriodMain = "YEAR(p.period_date)";
-                groupByPeriodSub = "YEAR(o.orderDate)";
-                orderByPeriod = "YEAR(p.period_date)";
-                periodJoinCondition = "it.year = YEAR(p.period_date)";
-                break;
-            case "quarter":
-                intervalUnit = "1 QUARTER";
-                selectPeriodMain =
-                    "YEAR(p.period_date) AS year, QUARTER(p.period_date) AS quarter";
-                selectPeriodSub =
-                    "YEAR(o.orderDate) AS year, QUARTER(o.orderDate) AS quarter";
-                groupByPeriodMain =
-                    "YEAR(p.period_date), QUARTER(p.period_date)";
-                groupByPeriodSub = "YEAR(o.orderDate), QUARTER(o.orderDate)";
-                orderByPeriod = "YEAR(p.period_date), QUARTER(p.period_date)";
-                periodJoinCondition =
-                    "it.year = YEAR(p.period_date) AND it.quarter = QUARTER(p.period_date)";
-                break;
-            case "month":
-                intervalUnit = "1 MONTH";
-                selectPeriodMain =
-                    "YEAR(p.period_date) AS year, MONTH(p.period_date) AS month";
-                selectPeriodSub =
-                    "YEAR(o.orderDate) AS year, MONTH(o.orderDate) AS month";
-                groupByPeriodMain = "YEAR(p.period_date), MONTH(p.period_date)";
-                groupByPeriodSub = "YEAR(o.orderDate), MONTH(o.orderDate)";
-                orderByPeriod = "YEAR(p.period_date), MONTH(p.period_date)";
-                periodJoinCondition =
-                    "it.year = YEAR(p.period_date) AND it.month = MONTH(p.period_date)";
-                break;
-            case "week":
-                intervalUnit = "1 WEEK";
-                selectPeriodMain =
-                    "YEAR(p.period_date) AS year, WEEK(p.period_date, 1) AS week";
-                selectPeriodSub =
-                    "YEAR(o.orderDate) AS year, WEEK(o.orderDate, 1) AS week";
-                groupByPeriodMain =
-                    "YEAR(p.period_date), WEEK(p.period_date, 1)";
-                groupByPeriodSub = "YEAR(o.orderDate), WEEK(o.orderDate, 1)";
-                orderByPeriod = "YEAR(p.period_date), WEEK(p.period_date, 1)";
-                periodJoinCondition =
-                    "it.year = YEAR(p.period_date) AND it.week = WEEK(p.period_date, 1)";
-
-                break;
-
-            default:
-                throw new Error("Invalid granularity");
-        }
+        const {
+            intervalUnit,
+            selectPeriodMain,
+            selectPeriodSub,
+            groupByPeriodMain,
+            groupByPeriodSub,
+            orderByPeriod,
+            periodJoinCondition,
+        } = getQueryVariables({
+            granularity,
+            sub: true,
+            subField: "o.orderDate",
+            joinConditions: { periodJoinCondition: "it" },
+        });
 
         const query = `
             WITH RECURSIVE periods AS (
@@ -903,7 +738,7 @@ export const getItemsPerTransaction = async (
         // Dynamically create data format
 
         const dataFormat = { y: "averageQuantityPerOrder" } as {
-            id: SortOrder;
+            id: SortOrder | null;
             id2?: "year";
             x: SortOrder | null;
             y: YValue;
@@ -915,7 +750,11 @@ export const getItemsPerTransaction = async (
             dataFormat["id"] = "stateAbbr";
         } else if (chartType === "bar") {
             dataFormat["id"] = granularity;
-            dataFormat["id2"] = "year";
+            if (granularity !== "year") {
+                dataFormat["id2"] = "year";
+            }
+        } else if (chartType === "line" && granularity === "year") {
+            dataFormat["id"] = null;
         } else {
             dataFormat["id"] = "year";
         }
@@ -957,58 +796,20 @@ export const getAverageOrderValue = async (
 ) => {
     try {
         // Define variables based on granularity
-        let intervalUnit = "";
-        let selectPeriodMain = "";
-        let selectPeriodSub = "";
-        let groupByPeriodMain = "";
-        let groupByPeriodSub = "";
-        let orderByPeriod = "";
-        let periodJoinCondition = "";
-
-        switch (granularity) {
-            case "quarter":
-                intervalUnit = "1 QUARTER";
-                selectPeriodMain =
-                    "YEAR(p.period_date) AS year, QUARTER(p.period_date) AS quarter";
-                selectPeriodSub =
-                    "YEAR(o.orderDate) AS year, QUARTER(o.orderDate) AS quarter";
-                groupByPeriodMain =
-                    "YEAR(p.period_date), QUARTER(p.period_date)";
-                groupByPeriodSub = "YEAR(o.orderDate), QUARTER(o.orderDate)";
-                orderByPeriod = "YEAR(p.period_date), QUARTER(p.period_date)";
-                periodJoinCondition =
-                    "it.year = YEAR(p.period_date) AND it.quarter = QUARTER(p.period_date)";
-                break;
-            case "month":
-                intervalUnit = "1 MONTH";
-                selectPeriodMain =
-                    "YEAR(p.period_date) AS year, MONTH(p.period_date) AS month";
-                selectPeriodSub =
-                    "YEAR(o.orderDate) AS year, MONTH(o.orderDate) AS month";
-                groupByPeriodMain = "YEAR(p.period_date), MONTH(p.period_date)";
-                groupByPeriodSub = "YEAR(o.orderDate), MONTH(o.orderDate)";
-                orderByPeriod = "YEAR(p.period_date), MONTH(p.period_date)";
-                periodJoinCondition =
-                    "it.year = YEAR(p.period_date) AND it.month = MONTH(p.period_date)";
-                break;
-            case "week":
-                intervalUnit = "1 WEEK";
-                selectPeriodMain =
-                    "YEAR(p.period_date) AS year, WEEK(p.period_date, 1) AS week";
-                selectPeriodSub =
-                    "YEAR(o.orderDate) AS year, WEEK(o.orderDate, 1) AS week";
-                groupByPeriodMain =
-                    "YEAR(p.period_date), WEEK(p.period_date, 1)";
-                groupByPeriodSub = "YEAR(o.orderDate), WEEK(o.orderDate, 1)";
-                orderByPeriod = "YEAR(p.period_date), WEEK(p.period_date, 1)";
-                periodJoinCondition =
-                    "it.year = YEAR(p.period_date) AND it.week = WEEK(p.period_date, 1)";
-
-                break;
-
-            default:
-                throw new Error("Invalid granularity");
-        }
+        const {
+            intervalUnit,
+            selectPeriodMain,
+            selectPeriodSub,
+            groupByPeriodMain,
+            groupByPeriodSub,
+            orderByPeriod,
+            periodJoinCondition,
+        } = getQueryVariables({
+            granularity,
+            sub: true,
+            subField: "o.orderDate",
+            joinConditions: { periodJoinCondition: "it" },
+        });
 
         const query = `
             WITH RECURSIVE periods AS (
@@ -1164,78 +965,24 @@ export const getRegionRevenuePercentages = async (
             `;
         } else {
             // Define variables based on granularity
-            let intervalUnit = "";
-            let selectPeriodMain = "";
-            let selectPeriodSub = "";
-            let groupByPeriodMain = "";
-            let groupByPeriodSub = "";
-            let orderByPeriod = "";
-            let periodJoinConditionRpr = "";
-            let periodJoinConditionTr = "";
-
-            switch (granularity) {
-                case "year":
-                    intervalUnit = "1 YEAR";
-                    selectPeriodMain = "YEAR(p.period_date) AS year";
-                    selectPeriodSub = "YEAR(o.orderDate) AS year";
-                    groupByPeriodMain = "YEAR(p.period_date)";
-                    groupByPeriodSub = "YEAR(o.orderDate)";
-                    orderByPeriod = "YEAR(p.period_date)";
-                    periodJoinConditionRpr = "rpr.year = YEAR(p.period_date)";
-                    periodJoinConditionTr = "tr.year = YEAR(p.period_date)";
-                    break;
-                case "quarter":
-                    intervalUnit = "1 QUARTER";
-                    selectPeriodMain =
-                        "YEAR(p.period_date) AS year, QUARTER(p.period_date) AS quarter";
-                    selectPeriodSub =
-                        "YEAR(o.orderDate) AS year, QUARTER(o.orderDate) AS quarter";
-                    groupByPeriodMain =
-                        "YEAR(p.period_date), QUARTER(p.period_date)";
-                    groupByPeriodSub =
-                        "YEAR(o.orderDate), QUARTER(o.orderDate)";
-                    orderByPeriod =
-                        "YEAR(p.period_date), QUARTER(p.period_date)";
-                    periodJoinConditionRpr =
-                        "rpr.year = YEAR(p.period_date) AND rpr.quarter = QUARTER(p.period_date)";
-                    periodJoinConditionTr =
-                        "tr.year = YEAR(p.period_date) AND tr.quarter = QUARTER(p.period_date)";
-                    break;
-                case "month":
-                    intervalUnit = "1 MONTH";
-                    selectPeriodMain =
-                        "YEAR(p.period_date) AS year, MONTH(p.period_date) AS month";
-                    selectPeriodSub =
-                        "YEAR(o.orderDate) AS year, MONTH(o.orderDate) AS month";
-                    groupByPeriodMain =
-                        "YEAR(p.period_date), MONTH(p.period_date)";
-                    groupByPeriodSub = "YEAR(o.orderDate), MONTH(o.orderDate)";
-                    orderByPeriod = "YEAR(p.period_date), MONTH(p.period_date)";
-                    periodJoinConditionRpr =
-                        "rpr.year = YEAR(p.period_date) AND rpr.month = MONTH(p.period_date)";
-                    periodJoinConditionTr =
-                        "tr.year = YEAR(p.period_date) AND tr.month = MONTH(p.period_date)";
-                    break;
-                case "week":
-                    intervalUnit = "1 WEEK";
-                    selectPeriodMain =
-                        "YEAR(p.period_date) AS year, WEEK(p.period_date, 1) AS week";
-                    selectPeriodSub =
-                        "YEAR(o.orderDate) AS year, WEEK(o.orderDate, 1) AS week";
-                    groupByPeriodMain =
-                        "YEAR(p.period_date), WEEK(p.period_date, 1)";
-                    groupByPeriodSub =
-                        "YEAR(o.orderDate), WEEK(o.orderDate, 1)";
-                    orderByPeriod =
-                        "YEAR(p.period_date), WEEK(p.period_date, 1)";
-                    periodJoinConditionRpr =
-                        "rpr.year = YEAR(p.period_date) AND rpr.week = WEEK(p.period_date, 1)";
-                    periodJoinConditionTr =
-                        "tr.year = YEAR(p.period_date) AND tr.week = WEEK(p.period_date, 1)";
-                    break;
-                default:
-                    throw new Error("Invalid granularity");
-            }
+            const {
+                intervalUnit,
+                selectPeriodMain,
+                selectPeriodSub,
+                groupByPeriodMain,
+                groupByPeriodSub,
+                orderByPeriod,
+                periodJoinConditionRpr,
+                periodJoinConditionTr,
+            } = getQueryVariables({
+                granularity,
+                sub: true,
+                subField: "o.orderDate",
+                joinConditions: {
+                    periodJoinConditionRpr: "rpr",
+                    periodJoinConditionTr: "tr",
+                },
+            });
 
             query = `
             WITH RECURSIVE periods AS (
