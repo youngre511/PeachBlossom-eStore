@@ -137,6 +137,7 @@ const ProductDetails: React.FC<Props> = () => {
             if (!product || product.productNo !== productNo) {
                 setProduct(null);
             }
+            console.log("dispatching");
             dispatch(fetchOneProduct(productNo));
         }
     }, [productNo, dispatch]);
