@@ -16,6 +16,32 @@ import { JoinReqTopProductRaw, TopProductResponse } from "./serviceTypes.js";
 import buildDateRange from "../utils/buildDateRange.js";
 import getQueryVariables from "../utils/getQueryVariables.js";
 
+/**
+ * @description This file contains all the services for retrieving sales data for analytics, primarily through raw sql queries.
+ * With only one exception, data is returned formatted for Nivo line, bar, or pie charts.
+ */
+
+// NIVO BAR DATA //
+/**
+ * id: x-axis label for a stacked bar or a group of bars
+ * x: in-chart or tooltip label for a single segment of a stacked bar or bar within a group of bars
+ * y: the numeric value associated with the x value
+ */
+
+// NIVO LINE DATA //
+/**
+ * id: the label for each line
+ * x: the x-axis label/point for the datapoint
+ * y: the y-axis numeric value for the datapoint
+ */
+
+// NIVO PIE DATA //
+/**
+ * x: the label for a complete pie chart
+ * id: the label for a pie chart segment
+ * y: the numeric value associated with the id
+ */
+
 // Set up region case statement for creating region column in sql queries.
 type RegionMap = {
     [key: string]: string[];
@@ -101,7 +127,7 @@ export type YValue =
     | "percentage_of_total";
 
 /**
- * @description A function to retrieve revenue data.
+ * @description A function to retrieve revenue data. Front end is currently only set up to request line or bar chart data and can currently only request results by region, not by state.
  * @params Granularity: the periods by which data should be grouped. An optional start date. An optional end date.
  *         Booleans for instructing the function to group the results by state or region. The chart type for which the data should be formatted
  */
@@ -231,7 +257,7 @@ export const getRevenueOverTime = async (
 };
 
 /**
- * @description A function to retrieve revenue trends grouped by category or subcategory.
+ * @description A function to retrieve revenue trends grouped by category or subcategory. Front end is currently only set up to request pie chart data and cannot currently narrow by state or region.
  * @params Granularity: the periods by which data should be grouped. An optional start date. An optional end date.
  *         A state abbreviation or region for narrowing results.
  *         A boolean instructing the function to group by subcategory instead of category.
@@ -506,7 +532,10 @@ export const getRevenueByCategory = async (
         }
     }
 };
-// Get number transactions
+
+/**
+ * @description A function to retrieve trends in number of transactions per period. Front end is currently only set up to request line or bar chart data.
+ */
 
 export const getTransactionsOverTime = async (
     granularity: "week" | "month" | "quarter" | "year" | "all",
@@ -653,7 +682,9 @@ export const getTransactionsOverTime = async (
     }
 };
 
-// Get items per transaction (by region? by state?)
+/**
+ * @description A function to get the average number of items per transaction for a given period. Front end is currently only set up to request line or bar chart data.
+ */
 export const getItemsPerTransaction = async (
     granularity: "week" | "month" | "quarter" | "year",
     startDate: string | null,
@@ -785,7 +816,9 @@ export const getItemsPerTransaction = async (
     }
 };
 
-// Get Average Order Value (by region? by state?)
+/**
+ * @description A function to get the average order value for a given period. Front end is currently only set up to request line or bar chart data.
+ */
 export const getAverageOrderValue = async (
     granularity: "week" | "month" | "quarter",
     startDate: string | null,
@@ -912,7 +945,9 @@ export const getAverageOrderValue = async (
     }
 };
 
-// Get Region percentages
+/**
+ * @description A function to retrieve the percentage of revenue each region or state is responsible for. Front end is currently only set up to request pie chart data and displays only region data, not state data.
+ */
 
 export const getRegionRevenuePercentages = async (
     granularity: "week" | "month" | "quarter" | "year" | "all",
@@ -1106,7 +1141,9 @@ export const getRegionRevenuePercentages = async (
     }
 };
 
-////// GET TOP 5 ADMIN PRODUCTS ///////
+/**
+ * @description A function to retrieve the top X best or worst performing products
+ */
 
 export const getTopProducts = async (
     period: "7d" | "30d" | "6m" | "1y" | "allTime",
