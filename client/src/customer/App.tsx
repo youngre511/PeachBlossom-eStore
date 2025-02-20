@@ -96,27 +96,6 @@ const CustomerApp: React.FC = () => {
         img2.src = src2;
     }, []);
 
-    if (auth) {
-        const loggingInReroutes = ["/order-status"];
-        const loggingOutReroutes = ["/order-status"];
-        useEffect(() => {
-            if (
-                auth.user &&
-                currentRoute &&
-                loggingInReroutes.includes(currentRoute)
-            ) {
-                navigate("/orders");
-            }
-            if (
-                !auth.user &&
-                currentRoute &&
-                loggingOutReroutes.includes(currentRoute)
-            ) {
-                navigate("/");
-            }
-        }, [auth.user, navigate]);
-    }
-
     // Cookie logic
     useEffect(() => {
         dispatch(syncRecentlyViewed());

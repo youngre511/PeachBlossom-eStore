@@ -9,6 +9,8 @@ import { AuthContext } from "../../../common/contexts/authContext";
 import { useAppSelector } from "../../hooks/reduxHooks";
 import { RootState } from "../../store/customerStore";
 import { CircularProgress } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import { useNavigationContext } from "../../../common/contexts/navContext";
 
 export interface Product {
     id: number;
@@ -66,11 +68,21 @@ const OrderStatus: React.FC<Props> = () => {
     const [orderDetails, setOrderDetails] = useState<IOrderDetails | null>(
         null
     );
+    const navigate = useNavigate();
+    const { currentRoute, previousRoute } = useNavigationContext();
     const orderNo = useAppSelector(
         (state: RootState) => state.userData.data.currentOrderNo
     );
     const auth = useContext(AuthContext);
     const loggedIn = auth && auth.user && !auth.isTokenExpired();
+
+    useEffect(() => {
+        if (!loggedIn && orderDetails) {
+            navigate("/");
+        } else if (loggedIn && !orderDetails && previousRoute !== "/orders") {
+            navigate("/orders");
+        }
+    }, [loggedIn]);
 
     const token = localStorage.getItem("jwtToken");
     const fetchOrderDetails = async (data: {
