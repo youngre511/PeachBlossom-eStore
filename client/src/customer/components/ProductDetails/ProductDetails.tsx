@@ -124,23 +124,22 @@ const ProductDetails: React.FC<Props> = () => {
     };
 
     useEffect(() => {
-        if (productState) {
-            setProduct(productState);
-            if (productState.images.length > 0) {
-                setCurrentImage(productState.images[0]);
-            }
-        }
-    }, [productState]);
-
-    useEffect(() => {
         if (productNo) {
-            if (!product || product.productNo !== productNo) {
-                setProduct(null);
+            if (productState) {
+                if (productState.productNo !== productNo) {
+                    setProduct(null);
+                    dispatch(fetchOneProduct(productNo));
+                } else {
+                    setProduct(productState);
+                    if (productState.images.length > 0) {
+                        setCurrentImage(productState.images[0]);
+                    }
+                }
+            } else {
+                dispatch(fetchOneProduct(productNo));
             }
-            console.log("dispatching");
-            dispatch(fetchOneProduct(productNo));
         }
-    }, [productNo, dispatch]);
+    }, [productState, productNo, dispatch]);
 
     return (
         <div className="product-details">
