@@ -397,14 +397,11 @@ const AVProductDetails: React.FC = () => {
             let usedFileNames: string[] = [];
             if (images) {
                 images.forEach((image, index) => {
-                    console.log("usedFileNames:", usedFileNames);
-                    console.log("currentDetails.images", currentDetails.images);
                     let newFileName = `${productName
                         .replace(/\s+/g, "_")
                         .toLowerCase()}`;
                     let i = 1;
                     newFileName = `${newFileName}_${i}`;
-                    console.log("starting filename:", newFileName);
                     while (
                         currentDetails.images.includes(
                             `${
@@ -416,7 +413,6 @@ const AVProductDetails: React.FC = () => {
                         newFileName = newFileName.replace(`_${i}`, `_${i + 1}`);
                         i++;
                     }
-                    console.log("ending filename:", newFileName);
                     usedFileNames.push(newFileName);
                     formData.append("images", image.file as File, newFileName);
                 });
@@ -451,18 +447,17 @@ const AVProductDetails: React.FC = () => {
                 images.length !== 0;
 
             if (areThereChanges) {
-                console.log("saving 4.5");
                 formData.append("productNo", currentDetails.productNo);
-                console.log("appending imageUrls:", imageUrls);
+
                 if (imageUrls.length !== currentDetails.images.length) {
-                    formData.append("existingImageUrls", imageUrls.join(", "));
+                    imageUrls.forEach((url) =>
+                        formData.append("existingImageUrls", url)
+                    );
                 } else {
-                    formData.append(
-                        "existingImageUrls",
-                        currentDetails.images.join(", ")
+                    currentDetails.images.forEach((url) =>
+                        formData.append("existingImageUrls", url)
                     );
                 }
-                console.log("formData", formData.entries());
                 const token = localStorage.getItem("jwtToken");
                 try {
                     const response = await axios.put(
@@ -487,7 +482,6 @@ const AVProductDetails: React.FC = () => {
                     axiosLogAndSetState(error, setError, "uploading files");
                 }
             } else {
-                console.log("no changes");
                 setIsSaving(false);
             }
         }

@@ -313,8 +313,6 @@ export const updateProductDetails = async (
             }
         }
 
-        const existingImageUrlsArray = existingImageUrls.split(", ");
-
         const attributesObj =
             typeof attributes === "string"
                 ? JSON.parse(attributes)
@@ -328,7 +326,7 @@ export const updateProductDetails = async (
             description,
             attributes: attributesObj,
             price,
-            existingImageUrls: existingImageUrlsArray,
+            existingImageUrls,
             tags,
         };
 
