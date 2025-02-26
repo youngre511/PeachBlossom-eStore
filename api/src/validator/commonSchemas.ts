@@ -8,12 +8,12 @@ export const createDecimalSchema = (paramName: string) =>
         .optional();
 
 // Function to escape HTML characters
-const escapeHTML = (str: string) =>
+const escapeHTML = (str: string, allowAmp: boolean = false) =>
     str.replace(
         /[&<>"'/]/g,
         (char) =>
             ({
-                "&": "&amp;",
+                "&": allowAmp ? "&" : "&amp;",
                 "<": "&lt;",
                 ">": "&gt;",
                 '"': "&quot;",
@@ -24,14 +24,15 @@ const escapeHTML = (str: string) =>
 
 export const sanitizeStringSchema = (
     paramName: string,
-    maxLength: number = 255
+    maxLength: number = 255,
+    allowAmp: boolean = false
 ) =>
     z
         .string()
         .trim()
         .min(1, `${paramName} cannot be empty`)
         .max(maxLength, `${paramName} is too long`)
-        .transform((val) => escapeHTML(val));
+        .transform((val) => escapeHTML(val, allowAmp));
 
 export const sanitizeEmailSchema = () =>
     z
@@ -58,8 +59,8 @@ export const paginationSchema = z.object({
 });
 
 export const categoriesSchema = z.object({
-    category: sanitizeStringSchema("category name", 20).optional(),
-    subcategory: sanitizeStringSchema("subcategory name", 20).optional(),
+    category: sanitizeStringSchema("category name", 20, true).optional(),
+    subcategory: sanitizeStringSchema("subcategory name", 20, true).optional(),
 });
 
 // Filters (Sanitization, not required checks)
