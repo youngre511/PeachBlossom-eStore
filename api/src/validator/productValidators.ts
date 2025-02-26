@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+    categoriesSchema,
     createDecimalSchema,
     filterSchema,
     paginationSchema,
@@ -22,6 +23,7 @@ const attributesSchema = z.object({
 export const productFilterSchema = z.object({
     ...paginationSchema.shape,
     ...filterSchema.shape,
+    ...categoriesSchema.shape,
     minPrice: createDecimalSchema("minimum price"),
     maxPrice: createDecimalSchema("maximum price"),
     minWidth: createDecimalSchema("minimum width"),
@@ -37,6 +39,7 @@ export const productFilterSchema = z.object({
 export const adminProductFilterSchema = z.object({
     ...paginationSchema.shape,
     ...filterSchema.shape,
+    ...categoriesSchema.shape,
     view: sanitizeStringSchema("view", 20),
 });
 
@@ -57,5 +60,9 @@ export const updateProductSchema = z.object({
     existingImageUrls: z.array(
         z.string({ message: "Invalid url format" }).url()
     ),
+    productNo: productNoSchema,
+});
+
+export const productNoParamSchema = z.object({
     productNo: productNoSchema,
 });
