@@ -16,13 +16,22 @@ import upload from "../middleware/uploadMiddleware.js";
 import { authMiddleware } from "../middleware/authMiddleware.js";
 import { authorizeRoles } from "../middleware/authorize.js";
 import { passiveTokenVerification } from "../middleware/passiveTokenVerification.js";
+import { sanitize } from "../middleware/sanitizeMiddleware.js";
+import {
+    adminProductFilterSchema,
+    createProductSchema,
+    productFilterSchema,
+    productNoParamSchema,
+    updateProductSchema,
+} from "../validator/productValidators.js";
 
-productRouter.get("/", getProducts);
+productRouter.get("/", sanitize(productFilterSchema, "query"), getProducts);
 
 productRouter.get(
     "/admin",
     authMiddleware,
     authorizeRoles(["admin"]),
+    sanitize(adminProductFilterSchema, "query"),
     getAdminProducts
 );
 
@@ -32,6 +41,7 @@ productRouter.post(
     "/create",
     authMiddleware,
     authorizeRoles(["admin"], ["full", "limited"]),
+    sanitize(createProductSchema, "body"),
     upload.array("images", 10),
     createProduct
 );
@@ -40,6 +50,7 @@ productRouter.put(
     "/update-details",
     authMiddleware,
     authorizeRoles(["admin"], ["full", "limited"]),
+    sanitize(updateProductSchema, "body"),
     upload.array("images", 10),
     updateProductDetails
 );
@@ -58,11 +69,16 @@ productRouter.delete(
     deleteProduct
 );
 
-productRouter.get("/:productNo", getOneProduct);
+productRouter.get(
+    "/:productNo",
+    sanitize(productNoParamSchema, "params"),
+    getOneProduct
+);
 
 productRouter.get(
     "/catalog/:productNo",
     passiveTokenVerification,
+    sanitize(productNoParamSchema, "params"),
     getCatalogProductDetails
 );
 
