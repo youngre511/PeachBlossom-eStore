@@ -1,5 +1,5 @@
+import { ChartType } from "../controllers/_controllerTypes.js";
 import { SortOrder, YValue } from "../services/analyticsService.js";
-import { ChartType } from "../controllers/analyticsController.js";
 
 interface idBase {
     id: string | number;

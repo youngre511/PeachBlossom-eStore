@@ -7,12 +7,9 @@ import sequelize from "../models/mysql/index.js";
 import mongoose, { ClientSession } from "mongoose";
 import { Model } from "sequelize-typescript";
 import { getAdminProducts } from "./productService.js";
-import {
-    AdminFilterObj,
-    JoinReqInventory,
-    RawJoinReqProduct,
-} from "./_serviceTypes.js";
+import { JoinReqInventory } from "./_serviceTypes.js";
 import { getCart } from "./cartService.js";
+import { AdminProductFilters } from "../controllers/_controllerTypes.js";
 let syncInProgress = false;
 
 // Interfaces
@@ -349,7 +346,7 @@ export const extendHold = async (cartId: number) => {
 
 export const updateStockLevels = async (
     updateData: Record<string, number>,
-    filters: AdminFilterObj
+    filters: AdminProductFilters
 ) => {
     const sqlTransaction = await sequelize.transaction();
 
