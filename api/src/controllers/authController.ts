@@ -1,26 +1,6 @@
 import { Request, RequestHandler, Response } from "express";
 import * as authService from "../services/authService.js";
-
-interface CreateAccountRequest extends Request {
-    body: {
-        username: string;
-        password: string;
-        role: "customer" | "admin";
-        accessLevel?: "full" | "limited";
-        email?: string;
-        defaultPassword?: boolean;
-        firstName?: string;
-        lastName?: string;
-    };
-}
-
-interface LoginRequest extends Request {
-    body: {
-        username: string;
-        password: string;
-        cartId?: string;
-    };
-}
+import { CreateAccountRequest, LoginRequest } from "./_controllerTypes.js";
 
 export const createUser = async (req: CreateAccountRequest, res: Response) => {
     try {

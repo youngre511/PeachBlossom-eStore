@@ -1,7 +1,7 @@
 import { Op } from "sequelize";
 import { sqlProduct } from "../models/mysql/sqlProductModel.js";
 import * as PromotionModel from "../models/mysql/sqlPromotionModel.js";
-import { RawJoinReqProduct } from "../services/serviceTypes.js";
+import { RawJoinReqProduct } from "../services/_serviceTypes.js";
 import { calculateFinalPrice } from "../utils/calculateFinalPrice.js";
 
 jest.mock("../models/mysql/sqlPromotionModel", () => ({

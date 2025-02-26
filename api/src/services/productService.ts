@@ -18,7 +18,7 @@ import mongoose, { ClientSession, Types, Schema } from "mongoose";
 import {
     CreateProduct,
     UpdateProduct,
-} from "../controllers/productController.js";
+} from "../controllers/_controllerTypes.js";
 import { sqlSubcategory } from "../models/mysql/sqlSubcategoryModel.js";
 import { BooleString } from "../../types/api_resp.js";
 import { Op } from "sequelize";
@@ -33,7 +33,7 @@ import {
     CatalogResponse,
     FilterObject,
     JoinReqCountAdminProduct,
-} from "./serviceTypes.js";
+} from "./_serviceTypes.js";
 import processImages from "../utils/processImages.js";
 import { calculatePagination } from "../utils/sqlSearchHelpers.js";
 import { getCustomerIdFromUsername } from "./userService.js";
@@ -600,7 +600,12 @@ export const getCatalogProductDetails = async (
 //////////////////////////////////////////////////////////////////////////
 
 export const createProduct = async (
-    productData: CreateProduct
+    productData: CreateProduct,
+    images: Array<{
+        fileContent: Buffer;
+        fileName: string;
+        mimeType: string;
+    }>
 ): Promise<BooleString> => {
     const session: ClientSession = await mongoose.startSession();
     session.startTransaction();
@@ -616,7 +621,6 @@ export const createProduct = async (
             attributes,
             price,
             stock = 0,
-            images = [],
             tags = null,
         } = productData;
         const productNo = await generateProductNo(prefix);
@@ -768,7 +772,12 @@ export const createProduct = async (
 //////////////////////////////////////////////////////////////////////////
 
 export const updateProductDetails = async (
-    productData: UpdateProduct
+    productData: UpdateProduct,
+    images: Array<{
+        fileContent: Buffer;
+        fileName: string;
+        mimeType: string;
+    }>
 ): Promise<BooleString> => {
     const session: ClientSession = await mongoose.startSession();
     session.startTransaction();
@@ -784,7 +793,6 @@ export const updateProductDetails = async (
             attributes,
             price,
             existingImageUrls,
-            images = [],
             tags = null,
         } = productData;
 

@@ -5,60 +5,19 @@ import * as promotionService from "../services/promotionService.js";
 // Types and interfaces
 import { ProductItem, Promotion } from "../models/mongo/productModel.js";
 import { Request, Response, RequestHandler } from "express";
-
-export type CreatePromo = {
-    name: string;
-    description: string;
-    discountType: "percentage" | "fixed";
-    discountValue: number;
-    startDate: string;
-    endDate: string;
-    active: boolean;
-};
-
-type UpdatePromo = Partial<Promotion>;
-
-interface PromoParamsRequestParams {
-    promoNum: string;
-}
-
-interface CreatePromoRequest extends Request {
-    body: {
-        promotion: CreatePromo;
-        categories?: string[];
-        products?: string[];
-    };
-}
-
-interface AddToPromoRequestParams {
-    promoId: string;
-}
-
-interface CategoriesAndProductsBody {
-    categories?: string[];
-    products?: string[];
-}
-
-interface AddToPromoRequest
-    extends Request<AddToPromoRequestParams, any, CategoriesAndProductsBody> {}
-
-interface UpdatePromoRequestParams {
-    promoId: string;
-}
-
-interface UpdatePromoRequestBody {
-    updatedData: UpdatePromo;
-}
-
-interface UpdatePromoRequest
-    extends Request<UpdatePromoRequestParams, any, UpdatePromoRequestBody> {}
-
-interface RemovePromoRequestParams {
-    promoId: string;
-}
-
-interface RemovePromoRequest
-    extends Request<RemovePromoRequestParams, any, CategoriesAndProductsBody> {}
+import {
+    AddToPromoRequest,
+    AddToPromoRequestParams,
+    CategoriesAndProductsBody,
+    CreatePromo,
+    CreatePromoRequest,
+    PromoParamsRequestParams,
+    RemovePromoRequest,
+    RemovePromoRequestParams,
+    UpdatePromoRequest,
+    UpdatePromoRequestBody,
+    UpdatePromoRequestParams,
+} from "./_controllerTypes.js";
 
 // Controllers
 

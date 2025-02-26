@@ -11,7 +11,7 @@ import {
     AdminFilterObj,
     JoinReqInventory,
     RawJoinReqProduct,
-} from "./serviceTypes.js";
+} from "./_serviceTypes.js";
 import { getCart } from "./cartService.js";
 let syncInProgress = false;
 

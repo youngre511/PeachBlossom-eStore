@@ -4,56 +4,13 @@ import * as cartService from "../services/cartService.js";
 import { Request, RequestHandler, Response } from "express";
 import { verifyToken } from "../utils/jwt.js";
 import { getCustomerIdFromUsername } from "../services/userService.js";
-
-interface CartIdRequestParams extends Request {
-    cartId: string;
-}
-
-interface AddItemRequest extends Request {
-    body: {
-        productNo: string;
-        cartId: number | null;
-        quantity: number;
-        thumbnailUrl: string;
-    };
-}
-
-interface UpdateQuantityRequest extends Request {
-    body: {
-        productNo: string;
-        cartId: number;
-        quantity: number;
-    };
-}
-
-interface DeleteItemRequest extends Request {
-    body: {
-        productNo: string;
-        cartId: number;
-    };
-}
-
-interface CartItemResponse {
-    productNo: string;
-    name: string;
-    price: number;
-    discountPrice: number;
-    quantity: number;
-    thumbnailUrl: string;
-    productUrl: string;
-}
-
-interface CartResponsePayload {
-    items: CartItemResponse[];
-    subTotal: number;
-    cartId: number;
-    numberOfItems: number;
-}
-
-interface CartResponse extends Response {
-    message: string;
-    payload: CartResponsePayload;
-}
+import {
+    AddItemRequest,
+    CartIdRequestParams,
+    CartResponse,
+    DeleteItemRequest,
+    UpdateQuantityRequest,
+} from "./_controllerTypes.js";
 
 export const getCartById: RequestHandler<CartIdRequestParams> = async (
     req: Request<CartIdRequestParams>,

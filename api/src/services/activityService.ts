@@ -5,7 +5,7 @@ import { getCustomerIdFromUsername, getIdFromUsername } from "./userService.js";
 import {
     ProductInteractionLog,
     SearchLog,
-} from "../controllers/activityController.js";
+} from "../controllers/_controllerTypes.js";
 import mongoose from "mongoose";
 import sequelize from "../models/mysql/index.js";
 import { sqlCustomer } from "../models/mysql/sqlCustomerModel.js";

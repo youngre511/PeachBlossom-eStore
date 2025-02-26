@@ -1,98 +1,19 @@
-import { Request, RequestHandler, Response } from "express";
+import { Request, Response } from "express";
 import * as userService from "../services/userService.js";
-import { ShippingDetails } from "./orderController.js";
-import { RecentlyViewedItem } from "../models/mysql/sqlCustomerModel.js";
-
-interface ChangeLevelRequest extends Request {
-    body: {
-        username: string;
-        newAccessLevel: "full" | "limited" | "view only";
-    };
-}
-
-interface ResetPasswordRequest extends Request {
-    body: {
-        user_id: number;
-    };
-}
-
-interface ChangePasswordRequest extends Request {
-    body: {
-        oldPassword: string;
-        newPassword: string;
-    };
-}
-
-interface ChangeUsernameRequest extends Request {
-    body: {
-        newUsername: string;
-        password: string;
-    };
-}
-
-interface ChangeDisplayNameRequest extends Request {
-    body: {
-        newFirstName: string;
-        newLastName: string;
-        password: string;
-    };
-}
-
-interface UserIdParamsRequest extends Request {
-    params: {
-        userId: string;
-    };
-}
-
-interface GetRequest extends Request {
-    query: {
-        page: string;
-        usersPerPage: string;
-        accessLevel?: string;
-        searchString?: string;
-    };
-}
-
-interface AddCustomerAddressRequest extends Request {
-    body: {
-        address: ShippingDetails;
-        nickname: string | null;
-    };
-}
-
-interface EditCustomerAddressRequest extends Request {
-    body: {
-        address: ShippingDetails;
-        nickname: string | null;
-        addressId: number;
-    };
-}
-
-interface RemoveCustomerAddressRequest extends Request {
-    body: {
-        addressId: number;
-    };
-}
-
-interface CloseAccountRequest extends Request {
-    body: {
-        password: string;
-    };
-}
-
-interface ChangeDisplayNameRequest extends Request {
-    body: {
-        newFirstName: string;
-        newLastName: string;
-        password: string;
-    };
-}
-
-interface SyncReviewedRequest extends Request {
-    body: {
-        recentlyViewed: Array<RecentlyViewedItem>;
-    };
-}
+import {
+    AddCustomerAddressRequest,
+    ChangeDisplayNameRequest,
+    ChangeLevelRequest,
+    ChangePasswordRequest,
+    ChangeUsernameRequest,
+    CloseAccountRequest,
+    EditCustomerAddressRequest,
+    GetRequest,
+    RemoveCustomerAddressRequest,
+    ResetPasswordRequest,
+    SyncReviewedRequest,
+    UserIdParamsRequest,
+} from "./_controllerTypes.js";
 
 export const getAdmins = async (req: GetRequest, res: Response) => {
     try {

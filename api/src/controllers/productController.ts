@@ -1,136 +1,16 @@
-import Product from "../models/mongo/productModel.js";
 import * as productService from "../services/productService.js";
 import * as promotionService from "../services/promotionService.js";
-
-////////////////////////
-//Types and Interfaces//
-////////////////////////
-
-import {
-    ProductItem,
-    Promotion,
-    Attributes,
-} from "../models/mongo/productModel.js";
 import { Request, Response, RequestHandler } from "express";
-import { Color, Material } from "../services/serviceTypes.js";
-
-export interface CreateProduct {
-    name: string;
-    category: string;
-    subcategory?: string;
-    prefix: string;
-    description: string;
-    attributes: Attributes;
-    price: number;
-    stock?: number;
-    images?: Array<{
-        fileContent: Buffer;
-        fileName: string;
-        mimeType: string;
-    }>;
-    tags?: Array<string>;
-}
-
-export interface UpdateProduct
-    extends Partial<Omit<CreateProduct, "prefix" | "stock">> {
-    existingImageUrls: string[];
-    productNo: string;
-}
-
-interface UpdateProductStatusRequest extends Request {
-    body: {
-        productNos: string[];
-        newStatus: "active" | "discontinued";
-    };
-}
-
-interface SearchOptions extends Response {
-    searchOptions: Array<{
-        display: string;
-        value: string;
-        id: number;
-        url: string;
-    }>;
-}
-
-interface CreateProductRequest extends Request {
-    body: {
-        name: string;
-        category: string;
-        subcategory?: string;
-        prefix: string;
-        description: string;
-        attributes: string;
-        price: number;
-        stock?: number;
-        tags?: Array<string>;
-    };
-    images?:
-        | Express.Multer.File[]
-        | { [fieldname: string]: Express.Multer.File[] };
-}
-
-interface ProductParamsRequest extends Request {
-    params: {
-        productNo: string;
-    };
-}
-
-interface ProductGetRequest extends Request {
-    query: {
-        category?: string;
-        tags?: string;
-        page: string;
-        color?: Color[];
-        material?: Material[];
-        minPrice?: string;
-        maxPrice?: string;
-        minWidth?: string;
-        maxWidth?: string;
-        minHeight?: string;
-        maxHeight?: string;
-        minDepth?: string;
-        maxDepth?: string;
-        sort: string;
-        itemsPerPage: string;
-    };
-}
-
-interface AdminProductGetRequest extends Request {
-    query: {
-        category?: string;
-        subcategory?: string;
-        tags?: string;
-        page: string;
-        sort: string;
-        itemsPerPage: string;
-        view: string;
-        search?: string;
-    };
-}
-
-interface PromoParamsRequest extends Request {
-    params: {
-        promoNum: string;
-    };
-}
-
-interface UpdateProductDetailsRequest extends Request {
-    body: {
-        name?: string;
-        productNo: string;
-        category?: string;
-        subcategory?: string;
-        description?: string;
-        attributes?: string;
-        price?: number;
-        existingImageUrls: string;
-        tags?: Array<string>;
-    };
-    images?:
-        | Express.Multer.File[]
-        | { [fieldname: string]: Express.Multer.File[] };
-}
+import {
+    AdminProductGetRequest,
+    CreateProductRequest,
+    ProductGetRequest,
+    ProductParamsRequest,
+    PromoParamsRequest,
+    SearchOptions,
+    UpdateProductDetailsRequest,
+    UpdateProductStatusRequest,
+} from "./_controllerTypes.js";
 
 ////////////////////////
 /////GET FUNCTIONS//////
@@ -344,11 +224,10 @@ export const createProduct = async (
             attributes: attributesObj,
             price,
             stock,
-            images,
             tags,
         };
 
-        const result = await productService.createProduct(productData);
+        const result = await productService.createProduct(productData, images);
 
         res.status(200).json(result);
     } catch (error) {
@@ -449,13 +328,13 @@ export const updateProductDetails = async (
             description,
             attributes: attributesObj,
             price,
-            images,
             existingImageUrls: existingImageUrlsArray,
             tags,
         };
 
         const result = await productService.updateProductDetails(
-            updatedProductData
+            updatedProductData,
+            images
         );
 
         res.status(200).json(result);

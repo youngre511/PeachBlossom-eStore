@@ -1,86 +1,22 @@
 import * as analyticsService from "../services/analyticsService.js";
 import { Request, Response } from "express";
-
-type BaseGranularity = "week" | "month" | "quarter";
-const baseGranularityArr = ["week", "month", "quarter"];
-
-type GranularityPlus = "week" | "month" | "quarter" | "year";
-const granularityPlusArr = ["week", "month", "quarter", "year"];
-
-type GranularityExtended = "week" | "month" | "quarter" | "year" | "all";
-const granularityExtendedArr = ["week", "month", "quarter", "year", "all"];
-
-export type ChartType = "bar" | "line" | "pie";
-const chartTypeArr = ["bar", "line", "pie"];
-
-interface OverTimeRequest extends Request {
-    query: {
-        granularity: string;
-        byState?: string;
-        byRegion?: string;
-        startDate?: string;
-        endDate?: string;
-        chartType: string;
-    };
-}
-interface OverTimeParams {
-    granularity: BaseGranularity;
-    byState: boolean;
-    byRegion: boolean;
-    startDate: string;
-    endDate: string;
-    chartType: ChartType;
-}
-
-interface OverTimePlusParams {
-    granularity: GranularityPlus;
-    byState: boolean;
-    byRegion: boolean;
-    startDate: string;
-    endDate: string;
-    chartType: ChartType;
-}
-
-interface OverTimeExtendedParams {
-    granularity: GranularityExtended;
-    byState: boolean;
-    byRegion: boolean;
-    startDate: string;
-    endDate: string;
-    chartType: ChartType;
-}
-
-interface ByCategoryRequest extends Request {
-    query: {
-        granularity: string;
-        stateAbbr?: string;
-        region?: string;
-        bySubcategory?: string;
-        startDate?: string;
-        endDate?: string;
-        returnPercentage?: string;
-        chartType: string;
-    };
-}
-
-interface ByCategoryParams {
-    granularity: GranularityExtended;
-    stateAbbr: string;
-    region: string;
-    bySubcategory: boolean;
-    startDate: string;
-    endDate: string;
-    returnPercentage: boolean;
-    chartType: ChartType;
-}
-
-interface TopProductsRequest {
-    query: {
-        period: string;
-        number: string;
-        worstPerforming?: string;
-    };
-}
+import {
+    BaseGranularity,
+    baseGranularityArr,
+    ByCategoryParams,
+    ByCategoryRequest,
+    ChartType,
+    chartTypeArr,
+    GranularityExtended,
+    granularityExtendedArr,
+    GranularityPlus,
+    granularityPlusArr,
+    OverTimeExtendedParams,
+    OverTimeParams,
+    OverTimePlusParams,
+    OverTimeRequest,
+    TopProductsRequest,
+} from "./_controllerTypes.js";
 
 const convertParams = <
     T extends

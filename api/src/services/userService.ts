@@ -11,11 +11,11 @@ import { sqlAdmin } from "../models/mysql/sqlAdminModel.js";
 import { Op } from "sequelize";
 import { generateAccessToken, UserPayload } from "../utils/jwt.js";
 import { ReceivedUser } from "../middleware/authMiddleware.js";
-import { ShippingDetails } from "../controllers/orderController.js";
 import { sqlAddress } from "../models/mysql/sqlAddressModel.js";
 import { sqlOrder } from "../models/mysql/sqlOrderModel.js";
 import { sqlCustomerAddress } from "../models/mysql/sqlCustomerAddressModel.js";
 import { calculatePagination } from "../utils/sqlSearchHelpers.js";
+import { ShippingDetails } from "../controllers/_controllerTypes.js";
 
 export const getAdmins = async (
     page: number,

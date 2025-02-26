@@ -5,7 +5,7 @@ import mongoose from "mongoose";
 
 import { ClientSession } from "mongoose";
 import { ProductItem, Promotion } from "../models/mongo/productModel.js";
-import { CreatePromo } from "../controllers/promotionController.js";
+import { CreatePromo } from "../controllers/_controllerTypes.js";
 import { Types } from "mongoose";
 
 type PromoUpdate = Partial<Promotion>;

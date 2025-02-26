@@ -6,7 +6,7 @@ import { sqlCart } from "../models/mysql/sqlCartModel.js";
 import { sqlCartItem } from "../models/mysql/sqlCartItemModel.js";
 import { sqlInventory } from "../models/mysql/sqlInventoryModel.js";
 import { Op, Transaction, WhereOptions } from "sequelize";
-import { JoinReqCart, RawJoinReqProduct } from "./serviceTypes.js";
+import { JoinReqCart, RawJoinReqProduct } from "./_serviceTypes.js";
 import { sqlCustomer } from "../models/mysql/sqlCustomerModel.js";
 import { calculateFinalPrice } from "../utils/calculateFinalPrice.js";
 

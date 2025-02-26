@@ -6,13 +6,13 @@ import { sqlProduct } from "../models/mysql/sqlProductModel.js";
 import { sqlCategory } from "../models/mysql/sqlCategoryModel.js";
 import { sqlSubcategory } from "../models/mysql/sqlSubcategoryModel.js";
 import { Op, fn, col, WhereOptions } from "sequelize";
-import { ChartType } from "../controllers/analyticsController.js";
+import { ChartType } from "../controllers/_controllerTypes.js";
 import buildChartObjects, {
     BarChartData,
     LineChartData,
     PieChartData,
 } from "../utils/buildChartObjects.js";
-import { JoinReqTopProductRaw, TopProductResponse } from "./serviceTypes.js";
+import { JoinReqTopProductRaw, TopProductResponse } from "./_serviceTypes.js";
 import buildDateRange from "../utils/buildDateRange.js";
 import getQueryVariables from "../utils/getQueryVariables.js";
 

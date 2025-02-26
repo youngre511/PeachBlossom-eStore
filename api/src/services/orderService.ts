@@ -3,7 +3,7 @@ import {
     OrderData,
     UpdateItem,
     UpdateOrder,
-} from "../controllers/orderController.js";
+} from "../controllers/_controllerTypes.js";
 import sequelize from "../models/mysql/index.js";
 import { sqlOrder } from "../models/mysql/sqlOrderModel.js";
 import { sqlOrderItem } from "../models/mysql/sqlOrderItemModel.js";
@@ -13,7 +13,7 @@ import { Includeable, Model, Op, Order } from "sequelize";
 import { sqlCartItem } from "../models/mysql/sqlCartItemModel.js";
 import { sqlCart } from "../models/mysql/sqlCartModel.js";
 import { sqlAddress } from "../models/mysql/sqlAddressModel.js";
-import { JoinReqProduct, RawJoinReqProduct } from "./serviceTypes.js";
+import { JoinReqProduct, RawJoinReqProduct } from "./_serviceTypes.js";
 import { sqlInventory } from "../models/mysql/sqlInventoryModel.js";
 import { calculatePagination } from "../utils/sqlSearchHelpers.js";
 import { addCustomerAddress } from "./userService.js";

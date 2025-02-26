@@ -1,29 +1,7 @@
 import { Request, Response } from "express";
 import * as activityService from "../services/activityService.js";
 import { getIdFromUsername } from "../services/userService.js";
-
-export interface SearchLog {
-    activityType: "search";
-    timestamp: string;
-    searchTerm: string;
-}
-export interface ProductInteractionLog {
-    activityType: "productView" | "cartAdd" | "purchase";
-    timestamp: string;
-    productNo: string;
-}
-
-export interface LogRequest extends Request {
-    body: {
-        logs: Array<SearchLog | ProductInteractionLog>;
-    };
-}
-
-export interface CookieRequest extends Request {
-    body: {
-        allowAll: boolean;
-    };
-}
+import { CookieRequest, LogRequest } from "./_controllerTypes.js";
 
 export const verifyTrackingId = async (req: Request, res: Response) => {
     try {

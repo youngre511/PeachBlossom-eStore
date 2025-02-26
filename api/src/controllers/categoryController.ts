@@ -2,48 +2,14 @@ import Category from "../models/mongo/categoryModel.js";
 import * as categoryService from "../services/categoryService.js";
 
 import { BooleString } from "../../types/api_resp.js";
-//Types and Interfaces
-import { CategoryItem } from "../models/mongo/categoryModel.js";
 import { Request, Response } from "express";
-
-interface CategoryParamsIdRequest extends Request {
-    params: {
-        id: string;
-    };
-}
-
-interface CategoryParamsNameRequest extends Request {
-    params: {
-        name: string;
-    };
-}
-
-interface SubcategoryParamsNameRequest extends Request {
-    params: {
-        subcategoryName: string;
-    };
-}
-
-interface CategoryCreateRequest extends Request {
-    body: {
-        name: string;
-    };
-}
-
-interface SubcategoryCreateRequest extends Request {
-    params: {
-        categoryName: string;
-    };
-    body: {
-        subcategoryName: string;
-    };
-}
-interface CategoryUpdateRequest extends Request {
-    body: {
-        oldName: string;
-        newName: string;
-    };
-}
+import {
+    CategoryCreateRequest,
+    CategoryParamsNameRequest,
+    CategoryUpdateRequest,
+    SubcategoryCreateRequest,
+    SubcategoryParamsNameRequest,
+} from "./_controllerTypes.js";
 
 export const getAllCategories = async (req: Request, res: Response) => {
     try {

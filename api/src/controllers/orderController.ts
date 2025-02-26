@@ -1,108 +1,13 @@
-import { Request, Response, RequestHandler } from "express";
+import { Response, RequestHandler } from "express";
 import * as orderService from "../services/orderService.js";
-import { verifyToken } from "../utils/jwt.js";
 import { getCustomerIdFromUsername } from "../services/userService.js";
-
-export interface ShippingDetails {
-    shippingAddress: string;
-    shippingAddress2: string;
-    firstName: string;
-    lastName: string;
-    zipCode: string;
-    phoneNumber: string;
-    stateAbbr: string;
-    city: string;
-}
-export interface OrderData {
-    cartId: number | null;
-    customerId?: number;
-    shipping: ShippingDetails;
-    email: string;
-    orderDetails: {
-        subTotal: number;
-        shipping: number;
-        tax: number;
-        totalAmount: number;
-        items: Array<{
-            productNo: string;
-            quantity: number;
-            priceAtCheckout: number;
-        }>;
-    };
-}
-
-interface PlaceOrderRequest extends Request {
-    body: {
-        orderData: OrderData;
-        save?: boolean;
-    };
-}
-
-interface PlaceOrderResponse extends Response {
-    success: boolean;
-    message: string;
-    orderNo: string;
-}
-
-interface GetOneOrderRequest extends Request {
-    params: {
-        orderNo: string;
-    };
-    query: {
-        email?: string;
-    };
-}
-
-export interface GetOrdersFilters {
-    sort: string;
-    orderStatus?: string[];
-    search?: string;
-    state?: string[];
-    customerId?: number;
-    startDate?: string;
-    endDate?: string;
-    page: string;
-    itemsPerPage: string;
-}
-
-interface GetOrdersRequest extends Request {
-    query: {
-        sort: string;
-        orderStatus?: string[];
-        search?: string;
-        state?: string[];
-        startDate?: string;
-        endDate?: string;
-        page: string;
-        itemsPerPage: string;
-    };
-}
-
-export interface UpdateItem {
-    order_item_id: number;
-    quantity: number;
-    fulfillmentStatus: string;
-}
-
-export interface UpdateOrder {
-    orderNo: string;
-    subTotal: number;
-    shipping: number;
-    tax: number;
-    totalAmount: number;
-    shippingAddress: string;
-    stateAbbr: string;
-    city: string;
-    zipCode: string;
-    phoneNumber: string;
-    email: string;
-    orderStatus: string;
-    items: UpdateItem[];
-}
-
-interface UpdateOrderRequest extends Request {
-    body: UpdateOrder;
-}
+import {
+    GetOneOrderRequest,
+    GetOrdersRequest,
+    PlaceOrderRequest,
+    PlaceOrderResponse,
+    UpdateOrderRequest,
+} from "./_controllerTypes.js";
 
 //// Order Functions
 export const placeOrder: RequestHandler = async (

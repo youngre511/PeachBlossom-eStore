@@ -1,7 +1,7 @@
 import { Op } from "sequelize";
 import { sqlProduct } from "../models/mysql/sqlProductModel.js";
 import { sqlPromotion } from "../models/mysql/sqlPromotionModel.js";
-import { RawJoinReqProduct } from "../services/serviceTypes.js";
+import { RawJoinReqProduct } from "../services/_serviceTypes.js";
 
 export const calculateFinalPrice = async (product: RawJoinReqProduct) => {
     const currentDate = new Date();

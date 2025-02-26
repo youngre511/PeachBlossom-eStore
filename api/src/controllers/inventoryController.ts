@@ -1,27 +1,10 @@
 import * as inventoryService from "../services/inventoryService.js";
 import { Request, Response } from "express";
-import { AdminFilterObj } from "../services/serviceTypes.js";
-
-interface CartIdRequest extends Request {
-    body: {
-        cartId: number;
-    };
-}
-
-interface AdjustHoldQuantityRequest extends Request {
-    body: {
-        cartId: number;
-        adjustment: number;
-        productNo: string;
-    };
-}
-
-interface StockUpdateRequest extends Request {
-    body: {
-        updateData: Record<string, number>;
-        filters: AdminFilterObj;
-    };
-}
+import {
+    AdjustHoldQuantityRequest,
+    CartIdRequest,
+    StockUpdateRequest,
+} from "./_controllerTypes.js";
 
 export const holdStock = async (req: CartIdRequest, res: Response) => {
     try {
