@@ -1,6 +1,10 @@
 import { Request, Response } from "express";
-import { AdminFilterObj, Color, Material } from "../services/_serviceTypes.js";
-import { Attributes, Promotion } from "../models/mongo/productModel.js";
+import {
+    Attributes,
+    Color,
+    Material,
+    Promotion,
+} from "../models/mongo/productModel.js";
 import { RecentlyViewedItem } from "../models/mysql/sqlCustomerModel.js";
 
 /////////////////////////////////////////////////////////////////
@@ -171,11 +175,17 @@ export interface UpdateProduct
     productNo: string;
 }
 
-interface ProductFilters {
+interface BasicFilter {
     [key: string]: string | string[] | undefined;
+    search?: string;
     category?: string;
+    subcategory?: string;
     tags?: string;
     page: string;
+    sort: string;
+    itemsPerPage: string;
+}
+export interface ProductFilters extends BasicFilter {
     color?: Color[];
     material?: Material[];
     minPrice?: string;
@@ -186,32 +196,10 @@ interface ProductFilters {
     maxHeight?: string;
     minDepth?: string;
     maxDepth?: string;
-    sort: string;
-    itemsPerPage: string;
 }
 
-interface AdminProductFilters {
-    [key: string]: string | string[] | undefined;
-    category?: string;
-    subcategory?: string;
-    tags?: string;
-    page: string;
-    sort: string;
-    itemsPerPage: string;
+export interface AdminProductFilters extends BasicFilter {
     view: string;
-    search?: string;
-}
-
-interface UpdateProductDetailsInfo {
-    name?: string;
-    productNo: string;
-    category?: string;
-    subcategory?: string;
-    description?: string;
-    attributes?: string;
-    price?: number;
-    existingImageUrls: string;
-    tags?: Array<string>;
 }
 
 //////////////////PROMOTION//////////////////
@@ -440,7 +428,7 @@ export interface AdjustHoldQuantityRequest extends Request {
 export interface StockUpdateRequest extends Request {
     body: {
         updateData: Record<string, number>;
-        filters: AdminFilterObj;
+        filters: AdminProductFilters;
     };
 }
 
@@ -531,7 +519,7 @@ export interface PromoParamsRequest extends Request {
 }
 
 export interface UpdateProductDetailsRequest extends Request {
-    body: UpdateProductDetailsInfo;
+    body: UpdateProduct;
     images?:
         | Express.Multer.File[]
         | { [fieldname: string]: Express.Multer.File[] };
@@ -599,7 +587,7 @@ export interface UserIdParamsRequest extends Request {
     };
 }
 
-export interface GetRequest extends Request {
+export interface GetUsersRequest extends Request {
     query: {
         page: string;
         usersPerPage: string;
