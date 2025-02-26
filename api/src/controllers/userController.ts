@@ -8,14 +8,14 @@ import {
     ChangeUsernameRequest,
     CloseAccountRequest,
     EditCustomerAddressRequest,
-    GetRequest,
+    GetUsersRequest,
     RemoveCustomerAddressRequest,
     ResetPasswordRequest,
     SyncReviewedRequest,
     UserIdParamsRequest,
 } from "./_controllerTypes.js";
 
-export const getAdmins = async (req: GetRequest, res: Response) => {
+export const getAdmins = async (req: GetUsersRequest, res: Response) => {
     try {
         const { searchString, accessLevel, page, usersPerPage } = req.query;
         if (!accessLevel) {
@@ -44,7 +44,7 @@ export const getAdmins = async (req: GetRequest, res: Response) => {
     }
 };
 
-export const getCustomers = async (req: GetRequest, res: Response) => {
+export const getCustomers = async (req: GetUsersRequest, res: Response) => {
     try {
         const { searchString, page, usersPerPage } = req.query;
         const results = await userService.getCustomers(

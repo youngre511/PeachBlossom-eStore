@@ -16,7 +16,9 @@ import sequelize from "../models/mysql/index.js";
 import { uploadFile, deleteFile } from "./s3Service.js";
 import mongoose, { ClientSession, Types, Schema } from "mongoose";
 import {
+    AdminProductFilters,
     CreateProduct,
+    ProductFilters,
     UpdateProduct,
 } from "../controllers/_controllerTypes.js";
 import { sqlSubcategory } from "../models/mysql/sqlSubcategoryModel.js";
@@ -28,10 +30,8 @@ import { sqlCartItem } from "../models/mysql/sqlCartItemModel.js";
 import { sqlOrderItem } from "../models/mysql/sqlOrderItemModel.js";
 import {
     AdminCatalogResponse,
-    AdminFilterObj,
     AggregateProduct,
     CatalogResponse,
-    FilterObject,
     JoinReqCountAdminProduct,
 } from "./_serviceTypes.js";
 import processImages from "../utils/processImages.js";
@@ -79,7 +79,7 @@ export const getSearchOptions = async () => {
 
 ////// GET SORTED AND FILTERED PRODUCTS WITH OUT OF STOCK PRODUCTS LISTED LAST//////
 
-export const getProducts = async (filters: FilterObject) => {
+export const getProducts = async (filters: ProductFilters) => {
     try {
         console.log("Filters:", filters);
         if (!filters.page) {
@@ -166,10 +166,10 @@ export const getProducts = async (filters: FilterObject) => {
         for (const param of minMaxParams) {
             const minParam = `min${
                 param.charAt(0).toUpperCase() + param.slice(1)
-            }` as keyof FilterObject;
+            }` as keyof ProductFilters;
             const maxParam = `max${
                 param.charAt(0).toUpperCase() + param.slice(1)
-            }` as keyof FilterObject;
+            }` as keyof ProductFilters;
             if (filters[minParam]) {
                 matchConditions[
                     `${
@@ -318,7 +318,7 @@ export const getProducts = async (filters: FilterObject) => {
 
 ////// GET SORTED AND FILTERED ADMIN PRODUCTS //////
 
-export const getAdminProducts = async (filters: AdminFilterObj) => {
+export const getAdminProducts = async (filters: AdminProductFilters) => {
     try {
         if (!filters.sort) {
             filters.sort = "name-ascend";
