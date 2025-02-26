@@ -429,7 +429,11 @@ const Nav: React.FC<Props> = () => {
                                         value={searchQuery}
                                         onChange={(
                                             e: ChangeEvent<HTMLInputElement>
-                                        ) => setSearchQuery(e.target.value)}
+                                        ) =>
+                                            setSearchQuery(
+                                                e.target.value.substring(0, 150)
+                                            )
+                                        }
                                         fullWidth
                                         sx={{
                                             backgroundColor: "white",
