@@ -374,18 +374,6 @@ const AVProductDetails: React.FC = () => {
     const handleSave = async () => {
         setIsConfirming(false);
         setIsSaving(true);
-        type updateSubmission = {
-            name: string;
-            price: number;
-            category: string;
-            subcategory: string;
-            color: string;
-            material: string[];
-            attributes: string;
-            description: string;
-            existingImageUrls: string[];
-            images: ImageListType;
-        };
 
         if (currentDetails) {
             const formData = new FormData();
