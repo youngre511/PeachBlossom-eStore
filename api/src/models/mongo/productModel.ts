@@ -48,38 +48,45 @@ export interface PopulatedProductItem extends Document {
     updatedAt?: Date;
 }
 
-type Material =
-    | "glass"
-    | "plastic"
-    | "ceramic"
-    | "metal"
-    | "wood"
-    | "fabric"
-    | "leather"
-    | "stone"
-    | "rubber"
-    | "resin"
-    | "natural fiber"
-    | "bamboo";
+export const colorsList = [
+    "red",
+    "orange",
+    "yellow",
+    "green",
+    "blue",
+    "purple",
+    "pink",
+    "gold",
+    "silver",
+    "white",
+    "gray",
+    "black",
+    "brown",
+    "cream",
+    "beige",
+    "multicolor",
+    "clear",
+] as const;
+
+export const materialsList = [
+    "glass",
+    "plastic",
+    "ceramic",
+    "metal",
+    "wood",
+    "fabric",
+    "leather",
+    "stone",
+    "rubber",
+    "resin",
+    "natural fiber",
+    "bamboo",
+] as const;
+
+export type Color = (typeof colorsList)[number];
+export type Material = (typeof materialsList)[number];
 export interface Attributes {
-    color:
-        | "red"
-        | "orange"
-        | "yellow"
-        | "green"
-        | "blue"
-        | "purple"
-        | "pink"
-        | "gold"
-        | "silver"
-        | "white"
-        | "gray"
-        | "black"
-        | "brown"
-        | "cream"
-        | "beige"
-        | "multicolor"
-        | "clear";
+    color: Color;
     material: Material[];
     // Dimensions in inches
     weight: number;
