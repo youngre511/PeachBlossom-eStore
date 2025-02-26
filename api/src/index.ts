@@ -2,6 +2,7 @@ import express from "express";
 const app = express();
 import cors, { CorsOptions } from "cors";
 import logger from "morgan";
+import mongoSanitize from "express-mongo-sanitize";
 import connectToMongoDB from "./db/mongodb.js";
 import connectToMySQLDatabase from "./db/mysql.js";
 import dotenv from "dotenv";
@@ -50,6 +51,9 @@ app.use(logger("dev"));
 
 // parse cookies
 app.use(cookieParser());
+
+// sanitize requests for mongoDB
+app.use(mongoSanitize());
 
 app.get("/set-test-cookie", (req, res) => {
     res.cookie("test", "value", {
