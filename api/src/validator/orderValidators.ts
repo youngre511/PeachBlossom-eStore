@@ -41,9 +41,11 @@ export const orderDataSchema = z.object({
     orderDetails: orderDetailsSchema,
 });
 
-const updateItemSchema = z.object({
-    quantity: z.number({ message: "Quantity must be a number" }),
-});
+const updateItemSchema = z
+    .object({
+        quantity: z.number({ message: "Quantity must be a number" }),
+    })
+    .passthrough();
 
 export const updateOrderDataSchema = z.object({
     ...shippingDetailsSchema.omit({ firstName: true, lastName: true }).shape,
