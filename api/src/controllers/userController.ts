@@ -59,7 +59,7 @@ export const getCustomers = async (req: GetUsersRequest, res: Response) => {
         });
     } catch (error) {
         let errorObj = {
-            message: "get admins failure",
+            message: "get customers failure",
             payload: error,
         };
 
