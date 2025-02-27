@@ -5,20 +5,9 @@ import {
     productNoSchema,
     sanitizeEmailSchema,
     sanitizeStringSchema,
+    shippingDetailsSchema,
 } from "./commonSchemas.js";
-
-const shippingDetailsSchema = z.object({
-    shippingAddress: sanitizeStringSchema("shipping address"),
-    shippingAddress2: sanitizeStringSchema(
-        "shipping address line 2"
-    ).optional(),
-    firstName: sanitizeStringSchema("first name"),
-    lastName: sanitizeStringSchema("last name"),
-    zipCode: sanitizeStringSchema("zip code", 10),
-    phoneNumber: sanitizeStringSchema("phone number", 15),
-    stateAbbr: sanitizeStringSchema("state abbreviation", 2),
-    city: sanitizeStringSchema("city", 60),
-});
+import { ORDER_NO_LENGTH } from "../constants/constants.js";
 
 const orderItemSchema = z.object({
     productNo: productNoSchema,
@@ -39,6 +28,11 @@ export const orderDataSchema = z.object({
     shipping: shippingDetailsSchema,
     email: sanitizeEmailSchema(),
     orderDetails: orderDetailsSchema,
+});
+
+export const placeOrderSchema = z.object({
+    orderData: orderDataSchema,
+    save: z.boolean({ message: "Save must be a boolean" }).optional(),
 });
 
 const updateItemSchema = z
@@ -70,4 +64,9 @@ export const ordersFilterSchema = z.object({
         .string({ message: "Date must be in ISO format" })
         .date()
         .optional(),
+});
+
+export const orderNoSchema = z.object({
+    orderNo: sanitizeStringSchema("orderNo", ORDER_NO_LENGTH),
+    // orderNo: z.string().nanoid(ORDER_NO_LENGTH),
 });

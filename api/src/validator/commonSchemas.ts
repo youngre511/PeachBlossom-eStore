@@ -69,3 +69,20 @@ export const filterSchema = z.object({
     sort: sanitizeStringSchema("sort"),
     tags: z.array(sanitizeStringSchema("tag", 20)).optional(),
 });
+
+export const emailSchema = z.object({
+    email: sanitizeEmailSchema(),
+});
+
+export const shippingDetailsSchema = z.object({
+    shippingAddress: sanitizeStringSchema("shipping address"),
+    shippingAddress2: sanitizeStringSchema(
+        "shipping address line 2"
+    ).optional(),
+    firstName: sanitizeStringSchema("first name"),
+    lastName: sanitizeStringSchema("last name"),
+    zipCode: sanitizeStringSchema("zip code", 10),
+    phoneNumber: sanitizeStringSchema("phone number", 15),
+    stateAbbr: sanitizeStringSchema("state abbreviation", 2),
+    city: sanitizeStringSchema("city", 60),
+});

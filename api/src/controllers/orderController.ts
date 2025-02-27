@@ -142,7 +142,7 @@ export const getCustomerOrders = async (
         if (!req.user) {
             throw new Error("No user token provided");
         }
-        console.log("USERNAME:", req.user.username);
+
         const customerId = await getCustomerIdFromUsername(req.user.username);
         if (!customerId) {
             throw new Error("Unable to extract customerId from username");
