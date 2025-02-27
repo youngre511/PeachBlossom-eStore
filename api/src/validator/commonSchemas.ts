@@ -86,3 +86,9 @@ export const shippingDetailsSchema = z.object({
     stateAbbr: sanitizeStringSchema("state abbreviation", 2),
     city: sanitizeStringSchema("city", 60),
 });
+
+export const quantitySchema = z
+    .object({
+        quantity: z.number(),
+    })
+    .passthrough();
