@@ -1,6 +1,7 @@
 import { customAlphabet } from "nanoid";
 import { sqlOrder } from "../models/mysql/sqlOrderModel.js";
-const nanoid = customAlphabet("1234567890ABCDEF", 8);
+import { ORDER_NO_LENGTH } from "../constants/constants.js";
+const nanoid = customAlphabet("1234567890ABCDEF", ORDER_NO_LENGTH);
 
 export const generateOrderNo = async (): Promise<string> => {
     try {
