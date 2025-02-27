@@ -5,10 +5,8 @@ export const sanitize =
     (schema: ZodSchema, location: "body" | "query" | "params" = "query") =>
     (req: Request, res: Response, next: NextFunction) => {
         try {
-            console.log("PRE VALIDATION:", req[location]);
             // Validate request input and update `req`
             const validatedData = schema.parse(req[location]);
-            console.log("VALIDATED:", validatedData);
             req[location] = validatedData;
             next();
         } catch (err) {
