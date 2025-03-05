@@ -137,12 +137,12 @@ const CustomerManagement: React.FC = () => {
             setErrorMessage("Something went wrong. No user_id to delete.");
             setIsError(true);
         } else {
-            dispatch(deleteUser({ user_id: deleteId, userRole: "admin" }));
+            dispatch(deleteUser({ user_id: deleteId, userRole: "customer" }));
         }
     };
 
     const handleResetPassword = (user_id: number) => {
-        dispatch(resetUserPassword({ user_id, userRole: "admin" }));
+        dispatch(resetUserPassword({ user_id, userRole: "customer" }));
     };
 
     return (

@@ -26,7 +26,6 @@ const CustomerListRow: React.FC<Props> = ({
 }) => {
     const { width, isTouchDevice } = useWindowSizeContext();
     const [open, setOpen] = useState<boolean>(false);
-    console.log(row);
 
     const navigate = useNavigate();
 
