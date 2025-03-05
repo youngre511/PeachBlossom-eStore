@@ -1,6 +1,5 @@
 import { sqlUser } from "../models/mysql/sqlUserModel.js";
 import argon2 from "argon2";
-import jwt from "jsonwebtoken";
 import sequelize from "../models/mysql/index.js";
 import { Model } from "sequelize";
 import { sqlCustomer } from "../models/mysql/sqlCustomerModel.js";
@@ -8,12 +7,7 @@ import { sqlAdmin } from "../models/mysql/sqlAdminModel.js";
 import { generateAccessToken, generateRefreshToken } from "../utils/jwt.js";
 import { v4 as uuidv4 } from "uuid";
 import { sqlRefreshToken } from "../models/mysql/sqlRefreshTokenModel.js";
-import { sqlCart } from "../models/mysql/sqlCartModel.js";
-import {
-    assignCartToCustomer,
-    loginCartProcessing,
-    mergeCarts,
-} from "./cartService.js";
+import { loginCartProcessing } from "./cartService.js";
 import { associateUserId } from "./activityService.js";
 
 interface IUser extends Model {
@@ -247,13 +241,10 @@ export const login = async (
         }
 
         const accessTokenPayload = {
-            user_id: user.user_id,
             username: user.username,
             role: user.role,
-            customer_id: customer?.customer_id,
             firstName: customer?.firstName,
             lastName: customer?.lastName,
-            admin_id: admin?.admin_id,
             accessLevel: admin?.accessLevel,
             defaultPassword: user.defaultPassword,
         };
@@ -326,13 +317,10 @@ export const refreshAccessToken = async (user_id: number, oldJti: string) => {
         }
 
         const accessTokenPayload = {
-            user_id: user.user_id,
             username: user.username,
             role: user.role,
-            customer_id: customer?.customer_id,
             firstName: customer?.firstName,
             lastName: customer?.lastName,
-            admin_id: admin?.admin_id,
             accessLevel: admin?.accessLevel,
         };
 
