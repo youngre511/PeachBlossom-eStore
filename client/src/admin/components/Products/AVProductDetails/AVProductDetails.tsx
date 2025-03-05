@@ -28,6 +28,10 @@ import StatusPopup from "../../../../common/components/StatusPopup";
 import { AuthContext } from "../../../../common/contexts/authContext";
 import { useNavigationContext } from "../../../../common/contexts/navContext";
 import { axiosLogAndSetState } from "../../../../common/utils/axiosLogAndSetState";
+import { inputStyle, readOnlyStyle } from "../productInputStyles";
+import ProductInfoForm from "./ProductDetailComponents/ProductInfoForm";
+import ProductDimensionsForm from "./ProductDetailComponents/ProductDimensionsForm";
+import ProductActionButtons from "./ProductDetailComponents/ProductActionButtons";
 
 ///////////////////
 ///////TYPES///////
@@ -64,134 +68,6 @@ interface OneProduct {
     images: string[];
     tags: string[] | null;
 }
-
-///////////////////////
-///////Constants///////
-///////////////////////
-
-const colorOptions = [
-    "red",
-    "orange",
-    "yellow",
-    "green",
-    "blue",
-    "purple",
-    "pink",
-    "gold",
-    "silver",
-    "white",
-    "gray",
-    "black",
-    "brown",
-    "cream",
-    "beige",
-    "multicolor",
-    "clear",
-];
-const materialOptions = [
-    "glass",
-    "plastic",
-    "ceramic",
-    "metal",
-    "wood",
-    "fabric",
-    "leather",
-    "stone",
-    "rubber",
-    "resin",
-    "natural fiber",
-    "bamboo",
-];
-
-/////////////////////////
-///////FIELD STYLE///////
-/////////////////////////
-
-export const inputStyle = {
-    // backgroundColor: "white",
-    "&.MuiFilledInput-root": {
-        borderRadius: 0,
-        backgroundColor: "white",
-        "&.Mui-disabled": {
-            backgroundColor: "peach.light",
-        },
-    },
-    "&.MuiFilledInput-input": {
-        backgroundColor: "white",
-    },
-    "&.MuiInputBase-root": {
-        backgroundColor: "white",
-        "&.MuiFilledInput-root": {
-            backgroundColor: "white",
-            "&.Mui-disabled": {
-                backgroundColor: "peach.light",
-            },
-        },
-    },
-    "& .MuiInputBase-input.MuiFilledInput-input:focus": {
-        backgroundColor: "white",
-    },
-    "& .MuiInputBase-root.MuiFilledInput-root.MuiFilledInput-underline.MuiInputBase-adornedStart":
-        {
-            backgroundColor: "white",
-        },
-    "& .MuiInputBase-root.MuiFilledInput-root.MuiFilledInput-underline.MuiInputBase-adornedEnd":
-        {
-            backgroundColor: "white",
-        },
-    "& .MuiInputBase-root.MuiFilledInput-root": {
-        backgroundColor: "white",
-    },
-};
-
-export const readOnlyStyle = {
-    "& .MuiInputBase-root.MuiInput-root": {
-        marginTop: 0,
-        padding: 0,
-    },
-    "& .MuiInputAdornment-root": {
-        paddingRight: "12px",
-    },
-    "& .MuiInputAdornment-root.MuiInputAdornment-positionStart": {
-        marginTop: "16px",
-        marginRight: "-4px",
-        paddingRight: 0,
-        paddingLeft: "12px",
-    },
-    "& .MuiInputLabel-root": {
-        transform: "translate(12px, 7px) scale(0.75)",
-    },
-    "& .MuiInputBase-input": {
-        padding: "25px 12px 8px 12px",
-    },
-    "& .MuiInputBase-root:before": {
-        borderBottom: "1px solid rgba(0, 0, 0, 0.42)",
-    },
-    "& .MuiInputLabel-root.Mui-focused": {
-        color: "rgba(0, 0, 0, 0.6)",
-    },
-    "& .MuiInputBase-root:hover:not(.Mui-disabled):before": {
-        borderBottom: "1px solid rgba(0, 0, 0, 0.42)",
-    },
-    "& .MuiSelect-root:hover:before": {
-        borderBottom: "1px solid rgba(0, 0, 0, 0.42)",
-    },
-    "& .MuiInputBase-root:after": {
-        borderBottom: "1px solid rgba(0, 0, 0, 0.42)",
-    },
-    "& .MuiInput-underline:after": {
-        borderBottom: "none",
-    },
-    "& .MuiSelect-icon": {
-        display: "none",
-    },
-    "&:hover:not(.Mui-disabled):before": {
-        borderBottom: "1px solid rgba(0, 0, 0, 0.42)",
-    },
-    "&:after": {
-        border: "none",
-    },
-};
 
 ////////////////////////////
 ///////MAIN COMPONENT///////
@@ -460,7 +336,7 @@ const AVProductDetails: React.FC = () => {
                 }
                 const token = localStorage.getItem("jwtToken");
                 try {
-                    const response = await axios.put(
+                    await axios.put(
                         `${
                             import.meta.env.VITE_API_URL
                         }/product/update-details`,
@@ -553,346 +429,41 @@ const AVProductDetails: React.FC = () => {
                         lg: 7,
                     }}
                 >
-                    <TextField
-                        fullWidth
-                        variant={editMode ? "filled" : "standard"}
-                        id="name"
-                        label="ProductName"
-                        required={editMode ? true : false}
-                        slotProps={{
-                            htmlInput: {
-                                sx: editMode
-                                    ? { backgroundColor: "white" }
-                                    : undefined,
-                                readOnly: editMode ? false : true,
-                            },
-                        }}
-                        sx={editMode ? inputStyle : readOnlyStyle}
-                        value={productName}
-                        onChange={(e) => setProductName(e.target.value)}
+                    <ProductInfoForm
+                        productName={productName}
+                        setProductName={setProductName}
+                        productNo={productNo}
+                        price={price}
+                        setPrice={setPrice}
+                        handleDecimalInput={handleDecimalInput}
+                        handleDecimalBlur={handleDecimalBlur}
+                        category={category}
+                        setCategory={setCategory}
+                        subcategory={subcategory}
+                        setSubcategory={setSubcategory}
+                        categoryOptions={categoryOptions}
+                        subcategories={subcategories}
+                        color={color}
+                        setColor={setColor}
+                        materials={materials}
+                        setMaterials={setMaterials}
+                        editMode={editMode}
                     />
-
-                    <Grid
-                        columnSpacing={3}
-                        sx={{ display: "flex", flexWrap: "wrap" }}
-                        container
-                        size={12}
-                    >
-                        <Grid size={6}>
-                            <TextField
-                                fullWidth
-                                variant={editMode ? "filled" : "standard"}
-                                id="productNo"
-                                label="Product Number"
-                                required={false}
-                                slotProps={{
-                                    htmlInput: {
-                                        sx: editMode
-                                            ? { backgroundColor: "white" }
-                                            : undefined,
-                                        readOnly: true,
-                                    },
-                                }}
-                                sx={editMode ? inputStyle : readOnlyStyle}
-                                value={productNo}
-                            />
-                        </Grid>
-                        <Grid size={6}>
-                            <TextField
-                                fullWidth
-                                variant={editMode ? "filled" : "standard"}
-                                id="price"
-                                label="Price"
-                                required={editMode ? true : false}
-                                slotProps={{
-                                    input: {
-                                        startAdornment: (
-                                            <InputAdornment position="start">
-                                                $
-                                            </InputAdornment>
-                                        ),
-                                    },
-                                    htmlInput: {
-                                        pattern: "^d*.?d{0,2}$",
-                                        inputMode: "decimal",
-                                        sx: editMode
-                                            ? {
-                                                  backgroundColor:
-                                                      "white !important",
-                                              }
-                                            : undefined,
-                                        readOnly: editMode ? false : true,
-                                    },
-                                }}
-                                sx={editMode ? inputStyle : readOnlyStyle}
-                                value={price}
-                                onChange={(e) =>
-                                    handleDecimalInput(e, setPrice)
-                                }
-                                onBlur={(e) => handleDecimalBlur(e, setPrice)}
-                            />
-                        </Grid>
-                    </Grid>
-                    <Grid
-                        spacing={3}
-                        sx={{ display: "flex", flexWrap: "wrap" }}
-                        container
-                        size={12}
-                    >
-                        <Grid
-                            size={{
-                                xs: 12,
-                                sm: 6,
-                            }}
-                        >
-                            <SelectFieldNonFormik
-                                label="Category"
-                                name="category"
-                                multiple={false}
-                                required={editMode ? true : false}
-                                readOnly={editMode ? false : true}
-                                options={categoryOptions}
-                                sx={editMode ? inputStyle : readOnlyStyle}
-                                value={category}
-                                setAction={setCategory}
-                                variant={editMode ? "filled" : "standard"}
-                            />
-                        </Grid>
-                        <Grid
-                            size={{
-                                xs: 12,
-                                sm: 6,
-                            }}
-                        >
-                            <SelectFieldNonFormik
-                                label="Subcategory"
-                                name="subcategory"
-                                multiple={false}
-                                required={false}
-                                options={subcategories}
-                                readOnly={editMode ? false : true}
-                                sx={editMode ? inputStyle : readOnlyStyle}
-                                value={
-                                    subcategories !== "disabled" && subcategory
-                                        ? subcategory
-                                        : ""
-                                }
-                                setAction={setSubcategory}
-                                variant={editMode ? "filled" : "standard"}
-                            />
-                        </Grid>
-                    </Grid>
-                    <Grid
-                        spacing={3}
-                        sx={{ display: "flex", flexWrap: "wrap" }}
-                        container
-                        size={12}
-                    >
-                        <Grid
-                            size={{
-                                xs: 12,
-                                sm: 6,
-                            }}
-                        >
-                            <SelectFieldNonFormik
-                                label="Color"
-                                name="color"
-                                readOnly={editMode ? false : true}
-                                multiple={false}
-                                required={editMode ? true : false}
-                                options={colorOptions}
-                                sx={editMode ? inputStyle : readOnlyStyle}
-                                setAction={setColor}
-                                value={color}
-                                variant={editMode ? "filled" : "standard"}
-                            />
-                        </Grid>
-                        <Grid
-                            size={{
-                                xs: 12,
-                                sm: 6,
-                            }}
-                        >
-                            <SelectFieldNonFormik
-                                label="Material"
-                                name="material"
-                                readOnly={editMode ? false : true}
-                                multiple={true}
-                                required={editMode ? true : false}
-                                options={materialOptions}
-                                sx={editMode ? inputStyle : readOnlyStyle}
-                                setMultipleAction={setMaterials}
-                                value={materials}
-                                variant={editMode ? "filled" : "standard"}
-                            />
-                        </Grid>
-                    </Grid>
                 </Grid>
                 <Grid container rowSpacing={3} size={12}>
-                    <Grid
-                        sx={{
-                            paddingRight: { xs: "12px", lg: "36px" },
-                        }}
-                        size={{
-                            xs: 6,
-                            lg: 3,
-                        }}
-                    >
-                        <TextField
-                            fullWidth
-                            variant={editMode ? "filled" : "standard"}
-                            id="height"
-                            label="Height"
-                            required={editMode ? true : false}
-                            slotProps={{
-                                input: {
-                                    endAdornment: (
-                                        <InputAdornment position="end">
-                                            in.
-                                        </InputAdornment>
-                                    ),
-                                },
-                                htmlInput: {
-                                    pattern: "^d*.?d{0,2}$",
-                                    inputMode: "decimal",
-                                    sx: editMode
-                                        ? {
-                                              backgroundColor:
-                                                  "white !important",
-                                          }
-                                        : undefined,
-                                    readOnly: editMode ? false : true,
-                                },
-                            }}
-                            sx={editMode ? inputStyle : readOnlyStyle}
-                            value={height}
-                            onChange={(e) => handleDecimalInput(e, setHeight)}
-                            onBlur={(e) => handleDecimalBlur(e, setHeight)}
-                        />
-                    </Grid>
-                    <Grid
-                        sx={{
-                            paddingLeft: { xs: "12px", lg: "12px" },
-                            paddingRight: { lg: "24px" },
-                        }}
-                        size={{
-                            xs: 6,
-                            lg: 3,
-                        }}
-                    >
-                        <TextField
-                            fullWidth
-                            variant={editMode ? "filled" : "standard"}
-                            id="width"
-                            label="Width"
-                            required={editMode ? true : false}
-                            slotProps={{
-                                input: {
-                                    endAdornment: (
-                                        <InputAdornment position="end">
-                                            in.
-                                        </InputAdornment>
-                                    ),
-                                },
-                                htmlInput: {
-                                    pattern: "^d*.?d{0,2}$",
-                                    inputMode: "decimal",
-                                    sx: editMode
-                                        ? {
-                                              backgroundColor:
-                                                  "white !important",
-                                          }
-                                        : undefined,
-                                    readOnly: editMode ? false : true,
-                                },
-                            }}
-                            sx={editMode ? inputStyle : readOnlyStyle}
-                            value={width}
-                            onChange={(e) => handleDecimalInput(e, setWidth)}
-                            onBlur={(e) => handleDecimalBlur(e, setWidth)}
-                        />
-                    </Grid>
-                    <Grid
-                        sx={{
-                            paddingRight: "12px",
-                            paddingLeft: { lg: "24px" },
-                        }}
-                        size={{
-                            xs: 6,
-                            lg: 3,
-                        }}
-                    >
-                        <TextField
-                            fullWidth
-                            variant={editMode ? "filled" : "standard"}
-                            id="depth"
-                            label="Depth"
-                            required={editMode ? true : false}
-                            slotProps={{
-                                input: {
-                                    endAdornment: (
-                                        <InputAdornment position="end">
-                                            in.
-                                        </InputAdornment>
-                                    ),
-                                },
-                                htmlInput: {
-                                    pattern: "^d*.?d{0,2}$",
-                                    inputMode: "decimal",
-                                    sx: editMode
-                                        ? {
-                                              backgroundColor:
-                                                  "white !important",
-                                          }
-                                        : undefined,
-                                    readOnly: editMode ? false : true,
-                                },
-                            }}
-                            sx={editMode ? inputStyle : readOnlyStyle}
-                            value={depth}
-                            onChange={(e) => handleDecimalInput(e, setDepth)}
-                            onBlur={(e) => handleDecimalBlur(e, setDepth)}
-                        />
-                    </Grid>
-                    <Grid
-                        sx={{ paddingLeft: { xs: "12px", lg: "36px" } }}
-                        size={{
-                            xs: 6,
-                            lg: 3,
-                        }}
-                    >
-                        <TextField
-                            fullWidth
-                            variant={editMode ? "filled" : "standard"}
-                            id="weight"
-                            label="Weight"
-                            required={editMode ? true : false}
-                            slotProps={{
-                                input: {
-                                    endAdornment: (
-                                        <InputAdornment position="end">
-                                            lbs.
-                                        </InputAdornment>
-                                    ),
-                                },
-                                htmlInput: {
-                                    pattern: "^d*.?d{0,2}$",
-                                    inputMode: "decimal",
-                                    sx: editMode
-                                        ? {
-                                              backgroundColor:
-                                                  "white !important",
-                                          }
-                                        : undefined,
-                                    readOnly: editMode ? false : true,
-                                },
-                            }}
-                            sx={editMode ? inputStyle : readOnlyStyle}
-                            value={weight}
-                            onChange={(e) => handleDecimalInput(e, setWeight)}
-                            onBlur={(e) => handleDecimalBlur(e, setWeight)}
-                        />
-                    </Grid>
+                    <ProductDimensionsForm
+                        weight={weight}
+                        setWeight={setWeight}
+                        height={height}
+                        setHeight={setHeight}
+                        width={width}
+                        setWidth={setWidth}
+                        depth={depth}
+                        setDepth={setDepth}
+                        editMode={editMode}
+                        handleDecimalInput={handleDecimalInput}
+                        handleDecimalBlur={handleDecimalBlur}
+                    />
                 </Grid>
                 <Grid size={12}>
                     <TextField
@@ -927,81 +498,15 @@ const AVProductDetails: React.FC = () => {
                         flexDirection: { xs: "column-reverse", md: "row" },
                     }}
                 >
-                    <Button
-                        variant="outlined"
-                        sx={{
-                            color: "black",
-                            width: {
-                                xs: "100%",
-
-                                md: "auto",
-                            },
-                        }}
-                        onClick={() =>
-                            navigate(previous.path || "/products/manage")
-                        }
-                    >
-                        &lt; Back to {previous.name}
-                    </Button>
-                    {editMode && (
-                        <Box
-                            className="edit-mode-buttons"
-                            sx={{
-                                mb: { xs: 2, md: 0 },
-                                width: { xs: "100%", md: "auto" },
-                            }}
-                        >
-                            <Button
-                                variant="contained"
-                                onClick={() => setIsConfirming(true)}
-                                disabled={accessLevel === "view only"}
-                                sx={{
-                                    width: {
-                                        xs: "calc(50% - 10px)",
-                                        md: "auto",
-                                    },
-                                }}
-                            >
-                                Save Changes
-                            </Button>
-                            <Button
-                                sx={{
-                                    marginLeft: "20px",
-                                    width: {
-                                        xs: "calc(50% - 10px)",
-                                        md: "auto",
-                                    },
-                                }}
-                                variant="contained"
-                                onClick={() => {
-                                    searchParams.delete("editing");
-                                    setSearchParams(searchParams);
-                                    setMustFetchData(true);
-                                }}
-                            >
-                                Cancel
-                            </Button>
-                        </Box>
-                    )}
-                    {accessLevel !== "view only" && !editMode && (
-                        <Button
-                            variant="contained"
-                            onClick={() => {
-                                searchParams.set("editing", "true");
-                                setSearchParams(searchParams);
-                            }}
-                            sx={{
-                                mb: { xs: 2, md: 0 },
-                                width: {
-                                    xs: "100%",
-
-                                    md: "auto",
-                                },
-                            }}
-                        >
-                            Edit
-                        </Button>
-                    )}
+                    <ProductActionButtons
+                        editMode={editMode}
+                        setIsConfirming={setIsConfirming}
+                        setMustFetchData={setMustFetchData}
+                        searchParams={searchParams}
+                        setSearchParams={setSearchParams}
+                        accessLevel={accessLevel}
+                        previous={previous}
+                    />
                 </Grid>
             </Grid>
             {isConfirming && (
