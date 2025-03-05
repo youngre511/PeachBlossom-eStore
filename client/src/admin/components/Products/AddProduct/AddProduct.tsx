@@ -240,7 +240,6 @@ const AddProduct: React.FC = () => {
             errors.price = "Price must be greater than 0";
             console.log(errors);
         }
-        console.log(values);
     };
 
     const handleSubmit = async (
