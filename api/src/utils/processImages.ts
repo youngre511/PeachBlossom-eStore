@@ -2,6 +2,10 @@ import { fileTypeFromBuffer } from "file-type";
 import { uploadFile } from "../services/s3Service.js";
 import sharp from "sharp";
 
+/**
+ * @description A function for processing multer-uploaded image files.
+ * Converts an image to webp format if necessary and creates multiple sizes of the image for use in responsive design.
+ */
 const processImages = async (
     images: Array<{ fileContent: Buffer; fileName: string; mimeType: string }>
 ) => {
@@ -19,7 +23,9 @@ const processImages = async (
                 for (const size of sizes) {
                     let processedImageBuffer;
                     const metadata = await sharp(fileContent).metadata();
+
                     if (
+                        // If the file does not match the size or the format, modify both
                         fileMimeType !== "image/webp" &&
                         metadata.width !== size
                     ) {
@@ -28,6 +34,7 @@ const processImages = async (
                             .toFormat("webp")
                             .toBuffer();
                     } else if (
+                        // If the file does not match the format, reformat
                         fileMimeType !== "image/webp" &&
                         metadata.width === size
                     ) {
@@ -35,6 +42,7 @@ const processImages = async (
                             .toFormat("webp")
                             .toBuffer();
                     } else if (
+                        // If the file does not match the size, resize
                         fileMimeType === "image/webp" &&
                         metadata.width !== size
                     ) {
@@ -42,6 +50,7 @@ const processImages = async (
                             .resize({ width: size })
                             .toBuffer();
                     } else {
+                        // Add the image as is
                         processedImageBuffer = fileContent;
                     }
                     const specificFileName = `${fileName}_${size}.webp`;
