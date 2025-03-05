@@ -286,10 +286,11 @@ const CategoryManagement: React.FC<Props> = () => {
             if (!selectedSubcategory) {
                 throw new Error("An unknown error occurred");
             }
+
             await axios.delete(
                 `${
                     import.meta.env.VITE_API_URL
-                }category/subcategory/delete/${selectedSubcategory.subcategoryName.replace(
+                }/category/subcategory/delete/${selectedSubcategory.subcategoryName.replace(
                     " ",
                     "%20"
                 )}`,
