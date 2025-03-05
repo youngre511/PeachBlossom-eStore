@@ -41,6 +41,7 @@ const ChangeCustomerPassword: React.FC<ChangeCustomerPasswordProps> = () => {
                 auth.changePassword(formData.currentPass, formData.newPass);
             }
         }
+        clearData();
     };
 
     const validatePassword = (): boolean => {

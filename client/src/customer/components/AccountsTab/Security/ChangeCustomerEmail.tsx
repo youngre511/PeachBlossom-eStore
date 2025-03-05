@@ -36,6 +36,7 @@ const ChangeCustomerEmail: React.FC<ChangeCustomerEmailProps> = () => {
         if (auth) {
             auth.changeUsername(formData.newEmail, formData.password);
         }
+        clearData();
     };
 
     useEffect(() => {

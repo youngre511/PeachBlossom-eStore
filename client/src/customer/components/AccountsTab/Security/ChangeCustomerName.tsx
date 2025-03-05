@@ -48,6 +48,7 @@ const ChangeCustomerName: React.FC<ChangeCustomerNameProps> = () => {
                 formData.password
             );
         }
+        clearData();
     };
 
     useEffect(() => {

@@ -84,7 +84,9 @@ const ChangeUserData: React.FC<ChangeUserDataProps> = ({
                     >
                         <PeachButton
                             text="save"
-                            onClick={() => {}}
+                            onClick={() => {
+                                setChanging(false);
+                            }}
                             type="submit"
                             width="100%"
                         />

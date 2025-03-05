@@ -311,7 +311,7 @@ export const changeUsername = async (
     const sqlTransaction = await sequelize.transaction();
     try {
         const foundUser = await sqlUser.findOne({
-            where: { user_id: user.username },
+            where: { username: user.username },
         });
         if (!foundUser) {
             throw new Error(`User does not exist`);
@@ -351,13 +351,16 @@ export const changeUsername = async (
         }
 
         await sqlTransaction.commit();
-        const newTokenPayload: any = { ...user, defaultPassword: false };
+        const newTokenPayload: any = {
+            ...user,
+            username: newUsername,
+            defaultPassword: false,
+        };
         delete newTokenPayload.iat;
         delete newTokenPayload.exp;
         const updatedAccessToken = generateAccessToken(
             newTokenPayload as UserPayload
         );
-
         return updatedAccessToken;
     } catch (error) {
         await sqlTransaction.rollback();
@@ -380,7 +383,7 @@ export const changeDisplayName = async (
     const sqlTransaction = await sequelize.transaction();
     try {
         const foundUser = await sqlUser.findOne({
-            where: { user_id: user.username },
+            where: { username: user.username },
         });
         if (!foundUser) {
             throw new Error(`User does not exist`);
@@ -407,13 +410,18 @@ export const changeDisplayName = async (
         }
 
         await sqlTransaction.commit();
-        const newTokenPayload: any = { ...user, defaultPassword: false };
+
+        const newTokenPayload: any = {
+            ...user,
+            firstName: newFirstName,
+            lastName: newLastName,
+            defaultPassword: false,
+        };
         delete newTokenPayload.iat;
         delete newTokenPayload.exp;
         const updatedAccessToken = generateAccessToken(
             newTokenPayload as UserPayload
         );
-
         return updatedAccessToken;
     } catch (error) {
         await sqlTransaction.rollback();
