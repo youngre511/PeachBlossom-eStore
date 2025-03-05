@@ -11,12 +11,12 @@ export const categoryNameSchema = z
             true
         ).optional(),
     })
-    .refine((data) => (data.name ? !data.categoryName : !!data.name), {
+    .refine((data) => (data.name ? !data.categoryName : !!data.categoryName), {
         message: "Provide either 'categoryName' or 'name', not both",
     });
 
 export const subcategoryNameSchema = z.object({
-    subcategoryName: sanitizeStringSchema("category name", 20, 1, true),
+    subcategoryName: sanitizeStringSchema("subcategory name", 20, 1, true),
 });
 
 export const categoryNameUpdateSchema = z.object({
