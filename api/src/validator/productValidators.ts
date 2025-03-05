@@ -11,12 +11,12 @@ import { colorsList, materialsList } from "../models/mongo/productModel.js";
 
 const attributesSchema = z.object({
     color: z.enum(colorsList),
-    material: z.array(z.enum(colorsList)),
-    weight: z.number(),
+    material: z.array(z.enum(materialsList)),
+    weight: z.preprocess((val) => Number(val), z.number()),
     dimensions: z.object({
-        width: z.number(),
-        height: z.number(),
-        depth: z.number(),
+        width: z.preprocess((val) => Number(val), z.number()),
+        height: z.preprocess((val) => Number(val), z.number()),
+        depth: z.preprocess((val) => Number(val), z.number()),
     }),
 });
 
@@ -38,28 +38,52 @@ export const productFilterSchema = z.object({
 
 export const adminProductFilterSchema = z.object({
     ...paginationSchema.shape,
-    ...filterSchema.shape,
-    ...categoriesSchema.shape,
+    ...Object.fromEntries(
+        Object.entries(categoriesSchema.shape).map(([key, schema]) => [
+            key,
+            schema.nullable(),
+        ])
+    ),
+    ...Object.fromEntries(
+        Object.entries(filterSchema.shape).map(([key, schema]) => [
+            key,
+            schema.nullable(),
+        ])
+    ),
     view: sanitizeStringSchema("view", 20),
 });
 
 export const createProductSchema = z.object({
     name: sanitizeStringSchema("product name", 100),
     category: sanitizeStringSchema("category", 20, 1, true),
-    subcategory: sanitizeStringSchema("category", 2, 1, true).optional(),
+    subcategory: sanitizeStringSchema("category", 20, 1, true).optional(),
     prefix: sanitizeStringSchema("prefix", 2),
     description: sanitizeStringSchema("description", 5000),
-    price: z.number({ message: "Price must be a number" }),
-    attributes: attributesSchema,
-    stock: z.number({ message: "Stock must be a number" }).optional(),
+    price: z.preprocess(
+        (val) => Number(val),
+        z.number({ message: "Price must be a number" })
+    ),
+    attributes: z.preprocess(
+        (value) => (typeof value === "string" ? JSON.parse(value) : value),
+        attributesSchema
+    ),
+    stock: z
+        .preprocess(
+            (val) => Number(val),
+            z.number({ message: "Stock must be a number" })
+        )
+        .optional(),
     tags: sanitizeStringSchema("tag", 20).optional(),
 });
 
 export const updateProductSchema = z.object({
     ...createProductSchema.omit({ prefix: true, stock: true }).partial().shape,
-    existingImageUrls: z.array(
-        z.string({ message: "Invalid url format" }).url()
-    ),
+    existingImageUrls: z
+        .preprocess(
+            (value) => (Array.isArray(value) ? value : [value]),
+            z.array(z.string({ message: "Invalid url format" }).url())
+        )
+        .optional(),
     productNo: productNoSchema,
 });
 
