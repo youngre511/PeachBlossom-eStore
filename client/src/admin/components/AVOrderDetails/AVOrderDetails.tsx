@@ -527,11 +527,14 @@ const AVOrderDetails: React.FC = () => {
                         updateInfo[key] = valMap[key];
                     }
                 } else {
-                    updateInfo[key] = currentDetails[key] as string;
+                    if (["subTotal", "tax", "shipping"].includes(key)) {
+                        updateInfo[key] = Number(currentDetails[key]);
+                    } else {
+                        updateInfo[key] = currentDetails[key] as string;
+                    }
                 }
             }
 
-            console.log(newOrderStatus, currentDetails.orderStatus);
             if (
                 newOrderStatus &&
                 newOrderStatus !== currentDetails.orderStatus
@@ -583,9 +586,8 @@ const AVOrderDetails: React.FC = () => {
         }
         if (thereAreChanges) {
             const token = localStorage.getItem("jwtToken");
-            console.log("updateInfo:", updateInfo);
             try {
-                const response = await axios.put(
+                await axios.put(
                     `${import.meta.env.VITE_API_URL}/order/update`,
                     updateInfo,
                     {
