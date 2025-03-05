@@ -80,6 +80,10 @@ export const emailSchema = z.object({
     email: sanitizeEmailSchema(),
 });
 
+export const emailOptionalSchema = z.object({
+    email: sanitizeEmailSchema().optional(),
+});
+
 export const shippingDetailsSchema = z.object({
     shippingAddress: sanitizeStringSchema("shipping address"),
     shippingAddress2: sanitizeStringSchema(
