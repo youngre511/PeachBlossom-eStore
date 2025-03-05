@@ -85,8 +85,6 @@ export const getCustomers = async (
     searchString?: string
 ) => {
     try {
-        console.log("Searchstring:", searchString);
-
         const { offset } = calculatePagination(+page || 1, +usersPerPage);
         const whereClause: any = { [Op.and]: [{ role: "customer" }] };
         const customerWhereClause: any = {};
@@ -142,7 +140,7 @@ export const getCustomers = async (
                 const parsedCustomer = parsedUser.customer.get();
                 parsedUser.customer_id = parsedCustomer.customer_id;
                 parsedUser.email = parsedCustomer.email;
-                parsedUser.totalSpent = parsedCustomer.totalSpent;
+                parsedUser.totalSpent = parsedCustomer.totalSpent || 0;
                 parsedUser.totalOrders = parsedCustomer.totalOrders;
             }
             if (parsedUser.defaultPassword === 0) {

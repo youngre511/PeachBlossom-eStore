@@ -26,6 +26,7 @@ const CustomerListRow: React.FC<Props> = ({
 }) => {
     const { width, isTouchDevice } = useWindowSizeContext();
     const [open, setOpen] = useState<boolean>(false);
+    console.log(row);
 
     const navigate = useNavigate();
 
@@ -77,7 +78,7 @@ const CustomerListRow: React.FC<Props> = ({
                             {row.totalOrders}
                         </TableCell>
                         <TableCell align="left" sx={{ minWidth: "90px" }}>
-                            ${row.totalSpent.toLocaleString()}
+                            ${Number(row.totalSpent).toFixed(2)}
                         </TableCell>
 
                         <TableCell align="left">
