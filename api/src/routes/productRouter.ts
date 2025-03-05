@@ -41,8 +41,8 @@ productRouter.post(
     "/create",
     authMiddleware,
     authorizeRoles(["admin"], ["full", "limited"]),
-    sanitize(createProductSchema, "body"),
     upload.array("images", 10),
+    sanitize(createProductSchema, "body"),
     createProduct
 );
 
@@ -50,8 +50,8 @@ productRouter.put(
     "/update-details",
     authMiddleware,
     authorizeRoles(["admin"], ["full", "limited"]),
-    sanitize(updateProductSchema, "body"),
     upload.array("images", 10),
+    sanitize(updateProductSchema, "body"),
     updateProductDetails
 );
 
