@@ -9,21 +9,20 @@ import {
 } from "../controllers/analyticsController.js";
 import { Router } from "express";
 import { authMiddleware } from "../middleware/authMiddleware.js";
-import { authorizeRoles } from "../middleware/authorize.js";
 const analyticsRouter = Router();
 
-analyticsRouter.get("/rot", getRevenueOverTime);
+analyticsRouter.get("/rot", authMiddleware, getRevenueOverTime);
 
-analyticsRouter.get("/rbc", getRevenueByCategory);
+analyticsRouter.get("/rbc", authMiddleware, getRevenueByCategory);
 
-analyticsRouter.get("/tot", getTransactionsOverTime);
+analyticsRouter.get("/tot", authMiddleware, getTransactionsOverTime);
 
-analyticsRouter.get("/ipt", getItemsPerTransaction);
+analyticsRouter.get("/ipt", authMiddleware, getItemsPerTransaction);
 
-analyticsRouter.get("/aov", getAverageOrderValue);
+analyticsRouter.get("/aov", authMiddleware, getAverageOrderValue);
 
-analyticsRouter.get("/rrp", getRegionRevenuePercentages);
+analyticsRouter.get("/rrp", authMiddleware, getRegionRevenuePercentages);
 
-analyticsRouter.get("/tfp", getTopProducts);
+analyticsRouter.get("/tfp", authMiddleware, getTopProducts);
 
 export default analyticsRouter;
