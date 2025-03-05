@@ -1,6 +1,5 @@
 import { z } from "zod";
 import {
-    createDecimalSchema,
     paginationSchema,
     productNoSchema,
     sanitizeEmailSchema,
@@ -12,7 +11,7 @@ import { ORDER_NO_LENGTH } from "../constants/constants.js";
 const orderItemSchema = z.object({
     productNo: productNoSchema,
     quantity: z.number(),
-    priceAtCheckout: createDecimalSchema("price at checkout"),
+    priceAtCheckout: z.number(),
 });
 
 const orderDetailsSchema = z.object({

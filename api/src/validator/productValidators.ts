@@ -45,8 +45,8 @@ export const adminProductFilterSchema = z.object({
 
 export const createProductSchema = z.object({
     name: sanitizeStringSchema("product name", 100),
-    category: sanitizeStringSchema("category", 20),
-    subcategory: sanitizeStringSchema("category", 20).optional(),
+    category: sanitizeStringSchema("category", 20, 1, true),
+    subcategory: sanitizeStringSchema("category", 2, 1, true).optional(),
     prefix: sanitizeStringSchema("prefix", 2),
     description: sanitizeStringSchema("description", 5000),
     price: z.number({ message: "Price must be a number" }),

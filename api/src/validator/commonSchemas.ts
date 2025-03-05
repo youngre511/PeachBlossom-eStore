@@ -25,12 +25,13 @@ const escapeHTML = (str: string, allowAmp: boolean = false) =>
 export const sanitizeStringSchema = (
     paramName: string,
     maxLength: number = 255,
+    minLength: number = 1,
     allowAmp: boolean = false
 ) =>
     z
         .string()
         .trim()
-        .min(1, `${paramName} cannot be empty`)
+        .min(minLength, `${paramName} cannot be empty`)
         .max(maxLength, `${paramName} is too long`)
         .transform((val) => escapeHTML(val, allowAmp));
 
@@ -59,8 +60,13 @@ export const paginationSchema = z.object({
 });
 
 export const categoriesSchema = z.object({
-    category: sanitizeStringSchema("category name", 20, true).optional(),
-    subcategory: sanitizeStringSchema("subcategory name", 20, true).optional(),
+    category: sanitizeStringSchema("category name", 20, 1, true).optional(),
+    subcategory: sanitizeStringSchema(
+        "subcategory name",
+        20,
+        1,
+        true
+    ).optional(),
 });
 
 // Filters (Sanitization, not required checks)
@@ -77,7 +83,9 @@ export const emailSchema = z.object({
 export const shippingDetailsSchema = z.object({
     shippingAddress: sanitizeStringSchema("shipping address"),
     shippingAddress2: sanitizeStringSchema(
-        "shipping address line 2"
+        "shipping address line 2",
+        255,
+        0
     ).optional(),
     firstName: sanitizeStringSchema("first name"),
     lastName: sanitizeStringSchema("last name"),
