@@ -5,8 +5,9 @@ import { Filters } from "../../../customer/features/ProductCatalog/CatalogTypes"
 interface DecimalTextFieldProps {
     label: string;
     param: string;
-    value: string | string[] | "";
+    value: string | "";
     setLocalFilters: React.Dispatch<React.SetStateAction<Filters>>;
+    formatFunction?: (value: string) => string;
     style: Record<string, string>;
     endAdornment?: ReactNode;
 }
@@ -16,6 +17,7 @@ const DecimalField: React.FC<DecimalTextFieldProps> = ({
     param,
     value = "",
     setLocalFilters,
+    formatFunction,
     style,
     endAdornment,
 }) => {
@@ -27,6 +29,18 @@ const DecimalField: React.FC<DecimalTextFieldProps> = ({
             setLocalFilters((prevFilters) => ({
                 ...prevFilters,
                 [param]: value,
+            }));
+        }
+    };
+
+    const handleBlur = (
+        e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>
+    ) => {
+        const { value } = e.target;
+        if (formatFunction) {
+            setLocalFilters((prevFilters) => ({
+                ...prevFilters,
+                [param]: formatFunction(value),
             }));
         }
     };
@@ -49,6 +63,7 @@ const DecimalField: React.FC<DecimalTextFieldProps> = ({
                     pattern: "[0-9]*\\.?[0-9]{0,2}",
                 },
             }}
+            onBlur={handleBlur}
             sx={style}
             size="small"
         />
