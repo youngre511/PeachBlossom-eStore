@@ -138,7 +138,7 @@ const ChangeCustomerPassword: React.FC<ChangeCustomerPasswordProps> = () => {
                     />
                 </FormControl>
                 <FormControl sx={{ marginBottom: 0 }}>
-                    <FormLabel htmlFor="password">Password</FormLabel>
+                    <FormLabel htmlFor="password">New Password</FormLabel>
                     <TextField
                         error={passwordError}
                         helperText={passwordErrorMsg}
@@ -164,7 +164,7 @@ const ChangeCustomerPassword: React.FC<ChangeCustomerPasswordProps> = () => {
                 </FormControl>
                 <FormControl sx={{ marginBottom: "10px" }}>
                     <FormLabel htmlFor="confirm-password">
-                        Confirm Password
+                        Confirm New Password
                     </FormLabel>
                     <TextField
                         error={passwordError && formData.confirmPass.length > 0}
