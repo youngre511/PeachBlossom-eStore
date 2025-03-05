@@ -387,9 +387,9 @@ export const updateStockLevels = async (
 
         // Mongo Records will be synced automatically in the lambda-function-triggered syncStockLevels function.
 
-        await sqlTransaction.commit();
+        const productsUpdate = await getAdminProducts(filters, sqlTransaction);
 
-        const productsUpdate = await getAdminProducts(filters);
+        await sqlTransaction.commit();
 
         return productsUpdate;
     } catch (error) {

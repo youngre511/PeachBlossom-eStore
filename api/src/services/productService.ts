@@ -23,7 +23,7 @@ import {
 } from "../controllers/_controllerTypes.js";
 import { sqlSubcategory } from "../models/mysql/sqlSubcategoryModel.js";
 import { BooleString } from "../../types/api_resp.js";
-import { Op } from "sequelize";
+import { Op, Transaction } from "sequelize";
 
 import { Order } from "sequelize";
 import { sqlCartItem } from "../models/mysql/sqlCartItemModel.js";
@@ -318,7 +318,10 @@ export const getProducts = async (filters: ProductFilters) => {
 
 ////// GET SORTED AND FILTERED ADMIN PRODUCTS //////
 
-export const getAdminProducts = async (filters: AdminProductFilters) => {
+export const getAdminProducts = async (
+    filters: AdminProductFilters,
+    transaction?: Transaction
+) => {
     try {
         if (!filters.sort) {
             filters.sort = "name-ascend";
@@ -399,6 +402,7 @@ export const getAdminProducts = async (filters: AdminProductFilters) => {
             limit: +filters.itemsPerPage,
             offset: offset,
             nest: true,
+            transaction,
         })) as unknown as JoinReqCountAdminProduct;
 
         const totalCount = products.count;
