@@ -10,9 +10,9 @@ import { JoinReqCart, RawJoinReqProduct } from "./_serviceTypes.js";
 import { sqlCustomer } from "../models/mysql/sqlCustomerModel.js";
 import { calculateFinalPrice } from "../utils/calculateFinalPrice.js";
 
-// Types and Interfaces
-
-// Services
+/**
+ * @description This is a helper function to transform raw cart data returned by sql queries into a front-end-usable format.
+ */
 
 export const extractCartData = (cartData: JoinReqCart) => {
     const updatedCart = cartData.get();
@@ -32,6 +32,14 @@ export const extractCartData = (cartData: JoinReqCart) => {
     }
     return updatedCart;
 };
+
+/**
+ * @description This function looks up a user's cart by either cartId or customerId.
+ * @param cartId (required if customerId is not provided)
+ * @param customerId (required if cartId is not provided)
+ * @param [transaction] - an existing sqlTransaction, used when function is called by another service with its own transaction
+ * @returns a cart object
+ */
 
 export const getCart = async (Args: {
     cartId?: number;
@@ -123,6 +131,12 @@ export const getCart = async (Args: {
         throw error;
     }
 };
+
+/**
+ * @description This function adds an item to a cart.
+ * If there is no existing cart (no cartId is provided), a new cart is created.
+ * If a customerId is provided, the customerId is attached to the new or existing cart
+ */
 
 export const addToCart = async (
     productNo: string,
@@ -300,6 +314,9 @@ export const addToCart = async (
     }
 };
 
+/**
+ * @description This function updates the quantity for an item in an existing cart.
+ */
 export const updateItemQuantity = async (
     productNo: string,
     cartId: number,
@@ -318,6 +335,7 @@ export const updateItemQuantity = async (
             throw new Error("ProductNo not found in database");
         }
 
+        // Look up and lock cart
         const cart = (await sqlCart.findOne({
             where: { cart_id: cartId },
             include: [{ model: sqlCartItem, as: "CartItem" }],
@@ -326,6 +344,7 @@ export const updateItemQuantity = async (
             nest: true,
         })) as any;
 
+        // If no cart with that Id exists, use getCart to create a new cart with the provided id and return the cart object.
         if (!cart) {
             const returnCartObj = await getCart({
                 cartId: cartId,
@@ -338,6 +357,7 @@ export const updateItemQuantity = async (
             };
         }
 
+        // Before updating quantities, lock the cart item rows.
         await cart.reload({
             include: [
                 {
@@ -353,6 +373,7 @@ export const updateItemQuantity = async (
             },
         });
 
+        // Find the relevant cart item. If it does not exist, create a new cart item with the provided quantity. Otherwise, update existing row.
         let cartItem = cart.CartItem.find(
             (item: any) => item.dataValues.productNo === productNo
         );
@@ -396,6 +417,9 @@ export const updateItemQuantity = async (
     }
 };
 
+/**
+ * @description This function deletes an item from a specified cart. If deleting the item
+ */
 export const deleteFromCart = async (
     productNo: string,
     cartId: number,
@@ -406,6 +430,7 @@ export const deleteFromCart = async (
         : await sequelize.transaction();
 
     try {
+        // Verify that the productNo is valid.
         const product = await sqlProduct.findOne({
             where: { productNo: productNo },
             attributes: ["id", "productNo"],
@@ -415,6 +440,8 @@ export const deleteFromCart = async (
         if (!product) {
             throw new Error("ProductNo not found in database");
         }
+
+        // Look up and lock the cart.
 
         const cart = (await sqlCart.findOne({
             where: { cart_id: cartId },
@@ -429,7 +456,7 @@ export const deleteFromCart = async (
                 cartId: cartId,
                 transaction: sqlTransaction,
             });
-            console.log("RECEIVED CART OBJ:", returnCartObj);
+
             return {
                 success: false,
                 message: "CartId no longer exists",
@@ -437,6 +464,7 @@ export const deleteFromCart = async (
             };
         }
 
+        // Lock the cart item rows.
         await cart.reload({
             include: [
                 {
@@ -451,8 +479,10 @@ export const deleteFromCart = async (
                 of: sqlCartItem, // Lock the cart items
             },
         });
+        // Record the number of distinct products in the cart.
         const itemsBeforeDelete = cart.CartItem.length;
 
+        // Find the relevant cart item and destroy it
         let cartItem = cart.CartItem.find(
             (item: any) => item.dataValues.productNo === productNo
         );
@@ -473,6 +503,8 @@ export const deleteFromCart = async (
         }
 
         let returnCartObj;
+
+        // If the cart is empty after deletion, delete the cart itself and return an empty cart. Otherwise, return the updated cart.
         if (itemsBeforeDelete === 1) {
             const result = await sqlCart.destroy({
                 where: { cart_id: cartId },
@@ -630,6 +662,10 @@ export const mergeCarts = async (
         throw error;
     }
 };
+
+/**
+ * @description This function associates a provided customerId with an existing cart.
+ */
 
 export const assignCartToCustomer = async (
     cartId: number,

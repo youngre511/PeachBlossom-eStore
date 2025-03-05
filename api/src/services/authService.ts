@@ -298,6 +298,12 @@ export const login = async (
     }
 };
 
+/**
+ * @description This function replaces an existing accessToken with a new one with a later expiration date.
+ * @param jti - JSON web token id of refresh token
+ * @param user_id - id of the user associated with the token
+ */
+
 export const refreshAccessToken = async (user_id: number, oldJti: string) => {
     try {
         console.log("refreshing user access token");
@@ -345,6 +351,10 @@ export const refreshAccessToken = async (user_id: number, oldJti: string) => {
     }
 };
 
+/**
+ * @description This function revokes an existing refresh token before its expiration. Used for logout.
+ * @param jti - JSON web token id of refresh token
+ */
 export const revokeRefreshToken = async (jti: string) => {
     console.log("revoking refresh token");
     const sqlTransaction = await sequelize.transaction();
@@ -369,6 +379,12 @@ export const revokeRefreshToken = async (jti: string) => {
         }
     }
 };
+
+/**
+ * @description This function deletes an existing refresh token and replaces it with a freshly generated token.
+ * @param jti - JSON web token id of refresh token
+ * @param user_id - id of the current user
+ */
 
 const rotateRefreshToken = async (user_id: number, oldJti: string) => {
     const sqlTransaction = await sequelize.transaction();

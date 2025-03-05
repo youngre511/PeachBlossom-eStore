@@ -1,6 +1,6 @@
 /**
  * @description A helper function to define variables used in Analytics SQL queries
- * @param  granularity - the granularity string
+ * @param granularity - the granularity string
  * @param sub - boolean indicating whether there is a sub query
  * @param subField - (Required if sub is true) an optional string representing the field in the subquery
  * @param joinConditions - an object containing join condition variable names as keys and either table aliases or, in the case of leftJoins, whole fields.
