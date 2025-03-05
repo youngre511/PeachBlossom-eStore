@@ -113,7 +113,7 @@ const OrderStatus: React.FC<Props> = () => {
                 console.error(error.response?.data.reason);
                 setError(
                     error.response?.data.reason ||
-                        "Unable to find specified order."
+                        "Unable to find specified order. Check to make sure you have entered the order number and email correctly."
                 );
                 console.error("Error fetching order:", error);
             } else {
