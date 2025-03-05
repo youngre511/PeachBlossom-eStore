@@ -216,10 +216,6 @@ const Checkout: React.FC = () => {
     }, [email]);
 
     useEffect(() => {
-        console.log(shippingDetails);
-    }, [shippingDetails]);
-
-    useEffect(() => {
         switch (activeStep) {
             case 0:
                 if (canProceedFromPayment) {
@@ -252,10 +248,6 @@ const Checkout: React.FC = () => {
         canProceedFromShipping,
         canPlaceOrder,
     ]);
-
-    useEffect(() => {
-        console.log(addNew);
-    }, [addNew]);
 
     const getStepContent = (step: number) => {
         switch (step) {
@@ -390,11 +382,6 @@ const Checkout: React.FC = () => {
     };
 
     const updateTotal = () => {
-        console.log(
-            Number(subTotal) +
-                Number(shippingRate) +
-                (Number(subTotal) + Number(shippingRate)) * Number(taxRate)
-        );
         setOrderTotal(
             Number(subTotal) +
                 Number(shippingRate) +
