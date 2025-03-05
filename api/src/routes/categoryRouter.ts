@@ -35,6 +35,15 @@ categoryRouter.post(
     createCategory
 );
 
+categoryRouter.post(
+    "/:categoryName/create-sub",
+    authMiddleware,
+    authorizeRoles(["admin"], ["full", "limited"]),
+    sanitize(categoryNameSchema, "params"),
+    sanitize(subcategoryNameSchema, "body"),
+    createSubcategory
+);
+
 categoryRouter.put(
     "/update",
     authMiddleware,
@@ -65,15 +74,6 @@ categoryRouter.delete(
     authorizeRoles(["admin"], ["full", "limited"]),
     sanitize(subcategoryNameSchema, "params"),
     deleteSubcategory
-);
-
-categoryRouter.post(
-    "/:categoryName/create-sub",
-    authMiddleware,
-    authorizeRoles(["admin"], ["full", "limited"]),
-    sanitize(categoryNameSchema, "params"),
-    sanitize(subcategoryNameSchema, "body"),
-    createSubcategory
 );
 
 export default categoryRouter;
