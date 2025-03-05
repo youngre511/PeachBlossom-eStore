@@ -17,7 +17,7 @@ import {
     updateOrderDataSchema,
 } from "../validator/orderValidators.js";
 import { sanitize } from "../middleware/sanitizeMiddleware.js";
-import { emailSchema } from "../validator/commonSchemas.js";
+import { emailOptionalSchema } from "../validator/commonSchemas.js";
 const orderRouter = Router();
 
 orderRouter.get(
@@ -34,17 +34,13 @@ orderRouter.get(
     getCustomerOrders
 );
 
-orderRouter.get(
-    "/:orderNo",
-    sanitize(orderNoSchema, "params"),
-    sanitize(emailSchema, "query"),
-    getOneOrder
-);
+orderRouter.get("/:orderNo", sanitize(orderNoSchema, "params"), getOneOrder);
 
 orderRouter.get(
     "/customer/:orderNo",
     authMiddleware,
     sanitize(orderNoSchema, "params"),
+    sanitize(emailOptionalSchema, "query"),
     getOneCustomerOrder
 );
 
