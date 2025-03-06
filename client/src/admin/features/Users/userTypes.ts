@@ -5,9 +5,10 @@ interface User {
     defaultPassword: boolean;
 }
 
+export type AccessLevel = "full" | "limited" | "view only";
 export interface AdminUser extends User {
     admin_id: number;
-    accessLevel: "full" | "limited" | "view only";
+    accessLevel: AccessLevel;
 }
 
 export interface CustomerUser extends User {
