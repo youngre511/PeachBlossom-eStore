@@ -32,6 +32,7 @@ import { inputStyle, readOnlyStyle } from "../productInputStyles";
 import ProductInfoForm from "./ProductDetailComponents/ProductInfoForm";
 import ProductDimensionsForm from "./ProductDetailComponents/ProductDimensionsForm";
 import ProductActionButtons from "./ProductDetailComponents/ProductActionButtons";
+import { constructProductFormData } from "../avProductUtils";
 
 ///////////////////
 ///////TYPES///////
@@ -48,7 +49,7 @@ export interface Category {
     subcategories: string[];
 }
 
-interface OneProduct {
+export interface OneProduct {
     name: string;
     productNo: string;
     category: string;
@@ -82,7 +83,6 @@ const AVProductDetails: React.FC = () => {
     );
     const [images, setImages] = useState<ImageListType>([]);
     const [imageUrls, setImageUrls] = useState<string[]>([]);
-    const navigate = useNavigate();
     const dispatch = useAppDispatch();
     const [searchParams, setSearchParams] = useSearchParams();
     const productNo = searchParams.get("product");
@@ -252,70 +252,21 @@ const AVProductDetails: React.FC = () => {
         setIsSaving(true);
 
         if (currentDetails) {
-            const formData = new FormData();
-
-            if (productName !== currentDetails.name) {
-                formData.append("name", productName);
-            }
-            if (price !== String(currentDetails.price)) {
-                formData.append("price", price);
-            }
-            if (category !== currentDetails.category) {
-                formData.append("category", category);
-            }
-            if (subcategory !== currentDetails.subcategory) {
-                formData.append("subcategory", subcategory);
-            }
-            if (description !== currentDetails.description) {
-                formData.append("description", description);
-            }
-
-            let usedFileNames: string[] = [];
-            if (images) {
-                images.forEach((image, index) => {
-                    let newFileName = `${productName
-                        .replace(/\s+/g, "_")
-                        .toLowerCase()}`;
-                    let i = 1;
-                    newFileName = `${newFileName}_${i}`;
-                    while (
-                        currentDetails.images.includes(
-                            `${
-                                import.meta.env.VITE_CLOUDFRONT_DOMAIN
-                            }/${newFileName}`
-                        ) ||
-                        usedFileNames.includes(newFileName)
-                    ) {
-                        newFileName = newFileName.replace(`_${i}`, `_${i + 1}`);
-                        i++;
-                    }
-                    usedFileNames.push(newFileName);
-                    formData.append("images", image.file as File, newFileName);
-                });
-            }
-
-            if (
-                color !== currentDetails.attributes.color ||
-                materials !== currentDetails.attributes.material ||
-                +weight !== currentDetails.attributes.weight ||
-                +height !== currentDetails.attributes.dimensions.height ||
-                +width !== currentDetails.attributes.dimensions.width ||
-                +depth !== currentDetails.attributes.dimensions.depth
-            ) {
-                formData.append(
-                    "attributes",
-                    JSON.stringify({
-                        color: color,
-                        material: materials,
-                        weight: +weight,
-                        dimensions: {
-                            width: +width,
-                            height: +height,
-                            depth: +depth,
-                        },
-                    })
-                );
-            }
+            const formData = constructProductFormData(
+                productName,
+                price,
+                category,
+                subcategory,
+                description,
+                images,
+                color,
+                materials,
+                weight,
+                height,
+                width,
+                depth,
+                currentDetails
+            );
 
             const areThereChanges =
                 Array.from(formData.entries()).length !== 0 ||
