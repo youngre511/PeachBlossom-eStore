@@ -8,7 +8,7 @@ import {
     TextField,
 } from "@mui/material";
 import React from "react";
-import { inputStyle } from "../Products/AddProduct/AddProduct";
+import { inputStyle } from "../Products/productInputStyles";
 
 interface Props {
     setAddingUser: React.Dispatch<React.SetStateAction<boolean>>;
