@@ -66,7 +66,7 @@ const DateSelector = <
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
                         label="Start Date"
-                        minDate={dayjs("1-1-22")}
+                        minDate={dayjs("2022-01-01")}
                         maxDate={
                             paramsObj.endDate
                                 ? dayjs(paramsObj.endDate)
@@ -75,7 +75,7 @@ const DateSelector = <
                         value={
                             paramsObj.startDate
                                 ? dayjs(paramsObj.startDate)
-                                : dayjs("1-1-22")
+                                : dayjs("2022-01-01")
                         }
                         slotProps={{
                             actionBar: {
