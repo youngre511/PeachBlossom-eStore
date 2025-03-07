@@ -6,13 +6,17 @@ import {
     RBCParams,
     RRPParams,
     TOTParams,
-} from "../../features/Analytics/analyticsTypes";
+} from "../../../features/Analytics/analyticsTypes";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { IconButton, SvgIcon } from "@mui/material";
 import DateRangeSharpIcon from "@mui/icons-material/DateRangeSharp";
 import dayjs from "dayjs";
-import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
+import { useWindowSizeContext } from "../../../../common/contexts/windowSizeContext";
+
+/**
+ * @description A pair of datepicker components to set the starting and ending dates of chart data filters.
+ */
 
 interface Props<
     T extends TOTParams | PlusParams | RBCParams | AOVParams | RRPParams

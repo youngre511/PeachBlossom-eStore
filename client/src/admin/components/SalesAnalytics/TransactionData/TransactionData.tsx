@@ -22,7 +22,7 @@ import {
     fetchTransactionsOverTime,
 } from "../../../features/Analytics/analyticsSlice";
 import { useWindowSizeContext } from "../../../../common/contexts/windowSizeContext";
-import ChartFrame from "../CustomCharts/ChartFrame";
+import ChartFrame from "../ChartComponents/ChartFrame";
 
 interface Props {}
 const TransactionData: React.FC<Props> = () => {

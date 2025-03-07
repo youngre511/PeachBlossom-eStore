@@ -9,7 +9,7 @@ import { nivoTheme } from "./chartThemes";
 import { useWindowSizeContext } from "../../../../common/contexts/windowSizeContext";
 import { IconButton, SvgIcon } from "@mui/material";
 import { ArrowLeftSharp, ArrowRightSharp } from "@mui/icons-material";
-import ChartPeriodSelector from "./ChartPeriodSelector";
+import ChartPeriodSelector from "../ChartComponents/ChartPeriodSelector";
 
 interface Props {
     data: PieDataArray;

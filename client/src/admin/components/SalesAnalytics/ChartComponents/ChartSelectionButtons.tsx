@@ -12,6 +12,11 @@ import {
     TOTParams,
 } from "../../../features/Analytics/analyticsTypes";
 
+/**
+ * @description A set of buttons to determine what format a chart should take, conditionally loaded based on a provided list of options.
+ * The buttons appear in the upper right of the chart frame.
+ */
+
 interface ChartSelectionButtonsProps<
     T extends TOTParams | PlusParams | RBCParams | AOVParams | RRPParams
 > {

@@ -18,17 +18,12 @@ import {
     fetchCategoryPercentages,
     fetchRevenueByCategory,
 } from "../../../features/Analytics/analyticsSlice";
-import { CircularProgress, IconButton, SvgIcon } from "@mui/material";
-import ShowChartSharpIcon from "@mui/icons-material/ShowChartSharp";
-import BarChartSharpIcon from "@mui/icons-material/BarChartSharp";
 import CustomLineChart from "../CustomCharts/CustomLineChart";
 import CustomBarChart from "../CustomCharts/CustomBarChart";
-import DateSelector from "../DateSelector";
-import GranularitySelector from "../GranularitySelector";
 import { useWindowSizeContext } from "../../../../common/contexts/windowSizeContext";
 import CustomPieChart from "../CustomCharts/CustomPieChart";
-import PeriodSelector from "../PeriodSelector";
-import ChartFrame from "../CustomCharts/ChartFrame";
+import PeriodSelector from "../ChartComponents/PeriodSelector";
+import ChartFrame from "../ChartComponents/ChartFrame";
 
 interface Props {}
 const ProductPerformance: React.FC<Props> = () => {
@@ -139,7 +134,7 @@ const ProductPerformance: React.FC<Props> = () => {
         }
     }, [cp.rbcData]);
 
-    const topPeriodOptions = ["7d", "30d", "6m", "1y", "all time"];
+    const topPeriodOptions: Period[] = ["7d", "30d", "6m", "1y", "allTime"];
 
     const [bestParams, setBestParams] = useState<TopParams>({
         period: "30d",
@@ -158,7 +153,11 @@ const ProductPerformance: React.FC<Props> = () => {
                 setLoading={setRbcLoading}
                 params={rbcParams}
                 setParams={setRbcParams}
-                granularityOptions={rbcBarGranularityOptions}
+                granularityOptions={
+                    rbcParams.chartType === "line"
+                        ? rbcLineGranularityOptions
+                        : rbcBarGranularityOptions
+                }
             >
                 {rbcData && rbcData.length > 0 && (
                     <React.Fragment>

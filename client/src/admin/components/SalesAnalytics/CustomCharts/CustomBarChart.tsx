@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import keySort from "../../../utils/keySort";
 import { useEffect } from "react";
 import { nivoTheme } from "./chartThemes";
-import ChartPeriodSelector from "./ChartPeriodSelector";
+import ChartPeriodSelector from "../ChartComponents/ChartPeriodSelector";
 import { BarData } from "../../../features/Analytics/analyticsTypes";
 
 interface Props {

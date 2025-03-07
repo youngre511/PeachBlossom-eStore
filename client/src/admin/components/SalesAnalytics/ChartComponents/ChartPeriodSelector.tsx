@@ -2,6 +2,10 @@ import { ArrowLeftSharp, ArrowRightSharp } from "@mui/icons-material";
 import { IconButton, SvgIcon } from "@mui/material";
 import React, { SetStateAction } from "react";
 
+/**
+ * @description A simple interface for choosing the currently displayed period whenever bar or pie chart data is split into multiple datasets grouped into periods.
+ */
+
 interface Props {
     currentIdx: number;
     setCurrentIdx: React.Dispatch<SetStateAction<number>>;

@@ -24,12 +24,12 @@ import ShowChartSharpIcon from "@mui/icons-material/ShowChartSharp";
 import BarChartSharpIcon from "@mui/icons-material/BarChartSharp";
 import CustomLineChart from "../CustomCharts/CustomLineChart";
 import CustomBarChart from "../CustomCharts/CustomBarChart";
-import DateSelector from "../DateSelector";
-import GranularitySelector from "../GranularitySelector";
+import DateSelector from "../ChartComponents/DateSelector";
+import GranularitySelector from "../ChartComponents/GranularitySelector";
 import CustomPieChart from "../CustomCharts/CustomPieChart";
 import StackedBarChartSharpIcon from "@mui/icons-material/StackedBarChartSharp";
-import ChartSelectionButtons from "../CustomCharts/ChartSelectionButtons";
-import ChartFrame from "../CustomCharts/ChartFrame";
+import ChartSelectionButtons from "../ChartComponents/ChartSelectionButtons";
+import ChartFrame from "../ChartComponents/ChartFrame";
 
 interface Props {}
 const Revenue: React.FC<Props> = () => {
