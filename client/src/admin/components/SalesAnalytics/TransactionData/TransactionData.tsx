@@ -2,9 +2,6 @@ import React, { useState } from "react";
 import "./transaction-data.css";
 import "../sales-analytics.css";
 import { useEffect } from "react";
-import { CircularProgress, IconButton, SvgIcon } from "@mui/material";
-import BarChartSharpIcon from "@mui/icons-material/BarChartSharp";
-import ShowChartSharpIcon from "@mui/icons-material/ShowChartSharp";
 import CustomBarChart from "../CustomCharts/CustomBarChart";
 import CustomLineChart from "../CustomCharts/CustomLineChart";
 import {
@@ -25,8 +22,7 @@ import {
     fetchTransactionsOverTime,
 } from "../../../features/Analytics/analyticsSlice";
 import { useWindowSizeContext } from "../../../../common/contexts/windowSizeContext";
-import GranularitySelector from "../GranularitySelector";
-import DateSelector from "../DateSelector";
+import ChartFrame from "../CustomCharts/ChartFrame";
 
 interface Props {}
 const TransactionData: React.FC<Props> = () => {
@@ -146,59 +142,19 @@ const TransactionData: React.FC<Props> = () => {
 
     return (
         <div className="transaction-data">
-            <div className="transaction-chart analytics-box">
-                <div className="box-header">
-                    <h2>Number of Transactions</h2>
-                    <div className="chart-selection-btns">
-                        <IconButton
-                            onClick={() => {
-                                setTotLoading(true);
-                                setTotParams({
-                                    ...totParams,
-                                    chartType: "line",
-                                });
-                            }}
-                        >
-                            <SvgIcon
-                                htmlColor={
-                                    totParams.chartType === "line"
-                                        ? "white"
-                                        : undefined
-                                }
-                            >
-                                <ShowChartSharpIcon />
-                            </SvgIcon>
-                        </IconButton>
-                        <IconButton
-                            onClick={() => {
-                                setTotLoading(true);
-                                setTotParams({
-                                    ...totParams,
-                                    chartType: "bar",
-                                });
-                            }}
-                        >
-                            <SvgIcon
-                                htmlColor={
-                                    totParams.chartType === "bar"
-                                        ? "white"
-                                        : undefined
-                                }
-                            >
-                                <BarChartSharpIcon />
-                            </SvgIcon>
-                        </IconButton>
-                    </div>
-                </div>
-                <div className="chart">
-                    {totLoading && (
-                        <div className="chart-loading">
-                            <CircularProgress />
-                        </div>
-                    )}
-                    {totData.length > 0 &&
-                        !totLoading &&
-                        totParams.chartType === "line" && (
+            <ChartFrame<TOTParams, ExpandedGranularity>
+                className="transaction-chart"
+                title="Number of Transactions"
+                allowedTypes={["line", "bar"]}
+                loading={totLoading}
+                setLoading={setTotLoading}
+                params={totParams}
+                setParams={setTotParams}
+                granularityOptions={totGranularityOptions}
+            >
+                {totData.length > 0 && (
+                    <React.Fragment>
+                        {totParams.chartType === "line" && (
                             <CustomLineChart
                                 data={totData as LineData[]}
                                 idLegend={totData.length > 1}
@@ -215,9 +171,7 @@ const TransactionData: React.FC<Props> = () => {
                                 yFormat=">-,"
                             />
                         )}
-                    {totData.length > 0 &&
-                        !totLoading &&
-                        totParams.chartType === "bar" && (
+                        {totParams.chartType === "bar" && (
                             <CustomBarChart
                                 data={totData as BarData[]}
                                 stacked={false}
@@ -235,72 +189,22 @@ const TransactionData: React.FC<Props> = () => {
                                 }
                             />
                         )}
-                </div>
-                <div className="box-footer">
-                    <DateSelector
-                        paramsObj={totParams}
-                        setParams={setTotParams}
-                    />
-                    <GranularitySelector<TOTParams, ExpandedGranularity>
-                        paramsObj={totParams}
-                        setParams={setTotParams}
-                        granularityOptions={totGranularityOptions}
-                    />
-                </div>
-            </div>
-            <div className="transaction-chart analytics-box">
-                <div className="box-header">
-                    <h2>Average Order Value</h2>
-                    <div className="chart-selection-btns">
-                        <IconButton
-                            onClick={() => {
-                                setAovLoading(true);
-                                setAovParams({
-                                    ...aovParams,
-                                    chartType: "line",
-                                });
-                            }}
-                        >
-                            <SvgIcon
-                                htmlColor={
-                                    aovParams.chartType === "line"
-                                        ? "white"
-                                        : undefined
-                                }
-                            >
-                                <ShowChartSharpIcon />
-                            </SvgIcon>
-                        </IconButton>
-                        <IconButton
-                            onClick={() => {
-                                setAovLoading(true);
-                                setAovParams({
-                                    ...aovParams,
-                                    chartType: "bar",
-                                });
-                            }}
-                        >
-                            <SvgIcon
-                                htmlColor={
-                                    aovParams.chartType === "bar"
-                                        ? "white"
-                                        : undefined
-                                }
-                            >
-                                <BarChartSharpIcon />
-                            </SvgIcon>
-                        </IconButton>
-                    </div>
-                </div>
-                <div className="chart">
-                    {aovLoading && (
-                        <div className="chart-loading">
-                            <CircularProgress />
-                        </div>
-                    )}
-                    {aovData.length > 0 &&
-                        !aovLoading &&
-                        aovParams.chartType === "line" && (
+                    </React.Fragment>
+                )}
+            </ChartFrame>
+            <ChartFrame<AOVParams, BaseGranularity>
+                className="transaction-chart"
+                title="Average Order Value"
+                allowedTypes={["line", "bar"]}
+                loading={aovLoading}
+                setLoading={setAovLoading}
+                params={aovParams}
+                setParams={setAovParams}
+                granularityOptions={aovGranularityOptions}
+            >
+                {aovData.length > 0 && (
+                    <React.Fragment>
+                        {aovParams.chartType === "line" && (
                             <CustomLineChart
                                 data={aovData as LineData[]}
                                 idLegend={true}
@@ -317,9 +221,7 @@ const TransactionData: React.FC<Props> = () => {
                                 yFormat=">-$,.2f"
                             />
                         )}
-                    {aovData.length > 0 &&
-                        !aovLoading &&
-                        aovParams.chartType === "bar" && (
+                        {aovParams.chartType === "bar" && (
                             <CustomBarChart
                                 data={aovData as BarData[]}
                                 stacked={false}
@@ -340,126 +242,62 @@ const TransactionData: React.FC<Props> = () => {
                                 }
                             />
                         )}
-                </div>
-                <div className="box-footer">
-                    <DateSelector
-                        paramsObj={aovParams}
-                        setParams={setAovParams}
-                    />
-                    <GranularitySelector<AOVParams, BaseGranularity>
-                        paramsObj={aovParams}
-                        setParams={setAovParams}
-                        granularityOptions={aovGranularityOptions}
-                    />
-                </div>
-            </div>
-            <div className="transaction-chart analytics-box">
-                <div className="box-header">
-                    <h2>Average Items Per Transaction</h2>
-                    <div className="chart-selection-btns">
-                        <IconButton
-                            onClick={() => {
-                                setIptLoading(true);
-                                setIptParams({
-                                    ...iptParams,
-                                    chartType: "line",
-                                });
-                            }}
-                        >
-                            <SvgIcon
-                                htmlColor={
-                                    iptParams.chartType === "line"
-                                        ? "white"
-                                        : undefined
+                    </React.Fragment>
+                )}
+            </ChartFrame>
+            <ChartFrame<PlusParams, PlusGranularity>
+                className="transaction-chart"
+                title="Average Items Per Transaction"
+                allowedTypes={["line", "bar"]}
+                loading={iptLoading}
+                setLoading={setIptLoading}
+                params={iptParams}
+                setParams={setIptParams}
+                granularityOptions={iptGranularityOptions}
+            >
+                {iptData.length > 0 && (
+                    <React.Fragment>
+                        {iptParams.chartType === "line" && (
+                            <CustomLineChart
+                                data={iptData as LineData[]}
+                                idLegend={iptData.length > 1}
+                                enableSlices="x"
+                                margin={{
+                                    top: 10,
+                                    right: mobile ? 40 : 100,
+                                    bottom: mobile ? 100 : 46,
+                                    left: mobile ? 60 : 70,
+                                }}
+                                yAxisFormat={(value: number) =>
+                                    `${value.toLocaleString("en-US")}`
                                 }
-                            >
-                                <ShowChartSharpIcon />
-                            </SvgIcon>
-                        </IconButton>
-                        <IconButton
-                            onClick={() => {
-                                setIptLoading(true);
-                                setIptParams({
-                                    ...iptParams,
-                                    chartType: "bar",
-                                });
-                            }}
-                        >
-                            <SvgIcon
-                                htmlColor={
-                                    iptParams.chartType === "bar"
-                                        ? "white"
-                                        : undefined
-                                }
-                            >
-                                <BarChartSharpIcon />
-                            </SvgIcon>
-                        </IconButton>
-                    </div>
-                </div>
-                <div className="chart-cont">
-                    <div className="chart">
-                        {iptLoading && (
-                            <div className="chart-loading">
-                                <CircularProgress />
-                            </div>
+                                yFormat=">-,"
+                            />
                         )}
-                        {iptData.length > 0 &&
-                            !iptLoading &&
-                            iptParams.chartType === "line" && (
-                                <CustomLineChart
-                                    data={iptData as LineData[]}
-                                    idLegend={iptData.length > 1}
-                                    enableSlices="x"
-                                    margin={{
-                                        top: 10,
-                                        right: mobile ? 40 : 100,
-                                        bottom: mobile ? 100 : 46,
-                                        left: mobile ? 60 : 70,
-                                    }}
-                                    yAxisFormat={(value: number) =>
-                                        `${value.toLocaleString("en-US")}`
-                                    }
-                                    yFormat=">-,"
-                                />
-                            )}
-                        {iptData.length > 0 &&
-                            !iptLoading &&
-                            iptParams.chartType === "bar" && (
-                                <CustomBarChart
-                                    data={iptData as BarData[]}
-                                    stacked={false}
-                                    includeLegend={false}
-                                    tiltLabels={true}
-                                    enableLabel={
-                                        width && width > 800 ? true : false
-                                    }
-                                    valueFormat=">-,"
-                                    margin={{
-                                        top: 10,
-                                        right: mobile ? 25 : 60,
-                                        bottom: mobile ? 100 : 90,
-                                        left: mobile ? 40 : 60,
-                                    }}
-                                    yAxisFormat={(value: number) =>
-                                        `${value.toLocaleString("en-US")}`
-                                    }
-                                />
-                            )}
-                    </div>
-                </div>
-                <div className="box-footer">
-                    <DateSelector
-                        paramsObj={iptParams}
-                        setParams={setIptParams}
-                    />
-                    <GranularitySelector<PlusParams, PlusGranularity>
-                        paramsObj={iptParams}
-                        setParams={setIptParams}
-                        granularityOptions={iptGranularityOptions}
-                    />
-                </div>
-            </div>
+                        {iptParams.chartType === "bar" && (
+                            <CustomBarChart
+                                data={iptData as BarData[]}
+                                stacked={false}
+                                includeLegend={false}
+                                tiltLabels={true}
+                                enableLabel={
+                                    width && width > 800 ? true : false
+                                }
+                                valueFormat=">-,"
+                                margin={{
+                                    top: 10,
+                                    right: mobile ? 25 : 60,
+                                    bottom: mobile ? 100 : 90,
+                                    left: mobile ? 40 : 60,
+                                }}
+                                yAxisFormat={(value: number) =>
+                                    `${value.toLocaleString("en-US")}`
+                                }
+                            />
+                        )}
+                    </React.Fragment>
+                )}
+            </ChartFrame>
         </div>
     );
 };

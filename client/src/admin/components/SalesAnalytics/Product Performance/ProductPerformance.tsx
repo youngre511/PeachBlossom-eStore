@@ -28,6 +28,7 @@ import GranularitySelector from "../GranularitySelector";
 import { useWindowSizeContext } from "../../../../common/contexts/windowSizeContext";
 import CustomPieChart from "../CustomCharts/CustomPieChart";
 import PeriodSelector from "../PeriodSelector";
+import ChartFrame from "../CustomCharts/ChartFrame";
 
 interface Props {}
 const ProductPerformance: React.FC<Props> = () => {
@@ -149,60 +150,19 @@ const ProductPerformance: React.FC<Props> = () => {
 
     return (
         <div className="product-performance-data">
-            <div className="revenue-by-category-chart analytics-box">
-                <div className="box-header">
-                    <h2>Revenue by Category</h2>
-                    <div className="chart-selection-btns">
-                        <IconButton
-                            onClick={() => {
-                                setRbcLoading(true);
-                                setRbcParams({
-                                    ...rbcParams,
-                                    chartType: "line",
-                                });
-                            }}
-                        >
-                            <SvgIcon
-                                htmlColor={
-                                    rbcParams.chartType === "line"
-                                        ? "white"
-                                        : undefined
-                                }
-                            >
-                                <ShowChartSharpIcon />
-                            </SvgIcon>
-                        </IconButton>
-                        <IconButton
-                            onClick={() => {
-                                setRbcLoading(true);
-                                setRbcParams({
-                                    ...rbcParams,
-                                    chartType: "bar",
-                                });
-                            }}
-                        >
-                            <SvgIcon
-                                htmlColor={
-                                    rbcParams.chartType === "bar"
-                                        ? "white"
-                                        : undefined
-                                }
-                            >
-                                <BarChartSharpIcon />
-                            </SvgIcon>
-                        </IconButton>
-                    </div>
-                </div>
-                <div className="chart">
-                    {rbcLoading && (
-                        <div className="chart-loading">
-                            <CircularProgress />
-                        </div>
-                    )}
-                    {rbcData &&
-                        rbcData.length > 0 &&
-                        !rbcLoading &&
-                        rbcParams.chartType === "line" && (
+            <ChartFrame<RBCParams, ExpandedGranularity>
+                className="revenue-by-category-chart"
+                title="Revenue by Category"
+                allowedTypes={["line", "bar"]}
+                loading={rbcLoading}
+                setLoading={setRbcLoading}
+                params={rbcParams}
+                setParams={setRbcParams}
+                granularityOptions={rbcBarGranularityOptions}
+            >
+                {rbcData && rbcData.length > 0 && (
+                    <React.Fragment>
+                        {rbcParams.chartType === "line" && (
                             <CustomLineChart
                                 data={rbcData as LineData[]}
                                 idLegend={!mobile}
@@ -219,10 +179,7 @@ const ProductPerformance: React.FC<Props> = () => {
                                 yFormat=">-$,.2f"
                             />
                         )}
-                    {rbcData &&
-                        rbcData.length > 0 &&
-                        !rbcLoading &&
-                        rbcParams.chartType === "bar" && (
+                        {rbcParams.chartType === "bar" && (
                             <CustomBarChart
                                 data={rbcData as BarData[]}
                                 stacked={false}
@@ -248,61 +205,35 @@ const ProductPerformance: React.FC<Props> = () => {
                                 enableLabel={false}
                             />
                         )}
-                </div>
-                <div className="box-footer">
-                    <DateSelector
-                        paramsObj={rbcParams}
-                        setParams={setRbcParams}
-                    />
-                    <GranularitySelector<RBCParams, ExpandedGranularity>
-                        paramsObj={rbcParams}
-                        setParams={setRbcParams}
-                        granularityOptions={
-                            rbcParams.chartType === "bar"
-                                ? rbcBarGranularityOptions
-                                : rbcLineGranularityOptions
-                        }
-                    />
-                </div>
-            </div>
-            <div className="revenue-by-category-chart analytics-box">
-                <div className="box-header">
-                    <h2>Category Revenue Percentages</h2>
-                </div>
-                <div className="pie-chart-cont chart">
-                    {cpLoading && (
-                        <div className="chart-loading">
-                            <CircularProgress />
-                        </div>
-                    )}
-                    {cpData && cpData.length > 0 && !cpLoading && (
-                        <CustomPieChart
-                            data={cpData}
-                            margin={{
-                                top: 20,
-                                right: mobile ? 80 : 100,
-                                bottom: mobile ? 110 : 30,
-                                left: mobile ? 40 : 100,
-                            }}
-                            enableArcLinkLabels={mobile ? false : true}
-                            enableLegend={mobile ? true : false}
-                            innerRadius={0.5}
-                        />
-                    )}
-                </div>
-                <div className="box-footer">
-                    <DateSelector
-                        paramsObj={cpParams}
-                        setParams={setCpParams}
-                    />
-                    <GranularitySelector<RBCParams, ExpandedGranularity>
-                        paramsObj={cpParams}
-                        setParams={setCpParams}
-                        granularityOptions={cpGranularityOptions}
-                    />
-                </div>
-            </div>
+                    </React.Fragment>
+                )}
+            </ChartFrame>
 
+            <ChartFrame<RBCParams, ExpandedGranularity>
+                className="revenue-by-category-chart"
+                title="Category Revenue Percentages"
+                allowedTypes={["pie"]}
+                loading={cpLoading}
+                setLoading={setCpLoading}
+                params={cpParams}
+                setParams={setCpParams}
+                granularityOptions={cpGranularityOptions}
+            >
+                {cpData && cpData.length > 0 && (
+                    <CustomPieChart
+                        data={cpData}
+                        margin={{
+                            top: 20,
+                            right: mobile ? 80 : 100,
+                            bottom: mobile ? 110 : 30,
+                            left: mobile ? 40 : 100,
+                        }}
+                        enableArcLinkLabels={mobile ? false : true}
+                        enableLegend={mobile ? true : false}
+                        innerRadius={0.5}
+                    />
+                )}
+            </ChartFrame>
             <div className="best-performing-products analytics-box">
                 <TopProducts
                     number="10"

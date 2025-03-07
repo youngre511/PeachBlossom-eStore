@@ -28,6 +28,8 @@ import DateSelector from "../DateSelector";
 import GranularitySelector from "../GranularitySelector";
 import CustomPieChart from "../CustomCharts/CustomPieChart";
 import StackedBarChartSharpIcon from "@mui/icons-material/StackedBarChartSharp";
+import ChartSelectionButtons from "../CustomCharts/ChartSelectionButtons";
+import ChartFrame from "../CustomCharts/ChartFrame";
 
 interface Props {}
 const Revenue: React.FC<Props> = () => {
@@ -133,59 +135,19 @@ const Revenue: React.FC<Props> = () => {
 
     return (
         <div className="revenue-analytics">
-            <div className="revenue-chart analytics-box">
-                <div className="box-header">
-                    <h2>Revenue Year Over Year</h2>
-                    <div className="chart-selection-btns">
-                        <IconButton
-                            onClick={() => {
-                                setRotLoading(true);
-                                setRotParams({
-                                    ...rotParams,
-                                    chartType: "line",
-                                });
-                            }}
-                        >
-                            <SvgIcon
-                                htmlColor={
-                                    rotParams.chartType === "line"
-                                        ? "white"
-                                        : undefined
-                                }
-                            >
-                                <ShowChartSharpIcon />
-                            </SvgIcon>
-                        </IconButton>
-                        <IconButton
-                            onClick={() => {
-                                setRotLoading(true);
-                                setRotParams({
-                                    ...rotParams,
-                                    chartType: "bar",
-                                });
-                            }}
-                        >
-                            <SvgIcon
-                                htmlColor={
-                                    rotParams.chartType === "bar"
-                                        ? "white"
-                                        : undefined
-                                }
-                            >
-                                <BarChartSharpIcon />
-                            </SvgIcon>
-                        </IconButton>
-                    </div>
-                </div>
-                <div className="chart">
-                    {rotLoading && (
-                        <div className="chart-loading">
-                            <CircularProgress />
-                        </div>
-                    )}
-                    {rotData &&
-                        !rotLoading &&
-                        rotParams.chartType === "line" && (
+            <ChartFrame<PlusParams, PlusGranularity>
+                className="revenue-chart"
+                title="Revenue Year Over Year"
+                allowedTypes={["line", "bar"]}
+                loading={rotLoading}
+                setLoading={setRotLoading}
+                params={rotParams}
+                setParams={setRotParams}
+                granularityOptions={rotGranularityOptions}
+            >
+                {rotData && (
+                    <React.Fragment>
+                        {rotParams.chartType === "line" && (
                             <CustomLineChart
                                 data={rotData as LineData[]}
                                 idLegend={true}
@@ -202,9 +164,7 @@ const Revenue: React.FC<Props> = () => {
                                 yFormat=">-$,.2f"
                             />
                         )}
-                    {rotData &&
-                        !rotLoading &&
-                        rotParams.chartType === "bar" && (
+                        {rotParams.chartType === "bar" && (
                             <CustomBarChart
                                 data={rotData as BarData[]}
                                 stacked={false}
@@ -223,125 +183,66 @@ const Revenue: React.FC<Props> = () => {
                                 enableLabel={false}
                             />
                         )}
-                </div>
-                <div className="box-footer">
-                    <DateSelector
-                        paramsObj={rotParams}
-                        setParams={setRotParams}
+                    </React.Fragment>
+                )}
+            </ChartFrame>
+            <ChartFrame<RRPParams, ExpandedGranularity>
+                className="region-percent-chart"
+                title="Regional Revenue Percentages"
+                allowedTypes={["pie"]}
+                loading={rp.loading}
+                params={rpParams}
+                setParams={setRpParams}
+                granularityOptions={rpGranularityOptions}
+            >
+                {rpData.length > 0 && (
+                    <CustomPieChart
+                        data={rpData}
+                        margin={{
+                            top: 0,
+                            right: mobile ? 40 : 100,
+                            bottom: mobile ? 110 : 30,
+                            left: mobile ? 40 : 100,
+                        }}
+                        enableArcLinkLabels={mobile ? false : true}
+                        enableLegend={mobile ? true : false}
+                        innerRadius={0.5}
                     />
-                    <GranularitySelector<PlusParams, PlusGranularity>
-                        paramsObj={rotParams}
-                        setParams={setRotParams}
-                        granularityOptions={rotGranularityOptions}
+                )}
+            </ChartFrame>
+            <ChartFrame<PlusParams, PlusGranularity>
+                className="revenue-chart"
+                title="Revenue By Location"
+                allowedTypes={["bar"]}
+                loading={rblLoading}
+                setLoading={setRblLoading}
+                params={rblParams}
+                setParams={setRblParams}
+                stacked={rblStacked}
+                setStacked={setRblStacked}
+                granularityOptions={rotGranularityOptions}
+            >
+                {rblData.length > 0 && (
+                    <CustomBarChart
+                        data={rblData as BarData[]}
+                        stacked={rblStacked}
+                        includeLegend={true}
+                        legendPosition={"bottom"}
+                        tiltLabels={true}
+                        valueFormat=">-$,.2f"
+                        margin={{
+                            top: 10,
+                            right: mobile ? 40 : 60,
+                            bottom: mobile ? 80 : 85,
+                            left: mobile ? 80 : 100,
+                        }}
+                        yAxisFormat={(value: number) =>
+                            `$${value.toLocaleString("en-US")}`
+                        }
+                        enableLabel={false}
                     />
-                </div>
-            </div>
-            <div className="region-percent-chart analytics-box">
-                <div className="box-header">
-                    <h2>Regional Revenue Percentages</h2>
-                </div>
-                <div className="pie-chart-cont chart">
-                    {rp.loading && (
-                        <div className="chart-loading">
-                            <CircularProgress />
-                        </div>
-                    )}
-                    {rpData.length > 0 && !rp.loading && (
-                        <CustomPieChart
-                            data={rpData}
-                            margin={{
-                                top: 0,
-                                right: mobile ? 40 : 100,
-                                bottom: mobile ? 110 : 30,
-                                left: mobile ? 40 : 100,
-                            }}
-                            enableArcLinkLabels={mobile ? false : true}
-                            enableLegend={mobile ? true : false}
-                            innerRadius={0.5}
-                        />
-                    )}
-                </div>
-                <div className="box-footer">
-                    <DateSelector
-                        paramsObj={rpParams}
-                        setParams={setRpParams}
-                    />
-                    <GranularitySelector<RRPParams, ExpandedGranularity>
-                        paramsObj={rpParams}
-                        setParams={setRpParams}
-                        granularityOptions={rpGranularityOptions}
-                    />
-                </div>
-            </div>
-            <div className="revenue-chart analytics-box">
-                <div className="box-header">
-                    <h2>Revenue By Location</h2>
-                    <div className="chart-selection-btns">
-                        <IconButton
-                            onClick={() => {
-                                setRblStacked(false);
-                            }}
-                        >
-                            <SvgIcon
-                                htmlColor={!rblStacked ? "white" : undefined}
-                            >
-                                <BarChartSharpIcon />
-                            </SvgIcon>
-                        </IconButton>
-                        <IconButton
-                            onClick={() => {
-                                setRblStacked(true);
-                            }}
-                        >
-                            <SvgIcon
-                                htmlColor={rblStacked ? "white" : undefined}
-                            >
-                                <StackedBarChartSharpIcon />
-                            </SvgIcon>
-                        </IconButton>
-                    </div>
-                </div>
-                <div className="chart">
-                    {rblLoading && (
-                        <div className="chart-loading">
-                            <CircularProgress />
-                        </div>
-                    )}
-                    {rblData.length > 0 &&
-                        !rblLoading &&
-                        rblParams.chartType === "bar" && (
-                            <CustomBarChart
-                                data={rblData as BarData[]}
-                                stacked={rblStacked}
-                                includeLegend={true}
-                                legendPosition={"bottom"}
-                                tiltLabels={true}
-                                valueFormat=">-$,.2f"
-                                margin={{
-                                    top: 10,
-                                    right: mobile ? 40 : 60,
-                                    bottom: mobile ? 80 : 85,
-                                    left: mobile ? 80 : 100,
-                                }}
-                                yAxisFormat={(value: number) =>
-                                    `$${value.toLocaleString("en-US")}`
-                                }
-                                enableLabel={false}
-                            />
-                        )}
-                </div>
-                <div className="box-footer">
-                    <DateSelector
-                        paramsObj={rblParams}
-                        setParams={setRblParams}
-                    />
-                    <GranularitySelector<PlusParams, PlusGranularity>
-                        paramsObj={rblParams}
-                        setParams={setRblParams}
-                        granularityOptions={rblGranularityOptions}
-                    />
-                </div>
-            </div>
+                )}
+            </ChartFrame>
         </div>
     );
 };
