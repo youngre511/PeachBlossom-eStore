@@ -52,6 +52,14 @@ const CustomBarChart: React.FC<Props> = ({
     const sortedKeys = keySort(keys);
 
     useEffect(() => {
+        if (dataArray.length > 1) {
+            setCurrentIdx(dataArray.length - 1);
+        } else {
+            setCurrentIdx(0);
+        }
+    }, [dataArray]);
+
+    useEffect(() => {
         let number: number = data.length;
         if (!stacked) {
             number = number * sortedKeys.length;
