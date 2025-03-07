@@ -19,16 +19,9 @@ import {
     fetchRevenueByLocation,
     fetchRevenueOverTime,
 } from "../../../features/Analytics/analyticsSlice";
-import { CircularProgress, IconButton, SvgIcon } from "@mui/material";
-import ShowChartSharpIcon from "@mui/icons-material/ShowChartSharp";
-import BarChartSharpIcon from "@mui/icons-material/BarChartSharp";
 import CustomLineChart from "../CustomCharts/CustomLineChart";
 import CustomBarChart from "../CustomCharts/CustomBarChart";
-import DateSelector from "../ChartComponents/DateSelector";
-import GranularitySelector from "../ChartComponents/GranularitySelector";
 import CustomPieChart from "../CustomCharts/CustomPieChart";
-import StackedBarChartSharpIcon from "@mui/icons-material/StackedBarChartSharp";
-import ChartSelectionButtons from "../ChartComponents/ChartSelectionButtons";
 import ChartFrame from "../ChartComponents/ChartFrame";
 
 interface Props {}
@@ -151,6 +144,8 @@ const Revenue: React.FC<Props> = () => {
                             <CustomLineChart
                                 data={rotData as LineData[]}
                                 idLegend={true}
+                                xLegend="Month"
+                                yLegend="Revenue"
                                 enableSlices="x"
                                 margin={{
                                     top: 10,
@@ -220,7 +215,7 @@ const Revenue: React.FC<Props> = () => {
                 setParams={setRblParams}
                 stacked={rblStacked}
                 setStacked={setRblStacked}
-                granularityOptions={rotGranularityOptions}
+                granularityOptions={rblGranularityOptions}
             >
                 {rblData.length > 0 && (
                     <CustomBarChart
