@@ -124,10 +124,12 @@
 .granularity-button-set-cont,
 .period-button-set-cont {
     overflow-x: scroll;
+    overflow-y: hidden;
     background-color: var(--peach-blush);
     scrollbar-width: none; /* Firefox */
     width: calc(100vw - 40px);
     transition: all 0.4s ease-in-out;
+    border: 1px solid var(--peach-blush);
 }
 
 .granularity-button-set,
@@ -154,13 +156,6 @@
     cursor: pointer;
     flex-shrink: 0;
     transition: color 0.2s ease-in-out;
-}
-
-.granularity-button-selected,
-.period-button-selected {
-    position: sticky;
-    right: 0;
-    left: 0;
 }
 
 .granularity-button:hover,
