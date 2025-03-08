@@ -9,7 +9,7 @@ import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
 import { fetchProducts } from "../../features/ProductCatalog/catalogSlice";
 import ProductCatalog from "../../features/ProductCatalog/ProductCatalog";
 import FilterOptions from "../../features/FilterOptions/FilterOptions";
-import SortMethodSelector from "../../features/SortMethodSelector/SortMethodSelector";
+import SortMethodSelector from "../SortMethodSelector/SortMethodSelector";
 import { Filters } from "../../features/ProductCatalog/CatalogTypes";
 import ItemsPerPageSelector from "./ItemsPerPageSelector";
 import FilterAltSharpIcon from "@mui/icons-material/FilterAltSharp";

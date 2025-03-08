@@ -9,7 +9,7 @@ import { useSearchParams } from "react-router-dom";
 import { CustomerOrderFilter } from "../../features/UserData/UserDataTypes";
 import CustomerOrderRow from "./CustomerOrderRow";
 import PageSelector from "../Shop/PageSelector";
-import SortMethodSelector from "../../features/SortMethodSelector/SortMethodSelector";
+import SortMethodSelector from "../SortMethodSelector/SortMethodSelector";
 import { InputLabel } from "@mui/material";
 
 interface CustomerOrdersProps {}
