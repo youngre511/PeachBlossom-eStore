@@ -10,7 +10,7 @@ import React, {
 import { useEffect } from "react";
 import ChangeUserData from "./ChangeUserData";
 import { FormControl, FormLabel, TextField } from "@mui/material";
-import { AuthContext } from "../../../../common/contexts/authContext";
+import { AuthContext } from "../../../../../common/contexts/authContext";
 const PasswordStrengthBar = lazy(() => import("react-password-strength-bar"));
 
 interface ChangeCustomerPasswordProps {}

@@ -21,7 +21,7 @@ import pblogo1x from "../../../assets/peachblossomlogo-1x.webp";
 import pblogo2x from "../../../assets/peachblossomlogo-2x.webp";
 import pblogo3x from "../../../assets/peachblossomlogo-3x.webp";
 import { useNavigationContext } from "../../../common/contexts/navContext";
-import AccountsTab from "../../components/AccountsTab/AccountsTab";
+import AccountsTab from "../AccountsTab/AccountsTab";
 import RecentlyViewed from "./components/RecentlyViewed";
 import { AuthContext } from "../../../common/contexts/authContext";
 import { logActivity } from "../../store/userData/userDataTrackingThunks";

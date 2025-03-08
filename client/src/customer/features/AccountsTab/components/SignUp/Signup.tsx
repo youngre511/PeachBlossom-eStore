@@ -8,12 +8,12 @@ import React, {
     useState,
 } from "react";
 import { useEffect, lazy, Suspense } from "react";
-import PeachButton from "../../../../common/components/PeachButton";
+import PeachButton from "../../../../../common/components/PeachButton";
 import "./signup.css";
 import {
     AuthContext,
     CreateAccountData,
-} from "../../../../common/contexts/authContext";
+} from "../../../../../common/contexts/authContext";
 const PasswordStrengthBar = lazy(() => import("react-password-strength-bar"));
 
 interface Props {

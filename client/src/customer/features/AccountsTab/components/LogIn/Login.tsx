@@ -8,11 +8,11 @@ import React, {
     useState,
 } from "react";
 import { useEffect } from "react";
-import PeachButton from "../../../../common/components/PeachButton";
+import PeachButton from "../../../../../common/components/PeachButton";
 import "./login.css";
-import { AuthContext } from "../../../../common/contexts/authContext";
-import { useAppSelector } from "../../../hooks/reduxHooks";
-import { RootState } from "../../../store/customerStore";
+import { AuthContext } from "../../../../../common/contexts/authContext";
+import { useAppSelector } from "../../../../hooks/reduxHooks";
+import { RootState } from "../../../../store/customerStore";
 
 interface Props {
     setCreating: React.Dispatch<SetStateAction<boolean>>;

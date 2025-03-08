@@ -2,8 +2,8 @@ import React, { ChangeEvent, FormEvent, useContext, useState } from "react";
 import { useEffect } from "react";
 import ChangeUserData from "./ChangeUserData";
 import { FormControl, FormLabel, TextField } from "@mui/material";
-import { AuthContext } from "../../../../common/contexts/authContext";
-import { useWindowSizeContext } from "../../../../common/contexts/windowSizeContext";
+import { AuthContext } from "../../../../../common/contexts/authContext";
+import { useWindowSizeContext } from "../../../../../common/contexts/windowSizeContext";
 
 interface ChangeCustomerNameProps {}
 const ChangeCustomerName: React.FC<ChangeCustomerNameProps> = () => {

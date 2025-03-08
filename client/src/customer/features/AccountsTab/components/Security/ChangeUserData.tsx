@@ -1,6 +1,6 @@
 import React, { FormEvent, SetStateAction, useState } from "react";
 import { useEffect } from "react";
-import PeachButton from "../../../../common/components/PeachButton";
+import PeachButton from "../../../../../common/components/PeachButton";
 
 interface ChangeUserDataProps {
     children: React.ReactNode;
