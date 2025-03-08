@@ -33,10 +33,10 @@ import {
     SvgIcon,
     TextField,
 } from "@mui/material";
-import MobileShopCategoryBlock from "./MobileShopCategoryBlock";
+import MobileShopCategoryBlock from "./components/MobileShopCategoryBlock";
 import { useNavigationContext } from "../../../common/contexts/navContext";
-import AccountsTab from "../AccountsTab/AccountsTab";
-import { logActivity } from "../../features/UserData/userDataTrackingThunks";
+import AccountsTab from "../../components/AccountsTab/AccountsTab";
+import { logActivity } from "../../store/userData/userDataTrackingThunks";
 gsap.registerPlugin(ScrollTrigger);
 gsap.registerPlugin(useGSAP);
 

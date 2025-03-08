@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { RootState } from "../customerStore";
+import { RootState } from "../../../store/customerStore";
 import axios from "axios";
 import { SearchOptionsState } from "./SearchOptionsTypes";
 

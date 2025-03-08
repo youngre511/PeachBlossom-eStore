@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
-import { RootState } from "../../store/customerStore";
+import { RootState } from "../customerStore";
 import {
     Category,
     CategoryState,

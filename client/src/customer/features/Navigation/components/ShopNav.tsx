@@ -1,9 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { useAppSelector } from "../../hooks/reduxHooks";
-import { RootState } from "../../store/customerStore";
+import { useAppSelector } from "../../../hooks/reduxHooks";
+import { RootState } from "../../../store/customerStore";
 import "./shop-nav.css";
-import DropdownMenu from "../DropdownMenu/DropdownMenu";
+import DropdownMenu from "../../../components/DropdownMenu/DropdownMenu";
 
 interface Props {
     isShopMenuVisible: boolean;

@@ -18,8 +18,8 @@ import storage from "redux-persist/lib/storage";
 import cartReducer from "../features/Cart/cartSlice";
 import catalogReducer from "../features/Shop/catalogSlice";
 import userDataReducer from "./userData/userDataSlice";
-import categoriesReducer from "../features/Categories/categoriesSlice";
-import searchOptionsReducer from "./searchOptions/searchOptionsSlice";
+import categoriesReducer from "./categories/categoriesSlice";
+import searchOptionsReducer from "../features/Navigation/store/searchOptionsSlice";
 import { PersistPartial } from "redux-persist/lib/persistReducer";
 
 const PERSIST_VERSION = 1;

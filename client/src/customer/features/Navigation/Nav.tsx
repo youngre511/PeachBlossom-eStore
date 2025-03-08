@@ -8,10 +8,10 @@ import SearchButton from "../../../assets/img/search.svg?react";
 import CartButton from "../../../assets/img/cart.svg?react";
 import RecentButton from "../../../assets/img/recent.svg?react";
 import AccountButton from "../../../assets/img/account.svg?react";
-import ShopNav from "../ShopMenu/ShopNav";
+import ShopNav from "./components/ShopNav";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
-import CartDropDown from "../../features/Cart/CartDropDown";
+import CartDropDown from "../Cart/CartDropDown";
 import { RootState } from "../../store/customerStore";
 
 import { Autocomplete, Button, TextField, Tooltip } from "@mui/material";
@@ -21,10 +21,10 @@ import pblogo1x from "../../../assets/peachblossomlogo-1x.webp";
 import pblogo2x from "../../../assets/peachblossomlogo-2x.webp";
 import pblogo3x from "../../../assets/peachblossomlogo-3x.webp";
 import { useNavigationContext } from "../../../common/contexts/navContext";
-import AccountsTab from "../AccountsTab/AccountsTab";
-import RecentlyViewed from "../../features/RecentlyViewed/RecentlyViewed";
+import AccountsTab from "../../components/AccountsTab/AccountsTab";
+import RecentlyViewed from "./components/RecentlyViewed";
 import { AuthContext } from "../../../common/contexts/authContext";
-import { logActivity } from "../../features/UserData/userDataTrackingThunks";
+import { logActivity } from "../../store/userData/userDataTrackingThunks";
 
 interface Props {}
 const Nav: React.FC<Props> = () => {
