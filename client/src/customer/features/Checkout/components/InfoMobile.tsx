@@ -9,7 +9,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import ExpandMoreRoundedIcon from "@mui/icons-material/ExpandMoreRounded";
 
 import Info from "./Info";
-import { CartItem } from "../../features/Cart/CartTypes";
+import { CartItem } from "../../Cart/CartTypes";
 
 interface InfoProps {
     totalPrice: number;

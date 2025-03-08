@@ -1,51 +1,68 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
-// import "./style/general.css";
+
+// Hooks and Contexts
+import { useAppDispatch, useAppSelector } from "./hooks/reduxHooks";
+import { useNavigationContext } from "../common/contexts/navContext";
+import { useWindowSizeContext } from "../common/contexts/windowSizeContext";
+import { AuthContext } from "../common/contexts/authContext";
+
+// Theme
 import { ThemeProvider } from "@mui/material/styles";
 import theme from "../common/utils/materialUITheme";
-import Nav from "./features/Navigation/Nav";
+
+// Pages
 import About from "./features/StaticPages/About";
-import Home from "./components/Home/Home";
-import ProductDetails from "./components/ProductDetails/ProductDetails";
-import OrderStatus from "./components/OrderStatus/OrderStatus";
-import Sustainability from "./features/StaticPages/Sustainability";
-import Footer from "./components/Footer/Footer";
-import TermsAndConditions from "./features/StaticPages/TermsAndConditions";
-import ShippingAndReturns from "./components/ShippingAndReturns/ShippingAndReturns";
+import Cart from "./features/Cart/Cart";
+import Checkout from "./features/Checkout/Checkout";
+import CookieConsent from "./features/CookieConsent/CookieConsent";
+import CustomerOrders from "./features/CustomerOrders/CustomerOrders";
+import Footer from "./features/Footer/Footer";
+import Home from "./features/Home/Home";
+import MobileNav from "./features/Navigation/MobileNav";
+import Nav from "./features/Navigation/Nav";
+import OrderStatus from "./features/OrderStatus/OrderStatus";
 import PrivacyAndCookies from "./features/StaticPages/PrivacyAndCookies";
+import ProductDetails from "./features/ProductDetails/ProductDetails";
+import ShippingAndReturns from "./features/StaticPages/ShippingAndReturns";
 import Shop from "./features/Shop/Shop";
-import { useAppDispatch, useAppSelector } from "./hooks/reduxHooks";
+import Support from "./features/StaticPages/Support";
+import Sustainability from "./features/StaticPages/Sustainability";
+import TermsAndConditions from "./features/StaticPages/TermsAndConditions";
+
+// Stores and Dispatches
+import { RootState } from "./store/customerStore";
 import { fetchCategories } from "./store/categories/categoriesSlice";
 import { fetchSearchOptions } from "./features/Navigation/store/searchOptionsSlice";
-import Cart from "./features/Cart/Cart";
-import Checkout from "./components/Checkout/Checkout";
-import MobileNav from "./features/Navigation/MobileNav";
-import { useWindowSizeContext } from "../common/contexts/windowSizeContext";
+import { setAllowTracking } from "./store/userData/userDataSlice";
+import {
+    startActivityLogPusher,
+    syncRecentlyViewed,
+} from "./store/userData/userDataTrackingThunks";
+
+// Images
 import pblogo1x from "../assets/peachblossomlogo-1x.webp";
 import pblogo2x from "../assets/peachblossomlogo-2x.webp";
 import pblogo3x from "../assets/peachblossomlogo-3x.webp";
 import pbtext1x from "../assets/peachblossomtext-1x.webp";
 import pbtext2x from "../assets/peachblossomtext-2x.webp";
 import pbtext3x from "../assets/peachblossomtext-3x.webp";
-import { useNavigationContext } from "../common/contexts/navContext";
-import Support from "./features/StaticPages/Support";
-import CustomerOrders from "./components/CustomerOrders/CustomerOrders";
+
+// MUI Components
+import { Fade, IconButton, Snackbar } from "@mui/material";
+import CloseSharpIcon from "@mui/icons-material/CloseSharp";
+
+//Misc
 import ProtectedRoute from "../common/components/ProtectedRoute/ProtectedRoute";
-import { AuthContext } from "../common/contexts/authContext";
 import {
     getCookie,
     renewConsentCookie,
     syncCookieConsent,
 } from "./utils/cookieUtils";
-import { setAllowTracking } from "./store/userData/userDataSlice";
-import { RootState } from "./store/customerStore";
-import {
-    startActivityLogPusher,
-    syncRecentlyViewed,
-} from "./store/userData/userDataTrackingThunks";
-import CookieConsent from "./components/CookieConsent/CookieConsent";
-import { Fade, IconButton, Snackbar } from "@mui/material";
-import CloseSharpIcon from "@mui/icons-material/CloseSharp";
+
+/////////////////////////////
+////////APP COMPONENT////////
+/////////////////////////////
 
 const CustomerApp: React.FC = () => {
     const dispatch = useAppDispatch();

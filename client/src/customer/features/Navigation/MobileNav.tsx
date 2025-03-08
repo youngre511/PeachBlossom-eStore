@@ -35,7 +35,7 @@ import {
 } from "@mui/material";
 import MobileShopCategoryBlock from "./components/MobileShopCategoryBlock";
 import { useNavigationContext } from "../../../common/contexts/navContext";
-import AccountsTab from "../../components/AccountsTab/AccountsTab";
+import AccountsTab from "../AccountsTab/AccountsTab";
 import { logActivity } from "../../store/userData/userDataTrackingThunks";
 gsap.registerPlugin(ScrollTrigger);
 gsap.registerPlugin(useGSAP);

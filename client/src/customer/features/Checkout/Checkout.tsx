@@ -17,11 +17,11 @@ import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 import ChevronLeftRoundedIcon from "@mui/icons-material/ChevronLeftRounded";
 import ChevronRightRoundedIcon from "@mui/icons-material/ChevronRightRounded";
 
-import AddressForm from "../AddressForm/AddressForm";
-import Info from "./Info";
-import InfoMobile from "./InfoMobile";
-import PaymentForm from "./PaymentForm";
-import Review from "./Review";
+import AddressForm from "../../components/AddressForm/AddressForm";
+import Info from "./components/Info";
+import InfoMobile from "./components/InfoMobile";
+import PaymentForm from "./components/PaymentForm";
+import Review from "./components/Review";
 import { useAppSelector, useAppDispatch } from "../../hooks/reduxHooks";
 import { RootState } from "../../store/customerStore";
 import axios, { AxiosError } from "axios";
@@ -37,19 +37,17 @@ import "./checkout.css";
 import { useCheckoutTimer } from "../../../common/contexts/checkoutTimerContext";
 import BlankPopup from "../../../common/components/BlankPopup";
 import { AuthContext } from "../../../common/contexts/authContext";
-import { validStates } from "../AddressForm/AddressForm";
+import { validStates } from "../../components/AddressForm/AddressForm";
 import {
     logActivity,
     pushActivityLogs,
-} from "../../features/UserData/userDataTrackingThunks";
+} from "../../store/userData/userDataTrackingThunks";
 import { logAxiosError } from "../../../common/utils/logAxiosError";
-import {
-    addAddress,
-    getCustomerAddresses,
-} from "../../features/UserData/userDataSlice";
-import AddressSelector from "../AddressSelector/AddressSelector";
+import { getCustomerAddresses } from "../../store/userData/userDataSlice";
+import AddressSelector from "./components/AddressSelector";
 import { Checkbox } from "@mui/material";
 import CustomEmptyCheckbox from "../../../common/components/CustomEmptyCheckbox";
+import { ShippingDetails } from "../../store/userData/UserDataTypes";
 
 export interface PaymentDetails {
     cardType: string;
@@ -57,17 +55,6 @@ export interface PaymentDetails {
     cardNumber: string;
     cvv: string;
     expiryDate: string;
-}
-
-export interface ShippingDetails {
-    shippingAddress: string;
-    shippingAddress2: string;
-    firstName: string;
-    lastName: string;
-    zipCode: string;
-    phoneNumber: string;
-    stateAbbr: string;
-    city: string;
 }
 
 interface OrderData {

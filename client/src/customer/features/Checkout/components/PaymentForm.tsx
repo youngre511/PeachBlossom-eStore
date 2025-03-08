@@ -15,7 +15,7 @@ import CreditCardRoundedIcon from "@mui/icons-material/CreditCardRounded";
 import SimCardRoundedIcon from "@mui/icons-material/SimCardRounded";
 
 import { styled } from "@mui/system";
-import { PaymentDetails } from "./Checkout";
+import { PaymentDetails } from "../Checkout";
 
 const FormGrid = styled("div")(() => ({
     display: "flex",

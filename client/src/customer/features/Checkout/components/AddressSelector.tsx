@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { useEffect } from "react";
-import { CustomerAddress } from "../../features/UserData/UserDataTypes";
-import { ShippingDetails } from "../Checkout/Checkout";
-import CustomerAddressBox from "../CustomerAddressBox/CustomerAddressBox";
+import {
+    ShippingDetails,
+    CustomerAddress,
+} from "../../../store/userData/UserDataTypes";
+import CustomerAddressBox from "../../../components/CustomerAddressBox/CustomerAddressBox";
 import { FormControl, Icon, RadioGroup } from "@mui/material";
 import AddCircleOutlineSharpIcon from "@mui/icons-material/AddCircleOutlineSharp";
 import "./address-selector.css";

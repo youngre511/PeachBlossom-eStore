@@ -10,7 +10,7 @@ import {
 } from "./UserDataTypes";
 import axios from "axios";
 import { arraysEqual } from "../../../common/utils/arraysEqual";
-import { ShippingDetails } from "../../components/Checkout/Checkout";
+import { ShippingDetails } from "./UserDataTypes";
 import { pushActivityLogs } from "./userDataTrackingThunks";
 
 const initialState: UserDataState = {
