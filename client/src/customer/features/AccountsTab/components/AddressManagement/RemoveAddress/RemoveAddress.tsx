@@ -1,11 +1,10 @@
 import React, { SetStateAction } from "react";
-import { useEffect } from "react";
-import { CustomerAddress } from "../../../../features/UserData/UserDataTypes";
-import CustomerAddressBox from "../../../CustomerAddressBox/CustomerAddressBox";
-import PeachButton from "../../../../../common/components/PeachButton";
+import { CustomerAddress } from "../../../../../store/userData/UserDataTypes";
+import CustomerAddressBox from "../../../../../components/CustomerAddressBox/CustomerAddressBox";
+import PeachButton from "../../../../../../common/components/PeachButton";
 import "./remove-address.css";
-import { useAppDispatch } from "../../../../hooks/reduxHooks";
-import { removeAddress } from "../../../../features/UserData/userDataSlice";
+import { useAppDispatch } from "../../../../../hooks/reduxHooks";
+import { removeAddress } from "../../../../../store/userData/userDataSlice";
 
 interface RemoveAddressProps {
     address: CustomerAddress;

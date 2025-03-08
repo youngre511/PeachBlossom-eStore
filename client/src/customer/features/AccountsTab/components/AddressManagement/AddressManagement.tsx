@@ -1,16 +1,16 @@
 import { ChevronLeftSharp } from "@mui/icons-material";
 import React, { SetStateAction, useState } from "react";
 import { useEffect } from "react";
-import { useAppDispatch, useAppSelector } from "../../../hooks/reduxHooks";
-import { RootState } from "../../../store/customerStore";
-import { getCustomerAddresses } from "../../../features/UserData/userDataSlice";
-import CustomerAddressBox from "../../CustomerAddressBox/CustomerAddressBox";
+import { useAppDispatch, useAppSelector } from "../../../../hooks/reduxHooks";
+import { RootState } from "../../../../store/customerStore";
+import { getCustomerAddresses } from "../../../../store/userData/userDataSlice";
+import CustomerAddressBox from "../../../../components/CustomerAddressBox/CustomerAddressBox";
 import { CircularProgress } from "@mui/material";
 import "./address-management.css";
-import PeachButton from "../../../../common/components/PeachButton";
-import { useWindowSizeContext } from "../../../../common/contexts/windowSizeContext";
+import PeachButton from "../../../../../common/components/PeachButton";
+import { useWindowSizeContext } from "../../../../../common/contexts/windowSizeContext";
 import AddressManagementSubpanel from "./AddressManagementSubpanel/AddressManagementSubpanel";
-import { CustomerAddress } from "../../../features/UserData/UserDataTypes";
+import { CustomerAddress } from "../../../../store/userData/UserDataTypes";
 
 interface AddressManagementProps {
     setShowAddresses: React.Dispatch<SetStateAction<boolean>>;

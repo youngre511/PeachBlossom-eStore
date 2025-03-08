@@ -1,9 +1,8 @@
 import React from "react";
-import { useEffect } from "react";
-import { CustomerOrder } from "../../features/UserData/UserDataTypes";
+import { CustomerOrder } from "../../store/userData/UserDataTypes";
 import PeachButton from "../../../common/components/PeachButton";
 import { useAppDispatch } from "../../hooks/reduxHooks";
-import { setCurrentOrderNo } from "../../features/UserData/userDataSlice";
+import { setCurrentOrderNo } from "../../store/userData/userDataSlice";
 import { useNavigate } from "react-router-dom";
 import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
 import { ChevronRight } from "@mui/icons-material";

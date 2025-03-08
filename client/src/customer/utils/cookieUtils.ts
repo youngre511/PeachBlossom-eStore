@@ -1,7 +1,7 @@
 import axios from "axios";
-import { RecentView } from "../features/UserData/UserDataTypes";
+import { RecentView } from "../store/userData/UserDataTypes";
 import { AuthContextProps } from "../../common/contexts/authContext";
-import { setAllowTracking } from "../features/UserData/userDataSlice";
+import { setAllowTracking } from "../store/userData/userDataSlice";
 import { AppDispatch } from "../store/customerStore";
 import { logAxiosError } from "../../common/utils/logAxiosError";
 

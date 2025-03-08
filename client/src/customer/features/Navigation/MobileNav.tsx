@@ -25,14 +25,7 @@ import pbtext1x from "../../../assets/peachblossomtext-1x.webp";
 import pbtext2x from "../../../assets/peachblossomtext-2x.webp";
 import pbtext3x from "../../../assets/peachblossomtext-3x.webp";
 
-import {
-    Autocomplete,
-    Button,
-    duration,
-    InputAdornment,
-    SvgIcon,
-    TextField,
-} from "@mui/material";
+import { Autocomplete, Button, TextField } from "@mui/material";
 import MobileShopCategoryBlock from "./components/MobileShopCategoryBlock";
 import { useNavigationContext } from "../../../common/contexts/navContext";
 import AccountsTab from "../AccountsTab/AccountsTab";

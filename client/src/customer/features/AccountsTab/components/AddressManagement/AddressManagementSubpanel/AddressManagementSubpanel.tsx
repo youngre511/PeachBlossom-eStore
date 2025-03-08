@@ -2,7 +2,7 @@ import { ChevronLeftSharp } from "@mui/icons-material";
 import React, { SetStateAction, useState } from "react";
 import { useEffect } from "react";
 import "./address-management-subpanel.css";
-import { CustomerAddress } from "../../../../features/UserData/UserDataTypes";
+import { CustomerAddress } from "../../../../../store/userData/UserDataTypes";
 import EditAddAddress from "../EditAddAddress/EditAddAddress";
 import RemoveAddress from "../RemoveAddress/RemoveAddress";
 

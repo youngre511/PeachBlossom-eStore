@@ -10,7 +10,7 @@ import Slider, { Settings } from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "./product-details.css";
-import AddToCartButton from "../AddToCartButton/AddToCartButton";
+import AddToCartButton from "../../components/AddToCartButton/AddToCartButton";
 import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
 import { useNavigationContext } from "../../../common/contexts/navContext";
 import { Button, CircularProgress } from "@mui/material";

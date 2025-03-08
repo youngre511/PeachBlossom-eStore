@@ -1,16 +1,19 @@
 import React, { SetStateAction, useState } from "react";
 import { useEffect } from "react";
-import { CustomerAddress } from "../../../../features/UserData/UserDataTypes";
-import { useAppDispatch, useAppSelector } from "../../../../hooks/reduxHooks";
-import { RootState } from "../../../../store/customerStore";
+import { CustomerAddress } from "../../../../../store/userData/UserDataTypes";
+import {
+    useAppDispatch,
+    useAppSelector,
+} from "../../../../../hooks/reduxHooks";
+import { RootState } from "../../../../../store/customerStore";
 import { CircularProgress } from "@mui/material";
-import { ShippingDetails } from "../../../Checkout/Checkout";
-import AddressForm from "../../../AddressForm/AddressForm";
-import PeachButton from "../../../../../common/components/PeachButton";
+import { ShippingDetails } from "../../../../../store/userData/UserDataTypes";
+import AddressForm from "../../../../../components/AddressForm/AddressForm";
+import PeachButton from "../../../../../../common/components/PeachButton";
 import {
     addAddress,
     editAddress,
-} from "../../../../features/UserData/userDataSlice";
+} from "../../../../../store/userData/userDataSlice";
 import "./edit-add-address.css";
 
 interface EditAddAddressProps {

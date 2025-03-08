@@ -1,7 +1,7 @@
 import React from "react";
-import DropdownMenu from "../../components/DropdownMenu/DropdownMenu";
-import { useAppSelector } from "../../hooks/reduxHooks";
-import { RootState } from "../../store/customerStore";
+import DropdownMenu from "../../../components/DropdownMenu/DropdownMenu";
+import { useAppSelector } from "../../../hooks/reduxHooks";
+import { RootState } from "../../../store/customerStore";
 import "./recently-viewed.css";
 import { useNavigate } from "react-router-dom";
 

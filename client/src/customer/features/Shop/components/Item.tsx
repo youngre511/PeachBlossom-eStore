@@ -1,9 +1,9 @@
 import React from "react";
-import AddToCartButton from "../AddToCartButton/AddToCartButton";
-import { Product } from "../../features/Shop/CatalogTypes";
+import AddToCartButton from "../../../components/AddToCartButton/AddToCartButton";
+import { Product } from "../CatalogTypes";
 import "./item.css";
 import { useNavigate } from "react-router-dom";
-import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
+import { useWindowSizeContext } from "../../../../common/contexts/windowSizeContext";
 
 const Item: React.FC<Product> = ({
     productNo,

@@ -9,7 +9,7 @@ import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
 import { fetchProducts } from "./catalogSlice";
 import ProductCatalog from "./components/ProductCatalog";
 import FilterOptions from "../../features/FilterOptions/FilterOptions";
-import SortMethodSelector from "../../components/SortMethodSelector/SortMethodSelector";
+import SortMethodSelector from "./components/SortMethodSelector";
 import { Filters } from "./CatalogTypes";
 import ItemsPerPageSelector from "./components/ItemsPerPageSelector";
 import FilterAltSharpIcon from "@mui/icons-material/FilterAltSharp";
@@ -17,7 +17,7 @@ import SwapVertSharpIcon from "@mui/icons-material/SwapVertSharp";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
-import PageSelector from "./components/PageSelector";
+import PageSelector from "../../components/PageSelector/PageSelector";
 
 const Shop = () => {
     const dispatch = useAppDispatch();

@@ -84,3 +84,14 @@ export interface CustomerOrderFilter {
     endDate?: string;
     page: string;
 }
+
+export interface ShippingDetails {
+    shippingAddress: string;
+    shippingAddress2: string;
+    firstName: string;
+    lastName: string;
+    zipCode: string;
+    phoneNumber: string;
+    stateAbbr: string;
+    city: string;
+}

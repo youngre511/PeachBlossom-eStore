@@ -5,7 +5,7 @@ import { IconButton, Snackbar } from "@mui/material";
 import { AuthContext } from "../../../common/contexts/authContext";
 import Login from "./components/LogIn/Login";
 import Signup from "./components/SignUp/Signup";
-import AccountManagement from "./AccountManagement/AccountManagement";
+import AccountManagement from "./components/AccountManagement/AccountManagement";
 import { setCartId, syncCart } from "../../features/Cart/cartSlice";
 import { useAppDispatch } from "../../hooks/reduxHooks";
 

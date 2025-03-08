@@ -3,14 +3,12 @@ import "./customer-orders.css";
 import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
 import { RootState } from "../../store/customerStore";
-import { getUserOrders } from "../../features/UserData/userDataSlice";
+import { getUserOrders } from "../../store/userData/userDataSlice";
 import { AuthContext } from "../../../common/contexts/authContext";
 import { useSearchParams } from "react-router-dom";
-import { CustomerOrderFilter } from "../../features/UserData/UserDataTypes";
+import { CustomerOrderFilter } from "../../store/userData/UserDataTypes";
 import CustomerOrderRow from "./CustomerOrderRow";
-import PageSelector from "../Shop/PageSelector";
-import SortMethodSelector from "../SortMethodSelector/SortMethodSelector";
-import { InputLabel } from "@mui/material";
+import PageSelector from "../../components/PageSelector/PageSelector";
 
 interface CustomerOrdersProps {}
 const CustomerOrders: React.FC<CustomerOrdersProps> = () => {

@@ -93,6 +93,7 @@ const CustomerApp: React.FC = () => {
         }
     }, [currentRoute, previousRoute]);
 
+    //Image Preloading
     useEffect(() => {
         const img = new Image();
         const src =

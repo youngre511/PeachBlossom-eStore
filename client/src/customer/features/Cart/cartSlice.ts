@@ -9,13 +9,12 @@ import {
     UpdateQuantityArgs,
     CartResponsePayload,
     CartResponse,
-    MergeActionData,
     HoldResponsePayload,
     HoldResponse,
 } from "./CartTypes";
 import { RootState } from "../../store/customerStore";
 import axios from "axios";
-import { logActivity } from "../UserData/userDataTrackingThunks";
+import { logActivity } from "../../store/userData/userDataTrackingThunks";
 
 const initialState: CartState = {
     items: [],

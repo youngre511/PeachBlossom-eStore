@@ -2,11 +2,11 @@
 import React, { SetStateAction, useContext, useState } from "react";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import AccountButton from "../../../../assets/img/account.svg?react";
+import AccountButton from "../../../../../assets/img/account.svg?react";
 import "./account-management.css";
 import { ExpandMoreSharp } from "@mui/icons-material";
-import { AuthContext } from "../../../../common/contexts/authContext";
-import PeachButton from "../../../../common/components/PeachButton";
+import { AuthContext } from "../../../../../common/contexts/authContext";
+import PeachButton from "../../../../../common/components/PeachButton";
 import Security from "../Security/Security";
 import AddressManagement from "../AddressManagement/AddressManagement";
 

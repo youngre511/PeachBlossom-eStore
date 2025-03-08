@@ -8,7 +8,7 @@ import {
     FetchProductsResponse,
 } from "./CatalogTypes";
 import { arraysEqual } from "../../../common/utils/arraysEqual";
-import { addProductView } from "../UserData/userDataTrackingThunks";
+import { addProductView } from "../../store/userData/userDataTrackingThunks";
 
 const initialState: CatalogState = {
     singleProduct: null,
