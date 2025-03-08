@@ -19,7 +19,7 @@ import cartReducer from "../features/Cart/cartSlice";
 import catalogReducer from "../features/ProductCatalog/catalogSlice";
 import userDataReducer from "./userData/userDataSlice";
 import categoriesReducer from "../features/Categories/categoriesSlice";
-import searchOptionsReducer from "../features/SearchOptions/searchOptionsSlice";
+import searchOptionsReducer from "./searchOptions/searchOptionsSlice";
 import { PersistPartial } from "redux-persist/lib/persistReducer";
 
 const PERSIST_VERSION = 1;
