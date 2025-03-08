@@ -1,6 +1,6 @@
 import React from "react";
 import AddToCartButton from "../AddToCartButton/AddToCartButton";
-import { Product } from "../../features/ProductCatalog/CatalogTypes";
+import { Product } from "../../features/Shop/CatalogTypes";
 import "./item.css";
 import { useNavigate } from "react-router-dom";
 import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";

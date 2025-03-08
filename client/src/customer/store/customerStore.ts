@@ -16,7 +16,7 @@ import {
 } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import cartReducer from "../features/Cart/cartSlice";
-import catalogReducer from "../features/ProductCatalog/catalogSlice";
+import catalogReducer from "../features/Shop/catalogSlice";
 import userDataReducer from "./userData/userDataSlice";
 import categoriesReducer from "../features/Categories/categoriesSlice";
 import searchOptionsReducer from "./searchOptions/searchOptionsSlice";

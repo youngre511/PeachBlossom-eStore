@@ -1,12 +1,12 @@
 import React from "react";
 import { useEffect, useState, useRef } from "react";
-import { useAppSelector } from "../../hooks/reduxHooks";
-import { RootState } from "../../store/customerStore";
-import Item from "../../components/Item/Item";
-import { Product } from "./CatalogTypes";
+import { useAppSelector } from "../../../hooks/reduxHooks";
+import { RootState } from "../../../store/customerStore";
+import Item from "./Item";
+import { Product } from "../CatalogTypes";
 import { CircularProgress } from "@mui/material";
 import "./product-catalog.css";
-import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
+import { useWindowSizeContext } from "../../../../common/contexts/windowSizeContext";
 
 interface Props {
     page: number;

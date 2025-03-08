@@ -2,7 +2,7 @@ import React, { SetStateAction } from "react";
 import { useEffect } from "react";
 import MinMaxFields from "./MinMaxFields";
 import { FormGroup } from "@mui/material";
-import { Filters } from "../../ProductCatalog/CatalogTypes";
+import { Filters } from "../../Shop/CatalogTypes";
 
 type StringOnlyFilterKeys = {
     [K in keyof Filters]: Filters[K] extends string | null ? K : never;

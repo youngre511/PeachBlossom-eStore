@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Product } from "../../features/ProductCatalog/CatalogTypes";
+import { Product } from "../../features/Shop/CatalogTypes";
 import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
-import { fetchOneProduct } from "../../features/ProductCatalog/catalogSlice";
+import { fetchOneProduct } from "../../features/Shop/catalogSlice";
 import { RootState } from "../../store/customerStore";
 
 import Slider, { Settings } from "react-slick";

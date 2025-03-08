@@ -1,7 +1,7 @@
 import React, { SetStateAction } from "react";
 import { useEffect } from "react";
 import DecimalField from "../../../../common/components/Fields/DecimalField";
-import { Filters } from "../../ProductCatalog/CatalogTypes";
+import { Filters } from "../../Shop/CatalogTypes";
 
 interface MinMaxFieldsProps {
     prefix?: string;

@@ -6,18 +6,18 @@ import "./shop.css";
 import { RootState } from "../../store/customerStore";
 import { arraysEqual } from "../../../common/utils/arraysEqual";
 import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
-import { fetchProducts } from "../../features/ProductCatalog/catalogSlice";
-import ProductCatalog from "../../features/ProductCatalog/ProductCatalog";
+import { fetchProducts } from "./catalogSlice";
+import ProductCatalog from "./components/ProductCatalog";
 import FilterOptions from "../../features/FilterOptions/FilterOptions";
-import SortMethodSelector from "../SortMethodSelector/SortMethodSelector";
-import { Filters } from "../../features/ProductCatalog/CatalogTypes";
-import ItemsPerPageSelector from "./ItemsPerPageSelector";
+import SortMethodSelector from "../../components/SortMethodSelector/SortMethodSelector";
+import { Filters } from "./CatalogTypes";
+import ItemsPerPageSelector from "./components/ItemsPerPageSelector";
 import FilterAltSharpIcon from "@mui/icons-material/FilterAltSharp";
 import SwapVertSharpIcon from "@mui/icons-material/SwapVertSharp";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
-import PageSelector from "./PageSelector";
+import PageSelector from "./components/PageSelector";
 
 const Shop = () => {
     const dispatch = useAppDispatch();

@@ -1,6 +1,6 @@
 import React from "react";
 import { useEffect } from "react";
-import { Filters } from "../../ProductCatalog/CatalogTypes";
+import { Filters } from "../../Shop/CatalogTypes";
 import { useAppSelector } from "../../../hooks/reduxHooks";
 import { RootState } from "../../../store/customerStore";
 import { Category } from "../../Categories/CategoriesTypes";

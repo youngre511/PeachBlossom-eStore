@@ -2,7 +2,7 @@ import React from "react";
 import { useEffect, useState } from "react";
 import { RootState } from "../../store/customerStore";
 import { useAppSelector } from "../../hooks/reduxHooks";
-import { Filters } from "../ProductCatalog/CatalogTypes";
+import { Filters } from "../Shop/CatalogTypes";
 import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
 import MobileFilters from "./MobileFilters";
 import DesktopFilters from "./DesktopFilters";

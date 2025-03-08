@@ -13,7 +13,7 @@ import MaterialFilters from "./FilterSections/MaterialFilters";
 import MinMaxFields from "./FilterSections/MinMaxFields";
 import DimensionFilters from "./FilterSections/DimensionFilters";
 import PeachButton from "../../../common/components/PeachButton";
-import { Filters } from "../ProductCatalog/CatalogTypes";
+import { Filters } from "../Shop/CatalogTypes";
 import { useAppSelector } from "../../hooks/reduxHooks";
 import { RootState } from "../../store/customerStore";
 import ChevronRightSharpIcon from "@mui/icons-material/ChevronRightSharp";
