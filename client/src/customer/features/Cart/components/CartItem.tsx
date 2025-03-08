@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { CartItem as item } from "../Cart/CartTypes";
+import { CartItem as item } from "../CartTypes";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
-import { updateItemQuantity } from "../Cart/cartSlice";
+import { useAppDispatch, useAppSelector } from "../../../hooks/reduxHooks";
+import { updateItemQuantity } from "../cartSlice";
 import "./cart-item.css";
-import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
-import { RootState } from "../../store/customerStore";
+import { useWindowSizeContext } from "../../../../common/contexts/windowSizeContext";
+import { RootState } from "../../../store/customerStore";
 import axios from "axios";
 
 interface Props {

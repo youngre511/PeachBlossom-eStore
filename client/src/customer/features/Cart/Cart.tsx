@@ -1,7 +1,7 @@
 import React from "react";
 import { useAppSelector } from "../../hooks/reduxHooks";
 import { RootState } from "../../store/customerStore";
-import CartItem from "../CartItem/CartItem";
+import CartItem from "./components/CartItem";
 import { useNavigate } from "react-router-dom";
 import "./cart.css";
 import PeachButton from "../../../common/components/PeachButton";
