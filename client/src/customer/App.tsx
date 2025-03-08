@@ -37,12 +37,12 @@ import {
     renewConsentCookie,
     syncCookieConsent,
 } from "./utils/cookieUtils";
-import { setAllowTracking } from "./features/UserData/userDataSlice";
+import { setAllowTracking } from "./store/userData/userDataSlice";
 import { RootState } from "./store/customerStore";
 import {
     startActivityLogPusher,
     syncRecentlyViewed,
-} from "./features/UserData/userDataTrackingThunks";
+} from "./store/userData/userDataTrackingThunks";
 import CookieConsent from "./components/CookieConsent/CookieConsent";
 import { Fade, IconButton, Snackbar } from "@mui/material";
 import CloseSharpIcon from "@mui/icons-material/CloseSharp";

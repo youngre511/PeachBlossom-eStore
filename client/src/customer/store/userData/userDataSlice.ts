@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { RootState } from "../../store/customerStore";
+import { RootState } from "../customerStore";
 import {
     ActivityRecord,
     CustomerAddress,

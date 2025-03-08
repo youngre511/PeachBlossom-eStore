@@ -1,5 +1,5 @@
 import axios from "axios";
-import { AppThunk, RootState } from "../../store/customerStore";
+import { AppThunk, RootState } from "../customerStore";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import {
     addToRecentCookie,
