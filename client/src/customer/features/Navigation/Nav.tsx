@@ -1,62 +1,79 @@
 /// <reference types="vite-plugin-svgr/client" />
-import React, { ChangeEvent, useContext } from "react";
+import React, {
+    ChangeEvent,
+    useContext,
+    useEffect,
+    useRef,
+    useState,
+} from "react";
 import "./nav.css";
-import { useEffect, useRef, useState } from "react";
+
+// States, Contexts and Thunks
+import { RootState } from "../../store/customerStore";
+import { AuthContext } from "../../../common/contexts/authContext";
+import { logActivity } from "../../store/userData/userDataTrackingThunks";
+
+// Hooks
 import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
-import { useNavigate, useLocation } from "react-router-dom";
-import SearchButton from "../../../assets/img/search.svg?react";
-import CartButton from "../../../assets/img/cart.svg?react";
-import RecentButton from "../../../assets/img/recent.svg?react";
-import AccountButton from "../../../assets/img/account.svg?react";
-import ShopNav from "./components/ShopNav";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
-import CartDropDown from "../Cart/CartDropDown";
-import { RootState } from "../../store/customerStore";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigationContext } from "../../../common/contexts/navContext";
 
-import { Autocomplete, Button, TextField, Tooltip } from "@mui/material";
+// Components
+import AccountsTab from "../AccountsTab/AccountsTab";
+import CartDropDown from "../Cart/CartDropDown";
+import RecentlyViewed from "./components/RecentlyViewed";
+import ShopNav from "./components/ShopNav";
+import { Autocomplete, Button, TextField } from "@mui/material";
 
 //logo imports
 import pblogo1x from "../../../assets/peachblossomlogo-1x.webp";
 import pblogo2x from "../../../assets/peachblossomlogo-2x.webp";
 import pblogo3x from "../../../assets/peachblossomlogo-3x.webp";
-import { useNavigationContext } from "../../../common/contexts/navContext";
-import AccountsTab from "../AccountsTab/AccountsTab";
-import RecentlyViewed from "./components/RecentlyViewed";
-import { AuthContext } from "../../../common/contexts/authContext";
-import { logActivity } from "../../store/userData/userDataTrackingThunks";
+
+// button icons
+import AccountButton from "../../../assets/img/account.svg?react";
+import CartButton from "../../../assets/img/cart.svg?react";
+import RecentButton from "../../../assets/img/recent.svg?react";
+import SearchButton from "../../../assets/img/search.svg?react";
+import ProductSearchField from "./components/ProductSearchField";
 
 interface Props {}
 const Nav: React.FC<Props> = () => {
-    const { currentRoute, previousRoute } = useNavigationContext();
+    // Global States
     const cart = useAppSelector((state: RootState) => state.cart);
-    const [searchOptions, setSearchOptions] = useState<Array<string>>([]);
+    const cartContents = cart.numberOfItems;
     const searchOptionsSlice = useAppSelector(
         (state: RootState) => state.searchOptions
     );
-    const cartContents = cart.numberOfItems;
-    const auth = useContext(AuthContext);
-    const loggedIn = auth && auth.user && !auth.isTokenExpired();
 
+    // Refs
     const header = useRef<HTMLElement>(null);
-
-    const [isShopMenuVisible, setShopMenuVisible] = useState<boolean>(false);
     const shopAnimationRef = useRef<GSAPTimeline | null>(null);
-    const [isCartDropdownVisible, setCartDropdownVisible] =
-        useState<boolean>(false);
-    const cartAnimationRef = useRef<GSAPTimeline | null>(null);
-    const [isRecentVisible, setRecentVisible] = useState<boolean>(false);
-    const recentAnimationRef = useRef<GSAPTimeline | null>(null);
-    const [isSearchBarVisible, setIsSearchBarVisible] =
-        useState<boolean>(false);
 
-    const { contextSafe } = useGSAP({ scope: header });
-    const navigate = useNavigate();
-    const location = useLocation();
+    // Hook invocations
+    const auth = useContext(AuthContext);
     const dispatch = useAppDispatch();
-    const [searchQuery, setSearchQuery] = useState<string>("");
+    const location = useLocation();
+    const loggedIn = auth && auth.user && !auth.isTokenExpired();
+    const navigate = useNavigate();
+    const { contextSafe } = useGSAP({ scope: header });
+    const { currentRoute, previousRoute } = useNavigationContext();
+
+    // Local States
     const [accountsTabVisible, setAccountsTabVisible] =
         useState<boolean>(false);
+    const [isCartDropdownVisible, setCartDropdownVisible] =
+        useState<boolean>(false);
+    const [isRecentVisible, setRecentVisible] = useState<boolean>(false);
+    const [isSearchBarVisible, setIsSearchBarVisible] =
+        useState<boolean>(false);
+    const [isShopMenuVisible, setShopMenuVisible] = useState<boolean>(false);
+    const [searchOptions, setSearchOptions] = useState<Array<string>>([]);
+    const [searchQuery, setSearchQuery] = useState<string>("");
+    const cartAnimationRef = useRef<GSAPTimeline | null>(null);
+    const recentAnimationRef = useRef<GSAPTimeline | null>(null);
 
     useEffect(() => {
         if (searchOptionsSlice.searchOptions) {
@@ -136,7 +153,7 @@ const Nav: React.FC<Props> = () => {
 
     const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const path = `/shop?sort=name-ascend&page=1&search=${searchQuery.replace(
+        const path = `/shop?sort=name-ascend&page=1&search=${searchQuery.replaceAll(
             " ",
             "%20"
         )}`;
@@ -388,72 +405,12 @@ const Nav: React.FC<Props> = () => {
                 {/* Floats */}
                 <div className="search-tab">
                     <div className="search-input">
-                        <form onSubmit={(e) => handleSearch(e)}>
-                            <Autocomplete
-                                freeSolo
-                                id="product-search"
-                                onInputChange={(
-                                    e: React.SyntheticEvent,
-                                    value: string,
-                                    reason: string
-                                ) => {
-                                    if (reason === "clear") {
-                                        setSearchQuery("");
-                                        if (
-                                            currentRoute &&
-                                            currentRoute.includes("/shop")
-                                        ) {
-                                            navigate(
-                                                "/shop?sort=name-ascend&page=1"
-                                            );
-                                        }
-                                    }
-                                }}
-                                filterOptions={(searchOptions) => {
-                                    const inputValue =
-                                        searchQuery.toLowerCase();
-                                    return searchQuery.length >= 2
-                                        ? searchOptions.filter((option) =>
-                                              option
-                                                  .toLowerCase()
-                                                  .includes(inputValue)
-                                          )
-                                        : [];
-                                }}
-                                options={searchOptions}
-                                renderInput={(params) => (
-                                    <TextField
-                                        {...params}
-                                        label="Search Products"
-                                        variant="filled"
-                                        value={searchQuery}
-                                        onChange={(
-                                            e: ChangeEvent<HTMLInputElement>
-                                        ) =>
-                                            setSearchQuery(
-                                                e.target.value.substring(0, 150)
-                                            )
-                                        }
-                                        fullWidth
-                                        sx={{
-                                            backgroundColor: "white",
-                                        }}
-                                        size="small"
-                                        slotProps={{
-                                            input: {
-                                                ...params.InputProps,
-                                                type: "search",
-                                            },
-                                            htmlInput: {
-                                                ...params.inputProps,
-                                                inputMode: "search",
-                                            },
-                                        }}
-                                    />
-                                )}
-                            />
-                            <Button type="submit" style={{ display: "none" }} />
-                        </form>
+                        <ProductSearchField
+                            handleSearch={handleSearch}
+                            searchQuery={searchQuery}
+                            setSearchQuery={setSearchQuery}
+                            searchOptions={searchOptions}
+                        />
                     </div>
                 </div>
                 <div className="nav-logo">

@@ -1,23 +1,30 @@
 /// <reference types="vite-plugin-svgr/client" />
-import React, { ChangeEvent } from "react";
+import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import "./mobile-nav.css";
-import { useEffect, useRef, useState } from "react";
+
+// States and Thunks
+import { RootState } from "../../store/customerStore";
+import { logActivity } from "../../store/userData/userDataTrackingThunks";
+
+// Hooks
 import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
 import { useNavigate } from "react-router-dom";
-import SearchButton from "../../../assets/img/search.svg?react";
-import CartButton from "../../../assets/img/cart.svg?react";
+import { useNavigationContext } from "../../../common/contexts/navContext";
 
 import AccountButton from "../../../assets/img/account.svg?react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { RootState } from "../../store/customerStore";
-import MenuSharpIcon from "@mui/icons-material/MenuSharp";
-import CloseSharpIcon from "@mui/icons-material/CloseSharp";
-import ChevronRightSharpIcon from "@mui/icons-material/ChevronRightSharp";
-import ChevronLeftSharpIcon from "@mui/icons-material/ChevronLeftSharp";
 
-//logo imports
+// Button Icons
+import CartButton from "../../../assets/img/cart.svg?react";
+import ChevronLeftSharpIcon from "@mui/icons-material/ChevronLeftSharp";
+import ChevronRightSharpIcon from "@mui/icons-material/ChevronRightSharp";
+import CloseSharpIcon from "@mui/icons-material/CloseSharp";
+import MenuSharpIcon from "@mui/icons-material/MenuSharp";
+import SearchButton from "../../../assets/img/search.svg?react";
+
+// Logo imports
 import pblogo1x from "../../../assets/peachblossomlogo-1x.webp";
 import pblogo2x from "../../../assets/peachblossomlogo-2x.webp";
 import pblogo3x from "../../../assets/peachblossomlogo-3x.webp";
@@ -25,47 +32,51 @@ import pbtext1x from "../../../assets/peachblossomtext-1x.webp";
 import pbtext2x from "../../../assets/peachblossomtext-2x.webp";
 import pbtext3x from "../../../assets/peachblossomtext-3x.webp";
 
-import { Autocomplete, Button, TextField } from "@mui/material";
-import MobileShopCategoryBlock from "./components/MobileShopCategoryBlock";
-import { useNavigationContext } from "../../../common/contexts/navContext";
+// Components
 import AccountsTab from "../AccountsTab/AccountsTab";
-import { logActivity } from "../../store/userData/userDataTrackingThunks";
+import MobileShopCategoryBlock from "./components/MobileShopCategoryBlock";
+import { Autocomplete, Button, TextField } from "@mui/material";
+import ProductSearchField from "./components/ProductSearchField";
+
 gsap.registerPlugin(ScrollTrigger);
 gsap.registerPlugin(useGSAP);
 
 interface Props {}
 const MobileNav: React.FC<Props> = () => {
-    const { currentRoute, previousRoute } = useNavigationContext();
+    // Global States
     const cart = useAppSelector((state: RootState) => state.cart);
-    const [searchOptions, setSearchOptions] = useState<Array<string>>([]);
-    const searchOptionsSlice = useAppSelector(
-        (state: RootState) => state.searchOptions
-    );
     const cartContents = cart.numberOfItems;
-
-    const header = useRef<HTMLElement>(null);
-
-    const [isShopMenuVisible, setShopMenuVisible] = useState<boolean>(false);
-    const shopAnimationRef = useRef<GSAPTimeline | null>(null);
-    const [isSearchBarVisible, setIsSearchBarVisible] =
-        useState<boolean>(false);
-    const isSearchBarVisibleRef = useRef(isSearchBarVisible);
-    const { contextSafe } = useGSAP({ scope: header });
-    const navigate = useNavigate();
-    const [searchQuery, setSearchQuery] = useState<string>("");
     const categories = useAppSelector(
         (state: RootState) => state.categories.categories
     );
-    const menuToggleRef = useRef<GSAPTimeline | null>(null);
-    const [forceCollapse, setForceCollapse] = useState<boolean>(false);
-    const [staggerDuration, setStaggerDuration] = useState<number>(0);
-    const [menusExpanded, setMenusExpanded] = useState<Array<string>>([]);
+    const searchOptionsSlice = useAppSelector(
+        (state: RootState) => state.searchOptions
+    );
+
+    // Local States
     const [accountsTabVisible, setAccountsTabVisible] =
         useState<boolean>(false);
-    const dispatch = useAppDispatch();
+    const [forceCollapse, setForceCollapse] = useState<boolean>(false);
+    const [isSearchBarVisible, setIsSearchBarVisible] =
+        useState<boolean>(false);
+    const [isShopMenuVisible, setShopMenuVisible] = useState<boolean>(false);
+    const [menusExpanded, setMenusExpanded] = useState<Array<string>>([]);
+    const [searchOptions, setSearchOptions] = useState<Array<string>>([]);
+    const [searchQuery, setSearchQuery] = useState<string>("");
+    const [showFullLogo, setShowFullLogo] = useState<boolean>(true); // Tracks whether full logo should be visible based on scroll position
+    const [staggerDuration, setStaggerDuration] = useState<number>(0);
 
-    // State tracks whether full logo should be visible based on scroll position
-    const [showFullLogo, setShowFullLogo] = useState<boolean>(true);
+    // Refs
+    const header = useRef<HTMLElement>(null);
+    const isSearchBarVisibleRef = useRef(isSearchBarVisible);
+    const menuToggleRef = useRef<GSAPTimeline | null>(null);
+    const shopAnimationRef = useRef<GSAPTimeline | null>(null);
+
+    // Hook invocations
+    const dispatch = useAppDispatch();
+    const navigate = useNavigate();
+    const { contextSafe } = useGSAP({ scope: header });
+    const { currentRoute, previousRoute } = useNavigationContext();
 
     useEffect(() => {
         if (searchOptionsSlice.searchOptions) {
@@ -545,70 +556,12 @@ const MobileNav: React.FC<Props> = () => {
             <div className="m-search-tab-container">
                 <div className="m-search-tab">
                     <div className="m-search-input">
-                        <form onSubmit={(e) => handleSearch(e)}>
-                            <Autocomplete
-                                freeSolo
-                                id="product-search"
-                                // disableClearable
-                                filterOptions={(searchOptions) => {
-                                    const inputValue =
-                                        searchQuery.toLowerCase();
-                                    return searchQuery.length >= 2
-                                        ? searchOptions.filter((option) =>
-                                              option
-                                                  .toLowerCase()
-                                                  .includes(inputValue)
-                                          )
-                                        : [];
-                                }}
-                                onInputChange={(
-                                    e: React.SyntheticEvent,
-                                    value: string,
-                                    reason: string
-                                ) => {
-                                    if (reason === "clear") {
-                                        setSearchQuery("");
-                                        if (
-                                            currentRoute &&
-                                            currentRoute.includes("/shop")
-                                        ) {
-                                            navigate(
-                                                "/shop?sort=name-ascend&page=1"
-                                            );
-                                        }
-                                    }
-                                }}
-                                options={searchOptions}
-                                renderInput={(params) => (
-                                    <TextField
-                                        {...params}
-                                        label="Search Products"
-                                        variant="filled"
-                                        value={searchQuery}
-                                        onChange={(
-                                            e: ChangeEvent<HTMLInputElement>
-                                        ) => setSearchQuery(e.target.value)}
-                                        fullWidth
-                                        sx={{
-                                            backgroundColor: "white",
-                                        }}
-                                        size="small"
-                                        slotProps={{
-                                            input: {
-                                                ...params.InputProps,
-                                                type: "search",
-                                            },
-                                            htmlInput: {
-                                                ...params.inputProps,
-                                                inputMode: "search",
-                                                // sx: { backgroundColor: "white" },
-                                            },
-                                        }}
-                                    />
-                                )}
-                            />
-                            <Button type="submit" style={{ display: "none" }} />
-                        </form>
+                        <ProductSearchField
+                            handleSearch={handleSearch}
+                            searchQuery={searchQuery}
+                            setSearchQuery={setSearchQuery}
+                            searchOptions={searchOptions}
+                        />
                     </div>
                 </div>
             </div>
