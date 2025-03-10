@@ -1,8 +1,9 @@
 import React, { useState, SetStateAction } from "react";
 import { useEffect } from "react";
 import ExpandMoreSharpIcon from "@mui/icons-material/ExpandMoreSharp";
-import { Category } from "../../features/Categories/CategoriesTypes";
+
 import { useNavigate } from "react-router-dom";
+import { Category } from "../../../store/categories/CategoriesTypes";
 
 interface Props {
     category: Category;

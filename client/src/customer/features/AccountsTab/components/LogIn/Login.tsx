@@ -1,4 +1,3 @@
-import { FormControl, FormLabel, TextField } from "@mui/material";
 import React, {
     ChangeEvent,
     FocusEvent,
@@ -7,12 +6,13 @@ import React, {
     useContext,
     useState,
 } from "react";
-import { useEffect } from "react";
-import GoldButton from "../../../../../common/components/GoldButton";
 import "./login.css";
+import GoldButton from "../../../../../common/components/GoldButton";
 import { AuthContext } from "../../../../../common/contexts/authContext";
-import { useAppSelector } from "../../../../hooks/reduxHooks";
+import { FormControl, FormLabel, TextField } from "@mui/material";
 import { RootState } from "../../../../store/customerStore";
+import { useAppSelector } from "../../../../hooks/reduxHooks";
+import { useEffect } from "react";
 
 interface Props {
     setCreating: React.Dispatch<SetStateAction<boolean>>;

@@ -3,24 +3,24 @@ import { useEffect } from "react";
 import GoldButton from "../../../../../common/components/GoldButton";
 
 interface ChangeUserDataProps {
-    children: React.ReactNode;
-    dataType: string;
-    clearData: () => void;
-    saveData: (e: FormEvent<HTMLFormElement>) => void;
-    openHeight: string;
     changing: boolean;
-    setChanging: React.Dispatch<SetStateAction<boolean>>;
+    children: React.ReactNode;
+    clearData: () => void;
+    dataType: string;
     errorMsg: string | null;
+    openHeight: string;
+    saveData: (e: FormEvent<HTMLFormElement>) => void;
+    setChanging: React.Dispatch<SetStateAction<boolean>>;
 }
 const ChangeUserData: React.FC<ChangeUserDataProps> = ({
-    children,
-    dataType,
-    clearData,
-    saveData,
-    openHeight,
     changing,
-    setChanging,
+    children,
+    clearData,
+    dataType,
     errorMsg,
+    openHeight,
+    saveData,
+    setChanging,
 }) => {
     const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();

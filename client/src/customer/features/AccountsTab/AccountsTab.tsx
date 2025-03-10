@@ -1,11 +1,11 @@
 import React, { SetStateAction, useContext, useEffect, useState } from "react";
 import "./accounts-tab.css";
+import AccountManagement from "./components/AccountManagement/AccountManagement";
 import CloseSharpIcon from "@mui/icons-material/CloseSharp";
-import { IconButton, Snackbar } from "@mui/material";
-import { AuthContext } from "../../../common/contexts/authContext";
 import Login from "./components/LogIn/Login";
 import Signup from "./components/SignUp/Signup";
-import AccountManagement from "./components/AccountManagement/AccountManagement";
+import { AuthContext } from "../../../common/contexts/authContext";
+import { IconButton, Snackbar } from "@mui/material";
 import { setCartId, syncCart } from "../../features/Cart/cartSlice";
 import { useAppDispatch } from "../../hooks/reduxHooks";
 

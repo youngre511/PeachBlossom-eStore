@@ -1,21 +1,21 @@
 export interface CartItem {
-    productNo: string;
+    discountPrice: number | null;
+    maxAvailable: number;
     name: string;
     price: number;
-    discountPrice: number | null;
+    productNo: string;
     quantity: number;
     thumbnailUrl: string;
-    maxAvailable: number;
 }
 
 export interface CartState {
-    items: CartItem[];
-    subTotal: number;
-    numberOfItems: number;
+    cartChangesMade: boolean;
     cartId: number | null;
     error: string | null;
     expirationTime: string | null;
-    cartChangesMade: boolean;
+    items: CartItem[];
+    numberOfItems: number;
+    subTotal: number;
 }
 
 export interface ChangeQuantityRequest {

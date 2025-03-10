@@ -19,7 +19,6 @@ const CartItem: React.FC<Props> = ({ item }: Props) => {
     ).toFixed(2);
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
-    const { isTouchDevice } = useWindowSizeContext();
 
     const handleUpdateQuantity = async () => {
         let updateQuantity = +quantity;

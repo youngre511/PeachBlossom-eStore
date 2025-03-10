@@ -2,8 +2,8 @@ import React, {
     ChangeEvent,
     FocusEvent,
     FormEvent,
-    lazy,
     Suspense,
+    lazy,
     useContext,
     useState,
 } from "react";

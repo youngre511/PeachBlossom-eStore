@@ -1,16 +1,16 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import {
     AddActionData,
-    UpdateActionData,
-    DeleteActionData,
     CartItem,
+    CartResponse,
+    CartResponsePayload,
     CartState,
     ChangeQuantityRequest,
-    UpdateQuantityArgs,
-    CartResponsePayload,
-    CartResponse,
-    HoldResponsePayload,
+    DeleteActionData,
     HoldResponse,
+    HoldResponsePayload,
+    UpdateActionData,
+    UpdateQuantityArgs,
 } from "./CartTypes";
 import { RootState } from "../../store/customerStore";
 import axios from "axios";
