@@ -12,7 +12,7 @@ interface Props {
     mobile?: boolean;
 }
 
-const PeachButton: React.FC<Props> = ({
+const GoldButton: React.FC<Props> = ({
     onClick,
     text,
     id,
@@ -123,4 +123,4 @@ const PeachButton: React.FC<Props> = ({
         </div>
     );
 };
-export default PeachButton;
+export default GoldButton;
