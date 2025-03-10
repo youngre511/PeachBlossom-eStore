@@ -9,8 +9,9 @@ import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-import { CartState } from "../../Cart/CartTypes";
-import { PaymentDetails, ShippingDetails } from "../Checkout";
+import { CartState } from "../../../Cart/CartTypes";
+import { PaymentDetails } from "../../Checkout";
+import { ShippingDetails } from "../../../../store/userData/UserDataTypes";
 
 const FormGrid = styled(Grid)(() => ({
     display: "flex",

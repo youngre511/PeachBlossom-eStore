@@ -4,19 +4,18 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Drawer from "@mui/material/Drawer";
 import IconButton from "@mui/material/IconButton";
-
 import CloseIcon from "@mui/icons-material/Close";
 import ExpandMoreRoundedIcon from "@mui/icons-material/ExpandMoreRounded";
 
-import Info from "./Info";
-import { CartItem } from "../../Cart/CartTypes";
+import Info from "../DesktopComponents/Info";
+import { CartItem } from "../../../Cart/CartTypes";
 
 interface InfoProps {
-    totalPrice: number;
+    orderTotal: number;
     items: CartItem[];
 }
 
-export default function InfoMobile({ totalPrice, items }: InfoProps) {
+export default function InfoMobile({ orderTotal, items }: InfoProps) {
     const [open, setOpen] = React.useState(false);
 
     const toggleDrawer = (newOpen: boolean) => () => {
@@ -31,7 +30,7 @@ export default function InfoMobile({ totalPrice, items }: InfoProps) {
             >
                 <CloseIcon />
             </IconButton>
-            <Info totalPrice={totalPrice} items={items} />
+            <Info totalPrice={orderTotal} items={items} />
         </Box>
     );
 

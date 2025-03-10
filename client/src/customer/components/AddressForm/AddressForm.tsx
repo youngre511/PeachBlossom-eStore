@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-
+import React, { SetStateAction, useEffect, useState } from "react";
 import FormLabel from "@mui/material/FormLabel";
 import Grid from "@mui/material/Grid2";
 import OutlinedInput from "@mui/material/OutlinedInput";
@@ -7,75 +6,26 @@ import { styled } from "@mui/system";
 import { MuiTelInput } from "mui-tel-input";
 
 import { Button, TextField } from "@mui/material";
-import { ShippingDetails } from "../Checkout/Checkout";
+import { ShippingDetails } from "../../store/userData/UserDataTypes";
+import { isPossiblePhoneNumber } from "libphonenumber-js";
+import { sanitizeZipcode, validStates } from "./addressFormUtils";
+import useAddressFormValidation from "./useAddressFormValidation";
 
 interface AddressFormProps {
-    setShippingDetails: React.Dispatch<React.SetStateAction<ShippingDetails>>;
+    setShippingDetails: React.Dispatch<SetStateAction<ShippingDetails>>;
     shippingDetails: ShippingDetails;
     loggedInCheckout?: boolean;
     nickname?: string;
-    setNickname?: React.Dispatch<React.SetStateAction<string>>;
+    setNickname?: React.Dispatch<SetStateAction<string>>;
     sidebar?: boolean;
-    setAddNew?: React.Dispatch<React.SetStateAction<boolean>>;
+    setAddNew?: React.Dispatch<SetStateAction<boolean>>;
+    setAllAddressFieldsValid?: React.Dispatch<SetStateAction<boolean>>;
 }
 
 const FormGrid = styled(Grid)(() => ({
     display: "flex",
     flexDirection: "column",
 }));
-
-export const validStates = [
-    "AK",
-    "AL",
-    "AR",
-    "AZ",
-    "CA",
-    "CO",
-    "CT",
-    "DE",
-    "FL",
-    "GA",
-    "HI",
-    "IA",
-    "ID",
-    "IL",
-    "IN",
-    "KS",
-    "KY",
-    "LA",
-    "MA",
-    "MD",
-    "ME",
-    "MI",
-    "MN",
-    "MO",
-    "MS",
-    "MT",
-    "NC",
-    "ND",
-    "NE",
-    "NH",
-    "NJ",
-    "NM",
-    "NV",
-    "NY",
-    "OH",
-    "OK",
-    "OR",
-    "PA",
-    "RI",
-    "SC",
-    "SD",
-    "TN",
-    "TX",
-    "UT",
-    "VA",
-    "VT",
-    "WA",
-    "WI",
-    "WV",
-    "WY",
-];
 
 const AddressForm: React.FC<AddressFormProps> = ({
     setShippingDetails,
@@ -85,8 +35,25 @@ const AddressForm: React.FC<AddressFormProps> = ({
     sidebar = false,
     loggedInCheckout = false,
     setAddNew,
+    setAllAddressFieldsValid,
 }) => {
     const [invalidStateAbbr, setInvalidStateAbbr] = useState<boolean>(false);
+    const [invalidPhoneNumber, setInvalidPhoneNumber] =
+        useState<boolean>(false);
+    const [invalidZipCode, setinvalidZipCode] = useState<boolean>(false);
+    if (setAllAddressFieldsValid) {
+        useAddressFormValidation({
+            setAllAddressFieldsValid,
+            invalidStateAbbr,
+            invalidZipCode,
+            invalidPhoneNumber,
+            shippingDetails,
+        });
+    }
+
+    const [phoneError, setPhoneError] = useState<boolean>(false);
+    const [zipError, setZipError] = useState<boolean>(false);
+
     const handleFieldChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const param = event.target.name as string;
         let value = "";
@@ -98,6 +65,14 @@ const AddressForm: React.FC<AddressFormProps> = ({
                 } else {
                     setInvalidStateAbbr(false);
                 }
+            } else if (param === "zipCode") {
+                value = sanitizeZipcode(event.target);
+
+                if (value.length !== 5 && value.length !== 10) {
+                    setinvalidZipCode(true);
+                } else {
+                    setinvalidZipCode(false);
+                }
             } else {
                 value = event.target.value;
             }
@@ -106,7 +81,8 @@ const AddressForm: React.FC<AddressFormProps> = ({
     };
 
     const handleTelInputChange = (value: string, info: any) => {
-        setShippingDetails((prevDetails) => ({
+        setInvalidPhoneNumber(!isPossiblePhoneNumber(value));
+        setShippingDetails((prevDetails: ShippingDetails) => ({
             ...prevDetails,
             phoneNumber: value,
         }));
@@ -277,6 +253,8 @@ const AddressForm: React.FC<AddressFormProps> = ({
                         placeholder="12345"
                         value={shippingDetails.zipCode}
                         onChange={handleFieldChange}
+                        onBlur={() => setZipError(invalidZipCode)}
+                        error={zipError}
                         autoComplete="shipping postal-code"
                         required
                     />
@@ -291,17 +269,13 @@ const AddressForm: React.FC<AddressFormProps> = ({
                         autoComplete="tel"
                         value={shippingDetails.phoneNumber}
                         onChange={handleTelInputChange}
+                        onBlur={() => setPhoneError(invalidPhoneNumber)}
+                        error={phoneError}
                         required
                         defaultCountry="US"
                         forceCallingCode
                     />
                 </FormGrid>
-                {/* <FormGrid item xs={12}>
-                    <FormControlLabel
-                        control={<Checkbox name="saveAddress" value="yes" />}
-                        label="Save address for future use"
-                    />
-                </FormGrid> */}
             </Grid>
         </form>
     );

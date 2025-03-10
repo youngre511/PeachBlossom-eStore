@@ -11,11 +11,14 @@ import RadioGroup from "@mui/material/RadioGroup";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 
-import CreditCardRoundedIcon from "@mui/icons-material/CreditCardRounded";
+import CreditCardRounded from "@mui/icons-material/CreditCardRounded";
+import AccountBalanceRounded from "@mui/icons-material/AccountBalanceRounded";
 import SimCardRoundedIcon from "@mui/icons-material/SimCardRounded";
 
 import { styled } from "@mui/system";
-import { PaymentDetails } from "../Checkout";
+import { PaymentDetails } from "../../Checkout";
+import useExpirationFormatter from "../../hooks/useExpirationFormatter";
+import usePaymentFormValidation from "../../hooks/usePaymentFormValidation";
 
 const FormGrid = styled("div")(() => ({
     display: "flex",
@@ -23,61 +26,42 @@ const FormGrid = styled("div")(() => ({
 }));
 
 interface PaymentFormProps {
+    setPaymentFormValid: React.Dispatch<React.SetStateAction<boolean>>;
     setPaymentDetails: React.Dispatch<React.SetStateAction<PaymentDetails>>;
     paymentDetails: PaymentDetails;
 }
 
 const PaymentForm: React.FC<PaymentFormProps> = ({
+    setPaymentFormValid,
     setPaymentDetails,
     paymentDetails,
 }) => {
     const [paymentType, setPaymentType] = React.useState("creditCard");
-    const [cardNumber, setCardNumber] = React.useState("1234 5678 9012 3456");
-    const [cvv, setCvv] = React.useState("123");
-    const [expirationDate, setExpirationDate] = React.useState("");
+    const [expirationDate, setExpirationDate] = React.useState<string>("");
+    const [expirationInvalid, setExpirationInvalid] =
+        React.useState<boolean>(false);
+    const [expirationError, setExpirationError] =
+        React.useState<boolean>(false);
     const [name, setName] = React.useState("");
 
-    const handlePaymentTypeChange = (event: {
-        target: { value: React.SetStateAction<string> };
-    }) => {
-        setPaymentType(event.target.value);
+    usePaymentFormValidation({ setPaymentFormValid, expirationInvalid, name });
+
+    const handleExpirationDateChange = (
+        event: React.ChangeEvent<HTMLInputElement>
+    ) => {
+        let input = event.target;
+        const { formattedValue } = useExpirationFormatter({
+            input,
+            setExpirationInvalid,
+        });
+        setExpirationDate(formattedValue);
+        setPaymentDetails({
+            ...paymentDetails,
+            expiryDate: formattedValue,
+        });
     };
 
-    // const handleCardNumberChange = (event: { target: { value: string } }) => {
-    //     const value = "1234567890123456".replace(/\D/g, "");
-    //     const formattedValue = value.replace(/(\d{4})(?=\d)/g, "$1 ");
-    //     if (value.length <= 16) {
-    //         setCardNumber(formattedValue);
-    //         setPaymentDetails({
-    //             ...paymentDetails,
-    //             cardNumber: formattedValue,
-    //         });
-    //     }
-    // };
-
-    // const handleCvvChange = (event: { target: { value: string } }) => {
-    //     const value = "123".replace(/\D/g, "");
-    //     if (value.length <= 3) {
-    //         setCvv(value);
-    //     }
-    //     setPaymentDetails({ ...paymentDetails, cvv: value });
-    // };
-
-    const handleExpirationDateChange = (event: {
-        target: { value: string };
-    }) => {
-        const value = event.target.value.replace(/\D/g, "");
-        const formattedValue = value.replace(/(\d{2})(?=\d{2})/, "$1/");
-        if (value.length <= 4) {
-            setExpirationDate(formattedValue);
-            setPaymentDetails({
-                ...paymentDetails,
-                expiryDate: formattedValue,
-            });
-        }
-    };
-
-    const handleNameChange = (event: { target: { value: string } }) => {
+    const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setName(event.target.value);
         setPaymentDetails({
             ...paymentDetails,
@@ -87,55 +71,98 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
 
     return (
         <Stack spacing={{ xs: 3, sm: 6 }} useFlexGap>
-            <FormControl component="fieldset" fullWidth>
-                <RadioGroup
-                    aria-label="Payment options"
-                    name="paymentType"
-                    value={paymentType}
-                    onChange={handlePaymentTypeChange}
+            <Box
+                sx={{
+                    display: "flex",
+                    width: "100%",
+                    flexDirection: { sm: "column", md: "row" },
+                    gap: 2,
+                }}
+            >
+                <Card
+                    raised={paymentType === "creditCard"}
                     sx={{
-                        flexDirection: { sm: "column", md: "row" },
-                        gap: 2,
+                        maxWidth: { sm: "100%", md: "50%" },
+                        flexGrow: 1,
+                        outline: "1px solid",
+                        outlineColor:
+                            paymentType === "creditCard"
+                                ? "primary.main"
+                                : "divider",
+                        backgroundColor:
+                            paymentType === "creditCard"
+                                ? "background.default"
+                                : "",
                     }}
                 >
-                    <Card
-                        raised={paymentType === "creditCard"}
+                    <CardActionArea
+                        onClick={() => setPaymentType("creditCard")}
+                    >
+                        <CardContent
+                            sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 1,
+                            }}
+                        >
+                            <CreditCardRounded
+                                color="primary"
+                                fontSize="small"
+                            />
+                            <Typography fontWeight="medium">Card</Typography>
+                        </CardContent>
+                    </CardActionArea>
+                </Card>
+                <Card
+                    raised={paymentType === "bankTransfer"}
+                    sx={{
+                        maxWidth: { sm: "100%", md: "50%" },
+                        flexGrow: 1,
+                        outline: "1px solid",
+                        outlineColor:
+                            paymentType === "bankTransfer"
+                                ? "primary.main"
+                                : "divider",
+                        backgroundColor:
+                            paymentType === "bankTransfer"
+                                ? "background.default"
+                                : "#00000011",
+                    }}
+                >
+                    <CardActionArea
                         sx={{
-                            maxWidth: { sm: "100%", md: "50%" },
-                            flexGrow: 1,
-                            outline: "1px solid",
-                            outlineColor:
-                                paymentType === "creditCard"
-                                    ? "primary.main"
-                                    : "divider",
-                            backgroundColor:
-                                paymentType === "creditCard"
-                                    ? "background.default"
-                                    : "",
+                            ".MuiCardActionArea-focusHighlight": {
+                                backgroundColor: "transparent",
+                            },
+                            "&:focus-visible": {
+                                backgroundColor: "action.hover",
+                            },
                         }}
                     >
-                        <CardActionArea
-                            onClick={() => setPaymentType("creditCard")}
+                        <CardContent
+                            sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 1,
+                            }}
                         >
-                            <CardContent
+                            <AccountBalanceRounded
+                                fontSize="small"
+                                sx={{ color: "#00000088" }}
+                            />
+                            <Typography
                                 sx={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: 1,
+                                    fontWeight: "medium",
+                                    color: "#00000088",
                                 }}
                             >
-                                <CreditCardRoundedIcon
-                                    color="primary"
-                                    fontSize="small"
-                                />
-                                <Typography fontWeight="medium">
-                                    Card
-                                </Typography>
-                            </CardContent>
-                        </CardActionArea>
-                    </Card>
-                </RadioGroup>
-            </FormControl>
+                                Bank account
+                            </Typography>
+                        </CardContent>
+                    </CardActionArea>
+                </Card>
+            </Box>
+
             {paymentType === "creditCard" && (
                 <Box
                     sx={{
@@ -168,7 +195,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
                             <Typography variant="subtitle2">
                                 Credit card
                             </Typography>
-                            <CreditCardRoundedIcon
+                            <CreditCardRounded
                                 sx={{ color: "text.secondary" }}
                             />
                         </Box>
@@ -243,6 +270,10 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
                                     required
                                     value={expirationDate}
                                     onChange={handleExpirationDateChange}
+                                    onBlur={() =>
+                                        setExpirationError(expirationInvalid)
+                                    }
+                                    error={expirationError}
                                 />
                             </FormGrid>
                         </Box>

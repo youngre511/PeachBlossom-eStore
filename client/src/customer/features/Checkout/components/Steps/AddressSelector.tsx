@@ -3,8 +3,8 @@ import { useEffect } from "react";
 import {
     ShippingDetails,
     CustomerAddress,
-} from "../../../store/userData/UserDataTypes";
-import CustomerAddressBox from "../../../components/CustomerAddressBox/CustomerAddressBox";
+} from "../../../../store/userData/UserDataTypes";
+import CustomerAddressBox from "../../../../components/CustomerAddressBox/CustomerAddressBox";
 import { FormControl, Icon, RadioGroup } from "@mui/material";
 import AddCircleOutlineSharpIcon from "@mui/icons-material/AddCircleOutlineSharp";
 import "./address-selector.css";
