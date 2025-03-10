@@ -1,6 +1,6 @@
 import React, { FormEvent, SetStateAction, useState } from "react";
 import { useEffect } from "react";
-import PeachButton from "../../../../../common/components/PeachButton";
+import GoldButton from "../../../../../common/components/GoldButton";
 
 interface ChangeUserDataProps {
     children: React.ReactNode;
@@ -82,7 +82,7 @@ const ChangeUserData: React.FC<ChangeUserDataProps> = ({
                             gap: "20px",
                         }}
                     >
-                        <PeachButton
+                        <GoldButton
                             text="save"
                             onClick={() => {
                                 setChanging(false);
@@ -90,7 +90,7 @@ const ChangeUserData: React.FC<ChangeUserDataProps> = ({
                             type="submit"
                             width="100%"
                         />
-                        <PeachButton
+                        <GoldButton
                             text="cancel"
                             onClick={() => {
                                 clearData();
@@ -110,7 +110,7 @@ const ChangeUserData: React.FC<ChangeUserDataProps> = ({
                         padding: "10px 5px 0 5px",
                     }}
                 >
-                    <PeachButton
+                    <GoldButton
                         text={`change ${dataType}`}
                         onClick={() => setChanging(true)}
                         width="100%"

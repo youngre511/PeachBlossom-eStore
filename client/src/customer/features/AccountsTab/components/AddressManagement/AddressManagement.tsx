@@ -7,7 +7,7 @@ import { getCustomerAddresses } from "../../../../store/userData/userDataSlice";
 import CustomerAddressBox from "../../../../components/CustomerAddressBox/CustomerAddressBox";
 import { CircularProgress } from "@mui/material";
 import "./address-management.css";
-import PeachButton from "../../../../../common/components/PeachButton";
+import GoldButton from "../../../../../common/components/GoldButton";
 import { useWindowSizeContext } from "../../../../../common/contexts/windowSizeContext";
 import AddressManagementSubpanel from "./AddressManagementSubpanel/AddressManagementSubpanel";
 import { CustomerAddress } from "../../../../store/userData/UserDataTypes";
@@ -106,7 +106,7 @@ const AddressManagement: React.FC<AddressManagementProps> = ({
                 <div className="ca-header">
                     <h1>Your Addresses</h1>
                     <div className="ca-add-btn">
-                        <PeachButton
+                        <GoldButton
                             text={width && width > 1100 ? "Add Address" : "+"}
                             onClick={handleAdd}
                             width={width && width > 1100 ? undefined : "30px"}

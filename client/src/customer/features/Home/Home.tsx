@@ -2,7 +2,7 @@ import React from "react";
 import "./home.css";
 import { useNavigate } from "react-router-dom";
 
-import PeachButton from "../../../common/components/PeachButton";
+import GoldButton from "../../../common/components/GoldButton";
 
 interface Props {}
 const Home: React.FC<Props> = () => {
@@ -16,15 +16,12 @@ const Home: React.FC<Props> = () => {
                     <p>An imaginary lifestyle brand and portfolio project.</p>
                 </div>
                 <div className="splash-btn-set">
-                    <PeachButton
-                        text="Shop"
-                        onClick={() => navigate("/shop")}
-                    />
-                    <PeachButton
+                    <GoldButton text="Shop" onClick={() => navigate("/shop")} />
+                    <GoldButton
                         text="Learn More"
                         onClick={() => navigate("/about")}
                     />
-                    <PeachButton
+                    <GoldButton
                         text="Visit Portfolio"
                         onClick={() =>
                             window.open("https://ryanyoung.codes", "_blank")

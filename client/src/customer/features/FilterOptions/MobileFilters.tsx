@@ -7,7 +7,7 @@ import ColorFilters from "./FilterSections/ColorFilters";
 import MaterialFilters from "./FilterSections/MaterialFilters";
 import MinMaxFields from "./FilterSections/MinMaxFields";
 import DimensionFilters from "./FilterSections/DimensionFilters";
-import PeachButton from "../../../common/components/PeachButton";
+import GoldButton from "../../../common/components/GoldButton";
 import { Filters } from "../Shop/CatalogTypes";
 import { useAppSelector } from "../../hooks/reduxHooks";
 import { RootState } from "../../store/customerStore";
@@ -119,14 +119,14 @@ const MobileFilters: React.FC<MobileFiltersProps> = ({
                     </div>
                 </div>
                 <div className="filter-submit-buttons">
-                    <PeachButton
+                    <GoldButton
                         text="Filter"
                         onClick={() => {
                             handleSubmit();
                             handleFilterDrawerClose();
                         }}
                     />
-                    <PeachButton
+                    <GoldButton
                         text="Reset Filter"
                         onClick={handleReset}
                         width="120px"

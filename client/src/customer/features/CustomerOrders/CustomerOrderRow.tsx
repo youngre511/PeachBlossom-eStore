@@ -1,11 +1,11 @@
 import React from "react";
+import GoldButton from "../../../common/components/GoldButton";
+import { ChevronRight } from "@mui/icons-material";
 import { CustomerOrder } from "../../store/userData/UserDataTypes";
-import PeachButton from "../../../common/components/PeachButton";
-import { useAppDispatch } from "../../hooks/reduxHooks";
 import { setCurrentOrderNo } from "../../store/userData/userDataSlice";
+import { useAppDispatch } from "../../hooks/reduxHooks";
 import { useNavigate } from "react-router-dom";
 import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
-import { ChevronRight } from "@mui/icons-material";
 
 interface CustomerOrderRowProps {
     order: CustomerOrder;
@@ -90,7 +90,7 @@ const CustomerOrderRow: React.FC<CustomerOrderRowProps> = ({ order }) => {
                 </div>
                 <div className="order-options">
                     {width && width >= 600 ? (
-                        <PeachButton
+                        <GoldButton
                             text="view details"
                             onClick={handleClick}
                             width="150px"

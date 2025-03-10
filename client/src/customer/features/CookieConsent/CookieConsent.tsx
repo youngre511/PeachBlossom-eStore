@@ -4,11 +4,8 @@ import "./cookie-consent.css";
 import CloseSharpIcon from "@mui/icons-material/CloseSharp";
 
 import { useAppDispatch } from "../../../customer/hooks/reduxHooks";
-import { setAllowTracking } from "../../../customer/features/UserData/userDataSlice";
-import axios, { AxiosError } from "axios";
 import { setCookieConsent } from "../../utils/cookieUtils";
 import { AuthContext } from "../../../common/contexts/authContext";
-import { logAxiosError } from "../../../common/utils/logAxiosError";
 
 interface CookieConsentProps {
     setShowConsentBanner: React.Dispatch<SetStateAction<boolean>>;

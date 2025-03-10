@@ -6,7 +6,7 @@ import AccountButton from "../../../../../assets/img/account.svg?react";
 import "./account-management.css";
 import { ExpandMoreSharp } from "@mui/icons-material";
 import { AuthContext } from "../../../../../common/contexts/authContext";
-import PeachButton from "../../../../../common/components/PeachButton";
+import GoldButton from "../../../../../common/components/GoldButton";
 import Security from "../Security/Security";
 import AddressManagement from "../AddressManagement/AddressManagement";
 
@@ -94,7 +94,7 @@ const AccountManagement: React.FC<Props> = ({
                         : { transform: "translateY(100px)" }
                 }
             >
-                <PeachButton text="log out" width="300px" onClick={logOut} />
+                <GoldButton text="log out" width="300px" onClick={logOut} />
             </div>
             {showSecurity && <Security setShowSecurity={setShowSecurity} />}
             {showAddresses && (

@@ -1,7 +1,7 @@
 import { CircularProgress, FormControl, TextField } from "@mui/material";
 import React from "react";
 import { useState } from "react";
-import PeachButton from "../../../../common/components/PeachButton";
+import GoldButton from "../../../../common/components/GoldButton";
 
 interface Props {
     onSubmit: (formData: { orderNo: string; email: string }) => void;
@@ -59,7 +59,7 @@ const OrderLookup: React.FC<Props> = ({ onSubmit, error, loading }) => {
                                 onChange={handleChange}
                             />
                         </div>
-                        <PeachButton
+                        <GoldButton
                             text="VIEW ORDER"
                             type="submit"
                             onClick={() => {}}

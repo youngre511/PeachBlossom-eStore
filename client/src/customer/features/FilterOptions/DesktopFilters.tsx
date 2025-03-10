@@ -12,7 +12,7 @@ import ColorFilters from "./FilterSections/ColorFilters";
 import MaterialFilters from "./FilterSections/MaterialFilters";
 import MinMaxFields from "./FilterSections/MinMaxFields";
 import DimensionFilters from "./FilterSections/DimensionFilters";
-import PeachButton from "../../../common/components/PeachButton";
+import GoldButton from "../../../common/components/GoldButton";
 import { Filters } from "../Shop/CatalogTypes";
 import { useAppSelector } from "../../hooks/reduxHooks";
 import { RootState } from "../../store/customerStore";
@@ -199,8 +199,8 @@ const DesktopFilters: React.FC<DesktopFiltersProps> = ({
                 >
                     <AccordionSummary sx={{ width: "320px" }} component="div">
                         <div className="filter-submit">
-                            <PeachButton text="Filter" onClick={handleSubmit} />
-                            <PeachButton
+                            <GoldButton text="Filter" onClick={handleSubmit} />
+                            <GoldButton
                                 text="Reset Filter"
                                 onClick={handleReset}
                                 width="120px"

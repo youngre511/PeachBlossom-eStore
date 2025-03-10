@@ -4,7 +4,7 @@ import { CustomerAddress } from "../../../customer/features/UserData/UserDataTyp
 import { FormControlLabel, Radio } from "@mui/material";
 import PhoneEnabledSharpIcon from "@mui/icons-material/PhoneEnabledSharp";
 import "./customer-address-box.css";
-import PeachButton from "../../../common/components/PeachButton";
+import GoldButton from "../../../common/components/GoldButton";
 
 interface CustomerAddressBoxProps {
     address: CustomerAddress;
@@ -56,17 +56,17 @@ const CustomerAddressBox: React.FC<CustomerAddressBoxProps> = ({
                     {addressDisplay}
                     {!hideButtons && handleEdit && handleRemove && (
                         <div className="ca-buttons">
-                            <PeachButton
+                            <GoldButton
                                 text="edit"
                                 height="30px"
                                 onClick={() => handleEdit(address.address_id)}
                             />
-                            <PeachButton
+                            <GoldButton
                                 text="remove"
                                 height="30px"
                                 onClick={() => handleRemove(address.address_id)}
                             />
-                            {/* <PeachButton text="make default" onClick={() => handleMakeDefault(address.addressId)} /> */}
+                            {/* <GoldButton text="make default" onClick={() => handleMakeDefault(address.addressId)} /> */}
                         </div>
                     )}
                 </React.Fragment>

@@ -8,7 +8,7 @@ import React, {
     useState,
 } from "react";
 import { useEffect, lazy, Suspense } from "react";
-import PeachButton from "../../../../../common/components/PeachButton";
+import GoldButton from "../../../../../common/components/GoldButton";
 import "./signup.css";
 import {
     AuthContext,
@@ -271,7 +271,7 @@ const Signup: React.FC<Props> = ({ setCreating, accountsTabVisible }) => {
                             color={passwordError ? "error" : "primary"}
                         />
                     </FormControl>
-                    <PeachButton
+                    <GoldButton
                         text="Create Account"
                         type="submit"
                         width="100%"

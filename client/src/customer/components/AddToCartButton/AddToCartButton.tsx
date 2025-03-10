@@ -6,7 +6,7 @@ import {
     addItemToCart,
     updateItemQuantity,
 } from "../../features/Cart/cartSlice";
-import PeachButton from "../../../common/components/PeachButton";
+import GoldButton from "../../../common/components/GoldButton";
 import "./AddToCartButton.css";
 
 interface Props {
@@ -62,7 +62,7 @@ const AddToCartButton: React.FC<Props> = ({
 
     if (!inStock) {
         buttonDisplay = (
-            <PeachButton
+            <GoldButton
                 className="add-to-cart-btn disabled"
                 text="OUT OF STOCK"
                 disabled={true}
@@ -76,7 +76,7 @@ const AddToCartButton: React.FC<Props> = ({
         );
     } else if (!isInCart) {
         buttonDisplay = (
-            <PeachButton
+            <GoldButton
                 className="add-to-cart-btn"
                 onClick={handleAddToCart}
                 text="ADD TO CART"
@@ -88,7 +88,7 @@ const AddToCartButton: React.FC<Props> = ({
     } else {
         buttonDisplay = (
             <div className="add-subtract">
-                <PeachButton
+                <GoldButton
                     className="decrease-quantity"
                     onClick={handleDecrease}
                     text="-"
@@ -105,7 +105,7 @@ const AddToCartButton: React.FC<Props> = ({
                     </p>
                 </div>
                 {numberInCart && (
-                    <PeachButton
+                    <GoldButton
                         className="increase-quantity"
                         onClick={handleIncrease}
                         text="+"

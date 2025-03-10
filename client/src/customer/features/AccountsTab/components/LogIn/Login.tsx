@@ -8,7 +8,7 @@ import React, {
     useState,
 } from "react";
 import { useEffect } from "react";
-import PeachButton from "../../../../../common/components/PeachButton";
+import GoldButton from "../../../../../common/components/GoldButton";
 import "./login.css";
 import { AuthContext } from "../../../../../common/contexts/authContext";
 import { useAppSelector } from "../../../../hooks/reduxHooks";
@@ -140,7 +140,7 @@ const Login: React.FC<Props> = ({ setCreating, accountsTabVisible }) => {
                         />
                     </FormControl>
 
-                    <PeachButton
+                    <GoldButton
                         className="login-btn"
                         text="Sign in"
                         type="submit"

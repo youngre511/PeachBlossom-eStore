@@ -14,7 +14,7 @@ import {
 } from "../../features/Users/userSlice";
 import { RootState } from "../../store/store";
 import { Button, Icon, InputLabel, MenuItem, Select } from "@mui/material";
-import PeachButton from "../../../common/components/PeachButton";
+import GoldButton from "../../../common/components/GoldButton";
 import BlankPopup from "../../../common/components/BlankPopup";
 import AddAdminPopup from "./AddAdminPopup";
 import AdminList from "./AdminList";
@@ -236,7 +236,7 @@ const AdminManagement: React.FC = () => {
             <div className="admin-manage-header">
                 <h1>Admin Management</h1>
                 <div className="add-admin-btn">
-                    <PeachButton
+                    <GoldButton
                         text="Add New Admin"
                         onClick={() => setAddingUser(true)}
                         width={"150px"}

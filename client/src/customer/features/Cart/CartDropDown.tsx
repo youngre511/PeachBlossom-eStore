@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { RootState } from "../../store/customerStore";
 import CartItem from "./components/CartItem";
 import "./cart-drop-down.css";
-import PeachButton from "../../../common/components/PeachButton";
+import GoldButton from "../../../common/components/GoldButton";
 import DropdownMenu from "../../components/DropdownMenu/DropdownMenu";
 
 interface Props {
@@ -58,13 +58,13 @@ const CartDropDown: React.FC<Props> = ({
                     <p className="drop-sub-amount">${cart.subTotal}</p>
                 </div>
                 <div className="drop-cart-nav-options">
-                    <PeachButton
+                    <GoldButton
                         text="VIEW CART"
                         width="110px"
                         onClick={() => navigate("/shoppingcart")}
                     />
 
-                    <PeachButton
+                    <GoldButton
                         text="CHECKOUT"
                         width="110px"
                         disabled={cart.numberOfItems === 0}

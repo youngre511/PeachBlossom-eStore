@@ -12,7 +12,7 @@ import {
 } from "../../features/Users/userSlice";
 import { RootState } from "../../store/store";
 import { Button, Icon, InputLabel, MenuItem, Select } from "@mui/material";
-import PeachButton from "../../../common/components/PeachButton";
+import GoldButton from "../../../common/components/GoldButton";
 import BlankPopup from "../../../common/components/BlankPopup";
 import CustomerList from "./CustomerList";
 import AddCircleOutlineSharpIcon from "@mui/icons-material/AddCircleOutlineSharp";

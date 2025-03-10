@@ -10,7 +10,7 @@ import {
 import { arraysEqual } from "../../../../common/utils/arraysEqual";
 import { RootState } from "../../../store/store.js";
 import { useAppDispatch, useAppSelector } from "../../../hooks/reduxHooks";
-import PeachButton from "../../../../common/components/PeachButton";
+import GoldButton from "../../../../common/components/GoldButton";
 import AddCircleOutlineSharpIcon from "@mui/icons-material/AddCircleOutlineSharp";
 import FilterAltSharpIcon from "@mui/icons-material/FilterAltSharp";
 import {
@@ -244,7 +244,7 @@ const ProductManagement: React.FC<Props> = () => {
                     <h1>Product Management</h1>
                     {accessLevel !== "view only" && (
                         <div className="pm-desktop-add">
-                            <PeachButton
+                            <GoldButton
                                 text={`Add New Product`}
                                 onClick={() => navigate("/products/add")}
                                 width="150px"
@@ -252,7 +252,7 @@ const ProductManagement: React.FC<Props> = () => {
                         </div>
                     )}
                     {fromCategoryManage && previousRoute && (
-                        <PeachButton
+                        <GoldButton
                             text={`Back To Categories`}
                             onClick={() => navigate(previousRoute)}
                             width="150px"

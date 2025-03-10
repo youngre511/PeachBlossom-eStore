@@ -9,7 +9,7 @@ import { RootState } from "../../../../../store/customerStore";
 import { CircularProgress } from "@mui/material";
 import { ShippingDetails } from "../../../../../store/userData/UserDataTypes";
 import AddressForm from "../../../../../components/AddressForm/AddressForm";
-import PeachButton from "../../../../../../common/components/PeachButton";
+import GoldButton from "../../../../../../common/components/GoldButton";
 import {
     addAddress,
     editAddress,
@@ -88,12 +88,8 @@ const EditAddAddress: React.FC<EditAddAddressProps> = ({
                     sidebar={true}
                 />
                 <div className="edit-add-btns">
-                    <PeachButton
-                        text="save"
-                        onClick={handleSave}
-                        width="100%"
-                    />
-                    <PeachButton
+                    <GoldButton text="save" onClick={handleSave} width="100%" />
+                    <GoldButton
                         text="Cancel"
                         onClick={() => setSubpanelVisible(false)}
                         width="100%"

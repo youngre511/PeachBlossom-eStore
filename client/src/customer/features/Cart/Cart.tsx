@@ -4,7 +4,7 @@ import { RootState } from "../../store/customerStore";
 import CartItem from "./components/CartItem";
 import { useNavigate } from "react-router-dom";
 import "./cart.css";
-import PeachButton from "../../../common/components/PeachButton";
+import GoldButton from "../../../common/components/GoldButton";
 
 const Cart: React.FC = () => {
     const cart = useAppSelector((state: RootState) => state.cart);
@@ -29,7 +29,7 @@ const Cart: React.FC = () => {
                         <p>Subtotal ({cart.numberOfItems} items)</p>
                         <p>${cart.subTotal}</p>
                     </div>
-                    <PeachButton
+                    <GoldButton
                         onClick={() => navigate("/checkout")}
                         disabled={cart.numberOfItems === 0}
                         text="PROCEED TO CHECKOUT"

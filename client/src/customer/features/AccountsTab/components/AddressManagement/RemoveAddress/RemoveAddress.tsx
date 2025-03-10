@@ -1,7 +1,7 @@
 import React, { SetStateAction } from "react";
 import { CustomerAddress } from "../../../../../store/userData/UserDataTypes";
 import CustomerAddressBox from "../../../../../components/CustomerAddressBox/CustomerAddressBox";
-import PeachButton from "../../../../../../common/components/PeachButton";
+import GoldButton from "../../../../../../common/components/GoldButton";
 import "./remove-address.css";
 import { useAppDispatch } from "../../../../../hooks/reduxHooks";
 import { removeAddress } from "../../../../../store/userData/userDataSlice";
@@ -29,12 +29,12 @@ const RemoveAddress: React.FC<RemoveAddressProps> = ({
                 hideButtons={true}
             />
             <div className="remove-btns">
-                <PeachButton text="yes" onClick={handleRemove} width="100%" />
-                <PeachButton
+                <GoldButton text="yes" onClick={handleRemove} width="100%" />
+                <GoldButton
                     text="Cancel"
                     onClick={() => setSubpanelVisible(false)}
                     width="100%"
-                ></PeachButton>
+                ></GoldButton>
             </div>
         </div>
     );
