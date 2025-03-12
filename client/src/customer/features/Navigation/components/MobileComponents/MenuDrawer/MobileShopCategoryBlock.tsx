@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import ExpandMoreSharpIcon from "@mui/icons-material/ExpandMoreSharp";
 
 import { useNavigate } from "react-router-dom";
-import { Category } from "../../../store/categories/CategoriesTypes";
+import { Category } from "../../../../../store/categories/CategoriesTypes";
 
 interface Props {
     category: Category;

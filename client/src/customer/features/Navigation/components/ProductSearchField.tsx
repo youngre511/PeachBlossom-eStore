@@ -2,21 +2,35 @@ import { Autocomplete, Button, TextField } from "@mui/material";
 import React, { ChangeEvent, SetStateAction } from "react";
 import { useNavigationContext } from "../../../../common/contexts/navContext";
 import { useNavigate } from "react-router-dom";
+import { useAppDispatch } from "../../../hooks/reduxHooks";
+import { logActivity } from "../../../store/userData/userDataTrackingThunks";
 
 interface ProductSearchFieldProps {
-    handleSearch: (e: React.FormEvent<HTMLFormElement>) => void;
     searchQuery: string;
     setSearchQuery: React.Dispatch<SetStateAction<string>>;
     searchOptions: Array<string>;
 }
 const ProductSearchField: React.FC<ProductSearchFieldProps> = ({
-    handleSearch,
     searchQuery,
     setSearchQuery,
     searchOptions,
 }) => {
     const { currentRoute, previousRoute } = useNavigationContext();
     const navigate = useNavigate();
+    const dispatch = useAppDispatch();
+
+    const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const path = `/shop?sort=name-ascend&page=1&search=${searchQuery.replace(
+            " ",
+            "%20"
+        )}`;
+        dispatch(
+            logActivity({ activityType: "search", searchTerm: searchQuery })
+        );
+        navigate(path);
+        setSearchQuery("");
+    };
 
     return (
         <form onSubmit={(e) => handleSearch(e)}>
