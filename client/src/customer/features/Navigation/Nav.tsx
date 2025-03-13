@@ -42,7 +42,6 @@ const Nav: React.FC<Props> = () => {
         shopAnimationRef,
         recentAnimationRef,
     } = useDesktopMenuAnimations({ headerRef });
-
     const { currentRoute, previousRoute } = useNavigationContext();
 
     // Local States

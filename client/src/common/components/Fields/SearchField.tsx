@@ -23,7 +23,6 @@ const SearchField: React.FC<Props> = ({
     options,
 }) => {
     const [searchQuery, setSearchQuery] = useState<string>("");
-    const optionsArray = [];
     const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         updateSearchParams({ search: searchQuery });
