@@ -25,7 +25,7 @@ const MobileMenuDrawerContent: React.FC<MobileMenuDrawerContentProps> = ({
                     </button>
                 </li>
                 {menuItems.map(([name, path]) => (
-                    <li>
+                    <li key={name}>
                         <button
                             onClick={() => {
                                 navigate(path);
