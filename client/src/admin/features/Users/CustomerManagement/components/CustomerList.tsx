@@ -12,10 +12,9 @@ import {
 } from "@mui/material";
 
 import CustomerListHead from "./CustomerListHead";
-import { useNavigate } from "react-router-dom";
-import { CustomerUser } from "../userTypes";
+import { CustomerUser } from "../../userTypes";
 import CustomerListRow from "./CustomerListRow";
-import { useWindowSizeContext } from "../../../../common/contexts/windowSizeContext";
+import { useWindowSizeContext } from "../../../../../common/contexts/windowSizeContext";
 
 interface CustomerListProps {
     page: number;

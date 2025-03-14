@@ -1,7 +1,6 @@
 import React from "react";
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import axios, { AxiosError } from "axios";
 import "./customer-management.css";
 import { useAppDispatch, useAppSelector } from "../../../hooks/reduxHooks";
 import {
@@ -11,12 +10,9 @@ import {
     resetUserPassword,
 } from "../userSlice";
 import { RootState } from "../../../store/store";
-import { Button, Icon, InputLabel, MenuItem, Select } from "@mui/material";
-import GoldButton from "../../../../common/components/GoldButton";
+import { Button } from "@mui/material";
 import BlankPopup from "../../../../common/components/BlankPopup";
-import CustomerList from "./CustomerList";
-import AddCircleOutlineSharpIcon from "@mui/icons-material/AddCircleOutlineSharp";
-import VisibilitySharpIcon from "@mui/icons-material/VisibilitySharp";
+import CustomerList from "./components/CustomerList";
 import SearchField from "../../../../common/components/Fields/SearchField";
 
 const inputStyle = {
