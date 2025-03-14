@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { TableCell, TableHead, TableRow, Checkbox } from "@mui/material";
-import { useWindowSizeContext } from "../../../../../common/contexts/windowSizeContext";
+import { useWindowSizeContext } from "../../../../../../../common/contexts/windowSizeContext";
 
 interface HeadCell {
     disablePadding: boolean;

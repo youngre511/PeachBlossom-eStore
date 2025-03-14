@@ -9,6 +9,16 @@ export interface IAVOrderFilters {
     itemsPerPage: string;
 }
 
+export const orderStatusOptions = [
+    "in process",
+    "ready to ship",
+    "shipped",
+    "delivered",
+    "cancelled",
+    "back ordered",
+] as const;
+export type OrderStatus = (typeof orderStatusOptions)[number];
+
 export interface IAVOrder {
     order_id: string;
     customer_id: number | null;
@@ -24,7 +34,7 @@ export interface IAVOrder {
     zipCode: string;
     phoneNumber: string;
     email: string;
-    orderStatus: string;
+    orderStatus: OrderStatus;
 }
 
 export interface IAVOrderItem {

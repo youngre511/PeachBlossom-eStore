@@ -1,10 +1,10 @@
 import { useState, useEffect, SetStateAction } from "react";
 import { Paper, Table, TableBody, TableContainer, Box } from "@mui/material";
 
-import AVOrderItemListHead from "./AVOrderItemListHead";
-import AVOrderItemListToolbar from "./AVOrderItemListToolbar";
-import AVOrderItemRow from "./AVOrderItemRow";
-import { IAVOrderItem } from "../../avOrdersTypes";
+import AVOrderItemListHead from "./components/AVOrderItemListHead";
+import AVOrderItemListToolbar from "./components/AVOrderItemListToolbar";
+import AVOrderItemRow from "./components/AVOrderItemRow";
+import { IAVOrderItem } from "../../../avOrdersTypes";
 
 interface AVCatProps {
     orderItems: IAVOrderItem[];
