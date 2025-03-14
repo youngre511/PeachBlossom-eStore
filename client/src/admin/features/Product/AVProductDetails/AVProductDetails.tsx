@@ -14,7 +14,7 @@ import ImageUploader from "../ImageUploader/ImageUploader";
 import { ImageListType } from "react-images-uploading";
 import { useAppDispatch, useAppSelector } from "../../../hooks/reduxHooks";
 import { RootState } from "../../../store/store";
-import { avFetchCategories } from "../../../features/AVMenuData/avMenuDataSlice";
+import { avFetchCategories } from "../../AVMenuData/avMenuDataSlice";
 import BlankPopup from "../../../../common/components/BlankPopup";
 import StatusPopup from "../../../../common/components/StatusPopup";
 import { AuthContext } from "../../../../common/contexts/authContext";

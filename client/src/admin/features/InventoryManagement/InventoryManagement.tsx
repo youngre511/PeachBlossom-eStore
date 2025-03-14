@@ -2,11 +2,11 @@ import React, { useContext } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
-import { AVFilters } from "../../features/Products/avProductTypes";
+import { AVFilters } from "../../features/Product/avProductTypes";
 import {
     avFetchProducts,
     updateInventory,
-} from "../../features/Products/avProductSlice";
+} from "../../features/Product/avProductSlice";
 import { arraysEqual } from "../../../common/utils/arraysEqual";
 import { RootState } from "../../store/store.js";
 import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
@@ -28,7 +28,7 @@ const inputStyle = {
 interface Props {}
 const InventoryManagement: React.FC<Props> = () => {
     const avMenuData = useAppSelector((state: RootState) => state.avMenuData);
-    const avCatalog = useAppSelector((state: RootState) => state.avCatalog);
+    const avProduct = useAppSelector((state: RootState) => state.avProduct);
     const dispatch = useAppDispatch();
     const [pendingInventoryUpdates, setPendingInventoryUpdates] = useState<
         Record<string, number>
@@ -101,7 +101,7 @@ const InventoryManagement: React.FC<Props> = () => {
                 value ? value.toString() : ""
             );
             const existingFilters = Object.values({
-                ...avCatalog.filters,
+                ...avProduct.filters,
             }).map((value) => (value ? value.toString() : ""));
             const filtersChanged = !arraysEqual(
                 currentFilters,
@@ -175,14 +175,14 @@ const InventoryManagement: React.FC<Props> = () => {
     };
 
     useEffect(() => {
-        if (avCatalog.loading) {
+        if (avProduct.loading) {
             setStatus("loading");
-        } else if (!avCatalog.loading && avCatalog.error) {
+        } else if (!avProduct.loading && avProduct.error) {
             setStatus("failure");
         } else {
             setStatus("success");
         }
-    }, [avCatalog.loading, avCatalog.error]);
+    }, [avProduct.loading, avProduct.error]);
 
     const confirmStatus = () => {
         setPendingInventoryUpdates({});
@@ -256,7 +256,7 @@ const InventoryManagement: React.FC<Props> = () => {
             </div>
             <InventoryCatalog
                 page={+page}
-                results={avCatalog.numberOfResults}
+                results={avProduct.numberOfResults}
                 updateSearchParams={updateSearchParams}
                 pendingInventoryUpdates={pendingInventoryUpdates}
                 setPendingInventoryUpdates={setPendingInventoryUpdates}
@@ -267,7 +267,7 @@ const InventoryManagement: React.FC<Props> = () => {
                     status={status}
                     loadingMessage="Saving changes..."
                     successMessage="Inventory stock levels updated."
-                    failureMessage={`Oops! Something went wrong: ${avCatalog.error}`}
+                    failureMessage={`Oops! Something went wrong: ${avProduct.error}`}
                     actionFunction={confirmStatus}
                 />
             )}

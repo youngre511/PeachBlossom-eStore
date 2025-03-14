@@ -1,5 +1,5 @@
 import React from "react";
-import { AVProduct } from "./avProductTypes";
+import { AVProduct } from "../../avProductTypes";
 import {
     TableCell,
     TableHead,
@@ -12,7 +12,7 @@ import {
 import { visuallyHidden } from "@mui/utils";
 import { Order } from "./AVProductCatalog";
 import ImageSharpIcon from "@mui/icons-material/ImageSharp";
-import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
+import { useWindowSizeContext } from "../../../../../common/contexts/windowSizeContext";
 
 interface HeadCell {
     disablePadding: boolean;

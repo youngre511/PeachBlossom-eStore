@@ -1,5 +1,5 @@
 import { configureStore } from "@reduxjs/toolkit";
-import avProductReducer from "../features/Products/avProductSlice";
+import avProductReducer from "../features/Product/avProductSlice";
 import avMenuDataReducer from "../features/AVMenuData/avMenuDataSlice";
 import avOrderReducer from "../features/AVOrders/avOrdersSlice";
 import userReducer from "../features/Users/userSlice";

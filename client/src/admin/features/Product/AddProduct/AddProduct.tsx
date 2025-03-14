@@ -11,7 +11,7 @@ import ImageUploader from "../ImageUploader/ImageUploader";
 import { ImageListType } from "react-images-uploading";
 import { useAppDispatch, useAppSelector } from "../../../hooks/reduxHooks";
 import { RootState } from "../../../store/store";
-import { avFetchCategories } from "../../../features/AVMenuData/avMenuDataSlice";
+import { avFetchCategories } from "../../AVMenuData/avMenuDataSlice";
 import AddProductInfoForm from "./AddProductSubcomponents/AddProductInfoForm";
 import { adminFormInputStyle } from "../../../constants/formInputStyles";
 import AddProductDimensionsForm from "./AddProductSubcomponents/AddProductDimensionsForm";

@@ -9,14 +9,14 @@ import {
     Typography,
 } from "@mui/material";
 import React, { useContext, useState } from "react";
-import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
+import { useWindowSizeContext } from "../../../../../common/contexts/windowSizeContext";
 import { Link, useNavigate } from "react-router-dom";
 import MoreMenu from "./MoreMenu";
 import { Row } from "./AVProductCatalog";
 import ModeEditSharpIcon from "@mui/icons-material/ModeEditSharp";
 import KeyboardArrowUpSharpIcon from "@mui/icons-material/KeyboardArrowUpSharp";
 import KeyboardArrowDownSharpIcon from "@mui/icons-material/KeyboardArrowDownSharp";
-import { AuthContext } from "../../../common/contexts/authContext";
+import { AuthContext } from "../../../../../common/contexts/authContext";
 
 interface Props {
     row: Row;
@@ -26,7 +26,7 @@ interface Props {
     handleProductActivate: (productNo: string) => void;
     handleProductDiscontinue: (productNo: string) => void;
 }
-const AVTableRow: React.FC<Props> = ({
+const AVProductTableRow: React.FC<Props> = ({
     row,
     handleClick,
     index,
@@ -234,4 +234,4 @@ const AVTableRow: React.FC<Props> = ({
         </React.Fragment>
     );
 };
-export default AVTableRow;
+export default AVProductTableRow;

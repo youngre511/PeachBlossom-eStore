@@ -1,5 +1,5 @@
 import React from "react";
-import { AVProduct } from "../../features/Products/avProductTypes";
+import { AVProduct } from "../../features/Product/avProductTypes";
 import {
     TableCell,
     TableHead,

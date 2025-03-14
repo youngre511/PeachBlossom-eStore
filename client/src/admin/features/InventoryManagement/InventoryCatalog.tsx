@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 
 import AVCatalogHead from "./InventoryCatalogHead";
-import { AVProduct } from "../../features/Products/avProductTypes";
+import { AVProduct } from "../../features/Product/avProductTypes";
 
 import InventoryTableRow from "./InventoryTableRow";
 import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
@@ -53,7 +53,7 @@ const InventoryCatalog: React.FC<AVCatProps> = ({
     editable,
 }) => {
     const { products, numberOfResults, loading, error } = useAppSelector(
-        (state: RootState) => state.avCatalog
+        (state: RootState) => state.avProduct
     );
     const [order, setOrder] = React.useState<Order>("asc");
     const [orderBy, setOrderBy] = React.useState<keyof AVProduct>("name");

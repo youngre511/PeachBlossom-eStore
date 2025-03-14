@@ -1,12 +1,9 @@
 import React, { useContext, useRef } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import AVProductCatalog from "../../../features/Products/AVProductCatalog";
-import { AVFilters } from "../../../features/Products/avProductTypes";
-import {
-    avFetchProducts,
-    updateProductStatus,
-} from "../../../features/Products/avProductSlice";
+import AVProductCatalog from "../AVProductCatalog";
+import { AVFilters } from "../avProductTypes";
+import { avFetchProducts, updateProductStatus } from "../avProductSlice";
 import { arraysEqual } from "../../../../common/utils/arraysEqual";
 import { RootState } from "../../../store/store.js";
 import { useAppDispatch, useAppSelector } from "../../../hooks/reduxHooks";
@@ -22,7 +19,7 @@ import {
 } from "@mui/material";
 import "./product-management.css";
 import SearchField from "../../../../common/components/Fields/SearchField";
-import { AVCategory } from "../../../features/AVMenuData/avMenuDataTypes";
+import { AVCategory } from "../../AVMenuData/avMenuDataTypes";
 import { AuthContext } from "../../../../common/contexts/authContext";
 import { useNavigationContext } from "../../../../common/contexts/navContext";
 import { useWindowSizeContext } from "../../../../common/contexts/windowSizeContext";
@@ -36,7 +33,7 @@ const inputStyle = {
 interface Props {}
 const ProductManagement: React.FC<Props> = () => {
     const avMenuData = useAppSelector((state: RootState) => state.avMenuData);
-    const avCatalog = useAppSelector((state: RootState) => state.avCatalog);
+    const avProduct = useAppSelector((state: RootState) => state.avProduct);
     const [categorySelection, setCategorySelection] =
         useState<AVCategory | null>(null);
     const dispatch = useAppDispatch();
@@ -62,8 +59,8 @@ const ProductManagement: React.FC<Props> = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        setLoading(avCatalog.loading);
-    }, [avCatalog.loading]);
+        setLoading(avProduct.loading);
+    }, [avProduct.loading]);
 
     useEffect(() => {
         if (!loading && justLoaded) {
@@ -137,7 +134,7 @@ const ProductManagement: React.FC<Props> = () => {
                 value ? value.toString() : ""
             );
             const existingFilters = Object.values({
-                ...avCatalog.filters,
+                ...avProduct.filters,
             }).map((value) => (value ? value.toString() : ""));
             const filtersChanged = !arraysEqual(
                 currentFilters,
@@ -413,7 +410,7 @@ const ProductManagement: React.FC<Props> = () => {
             </div>
             <AVProductCatalog
                 page={+page}
-                results={avCatalog.numberOfResults}
+                results={avProduct.numberOfResults}
                 updateSearchParams={updateSearchParams}
                 handleProductActivate={handleProductActivate}
                 handleProductDiscontinue={handleProductDiscontinue}

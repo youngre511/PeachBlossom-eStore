@@ -1,7 +1,7 @@
 import React from "react";
 import { useEffect } from "react";
-import { useAppSelector } from "../../hooks/reduxHooks";
-import { RootState } from "../../store/store";
+import { useAppSelector } from "../../../../hooks/reduxHooks";
+import { RootState } from "../../../../store/store";
 import {
     Paper,
     Table,
@@ -15,10 +15,10 @@ import {
 
 import AVCatalogHead from "./AVCatalogHead";
 import AVProductTableToolbar from "./AVProductTableToolbar";
-import { AVProduct } from "./avProductTypes";
+import { AVProduct } from "../../avProductTypes";
 import { useNavigate, Link } from "react-router-dom";
-import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
-import AVTableRow from "./AVTableRow";
+import { useWindowSizeContext } from "../../../../../common/contexts/windowSizeContext";
+import AVTableRow from "./AVProductTableRow";
 
 interface AVCatProps {
     page: number;
@@ -56,9 +56,8 @@ const AVProductCatalog: React.FC<AVCatProps> = ({
     activateSelected,
 }) => {
     const { products, numberOfResults, loading, error } = useAppSelector(
-        (state: RootState) => state.avCatalog
+        (state: RootState) => state.avProduct
     );
-    const navigate = useNavigate();
     const [order, setOrder] = React.useState<Order>("asc");
     const [orderBy, setOrderBy] = React.useState<keyof AVProduct>("name");
     const [selected, setSelected] = React.useState<readonly string[]>([]);
@@ -161,11 +160,6 @@ const AVProductCatalog: React.FC<AVCatProps> = ({
                     }}
                 >
                     <Table
-                        sx={
-                            {
-                                // minWidth: width && width >= 600 ? 750 : undefined,
-                            }
-                        }
                         aria-labelledby="tableTitle"
                         size={"medium"}
                         stickyHeader
