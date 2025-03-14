@@ -13,8 +13,8 @@ import {
     avFetchSearchOptions,
 } from "./features/AVMenuData/avMenuDataSlice";
 import AVProductDetails from "./components/Products/AVProductDetails/AVProductDetails";
-import OrderManagement from "./components/OrderManagement/OrderManagement";
-import AVOrderDetails from "./components/AVOrderDetails/AVOrderDetails";
+import OrderManagement from "./features/AVOrders/OrderManagement/OrderManagement";
+import AVOrderDetails from "./features/AVOrders/AVOrderDetails/AVOrderDetails";
 import CategoryManagement from "./components/CategoryManagement/CategoryManagement";
 import AdminLogin from "./components/Login/AdminLogin";
 import ProtectedRoute from "../common/components/ProtectedRoute/ProtectedRoute";

@@ -1,19 +1,16 @@
 import React from "react";
 import { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import OrdersList from "./OrdersList";
+import OrdersList from "./components/OrdersList";
 
 import "./order-management.css";
-import OrderManagementFilters from "./OrderManagementFilters";
-import {
-    IAVOrderFilters,
-    IAVOrder,
-} from "../../features/AVOrders/avOrdersTypes";
-import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
-import { avFetchOrders } from "../../features/AVOrders/avOrdersSlice";
-import { RootState } from "../../store/store";
-import SearchField from "../../../common/components/Fields/SearchField";
-import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
+import OrderManagementFilters from "./components/OrderManagementFilters";
+import { IAVOrderFilters, IAVOrder } from "../avOrdersTypes";
+import { useAppDispatch, useAppSelector } from "../../../hooks/reduxHooks";
+import { avFetchOrders } from "../avOrdersSlice";
+import { RootState } from "../../../store/store";
+import SearchField from "../../../../common/components/Fields/SearchField";
+import { useWindowSizeContext } from "../../../../common/contexts/windowSizeContext";
 
 interface AVOrderResponse {
     totalCount: number;

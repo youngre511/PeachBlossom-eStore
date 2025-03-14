@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import React, { useState } from "react";
 
-import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
+import { useWindowSizeContext } from "../../../../../common/contexts/windowSizeContext";
 import { useNavigate } from "react-router-dom";
 
 import KeyboardArrowUpSharpIcon from "@mui/icons-material/KeyboardArrowUpSharp";

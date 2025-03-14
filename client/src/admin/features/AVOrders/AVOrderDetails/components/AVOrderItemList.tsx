@@ -3,8 +3,8 @@ import { Paper, Table, TableBody, TableContainer, Box } from "@mui/material";
 
 import AVOrderItemListHead from "./AVOrderItemListHead";
 import AVOrderItemListToolbar from "./AVOrderItemListToolbar";
-import { IAVOrderItem } from "../../features/AVOrders/avOrdersTypes";
 import AVOrderItemRow from "./AVOrderItemRow";
+import { IAVOrderItem } from "../../avOrdersTypes";
 
 interface AVCatProps {
     orderItems: IAVOrderItem[];

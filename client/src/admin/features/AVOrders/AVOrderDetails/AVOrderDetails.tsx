@@ -16,28 +16,25 @@ import {
 import axios, { AxiosError } from "axios";
 import "./av-order-details.css";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import BlankPopup from "../../../common/components/BlankPopup";
-import StatusPopup from "../../../common/components/StatusPopup";
-import {
-    IAVOrderItem,
-    IAVOrderDetails,
-} from "../../features/AVOrders/avOrdersTypes";
+import BlankPopup from "../../../../common/components/BlankPopup";
+import StatusPopup from "../../../../common/components/StatusPopup";
+import { IAVOrderItem, IAVOrderDetails } from "../avOrdersTypes";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import updateLocale from "dayjs/plugin/updateLocale";
 import { MuiTelInput } from "mui-tel-input";
-import AVOrderItemList from "./AVOrderItemList";
-import { SelectFieldNonFormik } from "../../../common/components/Fields/SelectFieldNonFormik";
-import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
-import { RootState } from "../../store/store";
-import { avFetchOrderDetails } from "../../features/AVOrders/avOrdersSlice";
-import { AuthContext } from "../../../common/contexts/authContext";
-import { useNavigationContext } from "../../../common/contexts/navContext";
-import { axiosLogAndSetState } from "../../../common/utils/axiosLogAndSetState";
+import AVOrderItemList from "./components/AVOrderItemList";
+import { SelectFieldNonFormik } from "../../../../common/components/Fields/SelectFieldNonFormik";
+import { useAppDispatch, useAppSelector } from "../../../hooks/reduxHooks";
+import { RootState } from "../../../store/store";
+import { avFetchOrderDetails } from "../avOrdersSlice";
+import { AuthContext } from "../../../../common/contexts/authContext";
+import { useNavigationContext } from "../../../../common/contexts/navContext";
+import { axiosLogAndSetState } from "../../../../common/utils/axiosLogAndSetState";
 import {
     adminFormInputStyle,
     adminReadOnlyStyle,
-} from "../../constants/formInputStyles";
+} from "../../../constants/formInputStyles";
 dayjs.extend(customParseFormat);
 dayjs.extend(updateLocale);
 dayjs.updateLocale("en", {

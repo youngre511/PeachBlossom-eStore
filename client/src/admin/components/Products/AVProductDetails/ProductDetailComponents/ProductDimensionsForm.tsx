@@ -2,8 +2,8 @@ import { Grid2 as Grid, InputAdornment, TextField } from "@mui/material";
 import React, { SetStateAction } from "react";
 import { useEffect } from "react";
 import {
-    inputStyle,
-    readOnlyStyle,
+    adminFormInputStyle,
+    adminReadOnlyStyle,
 } from "../../../../constants/formInputStyles";
 
 interface ProductDimensionsFormProps {
@@ -74,7 +74,7 @@ const ProductDimensionsForm: React.FC<ProductDimensionsFormProps> = ({
                             readOnly: editMode ? false : true,
                         },
                     }}
-                    sx={editMode ? inputStyle : readOnlyStyle}
+                    sx={editMode ? adminFormInputStyle : adminReadOnlyStyle}
                     value={height}
                     onChange={(e) => handleDecimalInput(e, setHeight)}
                     onBlur={(e) => handleDecimalBlur(e, setHeight)}
@@ -115,7 +115,7 @@ const ProductDimensionsForm: React.FC<ProductDimensionsFormProps> = ({
                             readOnly: editMode ? false : true,
                         },
                     }}
-                    sx={editMode ? inputStyle : readOnlyStyle}
+                    sx={editMode ? adminFormInputStyle : adminReadOnlyStyle}
                     value={width}
                     onChange={(e) => handleDecimalInput(e, setWidth)}
                     onBlur={(e) => handleDecimalBlur(e, setWidth)}
@@ -156,7 +156,7 @@ const ProductDimensionsForm: React.FC<ProductDimensionsFormProps> = ({
                             readOnly: editMode ? false : true,
                         },
                     }}
-                    sx={editMode ? inputStyle : readOnlyStyle}
+                    sx={editMode ? adminFormInputStyle : adminReadOnlyStyle}
                     value={depth}
                     onChange={(e) => handleDecimalInput(e, setDepth)}
                     onBlur={(e) => handleDecimalBlur(e, setDepth)}
@@ -194,7 +194,7 @@ const ProductDimensionsForm: React.FC<ProductDimensionsFormProps> = ({
                             readOnly: editMode ? false : true,
                         },
                     }}
-                    sx={editMode ? inputStyle : readOnlyStyle}
+                    sx={editMode ? adminFormInputStyle : adminReadOnlyStyle}
                     value={weight}
                     onChange={(e) => handleDecimalInput(e, setWeight)}
                     onBlur={(e) => handleDecimalBlur(e, setWeight)}

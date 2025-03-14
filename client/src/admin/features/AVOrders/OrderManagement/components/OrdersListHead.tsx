@@ -8,8 +8,8 @@ import {
 } from "@mui/material";
 import { visuallyHidden } from "@mui/utils";
 import { Order } from "./OrdersList";
-import { IAVOrder } from "../../features/AVOrders/avOrdersTypes";
-import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
+import { IAVOrder } from "../../avOrdersTypes";
+import { useWindowSizeContext } from "../../../../../common/contexts/windowSizeContext";
 
 interface HeadCell {
     disablePadding: boolean;

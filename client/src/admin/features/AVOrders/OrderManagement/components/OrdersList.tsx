@@ -13,10 +13,10 @@ import {
 } from "@mui/material";
 
 import OrdersListHead from "./OrdersListHead";
-import { IAVOrder } from "../../features/AVOrders/avOrdersTypes";
+import { IAVOrder } from "../../avOrdersTypes";
 import { useNavigate } from "react-router-dom";
 import OrderListRow from "./OrderListRow";
-import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
+import { useWindowSizeContext } from "../../../../../common/contexts/windowSizeContext";
 
 interface AVCatProps {
     page: number;
