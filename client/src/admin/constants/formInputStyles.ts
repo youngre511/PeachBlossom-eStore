@@ -1,15 +1,4 @@
-export const inputStyle = {
-    // backgroundColor: "white",
-    "&.MuiFilledInput-root": {
-        borderRadius: 0,
-        backgroundColor: "white",
-        "&.Mui-disabled": {
-            backgroundColor: "peach.light",
-        },
-    },
-    "&.MuiFilledInput-input": {
-        backgroundColor: "white",
-    },
+export const adminFormInputStyle = {
     "&.MuiInputBase-root": {
         backgroundColor: "white",
         "&.MuiFilledInput-root": {
@@ -19,23 +8,12 @@ export const inputStyle = {
             },
         },
     },
-    "& .MuiInputBase-input.MuiFilledInput-input:focus": {
-        backgroundColor: "white",
-    },
-    "& .MuiInputBase-root.MuiFilledInput-root.MuiFilledInput-underline.MuiInputBase-adornedStart":
-        {
-            backgroundColor: "white",
-        },
-    "& .MuiInputBase-root.MuiFilledInput-root.MuiFilledInput-underline.MuiInputBase-adornedEnd":
-        {
-            backgroundColor: "white",
-        },
     "& .MuiInputBase-root.MuiFilledInput-root": {
         backgroundColor: "white",
     },
 };
 
-export const readOnlyStyle = {
+export const adminReadOnlyStyle = {
     "& .MuiInputBase-root.MuiInput-root": {
         marginTop: 0,
         padding: 0,

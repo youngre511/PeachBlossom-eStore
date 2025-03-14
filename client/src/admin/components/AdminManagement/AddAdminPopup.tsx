@@ -8,7 +8,7 @@ import {
     TextField,
 } from "@mui/material";
 import React from "react";
-import { inputStyle } from "../Products/productInputStyles";
+import { adminFormInputStyle } from "../../constants/formInputStyles";
 
 interface Props {
     setAddingUser: React.Dispatch<React.SetStateAction<boolean>>;
@@ -61,7 +61,7 @@ const AddAdminPopup: React.FC<Props> = ({ setAddingUser, handleAddAdmin }) => {
                         label="Username"
                         name="username"
                         required={true}
-                        sx={inputStyle}
+                        sx={adminFormInputStyle}
                         slotProps={{
                             htmlInput: { sx: { backgroundColor: "white" } },
                         }}

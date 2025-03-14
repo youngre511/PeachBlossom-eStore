@@ -1,9 +1,11 @@
 import { Grid2 as Grid, InputAdornment, TextField } from "@mui/material";
 import React, { SetStateAction } from "react";
-import { useEffect } from "react";
-import { inputStyle, readOnlyStyle } from "../../productInputStyles";
 import { SelectFieldNonFormik } from "../../../../../common/components/Fields/SelectFieldNonFormik";
 import { colorOptions, materialOptions } from "../../avProductUtils";
+import {
+    adminFormInputStyle,
+    adminReadOnlyStyle,
+} from "../../../../constants/formInputStyles";
 
 interface ProductInfoFormProps {
     productName: string;
@@ -65,7 +67,7 @@ const ProductInfoForm: React.FC<ProductInfoFormProps> = ({
                         readOnly: editMode ? false : true,
                     },
                 }}
-                sx={editMode ? inputStyle : readOnlyStyle}
+                sx={editMode ? adminFormInputStyle : adminReadOnlyStyle}
                 value={productName}
                 onChange={(e) => setProductName(e.target.value)}
             />
@@ -91,7 +93,7 @@ const ProductInfoForm: React.FC<ProductInfoFormProps> = ({
                                 readOnly: true,
                             },
                         }}
-                        sx={editMode ? inputStyle : readOnlyStyle}
+                        sx={editMode ? adminFormInputStyle : adminReadOnlyStyle}
                         value={productNo}
                     />
                 </Grid>
@@ -121,7 +123,7 @@ const ProductInfoForm: React.FC<ProductInfoFormProps> = ({
                                 readOnly: editMode ? false : true,
                             },
                         }}
-                        sx={editMode ? inputStyle : readOnlyStyle}
+                        sx={editMode ? adminFormInputStyle : adminReadOnlyStyle}
                         value={price}
                         onChange={(e) => handleDecimalInput(e, setPrice)}
                         onBlur={(e) => handleDecimalBlur(e, setPrice)}
@@ -147,7 +149,7 @@ const ProductInfoForm: React.FC<ProductInfoFormProps> = ({
                         required={editMode ? true : false}
                         readOnly={editMode ? false : true}
                         options={categoryOptions}
-                        sx={editMode ? inputStyle : readOnlyStyle}
+                        sx={editMode ? adminFormInputStyle : adminReadOnlyStyle}
                         value={category}
                         setAction={setCategory}
                         variant={editMode ? "filled" : "standard"}
@@ -166,7 +168,7 @@ const ProductInfoForm: React.FC<ProductInfoFormProps> = ({
                         required={false}
                         options={subcategories}
                         readOnly={editMode ? false : true}
-                        sx={editMode ? inputStyle : readOnlyStyle}
+                        sx={editMode ? adminFormInputStyle : adminReadOnlyStyle}
                         value={
                             subcategories !== "disabled" && subcategory
                                 ? subcategory
@@ -196,7 +198,7 @@ const ProductInfoForm: React.FC<ProductInfoFormProps> = ({
                         multiple={false}
                         required={editMode ? true : false}
                         options={colorOptions}
-                        sx={editMode ? inputStyle : readOnlyStyle}
+                        sx={editMode ? adminFormInputStyle : adminReadOnlyStyle}
                         setAction={setColor}
                         value={color}
                         variant={editMode ? "filled" : "standard"}
@@ -215,7 +217,7 @@ const ProductInfoForm: React.FC<ProductInfoFormProps> = ({
                         multiple={true}
                         required={editMode ? true : false}
                         options={materialOptions}
-                        sx={editMode ? inputStyle : readOnlyStyle}
+                        sx={editMode ? adminFormInputStyle : adminReadOnlyStyle}
                         setMultipleAction={setMaterials}
                         value={materials}
                         variant={editMode ? "filled" : "standard"}

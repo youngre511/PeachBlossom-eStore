@@ -1,7 +1,10 @@
 import { Grid2 as Grid, InputAdornment, TextField } from "@mui/material";
 import React, { SetStateAction } from "react";
 import { useEffect } from "react";
-import { inputStyle, readOnlyStyle } from "../../productInputStyles";
+import {
+    inputStyle,
+    readOnlyStyle,
+} from "../../../../constants/formInputStyles";
 
 interface ProductDimensionsFormProps {
     weight: string;

@@ -5,34 +5,29 @@ import React, {
     SetStateAction,
     useContext,
 } from "react";
-import {
-    Grid2 as Grid,
-    Container,
-    InputAdornment,
-    TextField,
-    Box,
-    Button,
-} from "@mui/material";
+import { Grid2 as Grid, Container, TextField, Button } from "@mui/material";
 
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import "./av-product-details.css";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import ImageUploader from "../ImageUploader/ImageUploader";
 import { ImageListType } from "react-images-uploading";
 import { useAppDispatch, useAppSelector } from "../../../hooks/reduxHooks";
 import { RootState } from "../../../store/store";
 import { avFetchCategories } from "../../../features/AVMenuData/avMenuDataSlice";
-import { SelectFieldNonFormik } from "../../../../common/components/Fields/SelectFieldNonFormik";
 import BlankPopup from "../../../../common/components/BlankPopup";
 import StatusPopup from "../../../../common/components/StatusPopup";
 import { AuthContext } from "../../../../common/contexts/authContext";
 import { useNavigationContext } from "../../../../common/contexts/navContext";
 import { axiosLogAndSetState } from "../../../../common/utils/axiosLogAndSetState";
-import { inputStyle, readOnlyStyle } from "../productInputStyles";
 import ProductInfoForm from "./ProductDetailComponents/ProductInfoForm";
 import ProductDimensionsForm from "./ProductDetailComponents/ProductDimensionsForm";
 import ProductActionButtons from "./ProductDetailComponents/ProductActionButtons";
 import { constructProductFormData } from "../avProductUtils";
+import {
+    adminFormInputStyle,
+    adminReadOnlyStyle,
+} from "../../../constants/formInputStyles";
 
 ///////////////////
 ///////TYPES///////
@@ -425,7 +420,7 @@ const AVProductDetails: React.FC = () => {
                         multiline={true}
                         rows={5}
                         required={editMode ? true : false}
-                        sx={editMode ? inputStyle : readOnlyStyle}
+                        sx={editMode ? adminFormInputStyle : adminReadOnlyStyle}
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
                         slotProps={{

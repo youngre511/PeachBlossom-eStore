@@ -1,11 +1,10 @@
 import { Grid2 as Grid, InputAdornment } from "@mui/material";
 import React, { SetStateAction } from "react";
-import { useEffect } from "react";
 import { FormField } from "../../../../../common/components/Fields/FormField";
 import { SelectField } from "../../../../../common/components/Fields/SelectField";
 import { colorOptions, materialOptions } from "../../avProductUtils";
 import DynamicCategoryField from "./DynamicCategoryField";
-import { inputStyle } from "../../productInputStyles";
+import { adminFormInputStyle } from "../../../../constants/formInputStyles";
 import { useAppSelector } from "../../../../hooks/reduxHooks";
 import { RootState } from "../../../../store/store";
 
@@ -29,7 +28,7 @@ const AddProductInfoForm: React.FC<AddProductInfoFormProps> = ({
                 label="Product Name"
                 name="name"
                 required={true}
-                sx={inputStyle}
+                sx={adminFormInputStyle}
                 inputSx={{ backgroundColor: "white" }}
             />
 
@@ -45,7 +44,7 @@ const AddProductInfoForm: React.FC<AddProductInfoFormProps> = ({
                         name="prefix"
                         required={true}
                         pattern="^[a-zA-Z]{1,2}$"
-                        sx={inputStyle}
+                        sx={adminFormInputStyle}
                         inputSx={{ backgroundColor: "white" }}
                     />
                 </Grid>
@@ -74,7 +73,7 @@ const AddProductInfoForm: React.FC<AddProductInfoFormProps> = ({
                         }}
                         pattern="^\d*\.?\d{0,2}$"
                         inputMode="decimal"
-                        sx={inputStyle}
+                        sx={adminFormInputStyle}
                         inputSx={{
                             backgroundColor: "white !important",
                         }}
@@ -101,7 +100,7 @@ const AddProductInfoForm: React.FC<AddProductInfoFormProps> = ({
                         options={categoryOptions}
                         categories={categories}
                         setSubcategories={setSubcategories}
-                        sx={inputStyle}
+                        sx={adminFormInputStyle}
                     />
                 </Grid>
                 <Grid
@@ -116,7 +115,7 @@ const AddProductInfoForm: React.FC<AddProductInfoFormProps> = ({
                         multiple={false}
                         required={false}
                         options={subcategories}
-                        sx={inputStyle}
+                        sx={adminFormInputStyle}
                     />
                 </Grid>
             </Grid>
@@ -138,7 +137,7 @@ const AddProductInfoForm: React.FC<AddProductInfoFormProps> = ({
                         multiple={false}
                         required={true}
                         options={colorOptions}
-                        sx={inputStyle}
+                        sx={adminFormInputStyle}
                     />
                 </Grid>
                 <Grid
@@ -153,7 +152,7 @@ const AddProductInfoForm: React.FC<AddProductInfoFormProps> = ({
                         multiple={true}
                         required={true}
                         options={materialOptions}
-                        sx={inputStyle}
+                        sx={adminFormInputStyle}
                     />
                 </Grid>
             </Grid>

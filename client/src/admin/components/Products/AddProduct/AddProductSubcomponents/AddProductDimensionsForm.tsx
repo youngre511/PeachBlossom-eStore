@@ -1,7 +1,7 @@
 import React from "react";
 import { useEffect } from "react";
 import { FormField } from "../../../../../common/components/Fields/FormField";
-import { inputStyle } from "../../productInputStyles";
+import { adminFormInputStyle } from "../../../../constants/formInputStyles";
 import { Grid2 as Grid, InputAdornment } from "@mui/material";
 
 interface AddProductDimensionsFormProps {}
@@ -25,7 +25,7 @@ const AddProductDimensionsForm: React.FC<
                     required={true}
                     pattern="^\d*\.?\d{0,2}$"
                     inputMode="decimal"
-                    sx={inputStyle}
+                    sx={adminFormInputStyle}
                     inputSx={{
                         backgroundColor: "white !important",
                     }}
@@ -65,7 +65,7 @@ const AddProductDimensionsForm: React.FC<
                     required={true}
                     pattern="^\d*\.?\d{0,2}$"
                     inputMode="decimal"
-                    sx={inputStyle}
+                    sx={adminFormInputStyle}
                     inputSx={{
                         backgroundColor: "white !important",
                     }}
@@ -105,7 +105,7 @@ const AddProductDimensionsForm: React.FC<
                     required={true}
                     pattern="^\d*\.?\d{0,2}$"
                     inputMode="decimal"
-                    sx={inputStyle}
+                    sx={adminFormInputStyle}
                     inputSx={{
                         backgroundColor: "white !important",
                     }}
@@ -142,7 +142,7 @@ const AddProductDimensionsForm: React.FC<
                     required={true}
                     pattern="^\d*\.?\d{0,2}$"
                     inputMode="decimal"
-                    sx={inputStyle}
+                    sx={adminFormInputStyle}
                     inputSx={{
                         backgroundColor: "white !important",
                     }}

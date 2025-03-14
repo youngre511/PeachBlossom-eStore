@@ -13,7 +13,7 @@ import { useAppDispatch, useAppSelector } from "../../../hooks/reduxHooks";
 import { RootState } from "../../../store/store";
 import { avFetchCategories } from "../../../features/AVMenuData/avMenuDataSlice";
 import AddProductInfoForm from "./AddProductSubcomponents/AddProductInfoForm";
-import { inputStyle } from "../productInputStyles";
+import { adminFormInputStyle } from "../../../constants/formInputStyles";
 import AddProductDimensionsForm from "./AddProductSubcomponents/AddProductDimensionsForm";
 
 ///////////////////
@@ -225,7 +225,7 @@ const AddProduct: React.FC = () => {
                                 required={true}
                                 multiline={true}
                                 rows={5}
-                                sx={inputStyle}
+                                sx={adminFormInputStyle}
                                 inputSx={{
                                     backgroundColor: "white !important",
                                 }}
