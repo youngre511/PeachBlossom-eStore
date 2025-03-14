@@ -23,7 +23,7 @@ import {
     fetchTopProducts,
     fetchTOTData,
     generateExpirationTime,
-} from "./analyticsUtils";
+} from "./utils/analyticsUtils";
 
 const initialState: AnalyticsState = {
     revenueByCategory: {

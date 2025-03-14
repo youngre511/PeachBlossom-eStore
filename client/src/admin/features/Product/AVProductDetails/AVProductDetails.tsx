@@ -10,11 +10,11 @@ import { Grid2 as Grid, Container, TextField, Button } from "@mui/material";
 import axios from "axios";
 import "./av-product-details.css";
 import { useSearchParams } from "react-router-dom";
-import ImageUploader from "../ImageUploader/ImageUploader";
+import ImageUploader from "../../../components/ImageUploader/ImageUploader";
 import { ImageListType } from "react-images-uploading";
 import { useAppDispatch, useAppSelector } from "../../../hooks/reduxHooks";
 import { RootState } from "../../../store/store";
-import { avFetchCategories } from "../../AVMenuData/avMenuDataSlice";
+import { avFetchCategories } from "../../../store/AVMenuData/avMenuDataSlice";
 import BlankPopup from "../../../../common/components/BlankPopup";
 import StatusPopup from "../../../../common/components/StatusPopup";
 import { AuthContext } from "../../../../common/contexts/authContext";
@@ -23,7 +23,7 @@ import { axiosLogAndSetState } from "../../../../common/utils/axiosLogAndSetStat
 import ProductInfoForm from "./ProductDetailComponents/ProductInfoForm";
 import ProductDimensionsForm from "./ProductDetailComponents/ProductDimensionsForm";
 import ProductActionButtons from "./ProductDetailComponents/ProductActionButtons";
-import { constructProductFormData } from "../avProductUtils";
+import { constructProductFormData } from "./utils/avProductUtils";
 import {
     adminFormInputStyle,
     adminReadOnlyStyle,

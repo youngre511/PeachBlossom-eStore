@@ -1,7 +1,7 @@
 import React, { useContext, useRef } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import AVProductCatalog from "../AVProductCatalog";
+import AVProductCatalog from "./components/AVProductCatalog";
 import { AVFilters } from "../avProductTypes";
 import { avFetchProducts, updateProductStatus } from "../avProductSlice";
 import { arraysEqual } from "../../../../common/utils/arraysEqual";
@@ -19,7 +19,7 @@ import {
 } from "@mui/material";
 import "./product-management.css";
 import SearchField from "../../../../common/components/Fields/SearchField";
-import { AVCategory } from "../../AVMenuData/avMenuDataTypes";
+import { AVCategory } from "../../../store/AVMenuData/avMenuDataTypes";
 import { AuthContext } from "../../../../common/contexts/authContext";
 import { useNavigationContext } from "../../../../common/contexts/navContext";
 import { useWindowSizeContext } from "../../../../common/contexts/windowSizeContext";

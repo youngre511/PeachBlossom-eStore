@@ -1,7 +1,7 @@
 import { TextField } from "@mui/material";
 import React, { ComponentProps, useCallback } from "react";
 import { useEffect } from "react";
-import { AVCategory } from "../../../AVMenuData/avMenuDataTypes";
+import { AVCategory } from "../../../../store/AVMenuData/avMenuDataTypes";
 import { SelectField } from "../../../../../common/components/Fields/SelectField";
 import { useFormikContext } from "formik";
 import { Submission } from "../AddProduct";

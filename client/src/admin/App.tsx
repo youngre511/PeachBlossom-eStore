@@ -2,32 +2,32 @@ import React, { useEffect, useContext } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import { ThemeProvider } from "@mui/material/styles";
 import theme from "../common/utils/materialUITheme";
-import AdminNav from "./components/AdminNav/AdminNav";
-import ProductManagement from "./components/Products/ProductManagement/ProductManagement";
+import AdminNav from "./features/AdminNav/AdminNav";
+import ProductManagement from "./features/Product/ProductManagement/ProductManagement";
 // import "./style/admin-general.css";
-import AddProduct from "./components/Products/AddProduct/AddProduct";
-import InventoryManagement from "./components/InventoryManagement/InventoryManagement";
+import AddProduct from "./features/Product/AddProduct/AddProduct";
+import InventoryManagement from "./features/Product/InventoryManagement/InventoryManagement";
 import { useAppDispatch } from "./hooks/reduxHooks";
 import {
     avFetchCategories,
     avFetchSearchOptions,
-} from "./features/AVMenuData/avMenuDataSlice";
-import AVProductDetails from "./components/Products/AVProductDetails/AVProductDetails";
+} from "./store/AVMenuData/avMenuDataSlice";
+import AVProductDetails from "./features/Product/AVProductDetails/AVProductDetails";
 import OrderManagement from "./features/AVOrders/OrderManagement/OrderManagement";
 import AVOrderDetails from "./features/AVOrders/AVOrderDetails/AVOrderDetails";
-import CategoryManagement from "./components/CategoryManagement/CategoryManagement";
-import AdminLogin from "./components/Login/AdminLogin";
+import CategoryManagement from "./features/Product/CategoryManagement/CategoryManagement";
+import AdminLogin from "./features/Login/AdminLogin";
 import ProtectedRoute from "../common/components/ProtectedRoute/ProtectedRoute";
 import { AuthContext } from "../common/contexts/authContext";
-import Revenue from "./components/SalesAnalytics/Revenue/Revenue";
+import Revenue from "./features/Analytics/Revenue/Revenue";
 import HomeRedirect from "./components/HomeRedirect";
-import AdminManagement from "./components/AdminManagement/AdminManagement";
-import Dashboard from "./components/SalesAnalytics/Dashboard/Dashboard";
-import TransactionData from "./components/SalesAnalytics/TransactionData/TransactionData";
-import ProductPerformance from "./components/SalesAnalytics/Product Performance/ProductPerformance";
-import ChangePassword from "./components/ChangePassword/ChangePassword";
-import CustomerManagement from "./components/CustomerManagement/CustomerManagement";
-import CustomerOverview from "./components/Customer Overview/CustomerOverview";
+import AdminManagement from "./features/Users/AdminManagement/AdminManagement";
+import Dashboard from "./features/Analytics/Dashboard/Dashboard";
+import TransactionData from "./features/Analytics/TransactionData/TransactionData";
+import ProductPerformance from "./features/Analytics/Product Performance/ProductPerformance";
+import ChangePassword from "./features/ChangePassword/ChangePassword";
+import CustomerManagement from "./features/Users/CustomerManagement/CustomerManagement";
+import CustomerOverview from "./features/Users/Customer Overview/CustomerOverview";
 import Settings from "./components/Settings/Settings";
 function AdminApp() {
     const dispatch = useAppDispatch();

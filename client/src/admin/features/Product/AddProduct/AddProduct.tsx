@@ -7,11 +7,11 @@ import axios from "axios";
 import "./add-product.css";
 
 import { useNavigate } from "react-router-dom";
-import ImageUploader from "../ImageUploader/ImageUploader";
+import ImageUploader from "../../../components/ImageUploader/ImageUploader";
 import { ImageListType } from "react-images-uploading";
 import { useAppDispatch, useAppSelector } from "../../../hooks/reduxHooks";
 import { RootState } from "../../../store/store";
-import { avFetchCategories } from "../../AVMenuData/avMenuDataSlice";
+import { avFetchCategories } from "../../../store/AVMenuData/avMenuDataSlice";
 import AddProductInfoForm from "./AddProductSubcomponents/AddProductInfoForm";
 import { adminFormInputStyle } from "../../../constants/formInputStyles";
 import AddProductDimensionsForm from "./AddProductSubcomponents/AddProductDimensionsForm";

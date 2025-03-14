@@ -2,7 +2,10 @@ import { Grid2 as Grid, InputAdornment } from "@mui/material";
 import React, { SetStateAction } from "react";
 import { FormField } from "../../../../../common/components/Fields/FormField";
 import { SelectField } from "../../../../../common/components/Fields/SelectField";
-import { colorOptions, materialOptions } from "../../avProductUtils";
+import {
+    colorOptions,
+    materialOptions,
+} from "../../AVProductDetails/utils/avProductUtils";
 import DynamicCategoryField from "./DynamicCategoryField";
 import { adminFormInputStyle } from "../../../../constants/formInputStyles";
 import { useAppSelector } from "../../../../hooks/reduxHooks";
