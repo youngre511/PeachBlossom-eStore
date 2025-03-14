@@ -15,7 +15,7 @@ import {
 
 import AVCatalogHead from "./AVCatalogHead";
 import AVProductTableToolbar from "./AVProductTableToolbar";
-import { AVProduct } from "./avCatalogTypes";
+import { AVProduct } from "./avProductTypes";
 import { useNavigate, Link } from "react-router-dom";
 import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
 import AVTableRow from "./AVTableRow";

@@ -1,5 +1,5 @@
 import { configureStore } from "@reduxjs/toolkit";
-import avCatalogReducer from "../features/AVCatalog/avCatalogSlice";
+import avProductReducer from "../features/Products/avProductSlice";
 import avMenuDataReducer from "../features/AVMenuData/avMenuDataSlice";
 import avOrderReducer from "../features/AVOrders/avOrdersSlice";
 import userReducer from "../features/Users/userSlice";
@@ -7,7 +7,7 @@ import analyticsReducer from "../features/Analytics/analyticsSlice";
 
 export const adminStore = configureStore({
     reducer: {
-        avCatalog: avCatalogReducer,
+        avProduct: avProductReducer,
         avMenuData: avMenuDataReducer,
         avOrder: avOrderReducer,
         users: userReducer,

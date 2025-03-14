@@ -81,7 +81,7 @@ export interface AVFilters {
     itemsPerPage: string;
 }
 
-export interface AVCatalogState {
+export interface AVProductState {
     products: AVProduct[];
     numberOfResults: number;
     filters: AVFilters;

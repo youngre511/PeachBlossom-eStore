@@ -2,11 +2,11 @@ import React, { useContext } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
-import { AVFilters } from "../../features/AVCatalog/avCatalogTypes";
+import { AVFilters } from "../../features/Products/avProductTypes";
 import {
     avFetchProducts,
     updateInventory,
-} from "../../features/AVCatalog/avCatalogSlice";
+} from "../../features/Products/avProductSlice";
 import { arraysEqual } from "../../../common/utils/arraysEqual";
 import { RootState } from "../../store/store.js";
 import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";

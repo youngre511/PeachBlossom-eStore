@@ -1,12 +1,12 @@
 import React, { useContext, useRef } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import AVProductCatalog from "../../../features/AVCatalog/AVProductCatalog";
-import { AVFilters } from "../../../features/AVCatalog/avCatalogTypes";
+import AVProductCatalog from "../../../features/Products/AVProductCatalog";
+import { AVFilters } from "../../../features/Products/avProductTypes";
 import {
     avFetchProducts,
     updateProductStatus,
-} from "../../../features/AVCatalog/avCatalogSlice";
+} from "../../../features/Products/avProductSlice";
 import { arraysEqual } from "../../../../common/utils/arraysEqual";
 import { RootState } from "../../../store/store.js";
 import { useAppDispatch, useAppSelector } from "../../../hooks/reduxHooks";

@@ -4,14 +4,13 @@ import axios from "axios";
 import {
     AVProduct,
     AVFilters,
-    AVCatalogState,
+    AVProductState,
     AVFetchProductsResponse,
     AVUpdateInventoryResponse,
-} from "./avCatalogTypes";
+} from "./avProductTypes";
 import { arraysEqual } from "../../../common/utils/arraysEqual";
-import { useNavigate } from "react-router-dom";
 
-const initialState: AVCatalogState = {
+const initialState: AVProductState = {
     products: [],
     numberOfResults: 0,
     filters: {
@@ -35,10 +34,10 @@ export const avFetchProducts = createAsyncThunk<
     { filters: AVFilters; force?: boolean },
     { state: RootState }
 >(
-    "avCatalog/avFetchProducts",
+    "avProduct/avFetchProducts",
     async ({ filters, force = false }, { getState, rejectWithValue }) => {
         const state = getState() as RootState;
-        const existingFilters = state.avCatalog.filters;
+        const existingFilters = state.avProduct.filters;
         let filterUnchanged = true;
 
         if (!filters.sort) {
@@ -49,7 +48,7 @@ export const avFetchProducts = createAsyncThunk<
         }
 
         const keys = Object.keys(filters) as Array<keyof AVFilters>;
-        if (existingFilters && state.avCatalog.products.length > 0) {
+        if (existingFilters && state.avProduct.products.length > 0) {
             for (let key of keys) {
                 const currentValue = filters[key];
                 const existingValue = existingFilters[key];
@@ -73,8 +72,8 @@ export const avFetchProducts = createAsyncThunk<
         if (filterUnchanged && !force) {
             return {
                 filters,
-                products: state.avCatalog.products,
-                numberOfResults: state.avCatalog.numberOfResults,
+                products: state.avProduct.products,
+                numberOfResults: state.avProduct.numberOfResults,
             };
         }
 
@@ -109,13 +108,13 @@ export const updateInventory = createAsyncThunk<
     Record<string, number>,
     { state: RootState }
 >(
-    "avCatalog/updateInventory",
+    "avProduct/updateInventory",
     async (
         updateData: Record<string, number>,
         { getState, rejectWithValue }
     ) => {
         const state = getState() as RootState;
-        const filters = state.avCatalog.filters;
+        const filters = state.avProduct.filters;
         const token = localStorage.getItem("jwtToken"); // Get the token from local storage
         try {
             const response = await axios.put(
@@ -147,13 +146,13 @@ export const updateProductStatus = createAsyncThunk<
     { productNos: string[]; newStatus: string },
     { state: RootState }
 >(
-    "avCatalog/updateProductStatus",
+    "avProduct/updateProductStatus",
     async (
         updateData: { productNos: string[]; newStatus: string },
         { getState, rejectWithValue }
     ) => {
         const state = getState() as RootState;
-        const filters = state.avCatalog.filters;
+        const filters = state.avProduct.filters;
         const token = localStorage.getItem("jwtToken"); // Get the token from local storage
         try {
             const response = await axios.put(
@@ -178,8 +177,8 @@ export const updateProductStatus = createAsyncThunk<
 );
 
 //Slice//
-const catalogSlice = createSlice({
-    name: "avCatalog",
+const productSlice = createSlice({
+    name: "avProduct",
     initialState,
     reducers: {
         setProducts: (state, action: PayloadAction<AVProduct[]>) => {
@@ -248,5 +247,5 @@ const catalogSlice = createSlice({
     },
 });
 
-export const { setFilters, setProducts } = catalogSlice.actions;
-export default catalogSlice.reducer;
+export const { setFilters, setProducts } = productSlice.actions;
+export default productSlice.reducer;

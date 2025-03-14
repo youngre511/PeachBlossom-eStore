@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 
 import AVCatalogHead from "./InventoryCatalogHead";
-import { AVProduct } from "../../features/AVCatalog/avCatalogTypes";
+import { AVProduct } from "../../features/Products/avProductTypes";
 
 import InventoryTableRow from "./InventoryTableRow";
 import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
