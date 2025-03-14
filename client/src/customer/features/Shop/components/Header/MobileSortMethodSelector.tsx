@@ -1,6 +1,6 @@
-import React, { SetStateAction, useState } from "react";
+import React, { useState } from "react";
 import SwapVertSharpIcon from "@mui/icons-material/SwapVertSharp";
-import { ShopSortOrder } from "../Shop";
+import { ShopSortOrder } from "../../Shop";
 
 interface MobileSortMethodSelectorProps {
     sort: ShopSortOrder;
@@ -15,6 +15,7 @@ const MobileSortMethodSelector: React.FC<MobileSortMethodSelectorProps> = ({
         backgroundColor: "var(--deep-peach)",
         color: "white",
     };
+
     return (
         <React.Fragment>
             <button

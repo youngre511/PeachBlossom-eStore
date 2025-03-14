@@ -5,13 +5,13 @@ import { RootState } from "../../store/customerStore";
 import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
 import ProductCatalog from "./components/ProductCatalog";
 import FilterOptions from "../../features/FilterOptions/FilterOptions";
-import SortMethodSelector from "./components/SortMethodSelector";
-import ItemsPerPageSelector from "./components/ItemsPerPageSelector";
+import SortMethodSelector from "./components/Header/SortMethodSelector";
+import ItemsPerPageSelector from "./components/Header/ItemsPerPageSelector";
 import FilterAltSharpIcon from "@mui/icons-material/FilterAltSharp";
 import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
 import PageSelector from "../../components/PageSelector/PageSelector";
-import ShopHeader from "./components/ShopHeader";
-import MobileSortMethodSelector from "./components/MobileSortMethodSelector";
+import ShopHeader from "./components/Header/ShopHeader";
+import MobileSortMethodSelector from "./components/Header/MobileSortMethodSelector";
 import useShopFilterDrawerAnimation from "./hooks/useShopFilterDrawerAnimation";
 import useShopLogic from "./hooks/useShopLogic";
 

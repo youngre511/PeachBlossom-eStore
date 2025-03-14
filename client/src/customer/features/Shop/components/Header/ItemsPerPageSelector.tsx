@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { InputLabel, Select, SelectChangeEvent, MenuItem } from "@mui/material";
-import { useAppDispatch, useAppSelector } from "../../../hooks/reduxHooks";
-import { RootState } from "../../../store/customerStore";
-import { setItemsPerPage } from "../../../store/userData/userDataSlice";
+import { useAppDispatch, useAppSelector } from "../../../../hooks/reduxHooks";
+import { RootState } from "../../../../store/customerStore";
+import { setItemsPerPage } from "../../../../store/userData/userDataSlice";
 
 const inputStyle = {
     "&.MuiInputBase-root": {
