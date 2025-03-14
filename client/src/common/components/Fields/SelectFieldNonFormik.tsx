@@ -9,21 +9,21 @@ import {
     ListItemText,
 } from "@mui/material";
 
-export type SelectFieldProps = {
+interface SelectFieldProps<T = string> {
     label: string;
     name: string;
     multiple: boolean;
     options: string[] | "disabled";
     required: boolean;
     sx?: ComponentProps<typeof TextField>["sx"];
-    setAction?: React.Dispatch<SetStateAction<string>>;
+    setAction?: React.Dispatch<SetStateAction<T>>;
     setMultipleAction?: React.Dispatch<SetStateAction<string[]>>;
     value: string[] | string;
     readOnly: boolean;
     variant: "filled" | "outlined" | "standard" | undefined;
     someOptionsDisabled?: boolean;
     optionsToStayEnabled?: string[];
-};
+}
 
 const itemHeight = 48;
 const itemPaddingTop = 8;
@@ -36,7 +36,8 @@ const MenuProps = {
     },
 };
 
-export const SelectFieldNonFormik: React.FC<SelectFieldProps> = ({
+// prettier-ignore
+export const SelectFieldNonFormik = <T=string>({
     label,
     name,
     multiple,
@@ -50,7 +51,7 @@ export const SelectFieldNonFormik: React.FC<SelectFieldProps> = ({
     variant,
     someOptionsDisabled = false,
     optionsToStayEnabled,
-}) => {
+}: SelectFieldProps<T>): JSX.Element => {
     return (
         <Box>
             <Select
@@ -73,7 +74,7 @@ export const SelectFieldNonFormik: React.FC<SelectFieldProps> = ({
                         setMultipleAction(e.target.value);
                     }
                     if (!Array.isArray(e.target.value) && setAction) {
-                        setAction(e.target.value);
+                        setAction(e.target.value as T);
                     }
                 }}
                 inputProps={{
