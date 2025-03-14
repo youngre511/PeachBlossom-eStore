@@ -8,7 +8,7 @@ import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import "./admin-nav.css";
 import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
-import NavDrawerContents from "./NavDrawerContents";
+import NavDrawerContents from "./components/NavDrawerContents";
 
 export const drawerWidth = 240;
 

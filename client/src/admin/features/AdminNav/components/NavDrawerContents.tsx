@@ -1,34 +1,21 @@
 /// <reference types="vite-plugin-svgr/client" />
 
 import React, { useContext } from "react";
-import DashboardIcon from "../../../assets/img/dashboard.svg?react";
-import CustomerIcon from "../../../assets/img/customers.svg?react";
-import ProductsIcon from "../../../assets/img/products.svg?react";
-import InventoryIcon from "../../../assets/img/inventory.svg?react";
-import OrdersIcon from "../../../assets/img/orders.svg?react";
-import AdminIcon from "../../../assets/img/admin.svg?react";
-import SettingsIcon from "../../../assets/img/settings.svg?react";
-import { useWindowSizeContext } from "../../../common/contexts/windowSizeContext";
-import {
-    Accordion,
-    AccordionDetails,
-    AccordionSummary,
-    Divider,
-    List,
-    ListItem,
-    ListItemButton,
-    ListItemIcon,
-    ListItemText,
-    Toolbar,
-    Typography,
-} from "@mui/material";
-import ExpandMoreIconSharp from "@mui/icons-material/ExpandMoreSharp";
+import DashboardIcon from "../../../../assets/img/dashboard.svg?react";
+import CustomerIcon from "../../../../assets/img/customers.svg?react";
+import ProductsIcon from "../../../../assets/img/products.svg?react";
+import InventoryIcon from "../../../../assets/img/inventory.svg?react";
+import OrdersIcon from "../../../../assets/img/orders.svg?react";
+import AdminIcon from "../../../../assets/img/admin.svg?react";
+import SettingsIcon from "../../../../assets/img/settings.svg?react";
+import { useWindowSizeContext } from "../../../../common/contexts/windowSizeContext";
+import { Divider, List, Toolbar, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import OpenInNewSharpIcon from "@mui/icons-material/OpenInNewSharp";
 import StorefrontSharpIcon from "@mui/icons-material/StorefrontSharp";
 import { Button } from "@mui/material";
 import { Box } from "@mui/material";
-import { AuthContext } from "../../../common/contexts/authContext";
+import { AuthContext } from "../../../../common/contexts/authContext";
 import AdminNavSubitem from "./AdminNavSubitem";
 import AdminNavExpandable from "./AdminNavExpandable";
 import AdminNavItem from "./AdminNavItem";
