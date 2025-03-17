@@ -1,10 +1,9 @@
 import React from "react";
-import { useEffect } from "react";
-import { CustomerAddress } from "../../../customer/features/UserData/UserDataTypes";
 import { FormControlLabel, Radio } from "@mui/material";
 import PhoneEnabledSharpIcon from "@mui/icons-material/PhoneEnabledSharp";
 import "./customer-address-box.css";
 import GoldButton from "../../../common/components/GoldButton";
+import { CustomerAddress } from "../../store/userData/UserDataTypes";
 
 interface CustomerAddressBoxProps {
     address: CustomerAddress;

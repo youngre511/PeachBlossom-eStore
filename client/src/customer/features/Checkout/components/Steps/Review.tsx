@@ -10,7 +10,7 @@ import ListItemText from "@mui/material/ListItemText";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import { CartState } from "../../../Cart/CartTypes";
-import { PaymentDetails } from "../../Checkout";
+import { PaymentDetails } from "../../checkoutTypes";
 import { ShippingDetails } from "../../../../store/userData/UserDataTypes";
 
 const FormGrid = styled(Grid)(() => ({

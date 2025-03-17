@@ -4,10 +4,8 @@ import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import CardActionArea from "@mui/material/CardActionArea";
 import CardContent from "@mui/material/CardContent";
-import FormControl from "@mui/material/FormControl";
 import FormLabel from "@mui/material/FormLabel";
 import OutlinedInput from "@mui/material/OutlinedInput";
-import RadioGroup from "@mui/material/RadioGroup";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 
@@ -16,7 +14,7 @@ import AccountBalanceRounded from "@mui/icons-material/AccountBalanceRounded";
 import SimCardRoundedIcon from "@mui/icons-material/SimCardRounded";
 
 import { styled } from "@mui/system";
-import { PaymentDetails } from "../../Checkout";
+import { PaymentDetails } from "../../checkoutTypes";
 import useExpirationFormatter from "../../hooks/useExpirationFormatter";
 import usePaymentFormValidation from "../../hooks/usePaymentFormValidation";
 
