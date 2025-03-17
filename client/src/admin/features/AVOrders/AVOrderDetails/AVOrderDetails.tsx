@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Grid2 as Grid, Container, Button } from "@mui/material";
+import { Grid2 as Grid, Container } from "@mui/material";
 import "./av-order-details.css";
 import { useSearchParams } from "react-router-dom";
-import BlankPopup from "../../../../common/components/BlankPopup";
 import StatusPopup from "../../../../common/components/StatusPopup";
 import { IAVOrderItem, IAVOrderDetails } from "../avOrdersTypes";
 import AVOrderItemList from "./components/AVOrderITemList/AVOrderItemList";
@@ -29,38 +28,68 @@ const AVOrderDetails: React.FC = () => {
         (state: RootState) => state.avOrder.orderDetails
     );
     const dispatch = useAppDispatch();
+
+    // Local states
+    const [city, setCity] = useState<string>("");
     const [currentDetails, setCurrentDetails] =
         useState<IAVOrderDetails | null>(null);
+    const [email, setEmail] = useState<string>("");
+    const [emailHelperText, setEmailHelperText] = useState<string>("");
+    const [error, setError] = useState<null | string>(null);
+    const [isConfirming, setIsConfirming] = useState<boolean>(false);
+    const [isSaving, setIsSaving] = useState<boolean>(false);
+    const [items, setItems] = useState<IAVOrderItem[]>([]);
+    const [loading, setLoading] = useState<boolean>(false);
+    const [phone, setPhone] = useState<string>("");
+    const [shipping, setShipping] = useState<string>("");
     const [shippingAddress1, setShippingAddress1] = useState<string>("");
     const [shippingAddress2, setShippingAddress2] = useState<string>("");
     const [state, setState] = useState<string>("");
-    const [city, setCity] = useState<string>("");
-    const [zipCode, setZipCode] = useState<string>("");
-    const [email, setEmail] = useState<string>("");
-    const [phone, setPhone] = useState<string>("");
-    const [subTotal, setSubTotal] = useState<string>("");
-    const [shipping, setShipping] = useState<string>("");
-    const [tax, setTax] = useState<string>("");
-    const [total, setTotal] = useState<string>("");
-    const [items, setItems] = useState<IAVOrderItem[]>([]);
-    const [loading, setLoading] = useState<boolean>(false);
-    const [isSaving, setIsSaving] = useState<boolean>(false);
-    const [isConfirming, setIsConfirming] = useState<boolean>(false);
     const [status, setStatus] = useState<"loading" | "success" | "failure">(
         "loading"
     );
+    const [subTotal, setSubTotal] = useState<string>("");
+    const [tax, setTax] = useState<string>("");
+    const [total, setTotal] = useState<string>("");
+    const [zipCode, setZipCode] = useState<string>("");
 
-    const [emailHelperText, setEmailHelperText] = useState<string>("");
-    const [error, setError] = useState<null | string>(null);
-
+    // Custom hook invocations
     const { orderStatus, setOrderStatus, notReadyToShip, someBackOrdered } =
         useManageOrderStatusSync({ items });
-
-    useEffect(() => {
-        if (orderNo) {
-            dispatch(avFetchOrderDetails({ orderNo, force: true }));
-        }
-    }, [orderNo]);
+    const { handleShippingInput, handleShippingBlur, handleEmailBlur } =
+        useOrderEventHandlers({
+            shipping,
+            setShipping,
+            tax,
+            setTax,
+            setTotal,
+            setEmailHelperText,
+            subTotal,
+        });
+    const { handleSave } = useSaveOrder({
+        city,
+        currentDetails,
+        email,
+        items,
+        orderNo,
+        orderStatus,
+        setOrderStatus,
+        phone,
+        searchParams,
+        setSearchParams,
+        setError,
+        setIsConfirming,
+        setIsSaving,
+        setStatus,
+        shipping,
+        shippingAddress1,
+        shippingAddress2,
+        state,
+        subTotal,
+        tax,
+        total,
+        zipCode,
+    });
 
     const toggleEditMode = (state: "on" | "off") => {
         if (state === "on") {
@@ -72,6 +101,15 @@ const AVOrderDetails: React.FC = () => {
         }
     };
 
+    // If an order number exists in searchParams (which it always should), dispatch a fetch request for order details.
+
+    useEffect(() => {
+        if (orderNo) {
+            dispatch(avFetchOrderDetails({ orderNo, force: true }));
+        }
+    }, [orderNo]);
+
+    // Once slice updates with fetched order details, update local states.
     useEffect(() => {
         if (avOrderDetails) {
             const orderDetails: IAVOrderDetails = avOrderDetails.details;
@@ -104,17 +142,40 @@ const AVOrderDetails: React.FC = () => {
         }
     }, [avOrderDetails]);
 
-    const { handleShippingInput, handleShippingBlur, handleEmailBlur } =
-        useOrderEventHandlers({
-            shipping,
-            setShipping,
-            tax,
-            setTax,
-            setTotal,
-            setEmailHelperText,
-            subTotal,
-        });
+    // When user changes order status to cancelled, set order total and related values to 0 and set every order item to cancelled.
+    useEffect(() => {
+        if (orderStatus === "cancelled") {
+            let newItemArray = [...items];
+            for (const item of newItemArray) {
+                item.fulfillmentStatus = "cancelled";
+            }
+            setItems(newItemArray);
+            setSubTotal("0.00");
+            setTax("0.00");
+            setShipping("0.00");
+            setTotal("0.00");
+        } else {
+            // When user changes order status from cancelled to something else, recalculate order total and related values based on currently non-cancelled items.
+            let subT = 0;
+            for (const item of items) {
+                if (item.fulfillmentStatus !== "cancelled") {
+                    subT += +item.priceWhenOrdered * +item.quantity;
+                }
+            }
+            setSubTotal(subT.toFixed(2));
+            if (subT !== 0) {
+                setShipping("9.99");
+                setTax(((subT + 9.99) * 0.06).toFixed(2));
+                setTotal(((subT + 9.99) * 1.06).toFixed(2));
+            } else {
+                setShipping("0.00");
+                setTax("0.00");
+                setTotal("0.00");
+            }
+        }
+    }, [orderStatus]);
 
+    // Update subtotal and recalculate tax and new total.
     const handleSetSubtotal = (newSubtotal: number) => {
         setSubTotal(newSubtotal.toFixed(2));
         const newTax = ((newSubtotal + +shipping) * 0.06).toFixed(2);
@@ -122,31 +183,8 @@ const AVOrderDetails: React.FC = () => {
         setTotal((newSubtotal + +shipping + +newTax).toFixed(2));
     };
 
-    const { handleSave } = useSaveOrder({
-        city,
-        currentDetails,
-        email,
-        items,
-        orderNo,
-        orderStatus,
-        setOrderStatus,
-        phone,
-        searchParams,
-        setSearchParams,
-        setError,
-        setIsConfirming,
-        setIsSaving,
-        setStatus,
-        shipping,
-        shippingAddress1,
-        shippingAddress2,
-        state,
-        subTotal,
-        tax,
-        total,
-        zipCode,
-    });
-
+    // When exiting edit mode without saving (cancel changes), reset all values to those currently stored in slice.
+    // If those values have been erased from the slice for any reason, dispatch a fetch call to re-retrieve order details, which will trigger the useEffect above that updates local values.
     const handleCancel = () => {
         if (currentDetails) {
             setState(currentDetails.stateAbbr);
@@ -171,37 +209,6 @@ const AVOrderDetails: React.FC = () => {
         searchParams.delete("editing");
         setSearchParams(searchParams);
     };
-
-    useEffect(() => {
-        if (orderStatus === "cancelled") {
-            let newItemArray = [...items];
-            for (const item of newItemArray) {
-                item.fulfillmentStatus = "cancelled";
-            }
-            setItems(newItemArray);
-            setSubTotal("0.00");
-            setTax("0.00");
-            setShipping("0.00");
-            setTotal("0.00");
-        } else {
-            let subT = 0;
-            for (const item of items) {
-                if (item.fulfillmentStatus !== "cancelled") {
-                    subT += +item.priceWhenOrdered * +item.quantity;
-                }
-            }
-            setSubTotal(subT.toFixed(2));
-            if (subT !== 0) {
-                setShipping("9.99");
-                setTax(((subT + 9.99) * 0.06).toFixed(2));
-                setTotal(((subT + 9.99) * 1.06).toFixed(2));
-            } else {
-                setShipping("0.00");
-                setTax("0.00");
-                setTotal("0.00");
-            }
-        }
-    }, [orderStatus]);
 
     return (
         <React.Fragment>
